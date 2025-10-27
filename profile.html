@@ -24,6 +24,32 @@
             margin-bottom: 30px;
             text-align: center;
         }
+        .code-box {
+            background: #f7fafc;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 25px;
+            text-align: center;
+        }
+        .code-label {
+            color: #4a5568;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+        .code-display {
+            font-size: 28px;
+            font-weight: bold;
+            color: #667eea;
+            letter-spacing: 3px;
+        }
+        .copy-btn {
+            margin-top: 10px;
+            width: auto;
+            padding: 8px 20px;
+            font-size: 14px;
+            background: #e2e8f0;
+            color: #4a5568;
+        }
         .form-group {
             margin-bottom: 20px;
         }
@@ -73,6 +99,10 @@
             margin-top: 20px;
             display: none;
         }
+        .success a {
+            color: white;
+            text-decoration: underline;
+        }
         .error {
             background: #f56565;
             color: white;
@@ -97,6 +127,19 @@
         
         <div id="mainContent" style="display:none;">
             <h1>🎯 Mon Profil MeeTempo</h1>
+            
+            <!-- Affichage Code -->
+            <div class="code-box">
+                <div class="code-label">
+                    🔑 Votre code MeeTempo
+                </div>
+                <div class="code-display" id="codeDisplay">
+                    ------
+                </div>
+                <button type="button" onclick="copyCode()" class="copy-btn">
+                    📋 Copier le code
+                </button>
+            </div>
             
             <form id="profileForm">
                 <div class="form-group">
@@ -198,6 +241,12 @@
                 const response = await fetch(`${API_BASE}/profile?user_id=${userId}`);
                 const data = await response.json();
                 
+                // Afficher le code
+                if (data.code) {
+                    document.getElementById('codeDisplay').textContent = data.code;
+                }
+                
+                // Pré-remplir profil
                 if (data.profile) {
                     document.getElementById('name').value = data.profile.name || '';
                     document.getElementById('city').value = data.profile.city || '';
@@ -245,6 +294,18 @@
                 submitBtn.textContent = '💾 Réessayer';
             }
         });
+        
+        // Copier le code
+        function copyCode() {
+            const code = document.getElementById('codeDisplay').textContent;
+            if (code !== '------') {
+                navigator.clipboard.writeText(code).then(() => {
+                    alert('✅ Code copié: ' + code);
+                }).catch(() => {
+                    alert('Code: ' + code);
+                });
+            }
+        }
         
         // Lancer au chargement
         init();
