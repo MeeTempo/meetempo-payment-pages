@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mon Profil - MeeTempo</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 40px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        h1 {
+            color: #1a202c;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #4a5568;
+            font-weight: 600;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 10px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 30px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        button:hover {
+            transform: translateY(-2px);
+        }
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        .success {
+            background: #48bb78;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+        .error {
+            background: #f56565;
+            color: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #667eea;
+        }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div id="loading" class="loading">
+            ⏳ Chargement de votre profil...
+        </div>
+        
+        <div id="mainContent" style="display:none;">
+            <h1>🎯 Mon Profil MeeTempo</h1>
+            
+            <form id="profileForm">
+                <div class="form-group">
+                    <label for="name">Prénom & Nom *</label>
+                    <input type="text" id="name" required placeholder="Djamel Benali">
+                </div>
+                
+                <div class="form-group">
+                    <label for="city">Ville *</label>
+                    <input type="text" id="city" required placeholder="Paris">
+                </div>
+                
+                <div class="form-group">
+                    <label for="role">Rôle *</label>
+                    <select id="role" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="entrepreneur">Entrepreneur</option>
+                        <option value="chercheur">Chercheur</option>
+                        <option value="influenceur">Influenceur</option>
+                        <option value="cadre">Cadre</option>
+                        <option value="investisseur">Investisseur</option>
+                        <option value="autre">Autre</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bio">Bio (optionnel)</label>
+                    <input type="text" id="bio" placeholder="Passionné de tennis et networking...">
+                </div>
+                
+                <button type="submit" id="submitBtn">
+                    💾 Enregistrer mon profil
+                </button>
+            </form>
+            
+            <div class="success" id="successMsg">
+                ✅ Profil enregistré avec succès!<br><br>
+                <a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19">
+                    ← Retour à MeeTempo GPT
+                </a>
+            </div>
+            
+            <div class="error" id="errorMsg">
+                ❌ Erreur lors de l'enregistrement. Réessayez.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://api.meetempo.com';
+        let userId = null;
+        
+        // Initialisation
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const directUserId = urlParams.get('user_id');
+            
+            // Si code fourni → lookup user_id
+            if (code) {
+                try {
+                    const response = await fetch(`${API_BASE}/user/by-code?code=${code}`);
+                    const data = await response.json();
+                    if (data.user_id) {
+                        userId = data.user_id;
+                        // Stocker pour prochaine fois
+                        localStorage.setItem('meetempo_user_id', userId);
+                    } else {
+                        throw new Error('Code invalide');
+                    }
+                } catch (err) {
+                    document.getElementById('loading').innerHTML = '❌ Code invalide';
+                    return;
+                }
+            } else if (directUserId) {
+                userId = directUserId;
+                localStorage.setItem('meetempo_user_id', userId);
+            } else {
+                // Essayer localStorage
+                userId = localStorage.getItem('meetempo_user_id');
+                if (!userId) {
+                    document.getElementById('loading').innerHTML = 
+                        '❌ Aucun code fourni.<br><br>Utilisez le lien depuis MeeTempo GPT.';
+                    return;
+                }
+            }
+            
+            // Charger profil
+            await loadProfile();
+            
+            // Afficher form
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
+        }
+        
+        // Charger profil existant
+        async function loadProfile() {
+            try {
+                const response = await fetch(`${API_BASE}/profile?user_id=${userId}`);
+                const data = await response.json();
+                
+                if (data.profile) {
+                    document.getElementById('name').value = data.profile.name || '';
+                    document.getElementById('city').value = data.profile.city || '';
+                    document.getElementById('role').value = data.profile.role || '';
+                    document.getElementById('bio').value = data.profile.bio || '';
+                }
+            } catch (err) {
+                console.log('Nouveau profil');
+            }
+        }
+        
+        // Sauvegarder profil (GET version)
+        document.getElementById('profileForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const successMsg = document.getElementById('successMsg');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Enregistrement...';
+            
+            const params = new URLSearchParams({
+                user_id: userId,
+                name: document.getElementById('name').value,
+                city: document.getElementById('city').value,
+                role: document.getElementById('role').value,
+                bio: document.getElementById('bio').value || ''
+            });
+            
+            try {
+                const response = await fetch(`${API_BASE}/profile/update?${params}`);
+                
+                if (response.ok) {
+                    successMsg.style.display = 'block';
+                    errorMsg.style.display = 'none';
+                    submitBtn.textContent = '✅ Enregistré!';
+                } else {
+                    throw new Error('API error');
+                }
+            } catch (err) {
+                errorMsg.style.display = 'block';
+                successMsg.style.display = 'none';
+                submitBtn.disabled = false;
+                submitBtn.textContent = '💾 Réessayer';
+            }
+        });
+        
+        // Lancer au chargement
+        init();
+    </script>
+</body>
+</html>
