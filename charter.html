@@ -289,25 +289,49 @@
   }
 
   async function accept(lang){
-    const chk = lang==='fr'? chkFr : chkEn;
-    const state = lang==='fr'? stateFr : stateEn;
-    const btn = lang==='fr'? btnAccFr : btnAccEn;
-    if(!chk.checked){ state.classList.remove('hidden','ok','err'); state.classList.add('err'); state.textContent = lang==='fr'?"Cochez la case pour accepter.":"Please tick the checkbox to accept."; return; }
-    btn.disabled = true; state.classList.remove('hidden','ok','err'); state.textContent = lang==='fr'?"Enregistrement...":"Saving...";
-    try{
-      const r = await j(`/consent/accept`, { method:"POST", body: JSON.stringify({ token }) });
-      if(r && r.success){
-        state.classList.add('ok'); state.textContent = lang==='fr'?"Charte acceptée.":"Charter accepted.";
-        setTimeout(()=>location.href = returnUrl || GPT_URL_FALLBACK, 500);
-      }else{
-        state.classList.add('err'); state.textContent = lang==='fr'?"Erreur d’enregistrement.":"Save error.";
-        btn.disabled = false;
-      }
-    }catch{
-      state.classList.add('err'); state.textContent = lang==='fr'?"Erreur réseau.":"Network error.";
+  const chk = lang==='fr'? chkFr : chkEn;
+  const state = lang==='fr'? stateFr : stateEn;
+  const btn = lang==='fr'? btnAccFr : btnAccEn;
+  
+  if(!chk.checked){ 
+    state.classList.remove('hidden','ok','err'); 
+    state.classList.add('err'); 
+    state.textContent = lang==='fr'?"Cochez la case pour accepter.":"Please tick the checkbox to accept."; 
+    return; 
+  }
+  
+  btn.disabled = true; 
+  state.classList.remove('hidden','ok','err'); 
+  state.textContent = lang==='fr'?"Enregistrement...":"Saving...";
+  
+  try{
+    const response = await fetch(`${API_BASE}/consent/accept`, {
+      method: "POST",
+      headers: { 
+        "Content-Type": "application/json",
+        "X-Meetempo-Client": "charter"
+      },
+      body: JSON.stringify({ token })
+    });
+    
+    const r = await response.json();
+    
+    if(response.ok && r.success){
+      state.classList.add('ok'); 
+      state.textContent = lang==='fr'?"✅ Charte acceptée.":"✅ Charter accepted.";
+      setTimeout(()=>location.href = returnUrl || GPT_URL_FALLBACK, 800);
+    } else {
+      state.classList.add('err'); 
+      state.textContent = lang==='fr'?`❌ Erreur: ${r.error || 'inconnue'}`:`❌ Error: ${r.error || 'unknown'}`;
       btn.disabled = false;
     }
+  } catch(err) {
+    console.error('Accept error:', err);
+    state.classList.add('err'); 
+    state.textContent = lang==='fr'?`❌ Erreur réseau: ${err.message}`:`❌ Network error: ${err.message}`;
+    btn.disabled = false;
   }
+}
 
   btnAccFr.onclick = ()=>accept('fr');
   btnAccEn.onclick = ()=>accept('en');
