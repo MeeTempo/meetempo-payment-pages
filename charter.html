@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Charte d’usage – MeeTempo</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --mt-dark:#030E4F;
+      --mt-accent:#F49F1C;
+      --mt-bg:#0a133f;
+      --mt-card:#0e184f;
+      --mt-text:#ffffff;
+      --mt-muted:#c9d1ff;
+      --ok:#23c55e;
+      --err:#ef4444;
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;padding:0;background:linear-gradient(160deg,#030E4F 0%,#0a133f 60%,#11183f 100%);color:var(--mt-text);font-family:Montserrat,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif}
+    .wrap{max-width:900px;margin:32px auto;padding:16px}
+    .logo{display:flex;gap:12px;align-items:center;margin-bottom:16px}
+    .logo-badge{width:40px;height:40px;border-radius:999px;background:conic-gradient(from 0deg,var(--mt-accent),#ffca63,var(--mt-accent));display:grid;place-items:center;color:#111;font-weight:800}
+    .card{background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);backdrop-filter: blur(6px);border-radius:16px;padding:24px}
+    h1{font-size:26px;margin:8px 0 4px}
+    h2{font-size:18px;margin:24px 0 12px;color:#e8ecff}
+    p,li{line-height:1.6;color:#ebefff}
+    small, .muted{color:var(--mt-muted)}
+    .lang{display:flex;gap:8px;margin:8px 0 16px}
+    .lang button{background:transparent;border:1px solid rgba(255,255,255,.25);color:var(--mt-text);padding:8px 12px;border-radius:10px;cursor:pointer}
+    .lang button.active{border-color:var(--mt-accent);box-shadow:0 0 0 2px rgba(244,159,28,.25) inset}
+    .sections{display:grid;gap:14px}
+    .section{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:16px}
+    .actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:18px}
+    .btn{border:none;border-radius:12px;padding:12px 16px;font-weight:700;cursor:pointer}
+    .btn-primary{background:var(--mt-accent);color:#111}
+    .btn-ghost{background:transparent;border:1px solid rgba(255,255,255,.25);color:var(--mt-text)}
+    .state{margin-top:12px;font-weight:600}
+    .state.ok{color:var(--ok)}
+    .state.err{color:var(--err)}
+    .check{display:flex;gap:10px;align-items:flex-start;margin-top:10px}
+    .check input{margin-top:4px;transform:scale(1.1)}
+    .footer{margin-top:18px;font-size:12px}
+    a{color:#ffd68a}
+    .divider{height:1px;background:rgba(255,255,255,.12);margin:16px 0}
+    .hidden{display:none}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="logo">
+      <div class="logo-badge">MT</div>
+      <div>
+        <div class="muted">MeeTempo</div>
+        <strong>Charte d’usage & éthique</strong>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="lang">
+        <button id="btn-fr" class="active" aria-pressed="true">FR</button>
+        <button id="btn-en" aria-pressed="false">EN</button>
+      </div>
+
+      <!-- FR -->
+      <div id="content-fr">
+        <h1>Charte d’usage MeeTempo</h1>
+        <div class="sections">
+          <div class="section">
+            <h2>1. Valeurs</h2>
+            <p>MeeTempo favorise des connexions responsables entre professionnels, créateurs, voyageurs et passionnés. Respect, authenticité, sécurité et confidentialité priment.</p>
+            <ul>
+              <li>Rencontres <strong>non</strong> orientées vers des rendez-vous intimes ou “osés”.</li>
+              <li>Interdits : harcèlement, discrimination, comportements illégaux, détournements.</li>
+            </ul>
+          </div>
+          <div class="section">
+            <h2>2. Accès & authentification</h2>
+            <p>Accès via <strong>code à 6 chiffres</strong> + vérification e-mail. Les liens d’édition utilisent des <strong>tokens temporaires</strong>. Votre <code>user_id</code> n’est jamais exposé publiquement.</p>
+          </div>
+          <div class="section">
+            <h2>3. Données & confidentialité</h2>
+            <ul>
+              <li>Collecte minimale (profil, préférences, localisation approximative).</li>
+              <li>Pas de vente de données. Partages limités et conformes.</li>
+              <li>Droit d’accès/suppression sur demande.</li>
+            </ul>
+          </div>
+          <div class="section">
+            <h2>4. Suggestions & modération</h2>
+            <ul>
+              <li>Suggestions orientées activités, pro, social. Contenu “rencontres osées” refusé.</li>
+              <li><strong>Deux tentatives</strong> inappropriées → suspension possible.</li>
+              <li>Signalement discret disponible. Analyses comportementales pour prévenir les abus.</li>
+            </ul>
+          </div>
+          <div class="section">
+            <h2>5. Comportement attendu</h2>
+            <ul>
+              <li>Informations exactes et à jour.</li>
+              <li>Respect du consentement et des préférences.</li>
+              <li>Signalement des abus via l’outil prévu.</li>
+            </ul>
+          </div>
+          <div class="section">
+            <h2>6. Sécurité</h2>
+            <ul>
+              <li>Code + e-mail + token court-vécu.</li>
+              <li>Journalisation minimale des actions sensibles.</li>
+              <li>Rate-limit et protections anti-bruteforce.</li>
+            </ul>
+          </div>
+          <div class="section">
+            <h2>7. Limites</h2>
+            <p>Les rencontres ont lieu sous votre responsabilité. MeeTempo décline toute responsabilité pour les interactions privées et leurs conséquences.</p>
+          </div>
+          <div class="section">
+            <h2>8. Évolution de la charte</h2>
+            <p>Cette charte peut évoluer. Toute modification significative sera notifiée. L’usage continu vaut acceptation.</p>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <label class="check">
+          <input type="checkbox" id="chk-accept-fr">
+          <span>J’ai lu et j’accepte la charte MeeTempo.</span>
+        </label>
+        <div class="actions">
+          <button class="btn btn-primary" id="btn-accept-fr">Accepter</button>
+          <button class="btn btn-ghost" id="btn-back-fr">Retour</button>
+        </div>
+        <div id="state-fr" class="state hidden"></div>
+
+        <div class="footer muted">
+          <p>Vie privée : aucune donnée sensible n’est visible publiquement sans consentement. Les tokens sont temporaires afin de limiter l’accès non autorisé.</p>
+        </div>
+      </div>
+
+      <!-- EN -->
+      <div id="content-en" class="hidden" lang="en">
+        <h1>MeeTempo Usage Charter</h1>
+        <div class="sections">
+          <div class="section">
+            <h2>1. Values</h2>
+            <p>MeeTempo enables responsible connections among professionals, creators, travelers and enthusiasts. Respect, authenticity, safety and privacy first.</p>
+            <ul>
+              <li>No features for intimate or “adult” meetups.</li>
+              <li>Prohibited: harassment, discrimination, illegal or abusive behavior.</li>
+            </ul>
+          </div>
+          <div class="section">
+            <h2>2. Access & Authentication</h2>
+            <p>Access requires a <strong>6-digit code</strong> plus e-mail verification. Edit links use <strong>short-lived tokens</strong>. Your <code>user_id</code> is never exposed publicly.</p>
+          </div>
+          <div class="section">
+            <h2>3. Data & Privacy</h2>
+            <ul>
+              <li>Minimal data (profile, preferences, approximate location).</li>
+              <li>No data selling. Limited, compliant sharing.</li>
+              <li>Right to access/delete upon request.</li>
+            </ul>
+          </div>
+          <div class="section">
+            <h2>4. Suggestions & Moderation</h2>
+            <ul>
+              <li>Suggestions are activity/pro/social oriented. “Adult/explicit” content is rejected.</li>
+              <li><strong>Two attempts</strong> at inappropriate use may lead to suspension.</li>
+              <li>Discrete reporting is available. Behavioral checks help prevent abuse.</li>
+            </ul>
+          </div>
+          <div class="section">
+            <h2>5. Expected Conduct</h2>
+            <ul>
+              <li>Accurate, up-to-date information.</li>
+              <li>Respect consent and preferences.</li>
+              <li>Report abuse via the provided tool.</li>
+            </ul>
+          </div>
+          <div class="section">
+            <h2>6. Security</h2>
+            <ul>
+              <li>Code + e-mail + short-lived token.</li>
+              <li>Minimal logging of sensitive actions.</li>
+              <li>Rate-limit and anti-bruteforce protections.</li>
+            </ul>
+          </div>
+          <div class="section">
+            <h2>7. Limits</h2>
+            <p>In-person meetups happen under your sole responsibility. MeeTempo is not liable for private interactions and consequences.</p>
+          </div>
+          <div class="section">
+            <h2>8. Changes</h2>
+            <p>This charter may evolve. Significant changes will be notified. Continued use means acceptance.</p>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+
+        <label class="check">
+          <input type="checkbox" id="chk-accept-en">
+          <span>I have read and accept the MeeTempo charter.</span>
+        </label>
+        <div class="actions">
+          <button class="btn btn-primary" id="btn-accept-en">Accept</button>
+          <button class="btn btn-ghost" id="btn-back-en">Back</button>
+        </div>
+        <div id="state-en" class="state hidden"></div>
+
+        <div class="footer muted">
+          <p>Privacy: no sensitive data is publicly visible without consent. Short-lived tokens limit unauthorized access.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Params
+    const qs = new URLSearchParams(location.search);
+    const token = qs.get("token") || "";
+    const returnUrl = qs.get("return_url") || "";
+
+    // Lang toggle
+    const frBtn = document.getElementById("btn-fr");
+    const enBtn = document.getElementById("btn-en");
+    const fr = document.getElementById("content-fr");
+    const en = document.getElementById("content-en");
+    frBtn.onclick = () => { fr.classList.remove("hidden"); en.classList.add("hidden"); frBtn.classList.add("active"); enBtn.classList.remove("active"); };
+    enBtn.onclick = () => { en.classList.remove("hidden"); fr.classList.add("hidden"); enBtn.classList.add("active"); frBtn.classList.remove("active"); };
+
+    // Helpers
+    const api = (path, opt={}) =>
+      fetch(`https://api.meetempo.com${path}`, opt).then(r => r.json());
+
+    function setState(el, ok, msg){
+      el.classList.remove("hidden","ok","err");
+      el.classList.add(ok?"ok":"err");
+      el.textContent = msg;
+    }
+
+    // Load consent status (optional endpoint)
+    async function loadStatus() {
+      try {
+        if (!token) return;
+        const res = await api(`/consent/status?token=${encodeURIComponent(token)}`);
+        const accepted = !!res.accepted;
+        document.getElementById("chk-accept-fr").checked = accepted;
+        document.getElementById("chk-accept-en").checked = accepted;
+      } catch {}
+    }
+
+    // Accept handlers
+    async function accept(lang){
+      const checkId = lang==="fr" ? "chk-accept-fr" : "chk-accept-en";
+      const stateId = lang==="fr" ? "state-fr" : "state-en";
+      const stateEl = document.getElementById(stateId);
+      const checked = document.getElementById(checkId).checked;
+      if (!checked) return setState(stateEl,false, lang==="fr" ? "Cochez la case pour accepter." : "Please tick the checkbox to accept.");
+
+      if (!token) return setState(stateEl,false, lang==="fr" ? "Token manquant." : "Missing token.");
+
+      try {
+        const res = await api(`/consent/accept`, {
+          method:"POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify({ token })
+        });
+        if (res && res.success){
+          setState(stateEl,true, lang==="fr" ? "Charte acceptée." : "Charter accepted.");
+          if (returnUrl) setTimeout(()=>location.href=returnUrl, 500);
+        } else {
+          setState(stateEl,false, lang==="fr" ? "Erreur d’enregistrement." : "Save error.");
+        }
+      } catch (e){
+        setState(stateEl,false, lang==="fr" ? "Erreur réseau." : "Network error.");
+      }
+    }
+
+    document.getElementById("btn-accept-fr").onclick = ()=>accept("fr");
+    document.getElementById("btn-accept-en").onclick = ()=>accept("en");
+    document.getElementById("btn-back-fr").onclick = ()=> returnUrl ? location.href=returnUrl : history.back();
+    document.getElementById("btn-back-en").onclick = ()=> returnUrl ? location.href=returnUrl : history.back();
+
+    loadStatus();
+  </script>
+</body>
+</html>
