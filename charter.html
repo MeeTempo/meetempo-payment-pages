@@ -250,9 +250,9 @@
 
   // API helper
   const j = (p,opt={}) => fetch(`${API_BASE}${p}`, {
-    ...opt,
-    headers: { "Content-Type":"application/json", "X-Meetempo-Client":"charter", ...(opt.headers||{}) }
-  }).then(r=>r.json());
+  ...opt,
+  headers: { "Content-Type":"application/json", ...(opt.headers||{}) }
+}).then(r=>r.json());
 
   function showDenied(msgFr, msgEn){
     stateFr.classList.remove('hidden'); stateEn.classList.remove('hidden');
@@ -306,13 +306,12 @@
   
   try{
     const response = await fetch(`${API_BASE}/consent/accept`, {
-      method: "POST",
-      headers: { 
-        "Content-Type": "application/json",
-        "X-Meetempo-Client": "charter"
-      },
-      body: JSON.stringify({ token })
-    });
+  method: "POST",
+  headers: { 
+    "Content-Type": "application/json"
+  },
+  body: JSON.stringify({ token })
+});
     
     const r = await response.json();
     
