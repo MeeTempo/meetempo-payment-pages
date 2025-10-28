@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carte MeeTempers - MeeTempo</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <!-- HERE Maps -->
+  <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-ui.js"></script>
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-mapevents.js"></script>
+  <script src="https://js.api.here.com/v3/3.1/mapsjs-clustering.js"></script>
+  
+  <style>
+    :root {
+      --mt-dark: #030E4F;
+      --mt-accent: #F49F1C;
+      --mt-bg: #0a133f;
+      --mt-card: #0e184f;
+      --mt-text: #ffffff;
+      --mt-muted: #c9d1ff;
+      --ok: #23c55e;
+      --err: #ef4444;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Montserrat, system-ui, -apple-system, sans-serif;
+      background: var(--mt-bg);
+      color: var(--mt-text);
+      overflow: hidden;
+      height: 100vh;
+    }
+    
+    /* Top Bar */
+    .top-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+      z-index: 1000;
+    }
+    
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .logo-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-weight: 800;
+      font-size: 14px;
+    }
+    
+    .top-bar h1 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      font-size: 14px;
+    }
+    
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.1);
+      padding: 6px 12px;
+      border-radius: 20px;
+    }
+    
+    /* Map Container */
+    #map {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      bottom: 200px;
+      width: 100%;
+    }
+    
+    /* Bottom Sheet */
+    .bottom-sheet {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      box-shadow: 0 -4px 30px rgba(0,0,0,0.4);
+      z-index: 999;
+      overflow: hidden;
+    }
+    
+    .sheet-handle {
+      width: 40px;
+      height: 4px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 2px;
+      margin: 12px auto;
+    }
+    
+    .sheet-content {
+      padding: 0 20px 20px;
+      overflow-y: auto;
+      height: calc(100% - 28px);
+    }
+    
+    .users-grid {
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+    
+    .users-grid::-webkit-scrollbar {
+      height: 6px;
+    }
+    
+    .users-grid::-webkit-scrollbar-track {
+      background: rgba(255,255,255,0.05);
+      border-radius: 3px;
+    }
+    
+    .users-grid::-webkit-scrollbar-thumb {
+      background: var(--mt-accent);
+      border-radius: 3px;
+    }
+    
+    .user-card {
+      min-width: 280px;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(6px);
+      border-radius: 16px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .user-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(244,159,28,0.3);
+      border-color: var(--mt-accent);
+    }
+    
+    .user-card.active {
+      border-color: var(--mt-accent);
+      box-shadow: 0 0 0 2px rgba(244,159,28,0.3);
+    }
+    
+    .user-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    
+    .user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-weight: 700;
+      font-size: 16px;
+    }
+    
+    .user-info h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    
+    .user-distance {
+      font-size: 12px;
+      color: var(--mt-muted);
+    }
+    
+    .user-suggestion {
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #ebefff;
+      line-height: 1.4;
+    }
+    
+    .user-location {
+      font-size: 13px;
+      color: var(--mt-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    
+    .user-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    
+    .btn-primary {
+      background: var(--mt-accent);
+      color: #111;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(244,159,28,0.4);
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: var(--mt-text);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    /* Loading */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    
+    .spinner {
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: var(--mt-accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 20px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .loading-text {
+      font-size: 16px;
+      color: var(--mt-muted);
+    }
+    
+    /* Error */
+    .error-screen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      z-index: 2000;
+    }
+    
+    .error-screen.show {
+      display: flex;
+    }
+    
+    .error-content {
+      max-width: 400px;
+    }
+    
+    .error-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    
+    .error-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    .error-message {
+      font-size: 16px;
+      color: var(--mt-muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    
+    /* Responsive */
+    @media (max-width: 640px) {
+      .top-bar {
+        height: 56px;
+        padding: 0 16px;
+      }
+      
+      .top-bar h1 {
+        font-size: 16px;
+      }
+      
+      .stats {
+        gap: 12px;
+        font-size: 13px;
+      }
+      
+      .stat-item {
+        padding: 5px 10px;
+      }
+      
+      #map {
+        top: 56px;
+        bottom: 180px;
+      }
+      
+      .bottom-sheet {
+        height: 180px;
+      }
+      
+      .user-card {
+        min-width: 260px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Loading Screen -->
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <div class="loading-text">Chargement de la carte...</div>
+  </div>
+  
+  <!-- Error Screen -->
+  <div id="errorScreen" class="error-screen">
+    <div class="error-content">
+      <div class="error-icon">❌</div>
+      <h2 class="error-title">Accès non autorisé</h2>
+      <p class="error-message" id="errorMessage">Session expirée ou invalide</p>
+      <button class="btn btn-primary" onclick="window.location.href='https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19'">
+        Retour à MeeTempo
+      </button>
+    </div>
+  </div>
+  
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="logo-section">
+      <div class="logo-badge">MT</div>
+      <h1>🗺 Carte MeeTempers</h1>
+    </div>
+    <div class="stats">
+      <div class="stat-item">
+        <span>📍</span>
+        <span id="locationText">Paris</span>
+      </div>
+      <div class="stat-item">
+        <span>👥</span>
+        <span id="userCount">0</span>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Map -->
+  <div id="map"></div>
+  
+  <!-- Bottom Sheet -->
+  <div class="bottom-sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-content">
+      <div class="users-grid" id="usersGrid">
+        <!-- User cards dynamically inserted -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://api.meetempo.com';
+    const HERE_API_KEY = 'YOUR_HERE_API_KEY'; // TODO: Remplacer par ta clé
+    
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+    
+    let map;
+    let ui;
+    let currentLocation = { lat: 48.8566, lng: 2.3522 }; // Paris par défaut
+    let markers = [];
+    let usersData = [];
+    
+    // Init
+    async function init() {
+      if (!token) {
+        showError('Token manquant', 'Utilisez le lien depuis MeeTempo GPT');
+        return;
+      }
+      
+      // Valider session
+      try {
+        const response = await fetch(`${API_BASE}/auth/session?token=${token}`);
+        if (!response.ok) throw new Error('Session invalide');
+        
+        const data = await response.json();
+        if (!data.user_id) throw new Error('User ID manquant');
+        
+        sessionStorage.setItem('meetempo_token', token);
+        
+      } catch (err) {
+        showError('Session expirée', 'Veuillez obtenir un nouveau lien depuis MeeTempo GPT');
+        return;
+      }
+      
+      // Obtenir position utilisateur
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+          position => {
+            currentLocation = {
+              lat: position.coords.latitude,
+              lng: position.coords.longitude
+            };
+            initMap();
+          },
+          error => {
+            console.log('Geolocation error, using Paris default');
+            initMap();
+          }
+        );
+      } else {
+        initMap();
+      }
+    }
+    
+    // Initialize HERE Map
+    function initMap() {
+      const platform = new H.service.Platform({
+        apikey: HERE_API_KEY
+      });
+      
+      const defaultLayers = platform.createDefaultLayers();
+      
+      map = new H.Map(
+        document.getElementById('map'),
+        defaultLayers.vector.normal.map,
+        {
+          center: currentLocation,
+          zoom: 13,
+          pixelRatio: window.devicePixelRatio || 1
+        }
+      );
+      
+      // Enable map interactions
+      const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+      ui = H.ui.UI.createDefault(map, defaultLayers);
+      
+      // Add user position marker (blue)
+      const userIcon = new H.map.Icon(
+        '<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="8" fill="#3B82F6" stroke="white" stroke-width="3"/></svg>',
+        { size: { w: 32, h: 32 } }
+      );
+      
+      const userMarker = new H.map.Marker(currentLocation, { icon: userIcon });
+      map.addObject(userMarker);
+      
+      // Load nearby users
+      loadNearbyUsers();
+    }
+    
+    // Load nearby users from API
+    async function loadNearbyUsers() {
+      try {
+        const response = await fetch(
+          `${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=10`
+        );
+        
+        if (!response.ok) throw new Error('Failed to load users');
+        
+        const data = await response.json();
+        usersData = data.users || [];
+        
+        // Update UI
+        document.getElementById('userCount').textContent = usersData.length;
+        
+        // Add markers
+        addMarkersToMap(usersData);
+        
+        // Populate bottom sheet
+        populateUserCards(usersData);
+        
+        // Hide loading
+        document.getElementById('loading').style.display = 'none';
+        
+      } catch (err) {
+        console.error('Error loading users:', err);
+        showError('Erreur chargement', 'Impossible de charger les MeeTempers à proximité');
+      }
+    }
+    
+    // Add markers to map
+    function addMarkersToMap(users) {
+      // Clear existing markers
+      markers.forEach(m => map.removeObject(m));
+      markers = [];
+      
+      users.forEach((user, index) => {
+        // Create custom icon (orange)
+        const markerIcon = new H.map.Icon(
+          '<svg width="36" height="36" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="10" fill="#F49F1C" stroke="white" stroke-width="3"/></svg>',
+          { size: { w: 36, h: 36 } }
+        );
+        
+        const marker = new H.map.Marker(user.location, { icon: markerIcon });
+        marker.setData({ userId: user.id, index });
+        
+        // Add tooltip
+        marker.addEventListener('tap', function(evt) {
+          const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
+            content: `
+              <div style="padding: 8px; font-family: Montserrat, sans-serif;">
+                <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">
+                  ${user.pseudo}
+                </div>
+                <div style="font-size: 13px; margin-bottom: 4px;">
+                  ${user.latest_suggestion}
+                </div>
+                <div style="font-size: 12px; color: #666;">
+                  📍 ${user.city}
+                </div>
+              </div>
+            `
+          });
+          ui.addBubble(bubble);
+          
+          // Highlight card
+          highlightUserCard(index);
+        });
+        
+        map.addObject(marker);
+        markers.push(marker);
+      });
+    }
+    
+    // Populate user cards in bottom sheet
+    function populateUserCards(users) {
+      const grid = document.getElementById('usersGrid');
+      grid.innerHTML = '';
+      
+      if (users.length === 0) {
+        grid.innerHTML = '<div style="padding: 20px; color: var(--mt-muted); text-align: center; width: 100%;">Aucun MeeTemper à proximité pour le moment</div>';
+        return;
+      }
+      
+      users.forEach((user, index) => {
+        const card = document.createElement('div');
+        card.className = 'user-card';
+        card.dataset.index = index;
+        
+        const initials = user.pseudo.substring(0, 2).toUpperCase();
+        
+        card.innerHTML = `
+          <div class="user-header">
+            <div class="user-avatar">${initials}</div>
+            <div class="user-info">
+              <h3>${user.pseudo}</h3>
+              <div class="user-distance">${user.distance ? user.distance + ' km' : 'À proximité'}</div>
+            </div>
+          </div>
+          <div class="user-suggestion">${user.latest_suggestion}</div>
+          <div class="user-location">📍 ${user.city}</div>
+          <div class="user-actions">
+            <button class="btn btn-primary" onclick="contactUser('${user.id}')">💬 Contacter</button>
+            <button class="btn btn-secondary" onclick="viewProfile('${user.id}')">👀 Profil</button>
+          </div>
+        `;
+        
+        card.onclick = function() {
+          centerOnMarker(index);
+        };
+        
+        grid.appendChild(card);
+      });
+    }
+    
+    // Highlight user card
+    function highlightUserCard(index) {
+      document.querySelectorAll('.user-card').forEach(c => c.classList.remove('active'));
+      const card = document.querySelector(`.user-card[data-index="${index}"]`);
+      if (card) {
+        card.classList.add('active');
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+    
+    // Center map on marker
+    function centerOnMarker(index) {
+      if (usersData[index]) {
+        map.setCenter(usersData[index].location);
+        map.setZoom(15);
+        highlightUserCard(index);
+        
+        // Simulate marker tap
+        if (markers[index]) {
+          markers[index].dispatchEvent('tap');
+        }
+      }
+    }
+    
+    // Contact user
+    function contactUser(userId) {
+      alert(`Fonctionnalité "Contacter" à venir!\nUser ID: ${userId}`);
+      // TODO: Implémenter messagerie
+    }
+    
+    // View profile
+    function viewProfile(userId) {
+      alert(`Fonctionnalité "Profil" à venir!\nUser ID: ${userId}`);
+      // TODO: Ouvrir page profil utilisateur
+    }
+    
+    // Show error
+    function showError(title, message) {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('errorMessage').textContent = message;
+      document.querySelector('.error-title').textContent = title;
+      document.getElementById('errorScreen').classList.add('show');
+    }
+    
+    // Start
+    init();
+  </script>
+</body>
+</html>
