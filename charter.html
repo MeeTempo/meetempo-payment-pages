@@ -216,73 +216,110 @@
   </div>
 
   <script>
-    // Params
-    const qs = new URLSearchParams(location.search);
-    const token = qs.get("token") || "";
-    const returnUrl = qs.get("return_url") || "";
+  const API_BASE = 'https://api.meetempo.com';
+  const params = new URLSearchParams(location.search);
+  const token = params.get('token') || '';
+  const returnUrl = params.get('return_url') || 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+  const langParam = (params.get('lang') || 'fr').toLowerCase();
+  const GPT_URL_FALLBACK = returnUrl;
 
-    // Lang toggle
-    const frBtn = document.getElementById("btn-fr");
-    const enBtn = document.getElementById("btn-en");
-    const fr = document.getElementById("content-fr");
-    const en = document.getElementById("content-en");
-    frBtn.onclick = () => { fr.classList.remove("hidden"); en.classList.add("hidden"); frBtn.classList.add("active"); enBtn.classList.remove("active"); };
-    enBtn.onclick = () => { en.classList.remove("hidden"); fr.classList.add("hidden"); enBtn.classList.add("active"); frBtn.classList.remove("active"); };
+  // UI refs
+  const frBtn = document.getElementById("btn-fr");
+  const enBtn = document.getElementById("btn-en");
+  const fr = document.getElementById("content-fr");
+  const en = document.getElementById("content-en");
+  const chkFr = document.getElementById("chk-accept-fr");
+  const chkEn = document.getElementById("chk-accept-en");
+  const stateFr = document.getElementById("state-fr");
+  const stateEn = document.getElementById("state-en");
+  const btnAccFr = document.getElementById("btn-accept-fr");
+  const btnAccEn = document.getElementById("btn-accept-en");
+  const btnBackFr = document.getElementById("btn-back-fr");
+  const btnBackEn = document.getElementById("btn-back-en");
 
-    // Helpers
-    const api = (path, opt={}) =>
-      fetch(`https://api.meetempo.com${path}`, opt).then(r => r.json());
+  // Lang toggle
+  function setLang(l){ 
+    const isFr = l==='fr';
+    (isFr?fr:en).classList.remove("hidden");
+    (isFr?en:fr).classList.add("hidden");
+    (isFr?frBtn:enBtn).classList.add("active");
+    (isFr?enBtn:frBtn).classList.remove("active");
+  }
+  frBtn.onclick = ()=>setLang('fr');
+  enBtn.onclick = ()=>setLang('en');
 
-    function setState(el, ok, msg){
-      el.classList.remove("hidden","ok","err");
-      el.classList.add(ok?"ok":"err");
-      el.textContent = msg;
+  // API helper
+  const j = (p,opt={}) => fetch(`${API_BASE}${p}`, {
+    ...opt,
+    headers: { "Content-Type":"application/json", "X-Meetempo-Client":"charter", ...(opt.headers||{}) }
+  }).then(r=>r.json());
+
+  function showDenied(msgFr, msgEn){
+    stateFr.classList.remove('hidden'); stateEn.classList.remove('hidden');
+    stateFr.classList.add('err'); stateEn.classList.add('err');
+    stateFr.textContent = msgFr; stateEn.textContent = msgEn;
+    btnAccFr.disabled = true; btnAccEn.disabled = true;
+  }
+
+  async function verifySession(){
+    if(!token){ showDenied("❌ Token manquant.","❌ Missing token."); return false; }
+    try{
+      const r = await fetch(`${API_BASE}/auth/session?token=${encodeURIComponent(token)}`);
+      if(!r.ok){ showDenied("❌ Session expirée.","❌ Session expired."); return false; }
+      const d = await r.json();
+      if(!d.user_id){ showDenied("❌ Session invalide.","❌ Invalid session."); return false; }
+      sessionStorage.setItem('meetempo_token', token);
+      return true;
+    }catch{
+      showDenied("❌ Erreur réseau.","❌ Network error."); 
+      return false;
     }
+  }
 
-    // Load consent status (optional endpoint)
-    async function loadStatus() {
-      try {
-        if (!token) return;
-        const res = await api(`/consent/status?token=${encodeURIComponent(token)}`);
-        const accepted = !!res.accepted;
-        document.getElementById("chk-accept-fr").checked = accepted;
-        document.getElementById("chk-accept-en").checked = accepted;
-      } catch {}
-    }
-
-    // Accept handlers
-    async function accept(lang){
-      const checkId = lang==="fr" ? "chk-accept-fr" : "chk-accept-en";
-      const stateId = lang==="fr" ? "state-fr" : "state-en";
-      const stateEl = document.getElementById(stateId);
-      const checked = document.getElementById(checkId).checked;
-      if (!checked) return setState(stateEl,false, lang==="fr" ? "Cochez la case pour accepter." : "Please tick the checkbox to accept.");
-
-      if (!token) return setState(stateEl,false, lang==="fr" ? "Token manquant." : "Missing token.");
-
-      try {
-        const res = await api(`/consent/accept`, {
-          method:"POST",
-          headers:{ "Content-Type":"application/json" },
-          body: JSON.stringify({ token })
-        });
-        if (res && res.success){
-          setState(stateEl,true, lang==="fr" ? "Charte acceptée." : "Charter accepted.");
-          if (returnUrl) setTimeout(()=>location.href=returnUrl, 500);
-        } else {
-          setState(stateEl,false, lang==="fr" ? "Erreur d’enregistrement." : "Save error.");
-        }
-      } catch (e){
-        setState(stateEl,false, lang==="fr" ? "Erreur réseau." : "Network error.");
+  async function loadConsent(){
+    try{
+      const s = await j(`/consent/status?token=${encodeURIComponent(token)}`);
+      const accepted = !!s.accepted;
+      chkFr.checked = accepted; chkEn.checked = accepted;
+      if(accepted){
+        stateFr.classList.remove('hidden'); stateFr.classList.add('ok'); stateFr.textContent = "Déjà accepté.";
+        stateEn.classList.remove('hidden'); stateEn.classList.add('ok'); stateEn.textContent = "Already accepted.";
       }
+    }catch{/* silencieux */}
+  }
+
+  async function accept(lang){
+    const chk = lang==='fr'? chkFr : chkEn;
+    const state = lang==='fr'? stateFr : stateEn;
+    const btn = lang==='fr'? btnAccFr : btnAccEn;
+    if(!chk.checked){ state.classList.remove('hidden','ok','err'); state.classList.add('err'); state.textContent = lang==='fr'?"Cochez la case pour accepter.":"Please tick the checkbox to accept."; return; }
+    btn.disabled = true; state.classList.remove('hidden','ok','err'); state.textContent = lang==='fr'?"Enregistrement...":"Saving...";
+    try{
+      const r = await j(`/consent/accept`, { method:"POST", body: JSON.stringify({ token }) });
+      if(r && r.success){
+        state.classList.add('ok'); state.textContent = lang==='fr'?"Charte acceptée.":"Charter accepted.";
+        setTimeout(()=>location.href = returnUrl || GPT_URL_FALLBACK, 500);
+      }else{
+        state.classList.add('err'); state.textContent = lang==='fr'?"Erreur d’enregistrement.":"Save error.";
+        btn.disabled = false;
+      }
+    }catch{
+      state.classList.add('err'); state.textContent = lang==='fr'?"Erreur réseau.":"Network error.";
+      btn.disabled = false;
     }
+  }
 
-    document.getElementById("btn-accept-fr").onclick = ()=>accept("fr");
-    document.getElementById("btn-accept-en").onclick = ()=>accept("en");
-    document.getElementById("btn-back-fr").onclick = ()=> returnUrl ? location.href=returnUrl : history.back();
-    document.getElementById("btn-back-en").onclick = ()=> returnUrl ? location.href=returnUrl : history.back();
+  btnAccFr.onclick = ()=>accept('fr');
+  btnAccEn.onclick = ()=>accept('en');
+  btnBackFr.onclick = ()=> location.href = returnUrl || GPT_URL_FALLBACK;
+  btnBackEn.onclick = ()=> location.href = returnUrl || GPT_URL_FALLBACK;
 
-    loadStatus();
-  </script>
+  // Init
+  (async () => {
+    setLang(langParam === 'en' ? 'en' : 'fr');
+    const ok = await verifySession();
+    if(ok) await loadConsent();
+  })();
+</script>
 </body>
 </html>
