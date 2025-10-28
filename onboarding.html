@@ -386,6 +386,12 @@
                         <option value="other">Autre</option>
                     </select>
                 </div>
+                
+                <!-- AJOUT: Autre secteur -->
+                <div class="form-group" id="otherIndustryGroup" style="display:none;">
+                    <label for="other_industry">Précisez votre secteur</label>
+                    <input type="text" id="other_industry" placeholder="Votre secteur d'activité...">
+                </div>
             </div>
             
             <!-- Étape 2: Centres d'intérêt -->
@@ -431,6 +437,12 @@
                     </div>
                 </div>
                 
+                <!-- AJOUT: Autres sports -->
+                <div class="form-group" style="margin-top: 16px;">
+                    <label for="other_sports">Autres sports <span class="optional">(séparés par des virgules)</span></label>
+                    <input type="text" id="other_sports" placeholder="Escalade, Boxe, Danse...">
+                </div>
+                
                 <div class="form-group" style="margin-top: 32px;">
                     <label>Hobbies & Passions</label>
                     <div class="checkbox-group">
@@ -467,6 +479,12 @@
                             <label for="hobby_gaming" class="checkbox-label">🎮 Gaming</label>
                         </div>
                     </div>
+                </div>
+                
+                <!-- AJOUT: Autres hobbies -->
+                <div class="form-group" style="margin-top: 16px;">
+                    <label for="other_hobbies">Autres passions <span class="optional">(séparés par des virgules)</span></label>
+                    <input type="text" id="other_hobbies" placeholder="Jardinage, Astronomie, Écriture...">
                 </div>
             </div>
             
@@ -704,6 +722,18 @@
                 .map(cb => cb.value);
         }
         
+        // AJOUT: Toggle secteur autre
+        function toggleOtherIndustry() {
+            const industry = document.getElementById('industry').value;
+            const otherGroup = document.getElementById('otherIndustryGroup');
+            
+            if (industry === 'other') {
+                otherGroup.style.display = 'block';
+            } else {
+                otherGroup.style.display = 'none';
+            }
+        }
+        
         async function submitOnboarding() {
             const submitBtn = document.getElementById('submitBtn');
             const errorMsg = document.getElementById('errorMsg');
@@ -717,11 +747,25 @@
                 linkedin: document.getElementById('linkedin').value,
                 job_title: document.getElementById('job_title').value,
                 company: document.getElementById('company').value,
-                industry: document.getElementById('industry').value,
+                industry: document.getElementById('industry').value === 'other' 
+                    ? document.getElementById('other_industry').value 
+                    : document.getElementById('industry').value,
                 
                 // Step 2: Centres d'intérêt
-                sports: getCheckboxValues('sport_'),
-                hobbies: getCheckboxValues('hobby_'),
+                sports: [
+                    ...getCheckboxValues('sport_'),
+                    ...document.getElementById('other_sports').value
+                        .split(',')
+                        .map(s => s.trim())
+                        .filter(s => s)
+                ],
+                hobbies: [
+                    ...getCheckboxValues('hobby_'),
+                    ...document.getElementById('other_hobbies').value
+                        .split(',')
+                        .map(s => s.trim())
+                        .filter(s => s)
+                ],
                 
                 // Step 3: Lifestyle
                 countries_visited: document.getElementById('countries_visited').value
