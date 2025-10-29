@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vérification Email - MeeTempo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mt-dark: #030E4F;
+            --mt-accent: #F49F1C;
+            --mt-bg: #0a133f;
+            --mt-text: #ffffff;
+            --mt-muted: #c9d1ff;
+            --ok: #23c55e;
+            --err: #ef4444;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(160deg, var(--mt-dark) 0%, var(--mt-bg) 60%, #11183f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--mt-text);
+        }
+        .container {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            backdrop-filter: blur(6px);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .logo-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
+            color: #111;
+            font-weight: 800;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+        p {
+            font-size: 16px;
+            color: var(--mt-muted);
+            line-height: 1.6;
+        }
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--mt-muted);
+            border-bottom-color: var(--mt-accent);
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+            margin: 30px auto;
+        }
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .message {
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            text-align: center;
+            display: none; /* Caché par défaut */
+        }
+        .message.error {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid var(--err);
+            color: var(--err);
+            display: block;
+        }
+        .message.success {
+            background: rgba(35,197,94,0.15);
+            border: 1px solid var(--ok);
+            color: var(--ok);
+            display: block;
+        }
+        .btn {
+            display: none; /* Caché jusqu'au succès/erreur */
+            width: 100%;
+            padding: 16px;
+            background: var(--mt-accent);
+            color: #111;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 24px;
+            font-family: 'Montserrat', sans-serif;
+            text-decoration: none;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244,159,28,0.4);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-badge">MT</div>
+        <h1 id="title">Vérification en cours...</h1>
+        <p id="subtitle">Nous activons votre compte MeeTempo. Veuillez patienter.</p>
+        
+        <div class="loading-spinner" id="loader"></div>
+        
+        <div class="message" id="message"></div>
+        
+        <a href="login.html" class="btn" id="loginButton" style="display: none;">
+            Retourner à la page de connexion
+        </a>
+    </div>
+
+    <script>
+        const API_BASE = 'https://api.meetempo.com';
+        
+        // Éléments UI
+        const title = document.getElementById('title');
+        const subtitle = document.getElementById('subtitle');
+        const loader = document.getElementById('loader');
+        const message = document.getElementById('message');
+        const loginButton = document.getElementById('loginButton');
+
+        // Fonction pour afficher les messages
+        function showResult(type, titleText, subtitleText, messageText) {
+            loader.style.display = 'none'; // Cacher le spinner
+            title.textContent = titleText;
+            subtitle.textContent = subtitleText;
+
+            if (messageText) {
+                message.textContent = messageText;
+                message.className = `message ${type}`;
+            }
+            
+            // Afficher le bouton de retour
+            loginButton.style.display = 'block';
+        }
+
+        // Démarrer la vérification au chargement
+        window.addEventListener('load', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+
+            if (!token) {
+                showResult('error', 'Erreur', 'Token manquant.', 'Le lien de vérification est incomplet. Veuillez réessayer depuis l\'email.');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/user/verify-email?token=${token}`, {
+                    method: 'GET'
+                });
+                
+                const data = await response.json();
+
+                if (!response.ok) {
+                    // Gérer les erreurs de l'API (token expiré, etc.)
+                    let errorMsg = data.error || "Une erreur inconnue est survenue.";
+                    if (data.code === "INVALID_TOKEN") {
+                        errorMsg = "Ce lien de vérification est invalide ou a expiré. Veuillez recréer votre compte.";
+                    }
+                    showResult('error', 'Vérification échouée', errorMsg, null);
+                } else {
+                    // Succès !
+                    let successMsg = data.message || "Email confirmé !";
+                    if (data.already_verified) {
+                         successMsg = "Votre email est déjà confirmé. Vous pouvez vous connecter.";
+                    } else if (data.email_error) {
+                         // Cas où la vérification a marché mais l'Email 2 (code) n'est pas parti
+                         showResult('error', 'Email confirmé, mais...', 'Votre email a été confirmé, mais une erreur est survenue lors de l\'envoi de votre code secret. Veuillez contacter le support.', null);
+                         return;
+                    }
+                    // Succès complet
+                    showResult('success', '✅ Email Confirmé !', 'Félicitations ! Votre compte est maintenant actif. L\'Email 2 (contenant votre code secret) vient de vous être envoyé. Vérifiez vos emails (et spams).', null);
+                }
+
+            } catch (err) {
+                console.error('Verification error:', err);
+                showResult('error', 'Erreur Réseau', 'Impossible de contacter le serveur de vérification. Veuillez vérifier votre connexion et réessayer.', null);
+            }
+        });
+    </script>
+</body>
+</html>
