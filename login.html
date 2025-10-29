@@ -180,32 +180,32 @@
             margin-top: 20px;
             font-size: 14px;
             text-align: center;
-            display: none;
+            display: none; /* Caché par défaut */
         }
         
         .message.error {
             background: rgba(239,68,68,0.15);
             border: 1px solid var(--err);
             color: var(--err);
-            display: block;
+            display: block; /* Affiché si erreur */
         }
         
         .message.success {
             background: rgba(35,197,94,0.15);
             border: 1px solid var(--ok);
             color: var(--ok);
-            display: block;
+            display: block; /* Affiché si succès */
         }
         
         .loading {
-            display: none;
+            display: none; /* Caché par défaut */
             text-align: center;
             margin-top: 20px;
             color: var(--mt-accent);
         }
         
         .loading.show {
-            display: block;
+            display: block; /* Affiché si chargement */
         }
         
         .info-box {
@@ -223,28 +223,7 @@
             color: var(--mt-accent);
         }
         
-        .code-display {
-            background: rgba(244,159,28,0.15);
-            border: 2px solid var(--mt-accent);
-            border-radius: 12px;
-            padding: 20px;
-            margin: 20px 0;
-            text-align: center;
-        }
-        
-        .code-display .label {
-            font-size: 13px;
-            color: var(--mt-muted);
-            margin-bottom: 8px;
-        }
-        
-        .code-display .code {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--mt-accent);
-            letter-spacing: 4px;
-            font-family: 'Courier New', monospace;
-        }
+        /* Pas besoin de code-display */
         
         .helper-text {
             font-size: 12px;
@@ -261,10 +240,6 @@
             h1 {
                 font-size: 22px;
             }
-            
-            .code-display .code {
-                font-size: 28px;
-            }
         }
     </style>
 </head>
@@ -274,13 +249,11 @@
         <h1>Bienvenue sur MeeTempo</h1>
         <p class="subtitle">Connectez-vous ou créez votre compte</p>
         
-        <!-- Tabs -->
         <div class="tabs">
             <button class="tab active" data-tab="login">Se connecter</button>
             <button class="tab" data-tab="signup">Créer un compte</button>
         </div>
         
-        <!-- Login Form -->
         <div id="loginForm" class="form-container active">
             <form id="loginSubmit">
                 <div class="form-group">
@@ -288,7 +261,7 @@
                     <input 
                         type="text" 
                         id="loginCode" 
-                        placeholder="862487"
+                        placeholder="123456"
                         pattern="[0-9]{6}"
                         maxlength="6"
                         required
@@ -324,20 +297,19 @@
             </div>
         </div>
         
-        <!-- Signup Form -->
         <div id="signupForm" class="form-container">
             <form id="signupSubmit">
                 <div class="form-group">
-                    <label for="signupEmail">Email (optionnel)</label>
-                    <input 
+                    <label for="signupEmail">Email</label> <input 
                         type="email" 
                         id="signupEmail" 
                         placeholder="votre@email.com"
+                        required 
                         autocomplete="email"
                     >
-                    <div class="helper-text">
-                        L'email est recommandé pour sécuriser votre compte
-                    </div>
+                     <div class="helper-text">
+                         Vous recevrez un email pour confirmer votre compte.
+                     </div>
                 </div>
                 
                 <button type="submit" class="btn" id="signupBtn">
@@ -351,26 +323,9 @@
             
             <div class="message" id="signupMessage"></div>
             
-            <!-- Code Display (hidden by default) -->
-            <div id="codeDisplay" style="display: none;">
-                <div class="code-display">
-                    <div class="label">🎉 Votre code MeeTempo</div>
-                    <div class="code" id="generatedCode">------</div>
-                </div>
-                
-                <div class="info-box">
-                    <strong>⚠️ Important</strong><br>
-                    Notez bien ce code ! Il vous permettra de vous connecter à MeeTempo. Vous pouvez maintenant vous connecter avec ce code.
-                </div>
-                
-                <button class="btn" onclick="switchToLogin()">
-                    Se connecter maintenant
-                </button>
-            </div>
-            
             <div class="info-box" id="signupInfo">
-                <strong>🆓 Compte gratuit</strong><br>
-                Créez votre compte gratuitement. Vous pourrez passer Premium ou VIP plus tard pour débloquer toutes les fonctionnalités.
+                <strong>🆓 Compte gratuit & Sécurisé</strong><br>
+                Créez votre compte gratuitement. Vous devrez confirmer votre email avant de pouvoir vous connecter.
             </div>
         </div>
     </div>
@@ -404,19 +359,9 @@
             el.className = `message ${type}`;
         }
         
-        // Switch to login tab with prefilled code
-        function switchToLogin() {
-            const code = document.getElementById('generatedCode').textContent;
-            const email = document.getElementById('signupEmail').value;
-            
-            document.querySelector('.tab[data-tab="login"]').click();
-            document.getElementById('loginCode').value = code;
-            if (email) {
-                document.getElementById('loginEmail').value = email;
-            }
-        }
+        // Fonction switchToLogin supprimée car plus nécessaire
         
-        // LOGIN HANDLER
+        // LOGIN HANDLER (inchangé)
         document.getElementById('loginSubmit').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -449,7 +394,9 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    if (response.status === 404) {
+                    if (data.code === "ACCOUNT_NOT_ACTIVE") { // Gérer le cas compte non activé
+                         showMessage('loginMessage', data.error || 'Compte non activé. Vérifiez vos emails.', 'error');
+                    } else if (response.status === 404) {
                         showMessage('loginMessage', 'Code invalide', 'error');
                     } else if (response.status === 401) {
                         showMessage('loginMessage', 'Email incorrect', 'error');
@@ -466,7 +413,8 @@
                 showMessage('loginMessage', '✅ Connexion réussie ! Redirection...', 'success');
                 
                 setTimeout(() => {
-                    window.location.href = `${GPT_URL}?session=${data.session_token}`;
+                    // Rediriger vers GPT avec le token de session
+                    window.location.href = `${GPT_URL}?session=${data.session_token}`; 
                 }, 1500);
                 
             } catch (err) {
@@ -477,7 +425,7 @@
             }
         });
         
-        // SIGNUP HANDLER
+        // SIGNUP HANDLER (modifié)
         document.getElementById('signupSubmit').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -485,7 +433,8 @@
             const btn = document.getElementById('signupBtn');
             const loading = document.getElementById('signupLoading');
             
-            if (email && !email.includes('@')) {
+            // Email est maintenant requis
+            if (!email || !email.includes('@')) {
                 showMessage('signupMessage', 'Email invalide', 'error');
                 return;
             }
@@ -495,7 +444,7 @@
             document.getElementById('signupMessage').className = 'message';
             
             try {
-                const body = email ? { email } : {};
+                const body = { email }; // Email est requis
                 
                 const response = await fetch(`${API_BASE}/user/create`, {
                     method: 'POST',
@@ -506,18 +455,26 @@
                 const data = await response.json();
                 
                 if (!response.ok) {
-                    showMessage('signupMessage', data.error || 'Erreur lors de la création', 'error');
+                     if (response.status === 409) { // Gérer email déjà utilisé
+                         showMessage('signupMessage', data.error || 'Cet email est déjà utilisé.', 'error');
+                     } else if (response.status === 429) {
+                         showMessage('signupMessage', data.error || 'Limite de création atteinte.', 'error');
+                     } else {
+                        showMessage('signupMessage', data.error || 'Erreur lors de la création du compte', 'error');
+                     }
                     btn.disabled = false;
                     loading.classList.remove('show');
                     return;
                 }
                 
-                // Success - Show code
-                document.getElementById('generatedCode').textContent = data.code;
-                document.getElementById('codeDisplay').style.display = 'block';
-                document.getElementById('signupInfo').style.display = 'none';
-                document.getElementById('signupSubmit').style.display = 'none';
+                // !! MODIFICATION ICI !!
+                // Succès: Afficher le message de l'API (vérifiez email)
+                showMessage('signupMessage', data.message || 'Compte créé ! Vérifiez votre email pour l\'activer.', 'success');
+                // Ne PAS afficher le code, ne PAS proposer de se connecter
+                document.getElementById('signupSubmit').style.display = 'none'; // Cacher le formulaire
+                document.getElementById('signupInfo').style.display = 'none'; // Cacher l'info box
                 loading.classList.remove('show');
+                // Garder le bouton désactivé car l'action est terminée pour cet onglet
                 
             } catch (err) {
                 console.error('Signup error:', err);
