@@ -3,26 +3,19 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion MeeTempo</title>
+    <title>Vérification Email - MeeTempo</title>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
             --mt-dark: #030E4F;
             --mt-accent: #F49F1C;
             --mt-bg: #0a133f;
-            --mt-card: #0e184f;
             --mt-text: #ffffff;
             --mt-muted: #c9d1ff;
             --ok: #23c55e;
             --err: #ef4444;
         }
-        
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Montserrat', sans-serif;
             background: linear-gradient(160deg, var(--mt-dark) 0%, var(--mt-bg) 60%, #11183f 100%);
@@ -33,18 +26,17 @@
             padding: 20px;
             color: var(--mt-text);
         }
-        
         .container {
             background: rgba(255,255,255,0.06);
             border: 1px solid rgba(255,255,255,0.12);
             backdrop-filter: blur(6px);
             border-radius: 16px;
             padding: 40px;
-            max-width: 450px;
+            max-width: 500px;
             width: 100%;
             box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            text-align: center;
         }
-        
         .logo-badge {
             width: 60px;
             height: 60px;
@@ -58,98 +50,69 @@
             justify-content: center;
             margin: 0 auto 24px;
         }
+        h1 { font-size: 24px; font-weight: 700; margin-bottom: 16px; }
+        p { font-size: 16px; color: var(--mt-muted); line-height: 1.6; }
         
-        h1 {
-            font-size: 26px;
+        /* MODIFICATION : Ajout du bloc d'affichage du code */
+        .code-display {
+            background: rgba(244,159,28,0.15);
+            border: 2px solid var(--mt-accent);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 30px 0;
+            text-align: center;
+            display: none; /* Caché par défaut */
+        }
+        .code-display .label {
+            font-size: 13px;
+            color: var(--mt-muted);
+            margin-bottom: 8px;
+        }
+        .code-display .code {
+            font-size: 32px;
             font-weight: 700;
-            text-align: center;
-            margin-bottom: 12px;
+            color: var(--mt-accent);
+            letter-spacing: 4px;
+            font-family: 'Courier New', monospace;
         }
-        
-        .subtitle {
-            text-align: center;
-            color: var(--mt-muted);
-            font-size: 14px;
-            margin-bottom: 32px;
+
+        .loading-spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid var(--mt-muted);
+            border-bottom-color: var(--mt-accent);
+            border-radius: 50%;
+            display: inline-block;
+            box-sizing: border-box;
+            animation: rotation 1s linear infinite;
+            margin: 30px auto;
         }
-        
-        /* Tabs */
-        .tabs {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 24px;
-            background: rgba(255,255,255,0.05);
+        @keyframes rotation {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .message {
+            padding: 14px;
             border-radius: 10px;
-            padding: 4px;
-        }
-        
-        .tab {
-            flex: 1;
-            padding: 12px;
-            background: transparent;
-            border: none;
-            border-radius: 8px;
-            color: var(--mt-muted);
+            margin-top: 20px;
             font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Montserrat', sans-serif;
-        }
-        
-        .tab:hover {
-            background: rgba(255,255,255,0.08);
-        }
-        
-        .tab.active {
-            background: var(--mt-accent);
-            color: #111;
-        }
-        
-        /* Forms */
-        .form-container {
+            text-align: center;
             display: none;
         }
-        
-        .form-container.active {
+        .message.error {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid var(--err);
+            color: var(--err);
             display: block;
         }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
+        .message.success {
+            background: rgba(35,197,94,0.15);
+            border: 1px solid var(--ok);
+            color: var(--ok);
             display: block;
-            font-size: 14px;
-            font-weight: 600;
-            margin-bottom: 8px;
-            color: var(--mt-text);
         }
-        
-        input {
-            width: 100%;
-            padding: 14px 16px;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.16);
-            border-radius: 10px;
-            color: var(--mt-text);
-            font-size: 16px;
-            font-family: 'Montserrat', sans-serif;
-            transition: all 0.3s;
-        }
-        
-        input:focus {
-            outline: none;
-            border-color: var(--mt-accent);
-            background: rgba(255,255,255,0.12);
-        }
-        
-        input::placeholder {
-            color: rgba(255,255,255,0.4);
-        }
-        
         .btn {
+            display: none; /* Caché jusqu'au succès/erreur */
             width: 100%;
             padding: 16px;
             background: var(--mt-accent);
@@ -160,327 +123,121 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
-            margin-top: 8px;
+            margin-top: 24px;
             font-family: 'Montserrat', sans-serif;
+            text-decoration: none;
         }
-        
-        .btn:hover:not(:disabled) {
+        .btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(244,159,28,0.4);
-        }
-        
-        .btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-        
-        .message {
-            padding: 14px;
-            border-radius: 10px;
-            margin-top: 20px;
-            font-size: 14px;
-            text-align: center;
-            display: none; /* Caché par défaut */
-        }
-        
-        .message.error {
-            background: rgba(239,68,68,0.15);
-            border: 1px solid var(--err);
-            color: var(--err);
-            display: block; /* Affiché si erreur */
-        }
-        
-        .message.success {
-            background: rgba(35,197,94,0.15);
-            border: 1px solid var(--ok);
-            color: var(--ok);
-            display: block; /* Affiché si succès */
-        }
-        
-        .loading {
-            display: none; /* Caché par défaut */
-            text-align: center;
-            margin-top: 20px;
-            color: var(--mt-accent);
-        }
-        
-        .loading.show {
-            display: block; /* Affiché si chargement */
-        }
-        
-        .info-box {
-            background: rgba(244,159,28,0.1);
-            border: 1px solid rgba(244,159,28,0.3);
-            border-radius: 10px;
-            padding: 16px;
-            margin-top: 24px;
-            font-size: 13px;
-            color: var(--mt-muted);
-            line-height: 1.5;
-        }
-        
-        .info-box strong {
-            color: var(--mt-accent);
-        }
-        
-        /* Pas besoin de code-display */
-        
-        .helper-text {
-            font-size: 12px;
-            color: var(--mt-muted);
-            margin-top: 8px;
-            text-align: center;
-        }
-        
-        @media (max-width: 640px) {
-            .container {
-                padding: 32px 24px;
-            }
-            
-            h1 {
-                font-size: 22px;
-            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo-badge">MT</div>
-        <h1>Bienvenue sur MeeTempo</h1>
-        <p class="subtitle">Connectez-vous ou créez votre compte</p>
+        <h1 id="title">Vérification en cours...</h1>
+        <p id="subtitle">Nous activons votre compte MeeTempo. Veuillez patienter.</p>
         
-        <div class="tabs">
-            <button class="tab active" data-tab="login">Se connecter</button>
-            <button class="tab" data-tab="signup">Créer un compte</button>
-        </div>
+        <div class="loading-spinner" id="loader"></div>
         
-        <div id="loginForm" class="form-container active">
-            <form id="loginSubmit">
-                <div class="form-group">
-                    <label for="loginCode">Code MeeTempo (6 chiffres)</label>
-                    <input 
-                        type="text" 
-                        id="loginCode" 
-                        placeholder="123456"
-                        pattern="[0-9]{6}"
-                        maxlength="6"
-                        required
-                        autocomplete="off"
-                    >
-                </div>
-                
-                <div class="form-group">
-                    <label for="loginEmail">Email</label>
-                    <input 
-                        type="email" 
-                        id="loginEmail" 
-                        placeholder="votre@email.com"
-                        required
-                        autocomplete="email"
-                    >
-                </div>
-                
-                <button type="submit" class="btn" id="loginBtn">
-                    Se connecter
-                </button>
-            </form>
-            
-            <div class="loading" id="loginLoading">
-                Connexion en cours...
-            </div>
-            
-            <div class="message" id="loginMessage"></div>
-            
-            <div class="info-box">
-                <strong>✨ Session 24h</strong><br>
-                Votre session reste active pendant 24 heures. Vous n'aurez pas à vous reconnecter.
-            </div>
-        </div>
+        <div id="codeDisplayWrapper"></div>
+
+        <div class="message" id="message"></div>
         
-        <div id="signupForm" class="form-container">
-            <form id="signupSubmit">
-                <div class="form-group">
-                    <label for="signupEmail">Email</label> <input 
-                        type="email" 
-                        id="signupEmail" 
-                        placeholder="votre@email.com"
-                        required 
-                        autocomplete="email"
-                    >
-                     <div class="helper-text">
-                         Vous recevrez un email pour confirmer votre compte.
-                     </div>
-                </div>
-                
-                <button type="submit" class="btn" id="signupBtn">
-                    Créer mon compte
-                </button>
-            </form>
-            
-            <div class="loading" id="signupLoading">
-                Création du compte...
-            </div>
-            
-            <div class="message" id="signupMessage"></div>
-            
-            <div class="info-box" id="signupInfo">
-                <strong>🆓 Compte gratuit & Sécurisé</strong><br>
-                Créez votre compte gratuitement. Vous devrez confirmer votre email avant de pouvoir vous connecter.
-            </div>
-        </div>
+        <a href="login.html" class="btn" id="loginButton" style="display: none;">
+            Retourner à la page de connexion
+        </a>
     </div>
 
     <script>
         const API_BASE = 'https://api.meetempo.com';
-        const GPT_URL = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
         
-        // Tab switching
-        document.querySelectorAll('.tab').forEach(tab => {
-            tab.addEventListener('click', function() {
-                const targetTab = this.dataset.tab;
-                
-                // Update tabs
-                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-                
-                // Update forms
-                document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
-                document.getElementById(targetTab + 'Form').classList.add('active');
-                
-                // Reset messages
-                document.querySelectorAll('.message').forEach(m => m.className = 'message');
-            });
-        });
-        
-        // Helper function
-        function showMessage(elementId, text, type = 'error') {
-            const el = document.getElementById(elementId);
-            el.textContent = text;
-            el.className = `message ${type}`;
+        // Éléments UI
+        const title = document.getElementById('title');
+        const subtitle = document.getElementById('subtitle');
+        const loader = document.getElementById('loader');
+        const message = document.getElementById('message');
+        const loginButton = document.getElementById('loginButton');
+        const codeDisplayWrapper = document.getElementById('codeDisplayWrapper');
+
+        // Fonction pour afficher les messages
+        function showResult(type, titleText, subtitleText, messageText) {
+            loader.style.display = 'none';
+            title.textContent = titleText;
+            subtitle.textContent = subtitleText;
+
+            if (messageText) {
+                message.textContent = messageText;
+                message.className = `message ${type}`;
+            }
+            
+            loginButton.style.display = 'block';
         }
-        
-        // Fonction switchToLogin supprimée car plus nécessaire
-        
-        // LOGIN HANDLER (inchangé)
-        document.getElementById('loginSubmit').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const code = document.getElementById('loginCode').value.trim();
-            const email = document.getElementById('loginEmail').value.trim();
-            const btn = document.getElementById('loginBtn');
-            const loading = document.getElementById('loginLoading');
-            
-            if (code.length !== 6 || !/^\d{6}$/.test(code)) {
-                showMessage('loginMessage', 'Le code doit contenir exactement 6 chiffres', 'error');
+
+        // Démarrer la vérification au chargement
+        window.addEventListener('load', async () => {
+            const params = new URLSearchParams(window.location.search);
+            const token = params.get('token');
+
+            if (!token) {
+                showResult('error', 'Erreur', 'Token manquant.', 'Le lien de vérification est incomplet. Veuillez réessayer depuis l\'email.');
                 return;
             }
-            
-            if (!email || !email.includes('@')) {
-                showMessage('loginMessage', 'Email invalide', 'error');
-                return;
-            }
-            
-            btn.disabled = true;
-            loading.classList.add('show');
-            document.getElementById('loginMessage').className = 'message';
-            
+
             try {
-                const response = await fetch(`${API_BASE}/auth/create-session`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ code, email })
+                const response = await fetch(`${API_BASE}/user/verify-email?token=${token}`, {
+                    method: 'GET'
                 });
                 
                 const data = await response.json();
-                
+
                 if (!response.ok) {
-                    if (data.code === "ACCOUNT_NOT_ACTIVE") { // Gérer le cas compte non activé
-                         showMessage('loginMessage', data.error || 'Compte non activé. Vérifiez vos emails.', 'error');
-                    } else if (response.status === 404) {
-                        showMessage('loginMessage', 'Code invalide', 'error');
-                    } else if (response.status === 401) {
-                        showMessage('loginMessage', 'Email incorrect', 'error');
-                    } else if (response.status === 429) {
-                        showMessage('loginMessage', 'Trop de tentatives. Réessayez dans 1 minute', 'error');
-                    } else {
-                        showMessage('loginMessage', data.error || 'Erreur de connexion', 'error');
+                    let errorMsg = data.error || "Une erreur inconnue est survenue.";
+                    if (data.code === "INVALID_TOKEN") {
+                        errorMsg = "Ce lien de vérification est invalide ou a expiré. Veuillez recréer votre compte.";
                     }
-                    btn.disabled = false;
-                    loading.classList.remove('show');
-                    return;
+                    showResult('error', 'Vérification échouée', errorMsg, null);
+                } else {
+                    
+                    // Gérer l'échec d'envoi d'email
+                    if (data.email_error) {
+                         showResult('error', 'Email confirmé, mais...', 'Votre email a été confirmé, mais une erreur est survenue lors de l\'envoi de votre code secret. Veuillez contacter le support.', null);
+                         return;
+                    }
+                    
+                    // Succès ! Afficher le code si l'API le renvoie
+                    if (data.code) {
+                        title.textContent = '✅ Compte Activé !';
+                        subtitle.textContent = 'Voici votre code secret. Conservez-le précieusement !';
+                        
+                        // MODIFICATION : Afficher le code
+                        codeDisplayWrapper.innerHTML = `
+                            <div class="code-display" style="display: block;">
+                                <div class="label">Votre code MeeTempo</div>
+                                <div class="code">${data.code}</div>
+                            </div>
+                        `;
+                        
+                        // Afficher le message de succès (l'email a aussi été envoyé)
+                        message.textContent = 'Votre code vous a également été envoyé par email (vérifiez vos spams).';
+                        message.className = 'message success';
+                        
+                        loader.style.display = 'none';
+                        loginButton.style.display = 'block';
+
+                    } else if (data.already_verified) {
+                        // Cas où c'est déjà vérifié
+                        showResult('success', 'Email déjà confirmé', 'Votre compte est déjà actif. Vous pouvez vous connecter.', null);
+                    } else {
+                         // Cas où l'API n'a pas renvoyé le code (ancien code ?)
+                         showResult('error', 'Erreur Inattendue', 'Votre compte est activé, mais le code n'a pas pu être récupéré. Contactez le support.', null);
+                    }
                 }
-                
-                showMessage('loginMessage', '✅ Connexion réussie ! Redirection...', 'success');
-                
-                setTimeout(() => {
-                    // Rediriger vers GPT avec le token de session
-                    window.location.href = `${GPT_URL}?session=${data.session_token}`; 
-                }, 1500);
-                
+
             } catch (err) {
-                console.error('Login error:', err);
-                showMessage('loginMessage', 'Erreur réseau. Vérifiez votre connexion', 'error');
-                btn.disabled = false;
-                loading.classList.remove('show');
-            }
-        });
-        
-        // SIGNUP HANDLER (modifié)
-        document.getElementById('signupSubmit').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const email = document.getElementById('signupEmail').value.trim();
-            const btn = document.getElementById('signupBtn');
-            const loading = document.getElementById('signupLoading');
-            
-            // Email est maintenant requis
-            if (!email || !email.includes('@')) {
-                showMessage('signupMessage', 'Email invalide', 'error');
-                return;
-            }
-            
-            btn.disabled = true;
-            loading.classList.add('show');
-            document.getElementById('signupMessage').className = 'message';
-            
-            try {
-                const body = { email }; // Email est requis
-                
-                const response = await fetch(`${API_BASE}/user/create`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(body)
-                });
-                
-                const data = await response.json();
-                
-                if (!response.ok) {
-                     if (response.status === 409) { // Gérer email déjà utilisé
-                         showMessage('signupMessage', data.error || 'Cet email est déjà utilisé.', 'error');
-                     } else if (response.status === 429) {
-                         showMessage('signupMessage', data.error || 'Limite de création atteinte.', 'error');
-                     } else {
-                        showMessage('signupMessage', data.error || 'Erreur lors de la création du compte', 'error');
-                     }
-                    btn.disabled = false;
-                    loading.classList.remove('show');
-                    return;
-                }
-                
-                // !! MODIFICATION ICI !!
-                // Succès: Afficher le message de l'API (vérifiez email)
-                showMessage('signupMessage', data.message || 'Compte créé ! Vérifiez votre email pour l\'activer.', 'success');
-                // Ne PAS afficher le code, ne PAS proposer de se connecter
-                document.getElementById('signupSubmit').style.display = 'none'; // Cacher le formulaire
-                document.getElementById('signupInfo').style.display = 'none'; // Cacher l'info box
-                loading.classList.remove('show');
-                // Garder le bouton désactivé car l'action est terminée pour cet onglet
-                
-            } catch (err) {
-                console.error('Signup error:', err);
-                showMessage('signupMessage', 'Erreur réseau. Vérifiez votre connexion', 'error');
-                btn.disabled = false;
-                loading.classList.remove('show');
+                console.error('Verification error:', err);
+                showResult('error', 'Erreur Réseau', 'Impossible de contacter le serveur de vérification. Veuillez vérifier votre connexion et réessayer.', null);
             }
         });
     </script>
