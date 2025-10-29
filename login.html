@@ -169,10 +169,13 @@
 
             if (messageText) {
                 message.textContent = messageText;
-                message.className = `message ${type}`;
+                message.className = `message ${type}`; // Assigner la classe
+            } else {
+                message.className = 'message'; // Cacher si pas de messageText
+                message.textContent = '';
             }
             
-            loginButton.style.display = 'block';
+            loginButton.style.display = 'block'; // Afficher le bouton dans tous les cas finaux
         }
 
         // Démarrer la vérification au chargement
@@ -188,22 +191,36 @@
             try {
                 const response = await fetch(`${API_BASE}/user/verify-email?token=${token}`, {
                     method: 'GET'
+                    // Pas de headers ou body nécessaires pour ce GET
                 });
                 
+                // Tenter de parser la réponse JSON même si status != 200 pour récupérer le message d'erreur
                 const data = await response.json();
 
                 if (!response.ok) {
                     let errorMsg = data.error || "Une erreur inconnue est survenue.";
-                    if (data.code === "INVALID_TOKEN") {
+                    // Personnaliser le message si token invalide/expiré
+                    if (data.code === "INVALID_TOKEN" || response.status === 401) {
                         errorMsg = "Ce lien de vérification est invalide ou a expiré. Veuillez recréer votre compte.";
                     }
-                    showResult('error', 'Vérification échouée', errorMsg, null);
+                    showResult('error', 'Vérification échouée', errorMsg, null); // Pas de message détaillé dans la box colorée
                 } else {
+                    // Réponse OK (2xx)
                     
-                    // Gérer l'échec d'envoi d'email
+                    // Gérer l'échec d'envoi d'email 2 (code) signalé par l'API
                     if (data.email_error) {
                          showResult('error', 'Email confirmé, mais...', 'Votre email a été confirmé, mais une erreur est survenue lors de l\'envoi de votre code secret. Veuillez contacter le support.', null);
-                         return;
+                         // Pas de 'return' ici, car on veut quand même afficher le code si l'API le renvoie malgré l'erreur email
+                         // Si l'API renvoie le code *même si* email_error est true :
+                         if (data.code) {
+                             codeDisplayWrapper.innerHTML = `
+                                <div class="code-display" style="display: block;">
+                                    <div class="label">Votre code MeeTempo (Notez-le !)</div>
+                                    <div class="code">${data.code}</div>
+                                </div>
+                             `;
+                         }
+                         return; // Arrêter ici après avoir géré l'erreur email
                     }
                     
                     // Succès ! Afficher le code si l'API le renvoie
@@ -211,7 +228,7 @@
                         title.textContent = '✅ Compte Activé !';
                         subtitle.textContent = 'Voici votre code secret. Conservez-le précieusement !';
                         
-                        // MODIFICATION : Afficher le code
+                        // Afficher le code
                         codeDisplayWrapper.innerHTML = `
                             <div class="code-display" style="display: block;">
                                 <div class="label">Votre code MeeTempo</div>
@@ -219,25 +236,22 @@
                             </div>
                         `;
                         
-                        // Afficher le message de succès (l'email a aussi été envoyé)
-                        message.textContent = 'Votre code vous a également été envoyé par email (vérifiez vos spams).';
-                        message.className = 'message success';
-                        
-                        loader.style.display = 'none';
-                        loginButton.style.display = 'block';
+                        // Utiliser la fonction showResult pour le message succès
+                        showResult('success', title.textContent, subtitle.textContent, 'Votre code vous a également été envoyé par email (vérifiez vos spams).');
 
                     } else if (data.already_verified) {
                         // Cas où c'est déjà vérifié
                         showResult('success', 'Email déjà confirmé', 'Votre compte est déjà actif. Vous pouvez vous connecter.', null);
                     } else {
-                         // Cas où l'API n'a pas renvoyé le code (ancien code ?)
-                         showResult('error', 'Erreur Inattendue', 'Votre compte est activé, mais le code n'a pas pu être récupéré. Contactez le support.', null);
+                         // Cas inattendu où l'API répond OK mais ne renvoie ni code, ni already_verified, ni email_error
+                         showResult('error', 'Erreur Inattendue', 'Votre compte semble activé, mais le code n\'a pas pu être affiché. Vérifiez l\'email qui vous a été envoyé ou contactez le support.', null);
                     }
                 }
 
             } catch (err) {
                 console.error('Verification error:', err);
-                showResult('error', 'Erreur Réseau', 'Impossible de contacter le serveur de vérification. Veuillez vérifier votre connexion et réessayer.', null);
+                // Gérer les erreurs réseau ou de parsing JSON
+                showResult('error', 'Erreur Réseau', 'Impossible de contacter le serveur de vérification. Veuillez vérifier votre connexion et réessayer.', `Détail : ${err.message}`);
             }
         });
     </script>
