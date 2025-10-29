@@ -97,6 +97,60 @@
       border-radius: 20px;
     }
     
+    /* Distance Selector */
+    .distance-selector {
+      position: fixed;
+      top: 70px;
+      right: 20px;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(6px);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 999;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .distance-label {
+      font-size: 12px;
+      color: var(--mt-muted);
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 4px;
+    }
+    
+    .distance-buttons {
+      display: flex;
+      gap: 6px;
+    }
+    
+    .distance-btn {
+      padding: 6px 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      color: var(--mt-text);
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+    
+    .distance-btn:hover {
+      background: rgba(255,255,255,0.15);
+      transform: translateY(-1px);
+    }
+    
+    .distance-btn.active {
+      background: var(--mt-accent);
+      color: #111;
+      border-color: var(--mt-accent);
+    }
+    
     /* Map Container */
     #map {
       position: fixed;
@@ -359,6 +413,21 @@
         padding: 5px 10px;
       }
       
+      .distance-selector {
+        top: 66px;
+        right: 10px;
+        padding: 8px;
+      }
+      
+      .distance-buttons {
+        flex-wrap: wrap;
+      }
+      
+      .distance-btn {
+        font-size: 11px;
+        padding: 5px 10px;
+      }
+      
       #map {
         top: 56px;
         bottom: 180px;
@@ -406,12 +475,23 @@
       </div>
       <div class="stat-item">
         <span>👥</span>
-        <span id="userCount">0</span>
+        <span id="userCount">0 MeeTempers</span>
       </div>
       <div class="stat-item">
         <span>📏</span>
-        <span id="radiusText">10 km</span>
+        <span id="radiusText">20 km</span>
       </div>
+    </div>
+  </div>
+  
+  <!-- Distance Selector -->
+  <div class="distance-selector">
+    <div class="distance-label">RAYON DE RECHERCHE</div>
+    <div class="distance-buttons">
+      <button class="distance-btn" data-radius="5">5 km</button>
+      <button class="distance-btn" data-radius="10">10 km</button>
+      <button class="distance-btn active" data-radius="20">20 km</button>
+      <button class="distance-btn" data-radius="50">50 km</button>
     </div>
   </div>
   
@@ -431,13 +511,26 @@
   <script>
     const API_BASE = 'https://api.meetempo.com';
     
+    // 🎨 Palette de couleurs MeeTempo (8 couleurs harmonieuses)
+    const MARKER_COLORS = [
+      '#F49F1C', // Orange (signature MeeTempo)
+      '#3B82F6', // Bleu
+      '#10B981', // Vert
+      '#8B5CF6', // Violet
+      '#EF4444', // Rouge
+      '#F59E0B', // Ambre
+      '#06B6D4', // Cyan
+      '#EC4899'  // Rose
+    ];
+    
     const params = new URLSearchParams(location.search);
     const token = params.get('token');
     
-    let HERE_API_KEY = null; // ✅ Sera chargé dynamiquement
+    let HERE_API_KEY = null;
     let map;
     let ui;
     let currentLocation = { lat: 48.8566, lng: 2.3522 }; // Paris par défaut
+    let currentRadius = 20; // ✅ Défaut 20 km
     let markers = [];
     let usersData = [];
     let currentUser = null;
@@ -448,6 +541,22 @@
       const div = document.createElement('div');
       div.textContent = str;
       return div.innerHTML;
+    }
+    
+    // 🎨 Fonction pour obtenir couleur par index (rotation tous les 8)
+    function getMarkerColor(index) {
+      return MARKER_COLORS[index % MARKER_COLORS.length];
+    }
+    
+    // 📍 Créer SVG icône goutte avec couleur
+    function createDropletIcon(color) {
+      return `<svg width="36" height="42" xmlns="http://www.w3.org/2000/svg">
+        <path d="M18 2 C18 2, 6 16, 6 26 C6 32, 11 38, 18 38 C25 38, 30 32, 30 26 C30 16, 18 2, 18 2 Z" 
+              fill="${color}" 
+              stroke="white" 
+              stroke-width="3"
+              stroke-linejoin="round"/>
+      </svg>`;
     }
     
     // ✅ Fonction erreur précise
@@ -491,7 +600,7 @@
           return;
         }
         
-        // 2. Vérifier charte (✅ NOUVEAU)
+        // 2. Vérifier charte
         const charterResponse = await fetch(`${API_BASE}/consent/status?token=${token}`);
         
         if (charterResponse.ok) {
@@ -505,7 +614,7 @@
           }
         }
         
-        // 3. Charger clé HERE (✅ SÉCURISÉ)
+        // 3. Charger clé HERE
         const keyResponse = await fetch(`${API_BASE}/config/here-key?token=${token}`);
         
         if (!keyResponse.ok) {
@@ -521,6 +630,9 @@
         
         // 5. Initialiser carte
         initMap();
+        
+        // 6. Setup distance selector
+        setupDistanceSelector();
         
       } catch (err) {
         console.error('Init error:', err);
@@ -573,6 +685,28 @@
       });
     }
     
+    // 🎛️ Setup distance selector
+    function setupDistanceSelector() {
+      const buttons = document.querySelectorAll('.distance-btn');
+      
+      buttons.forEach(btn => {
+        btn.addEventListener('click', function() {
+          const radius = parseInt(this.dataset.radius);
+          
+          // Update active state
+          buttons.forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+          
+          // Update radius and reload
+          currentRadius = radius;
+          document.getElementById('radiusText').textContent = `${radius} km`;
+          
+          // Reload users
+          loadNearbyUsers();
+        });
+      });
+    }
+    
     // Initialize HERE Map
     function initMap() {
       const platform = new H.service.Platform({
@@ -606,11 +740,11 @@
         }, 100);
       });
       
-      // Add user position marker (blue)
-      const userIcon = new H.map.Icon(
-        '<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="8" fill="#3B82F6" stroke="white" stroke-width="3"/></svg>',
-        { size: { w: 32, h: 32 } }
-      );
+      // Add user position marker (blue droplet)
+      const userIcon = new H.map.Icon(createDropletIcon('#3B82F6'), { 
+        size: { w: 36, h: 42 },
+        anchor: { x: 18, y: 38 }
+      });
       
       const userMarker = new H.map.Marker(currentLocation, { icon: userIcon });
       map.addObject(userMarker);
@@ -622,8 +756,11 @@
     // ✅ Load nearby users from API
     async function loadNearbyUsers() {
       try {
+        // Show loading state
+        document.getElementById('loading').style.display = 'flex';
+        
         const response = await fetch(
-          `${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=20&token=${token}`
+          `${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${currentRadius}&token=${token}`
         );
         
         if (!response.ok) {
@@ -642,10 +779,9 @@
         const data = await response.json();
         usersData = data.users || [];
         
-        // ✅ Update stats header avec contexte
-        document.getElementById('userCount').textContent = `${usersData.length} MeeTempers`;
+        // ✅ Update stats header
+        document.getElementById('userCount').textContent = `${usersData.length} MeeTemper${usersData.length > 1 ? 's' : ''}`;
         document.getElementById('locationText').textContent = currentLocation.city || 'Paris';
-        document.getElementById('radiusText').textContent = '10 km';
         
         // Add markers
         addMarkersToMap(usersData);
@@ -662,23 +798,26 @@
       }
     }
     
-    // Add markers to map
+    // 🎨 Add markers to map with colored droplets
     function addMarkersToMap(users) {
-      // Clear existing markers
+      // Clear existing markers (except user marker)
       markers.forEach(m => map.removeObject(m));
       markers = [];
       
       users.forEach((user, index) => {
-        // Create custom icon (orange)
-        const markerIcon = new H.map.Icon(
-          '<svg width="36" height="36" xmlns="http://www.w3.org/2000/svg"><circle cx="18" cy="18" r="10" fill="#F49F1C" stroke="white" stroke-width="3"/></svg>',
-          { size: { w: 36, h: 36 } }
-        );
+        // 🎨 Get color for this user (rotation every 8)
+        const color = getMarkerColor(index);
+        
+        // 📍 Create droplet icon
+        const markerIcon = new H.map.Icon(createDropletIcon(color), {
+          size: { w: 36, h: 42 },
+          anchor: { x: 18, y: 38 }
+        });
         
         const marker = new H.map.Marker(user.location, { icon: markerIcon });
         marker.setData({ userId: user.id, index });
         
-        // ✅ Add tooltip avec échappement HTML
+        // ✅ Add tooltip
         marker.addEventListener('tap', function(evt) {
           const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
             content: `
@@ -706,7 +845,7 @@
       });
     }
     
-    // ✅ Populate user cards avec échappement HTML
+    // ✅ Populate user cards
     function populateUserCards(users) {
       const grid = document.getElementById('usersGrid');
       grid.innerHTML = '';
@@ -775,12 +914,12 @@
       }
     }
     
-    // ✅ Contact user - Action intelligente
+    // ✅ Contact user
     function contactUser(userId) {
       alert('💬 Messagerie en développement\n\nLa messagerie directe arrive bientôt !\n\nEn attendant, vous pouvez :\n• Créer une suggestion publique\n• Rejoindre un groupe de travail');
     }
     
-    // ✅ View profile - Action intelligente
+    // ✅ View profile
     function viewProfile(userId) {
       alert('👀 Profil détaillé en développement\n\nLes profils détaillés arrivent bientôt !\n\nActuellement disponible dans les cartes utilisateurs.');
     }
