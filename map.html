@@ -385,8 +385,8 @@
   <div id="errorScreen" class="error-screen">
     <div class="error-content">
       <div class="error-icon">❌</div>
-      <h2 class="error-title">Accès non autorisé</h2>
-      <p class="error-message" id="errorMessage">Session expirée ou invalide</p>
+      <h2 class="error-title" id="errorTitle">Erreur</h2>
+      <p class="error-message" id="errorMessage">Une erreur est survenue</p>
       <button class="btn btn-primary" onclick="window.location.href='https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19'">
         Retour à MeeTempo
       </button>
@@ -399,7 +399,7 @@
       <div class="logo-badge">MT</div>
       <h1>🗺 Carte MeeTempers</h1>
     </div>
-    <div class="stats">
+    <div class="stats" id="statsHeader">
       <div class="stat-item">
         <span>📍</span>
         <span id="locationText">Paris</span>
@@ -407,6 +407,10 @@
       <div class="stat-item">
         <span>👥</span>
         <span id="userCount">0</span>
+      </div>
+      <div class="stat-item">
+        <span>📏</span>
+        <span id="radiusText">10 km</span>
       </div>
     </div>
   </div>
@@ -426,64 +430,148 @@
 
   <script>
     const API_BASE = 'https://api.meetempo.com';
-    const HERE_API_KEY = 'zX4Qa0DBIxyztiRoomfnxYIJ73cyuEqECXf1Xe2ZQsA'; // TODO: Remplacer par ta clé
     
     const params = new URLSearchParams(location.search);
     const token = params.get('token');
     
+    let HERE_API_KEY = null; // ✅ Sera chargé dynamiquement
     let map;
     let ui;
     let currentLocation = { lat: 48.8566, lng: 2.3522 }; // Paris par défaut
     let markers = [];
     let usersData = [];
+    let currentUser = null;
     
-    // Init
-    async function init() {
-  if (!token) {
-    showError('Token manquant', 'Utilisez le lien depuis MeeTempo GPT');
-    return;
-  }
-  
-  // Valider session
-  try {
-    const response = await fetch(`${API_BASE}/auth/session?token=${token}`);
-    if (!response.ok) throw new Error('Session invalide');
+    // ✅ Fonction échappement HTML (XSS fix)
+    function escapeHTML(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
     
-    const data = await response.json();
-    if (!data.user_id) throw new Error('User ID manquant');
-    
-    sessionStorage.setItem('meetempo_token', token);
-    
-  } catch (err) {
-    showError('Session expirée', 'Veuillez obtenir un nouveau lien depuis MeeTempo GPT');
-    return;
-  }
-  
-  // FORCER PARIS POUR TESTS
-  currentLocation = { lat: 48.8566, lng: 2.3522 };
-  console.log('Using Paris location for tests:', currentLocation);
-  initMap();
-  
-  /* DÉSACTIVÉ GEOLOCATION POUR TESTS
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      position => {
-        currentLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude
-        };
-        initMap();
-      },
-      error => {
-        console.log('Geolocation error, using Paris default');
-        initMap();
+    // ✅ Fonction erreur précise
+    function showError(title, message, type = 'unknown') {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('errorTitle').textContent = title;
+      document.getElementById('errorMessage').textContent = message;
+      document.getElementById('errorScreen').classList.add('show');
+      
+      // Auto-redirect pour session expirée
+      if (type === 'expired') {
+        setTimeout(() => {
+          window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        }, 3000);
       }
-    );
-  } else {
-    initMap();
-  }
-  */
-}
+    }
+    
+    // ✅ Init principale
+    async function init() {
+      if (!token) {
+        showError('Token manquant', 'Veuillez accéder à cette page depuis MeeTempo GPT', 'missing');
+        return;
+      }
+      
+      try {
+        // 1. Valider session
+        const sessionResponse = await fetch(`${API_BASE}/auth/session?token=${token}`);
+        
+        if (!sessionResponse.ok) {
+          if (sessionResponse.status === 401) {
+            showError('Session expirée', 'Votre session a expiré. Redirection vers MeeTempo GPT...', 'expired');
+          } else {
+            showError('Erreur serveur', 'Le service est temporairement indisponible. Réessayez dans quelques instants.', 'server');
+          }
+          return;
+        }
+        
+        const sessionData = await sessionResponse.json();
+        if (!sessionData.user_id) {
+          showError('Session invalide', 'Impossible de valider votre session', 'invalid');
+          return;
+        }
+        
+        // 2. Vérifier charte (✅ NOUVEAU)
+        const charterResponse = await fetch(`${API_BASE}/consent/status?token=${token}`);
+        
+        if (charterResponse.ok) {
+          const charterData = await charterResponse.json();
+          
+          if (!charterData.accepted) {
+            // Rediriger vers charte avec return URL
+            const returnUrl = encodeURIComponent(window.location.href);
+            window.location.href = `charter.html?token=${token}&return=${returnUrl}`;
+            return;
+          }
+        }
+        
+        // 3. Charger clé HERE (✅ SÉCURISÉ)
+        const keyResponse = await fetch(`${API_BASE}/config/here-key?token=${token}`);
+        
+        if (!keyResponse.ok) {
+          showError('Erreur configuration', 'Impossible de charger la configuration carte', 'config');
+          return;
+        }
+        
+        const keyData = await keyResponse.json();
+        HERE_API_KEY = keyData.key;
+        
+        // 4. Géolocalisation avec fallback
+        await getUserLocation();
+        
+        // 5. Initialiser carte
+        initMap();
+        
+      } catch (err) {
+        console.error('Init error:', err);
+        
+        if (!navigator.onLine) {
+          showError('Pas de connexion', 'Vérifiez votre connexion internet', 'offline');
+        } else {
+          showError('Erreur inattendue', 'Une erreur est survenue lors du chargement. Réessayez.', 'unknown');
+        }
+      }
+    }
+    
+    // ✅ Géolocalisation avec fallback
+    async function getUserLocation() {
+      return new Promise((resolve) => {
+        if (navigator.geolocation) {
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              currentLocation = {
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+                source: 'gps',
+                accuracy: position.coords.accuracy
+              };
+              console.log('✅ Géoloc GPS:', currentLocation);
+              resolve();
+            },
+            (error) => {
+              console.warn('⚠️ Geoloc failed:', error.message);
+              // Fallback Paris
+              currentLocation = {
+                lat: 48.8566,
+                lng: 2.3522,
+                source: 'default',
+                city: 'Paris'
+              };
+              resolve();
+            },
+            { timeout: 5000, enableHighAccuracy: true }
+          );
+        } else {
+          currentLocation = {
+            lat: 48.8566,
+            lng: 2.3522,
+            source: 'default',
+            city: 'Paris'
+          };
+          resolve();
+        }
+      });
+    }
     
     // Initialize HERE Map
     function initMap() {
@@ -507,6 +595,17 @@
       const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
       ui = H.ui.UI.createDefault(map, defaultLayers);
       
+      // ✅ Resize handler
+      window.addEventListener('resize', () => {
+        if (map) map.getViewPort().resize();
+      });
+      
+      window.addEventListener('orientationchange', () => {
+        setTimeout(() => {
+          if (map) map.getViewPort().resize();
+        }, 100);
+      });
+      
       // Add user position marker (blue)
       const userIcon = new H.map.Icon(
         '<svg width="32" height="32" xmlns="http://www.w3.org/2000/svg"><circle cx="16" cy="16" r="8" fill="#3B82F6" stroke="white" stroke-width="3"/></svg>',
@@ -520,20 +619,33 @@
       loadNearbyUsers();
     }
     
-    // Load nearby users from API
+    // ✅ Load nearby users from API
     async function loadNearbyUsers() {
       try {
         const response = await fetch(
-          `${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=10`
+          `${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=10&token=${token}`
         );
         
-        if (!response.ok) throw new Error('Failed to load users');
+        if (!response.ok) {
+          if (response.status === 401) {
+            showError('Session expirée', 'Votre session a expiré. Redirection...', 'expired');
+          } else if (response.status === 429) {
+            showError('Trop de requêtes', 'Vous avez effectué trop de recherches. Réessayez dans 1 minute.', 'rate-limit');
+          } else if (response.status >= 500) {
+            showError('Service indisponible', 'Nos serveurs rencontrent un problème. Réessayez.', 'server');
+          } else {
+            throw new Error('Failed to load users');
+          }
+          return;
+        }
         
         const data = await response.json();
         usersData = data.users || [];
         
-        // Update UI
-        document.getElementById('userCount').textContent = usersData.length;
+        // ✅ Update stats header avec contexte
+        document.getElementById('userCount').textContent = `${usersData.length} MeeTempers`;
+        document.getElementById('locationText').textContent = currentLocation.city || 'Paris';
+        document.getElementById('radiusText').textContent = '10 km';
         
         // Add markers
         addMarkersToMap(usersData);
@@ -546,7 +658,7 @@
         
       } catch (err) {
         console.error('Error loading users:', err);
-        showError('Erreur chargement', 'Impossible de charger les MeeTempers à proximité');
+        showError('Erreur chargement', 'Impossible de charger les MeeTempers à proximité', 'load');
       }
     }
     
@@ -566,19 +678,19 @@
         const marker = new H.map.Marker(user.location, { icon: markerIcon });
         marker.setData({ userId: user.id, index });
         
-        // Add tooltip
+        // ✅ Add tooltip avec échappement HTML
         marker.addEventListener('tap', function(evt) {
           const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
             content: `
               <div style="padding: 8px; font-family: Montserrat, sans-serif;">
                 <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">
-                  ${user.pseudo}
+                  ${escapeHTML(user.pseudo)}
                 </div>
                 <div style="font-size: 13px; margin-bottom: 4px;">
-                  ${user.latest_suggestion}
+                  ${escapeHTML(user.latest_suggestion)}
                 </div>
                 <div style="font-size: 12px; color: #666;">
-                  📍 ${user.city}
+                  📍 ${escapeHTML(user.city)}
                 </div>
               </div>
             `
@@ -594,7 +706,7 @@
       });
     }
     
-    // Populate user cards in bottom sheet
+    // ✅ Populate user cards avec échappement HTML
     function populateUserCards(users) {
       const grid = document.getElementById('usersGrid');
       grid.innerHTML = '';
@@ -609,18 +721,22 @@
         card.className = 'user-card';
         card.dataset.index = index;
         
-        const initials = user.pseudo.substring(0, 2).toUpperCase();
+        const initials = escapeHTML(user.pseudo.substring(0, 2).toUpperCase());
+        const pseudo = escapeHTML(user.pseudo);
+        const suggestion = escapeHTML(user.latest_suggestion);
+        const city = escapeHTML(user.city);
+        const distance = user.distance ? `${user.distance} km` : 'À proximité';
         
         card.innerHTML = `
           <div class="user-header">
             <div class="user-avatar">${initials}</div>
             <div class="user-info">
-              <h3>${user.pseudo}</h3>
-              <div class="user-distance">${user.distance ? user.distance + ' km' : 'À proximité'}</div>
+              <h3>${pseudo}</h3>
+              <div class="user-distance">${distance}</div>
             </div>
           </div>
-          <div class="user-suggestion">${user.latest_suggestion}</div>
-          <div class="user-location">📍 ${user.city}</div>
+          <div class="user-suggestion">${suggestion}</div>
+          <div class="user-location">📍 ${city}</div>
           <div class="user-actions">
             <button class="btn btn-primary" onclick="contactUser('${user.id}')">💬 Contacter</button>
             <button class="btn btn-secondary" onclick="viewProfile('${user.id}')">👀 Profil</button>
@@ -659,25 +775,23 @@
       }
     }
     
-    // Contact user
+    // ✅ Contact user - Action intelligente
     function contactUser(userId) {
-      alert(`Fonctionnalité "Contacter" à venir!\nUser ID: ${userId}`);
-      // TODO: Implémenter messagerie
+      alert('💬 Messagerie en développement\n\nLa messagerie directe arrive bientôt !\n\nEn attendant, vous pouvez :\n• Créer une suggestion publique\n• Rejoindre un groupe de travail');
     }
     
-    // View profile
+    // ✅ View profile - Action intelligente
     function viewProfile(userId) {
-      alert(`Fonctionnalité "Profil" à venir!\nUser ID: ${userId}`);
-      // TODO: Ouvrir page profil utilisateur
+      alert('👀 Profil détaillé en développement\n\nLes profils détaillés arrivent bientôt !\n\nActuellement disponible dans les cartes utilisateurs.');
     }
     
-    // Show error
-    function showError(title, message) {
-      document.getElementById('loading').style.display = 'none';
-      document.getElementById('errorMessage').textContent = message;
-      document.querySelector('.error-title').textContent = title;
-      document.getElementById('errorScreen').classList.add('show');
-    }
+    // ✅ Cleanup mémoire
+    window.addEventListener('beforeunload', () => {
+      if (map) {
+        map.dispose();
+        map = null;
+      }
+    });
     
     // Start
     init();
