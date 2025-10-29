@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Connexion MeeTempo</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mt-dark: #030E4F;
+            --mt-accent: #F49F1C;
+            --mt-bg: #0a133f;
+            --mt-card: #0e184f;
+            --mt-text: #ffffff;
+            --mt-muted: #c9d1ff;
+            --ok: #23c55e;
+            --err: #ef4444;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(160deg, var(--mt-dark) 0%, var(--mt-bg) 60%, #11183f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--mt-text);
+        }
+        
+        .container {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            backdrop-filter: blur(6px);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        .logo-badge {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
+            color: #111;
+            font-weight: 800;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+        
+        h1 {
+            font-size: 26px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        
+        .subtitle {
+            text-align: center;
+            color: var(--mt-muted);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--mt-text);
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 10px;
+            color: var(--mt-text);
+            font-size: 16px;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--mt-accent);
+            background: rgba(255,255,255,0.12);
+        }
+        
+        input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--mt-accent);
+            color: #111;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 8px;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244,159,28,0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .message {
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 20px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+        
+        .message.error {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid var(--err);
+            color: var(--err);
+            display: block;
+        }
+        
+        .message.success {
+            background: rgba(35,197,94,0.15);
+            border: 1px solid var(--ok);
+            color: var(--ok);
+            display: block;
+        }
+        
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+            color: var(--mt-accent);
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .info-box {
+            background: rgba(244,159,28,0.1);
+            border: 1px solid rgba(244,159,28,0.3);
+            border-radius: 10px;
+            padding: 16px;
+            margin-top: 24px;
+            font-size: 13px;
+            color: var(--mt-muted);
+            line-height: 1.5;
+        }
+        
+        .info-box strong {
+            color: var(--mt-accent);
+        }
+        
+        @media (max-width: 640px) {
+            .container {
+                padding: 32px 24px;
+            }
+            
+            h1 {
+                font-size: 22px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-badge">MT</div>
+        <h1>Connexion MeeTempo</h1>
+        <p class="subtitle">Authentifiez-vous pour accéder à votre compte</p>
+        
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="code">Code MeeTempo (6 chiffres)</label>
+                <input 
+                    type="text" 
+                    id="code" 
+                    name="code" 
+                    placeholder="862487"
+                    pattern="[0-9]{6}"
+                    maxlength="6"
+                    required
+                    autocomplete="off"
+                >
+            </div>
+            
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input 
+                    type="email" 
+                    id="email" 
+                    name="email" 
+                    placeholder="votre@email.com"
+                    required
+                    autocomplete="email"
+                >
+            </div>
+            
+            <button type="submit" class="btn" id="submitBtn">
+                Se connecter
+            </button>
+        </form>
+        
+        <div class="loading" id="loading">
+            Connexion en cours...
+        </div>
+        
+        <div class="message" id="message"></div>
+        
+        <div class="info-box">
+            <strong>✨ Session 24h</strong><br>
+            Votre session reste active pendant 24 heures. Vous n'aurez pas à vous reconnecter pendant cette période.
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://api.meetempo.com';
+        const GPT_URL = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        
+        const form = document.getElementById('loginForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const loading = document.getElementById('loading');
+        const message = document.getElementById('message');
+        
+        function showMessage(text, type = 'error') {
+            message.textContent = text;
+            message.className = `message ${type}`;
+        }
+        
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const code = document.getElementById('code').value.trim();
+            const email = document.getElementById('email').value.trim();
+            
+            if (code.length !== 6 || !/^\d{6}$/.test(code)) {
+                showMessage('Le code doit contenir exactement 6 chiffres', 'error');
+                return;
+            }
+            
+            if (!email || !email.includes('@')) {
+                showMessage('Email invalide', 'error');
+                return;
+            }
+            
+            submitBtn.disabled = true;
+            loading.classList.add('show');
+            message.className = 'message';
+            
+            try {
+                const response = await fetch(`${API_BASE}/auth/create-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ code, email })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    if (response.status === 404) {
+                        showMessage('Code invalide', 'error');
+                    } else if (response.status === 401) {
+                        showMessage('Email incorrect', 'error');
+                    } else if (response.status === 429) {
+                        showMessage('Trop de tentatives. Réessayez dans 1 minute', 'error');
+                    } else {
+                        showMessage(data.error || 'Erreur de connexion', 'error');
+                    }
+                    submitBtn.disabled = false;
+                    loading.classList.remove('show');
+                    return;
+                }
+                
+                showMessage('✅ Connexion réussie ! Redirection...', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = `${GPT_URL}?session=${data.session_token}`;
+                }, 1500);
+                
+            } catch (err) {
+                console.error('Login error:', err);
+                showMessage('Erreur réseau. Vérifiez votre connexion', 'error');
+                submitBtn.disabled = false;
+                loading.classList.remove('show');
+            }
+        });
+    </script>
+</body>
+</html>
