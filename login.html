@@ -73,6 +73,48 @@
             margin-bottom: 32px;
         }
         
+        /* Tabs */
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            padding: 4px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            background: transparent;
+            border: none;
+            border-radius: 8px;
+            color: var(--mt-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
+        }
+        
+        .tab:hover {
+            background: rgba(255,255,255,0.08);
+        }
+        
+        .tab.active {
+            background: var(--mt-accent);
+            color: #111;
+        }
+        
+        /* Forms */
+        .form-container {
+            display: none;
+        }
+        
+        .form-container.active {
+            display: block;
+        }
+        
         .form-group {
             margin-bottom: 20px;
         }
@@ -181,6 +223,36 @@
             color: var(--mt-accent);
         }
         
+        .code-display {
+            background: rgba(244,159,28,0.15);
+            border: 2px solid var(--mt-accent);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .code-display .label {
+            font-size: 13px;
+            color: var(--mt-muted);
+            margin-bottom: 8px;
+        }
+        
+        .code-display .code {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--mt-accent);
+            letter-spacing: 4px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .helper-text {
+            font-size: 12px;
+            color: var(--mt-muted);
+            margin-top: 8px;
+            text-align: center;
+        }
+        
         @media (max-width: 640px) {
             .container {
                 padding: 32px 24px;
@@ -189,56 +261,117 @@
             h1 {
                 font-size: 22px;
             }
+            
+            .code-display .code {
+                font-size: 28px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="logo-badge">MT</div>
-        <h1>Connexion MeeTempo</h1>
-        <p class="subtitle">Authentifiez-vous pour accéder à votre compte</p>
+        <h1>Bienvenue sur MeeTempo</h1>
+        <p class="subtitle">Connectez-vous ou créez votre compte</p>
         
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="code">Code MeeTempo (6 chiffres)</label>
-                <input 
-                    type="text" 
-                    id="code" 
-                    name="code" 
-                    placeholder="862487"
-                    pattern="[0-9]{6}"
-                    maxlength="6"
-                    required
-                    autocomplete="off"
-                >
-            </div>
-            
-            <div class="form-group">
-                <label for="email">Email</label>
-                <input 
-                    type="email" 
-                    id="email" 
-                    name="email" 
-                    placeholder="votre@email.com"
-                    required
-                    autocomplete="email"
-                >
-            </div>
-            
-            <button type="submit" class="btn" id="submitBtn">
-                Se connecter
-            </button>
-        </form>
-        
-        <div class="loading" id="loading">
-            Connexion en cours...
+        <!-- Tabs -->
+        <div class="tabs">
+            <button class="tab active" data-tab="login">Se connecter</button>
+            <button class="tab" data-tab="signup">Créer un compte</button>
         </div>
         
-        <div class="message" id="message"></div>
+        <!-- Login Form -->
+        <div id="loginForm" class="form-container active">
+            <form id="loginSubmit">
+                <div class="form-group">
+                    <label for="loginCode">Code MeeTempo (6 chiffres)</label>
+                    <input 
+                        type="text" 
+                        id="loginCode" 
+                        placeholder="862487"
+                        pattern="[0-9]{6}"
+                        maxlength="6"
+                        required
+                        autocomplete="off"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="loginEmail">Email</label>
+                    <input 
+                        type="email" 
+                        id="loginEmail" 
+                        placeholder="votre@email.com"
+                        required
+                        autocomplete="email"
+                    >
+                </div>
+                
+                <button type="submit" class="btn" id="loginBtn">
+                    Se connecter
+                </button>
+            </form>
+            
+            <div class="loading" id="loginLoading">
+                Connexion en cours...
+            </div>
+            
+            <div class="message" id="loginMessage"></div>
+            
+            <div class="info-box">
+                <strong>✨ Session 24h</strong><br>
+                Votre session reste active pendant 24 heures. Vous n'aurez pas à vous reconnecter.
+            </div>
+        </div>
         
-        <div class="info-box">
-            <strong>✨ Session 24h</strong><br>
-            Votre session reste active pendant 24 heures. Vous n'aurez pas à vous reconnecter pendant cette période.
+        <!-- Signup Form -->
+        <div id="signupForm" class="form-container">
+            <form id="signupSubmit">
+                <div class="form-group">
+                    <label for="signupEmail">Email (optionnel)</label>
+                    <input 
+                        type="email" 
+                        id="signupEmail" 
+                        placeholder="votre@email.com"
+                        autocomplete="email"
+                    >
+                    <div class="helper-text">
+                        L'email est recommandé pour sécuriser votre compte
+                    </div>
+                </div>
+                
+                <button type="submit" class="btn" id="signupBtn">
+                    Créer mon compte
+                </button>
+            </form>
+            
+            <div class="loading" id="signupLoading">
+                Création du compte...
+            </div>
+            
+            <div class="message" id="signupMessage"></div>
+            
+            <!-- Code Display (hidden by default) -->
+            <div id="codeDisplay" style="display: none;">
+                <div class="code-display">
+                    <div class="label">🎉 Votre code MeeTempo</div>
+                    <div class="code" id="generatedCode">------</div>
+                </div>
+                
+                <div class="info-box">
+                    <strong>⚠️ Important</strong><br>
+                    Notez bien ce code ! Il vous permettra de vous connecter à MeeTempo. Vous pouvez maintenant vous connecter avec ce code.
+                </div>
+                
+                <button class="btn" onclick="switchToLogin()">
+                    Se connecter maintenant
+                </button>
+            </div>
+            
+            <div class="info-box" id="signupInfo">
+                <strong>🆓 Compte gratuit</strong><br>
+                Créez votre compte gratuitement. Vous pourrez passer Premium ou VIP plus tard pour débloquer toutes les fonctionnalités.
+            </div>
         </div>
     </div>
 
@@ -246,35 +379,65 @@
         const API_BASE = 'https://api.meetempo.com';
         const GPT_URL = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
         
-        const form = document.getElementById('loginForm');
-        const submitBtn = document.getElementById('submitBtn');
-        const loading = document.getElementById('loading');
-        const message = document.getElementById('message');
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetTab = this.dataset.tab;
+                
+                // Update tabs
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+                
+                // Update forms
+                document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+                document.getElementById(targetTab + 'Form').classList.add('active');
+                
+                // Reset messages
+                document.querySelectorAll('.message').forEach(m => m.className = 'message');
+            });
+        });
         
-        function showMessage(text, type = 'error') {
-            message.textContent = text;
-            message.className = `message ${type}`;
+        // Helper function
+        function showMessage(elementId, text, type = 'error') {
+            const el = document.getElementById(elementId);
+            el.textContent = text;
+            el.className = `message ${type}`;
         }
         
-        form.addEventListener('submit', async (e) => {
+        // Switch to login tab with prefilled code
+        function switchToLogin() {
+            const code = document.getElementById('generatedCode').textContent;
+            const email = document.getElementById('signupEmail').value;
+            
+            document.querySelector('.tab[data-tab="login"]').click();
+            document.getElementById('loginCode').value = code;
+            if (email) {
+                document.getElementById('loginEmail').value = email;
+            }
+        }
+        
+        // LOGIN HANDLER
+        document.getElementById('loginSubmit').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const code = document.getElementById('code').value.trim();
-            const email = document.getElementById('email').value.trim();
+            const code = document.getElementById('loginCode').value.trim();
+            const email = document.getElementById('loginEmail').value.trim();
+            const btn = document.getElementById('loginBtn');
+            const loading = document.getElementById('loginLoading');
             
             if (code.length !== 6 || !/^\d{6}$/.test(code)) {
-                showMessage('Le code doit contenir exactement 6 chiffres', 'error');
+                showMessage('loginMessage', 'Le code doit contenir exactement 6 chiffres', 'error');
                 return;
             }
             
             if (!email || !email.includes('@')) {
-                showMessage('Email invalide', 'error');
+                showMessage('loginMessage', 'Email invalide', 'error');
                 return;
             }
             
-            submitBtn.disabled = true;
+            btn.disabled = true;
             loading.classList.add('show');
-            message.className = 'message';
+            document.getElementById('loginMessage').className = 'message';
             
             try {
                 const response = await fetch(`${API_BASE}/auth/create-session`, {
@@ -287,20 +450,20 @@
                 
                 if (!response.ok) {
                     if (response.status === 404) {
-                        showMessage('Code invalide', 'error');
+                        showMessage('loginMessage', 'Code invalide', 'error');
                     } else if (response.status === 401) {
-                        showMessage('Email incorrect', 'error');
+                        showMessage('loginMessage', 'Email incorrect', 'error');
                     } else if (response.status === 429) {
-                        showMessage('Trop de tentatives. Réessayez dans 1 minute', 'error');
+                        showMessage('loginMessage', 'Trop de tentatives. Réessayez dans 1 minute', 'error');
                     } else {
-                        showMessage(data.error || 'Erreur de connexion', 'error');
+                        showMessage('loginMessage', data.error || 'Erreur de connexion', 'error');
                     }
-                    submitBtn.disabled = false;
+                    btn.disabled = false;
                     loading.classList.remove('show');
                     return;
                 }
                 
-                showMessage('✅ Connexion réussie ! Redirection...', 'success');
+                showMessage('loginMessage', '✅ Connexion réussie ! Redirection...', 'success');
                 
                 setTimeout(() => {
                     window.location.href = `${GPT_URL}?session=${data.session_token}`;
@@ -308,8 +471,58 @@
                 
             } catch (err) {
                 console.error('Login error:', err);
-                showMessage('Erreur réseau. Vérifiez votre connexion', 'error');
-                submitBtn.disabled = false;
+                showMessage('loginMessage', 'Erreur réseau. Vérifiez votre connexion', 'error');
+                btn.disabled = false;
+                loading.classList.remove('show');
+            }
+        });
+        
+        // SIGNUP HANDLER
+        document.getElementById('signupSubmit').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('signupEmail').value.trim();
+            const btn = document.getElementById('signupBtn');
+            const loading = document.getElementById('signupLoading');
+            
+            if (email && !email.includes('@')) {
+                showMessage('signupMessage', 'Email invalide', 'error');
+                return;
+            }
+            
+            btn.disabled = true;
+            loading.classList.add('show');
+            document.getElementById('signupMessage').className = 'message';
+            
+            try {
+                const body = email ? { email } : {};
+                
+                const response = await fetch(`${API_BASE}/user/create`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(body)
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    showMessage('signupMessage', data.error || 'Erreur lors de la création', 'error');
+                    btn.disabled = false;
+                    loading.classList.remove('show');
+                    return;
+                }
+                
+                // Success - Show code
+                document.getElementById('generatedCode').textContent = data.code;
+                document.getElementById('codeDisplay').style.display = 'block';
+                document.getElementById('signupInfo').style.display = 'none';
+                document.getElementById('signupSubmit').style.display = 'none';
+                loading.classList.remove('show');
+                
+            } catch (err) {
+                console.error('Signup error:', err);
+                showMessage('signupMessage', 'Erreur réseau. Vérifiez votre connexion', 'error');
+                btn.disabled = false;
                 loading.classList.remove('show');
             }
         });
