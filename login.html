@@ -125,6 +125,41 @@
         }
         .info-box strong { color: var(--mt-accent); }
         .helper-text { font-size: 12px; color: var(--mt-muted); margin-top: 8px; text-align: center; }
+        
+        /* NOUVEAU: Style pour afficher le token */
+        .token-display {
+            background: rgba(35,197,94,0.15);
+            border: 1px solid var(--ok);
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+        }
+        .token-display strong {
+            font-size: 16px;
+            color: var(--ok);
+            display: block;
+            margin-bottom: 10px;
+        }
+        .token-display code {
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            background: rgba(0,0,0,0.2);
+            padding: 8px 12px;
+            border-radius: 6px;
+            word-break: break-all;
+            display: block;
+            color: var(--mt-text);
+            cursor: pointer;
+        }
+        .token-display small {
+            font-size: 12px;
+            color: var(--mt-muted);
+            display: block;
+            margin-top: 15px;
+        }
+        /* --- Fin NOUVEAU --- */
+
         @media (max-width: 640px) {
             .container { padding: 32px 24px; }
             h1 { font-size: 22px; }
@@ -142,7 +177,19 @@
             <button class="tab" data-tab="signup">Créer un compte</button>
         </div>
         
+        <!-- Login Form -->
         <div id="loginForm" class="form-container active">
+            
+            <!-- NOUVEAU: Conteneur pour le token -->
+            <div id="tokenSuccessDisplay" style="display: none;">
+                <div class="token-display">
+                    <strong>✅ Connexion réussie !</strong>
+                    <p id="tokenMessage" style="font-size: 14px; color: var(--mt-text); margin-bottom: 15px;">Copiez ce token de session (valide 24h) et collez-le dans le chat GPT :</p>
+                    <code id="sessionTokenCode" title="Cliquez pour copier">...</code>
+                    <small>Vous pouvez maintenant retourner au GPT.</small>
+                </div>
+            </div>
+            
             <form id="loginSubmit">
                 <div class="form-group">
                     <label for="loginCode">Code MeeTempo (6 chiffres)</label>
@@ -156,12 +203,13 @@
             </form>
             <div class="loading" id="loginLoading">Connexion en cours...</div>
             <div class="message" id="loginMessage"></div>
-            <div class="info-box">
+            <div class="info-box" id="loginInfoBox">
                 <strong>✨ Session 24h</strong><br>
                 Votre session reste active pendant 24 heures.
             </div>
         </div>
         
+        <!-- Signup Form (inchangé) -->
         <div id="signupForm" class="form-container">
             <form id="signupSubmit">
                 <div class="form-group">
@@ -182,9 +230,10 @@
         </div>
     </div>
 
+    <!-- SCRIPT MIS À JOUR -->
     <script>
         const API_BASE = 'https://api.meetempo.com';
-        const GPT_URL = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        // const GPT_URL = '...'; // Plus besoin de rediriger
         
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', function() {
@@ -194,6 +243,10 @@
                 document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
                 document.getElementById(targetTab + 'Form').classList.add('active');
                 document.querySelectorAll('.message').forEach(m => m.className = 'message');
+                // Cacher le display de token si on change d'onglet
+                document.getElementById('tokenSuccessDisplay').style.display = 'none';
+                document.getElementById('loginSubmit').style.display = 'block';
+                document.getElementById('loginInfoBox').style.display = 'block';
             });
         });
         
@@ -203,6 +256,20 @@
             el.className = `message ${type}`;
         }
         
+        // NOUVEAU: Fonction pour copier le token
+        document.getElementById('sessionTokenCode').addEventListener('click', function() {
+            navigator.clipboard.writeText(this.textContent).then(() => {
+                const tokenMsg = document.getElementById('tokenMessage');
+                tokenMsg.textContent = 'Token copié ! Collez-le dans le GPT.';
+                setTimeout(() => { 
+                    tokenMsg.textContent = 'Copiez ce token de session (valide 24h) et collez-le dans le chat GPT :'; 
+                }, 2000);
+            }).catch(err => {
+                console.warn('Erreur de copie auto, copie manuelle requise.');
+            });
+        });
+
+        // LOGIN HANDLER (Modifié pour afficher le token)
         document.getElementById('loginSubmit').addEventListener('submit', async (e) => {
             e.preventDefault();
             const code = document.getElementById('loginCode').value.trim();
@@ -248,11 +315,15 @@
                     return;
                 }
                 
-                showMessage('loginMessage', '✅ Connexion réussie ! Redirection...', 'success');
-                setTimeout(() => {
-                    window.location.href = `${GPT_URL}?session=${data.session_token}`; 
-                }, 1500);
+                // !! MODIFICATION ICI : AFFICHER LE TOKEN AU LIEU DE REDIRIGER !!
+                loading.classList.remove('show');
+                document.getElementById('loginSubmit').style.display = 'none'; // Cacher le formulaire
+                document.getElementById('loginInfoBox').style.display = 'none'; // Cacher l'info box
                 
+                // Afficher le bloc de succès
+                document.getElementById('sessionTokenCode').textContent = data.session_token;
+                document.getElementById('tokenSuccessDisplay').style.display = 'block';
+
             } catch (err) {
                 console.error('Login error:', err);
                 showMessage('loginMessage', 'Erreur réseau. Vérifiez votre connexion', 'error');
@@ -261,6 +332,7 @@
             }
         });
         
+        // SIGNUP HANDLER (inchangé, il est déjà correct)
         document.getElementById('signupSubmit').addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('signupEmail').value.trim();
