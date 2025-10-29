@@ -623,7 +623,7 @@
     async function loadNearbyUsers() {
       try {
         const response = await fetch(
-          `${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=10&token=${token}`
+          `${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=20&token=${token}`
         );
         
         if (!response.ok) {
