@@ -561,27 +561,30 @@ function createDropletIcon(color, affinityScore = 50, plan = "free", visibility 
   const ringColor = getAffinityColor(affinityScore);
   const ringWidth = 4;
   
-  // 🔥 Halo selon plan et visibilité
-  let haloStroke = 'none';
-  let haloWidth = 0;
-  
-  if (plan === 'vip' && visibility === 'visible') {
-    haloStroke = '#F49F1C'; // Gold pour VIP visible
-    haloWidth = 6;
-  } else if (visibility === 'discret') {
-    haloStroke = '#3B82F6'; // Bleu pour mode discret
-    haloWidth = 5;
-  }
+  // 🔥 Halo selon plan et visibilité (plus visible)
+let haloStroke = 'none';
+let haloWidth = 0;
+let haloOpacity = 1;
+
+if (plan === 'vip' && visibility === 'visible') {
+  haloStroke = '#F49F1C'; // Gold pour VIP visible
+  haloWidth = 8;
+  haloOpacity = 0.85;
+} else if (visibility === 'discret') {
+  haloStroke = '#1E40AF'; // Bleu foncé pour mode discret
+  haloWidth = 8;
+  haloOpacity = 0.85;
+}
   
   return `<svg width="64" height="70" xmlns="http://www.w3.org/2000/svg">
     <!-- Halo externe (cercle épais) -->
-    ${haloWidth > 0 ? `
-    <circle cx="32" cy="28" r="28" 
-            fill="none" 
-            stroke="${haloStroke}" 
-            stroke-width="${haloWidth}"
-            opacity="0.6"/>
-    ` : ''}
+${haloWidth > 0 ? `
+<circle cx="32" cy="28" r="28" 
+        fill="none" 
+        stroke="${haloStroke}" 
+        stroke-width="${haloWidth}"
+        opacity="${haloOpacity}"/>
+` : ''}
     
     <!-- Anneau d'affinité -->
     <circle cx="32" cy="28" r="20" 
