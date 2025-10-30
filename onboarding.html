@@ -634,6 +634,11 @@
             <button class="btn-primary" onclick="window.location.href='https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19'">
                 Retour à MeeTempo →
             </button>
+            <button class="btn-secondary" 
+        onclick="window.location.href='profile.html?token=' + sessionStorage.getItem('meetempo_token')"
+        style="margin-top: 16px;">
+    ← Retour au profil
+</button>
         </div>
     </div>
 
@@ -782,16 +787,18 @@
             };
             
             try {
+                const token = sessionStorage.getItem('meetempo_token');
+
                 const response = await fetch(`${API_BASE}/profile/onboarding`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        user_id: userId,
-                        onboarding: onboarding
-                    })
-                });
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                token: token,
+                onboarding: onboarding
+                })
+            });
                 
                 if (!response.ok) throw new Error('Erreur API');
                 
