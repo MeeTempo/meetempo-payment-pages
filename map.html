@@ -901,22 +901,24 @@ function createDropletIcon(color, affinityScore = 50) {
         const suggestion = escapeHTML(user.latest_suggestion);
         const city = escapeHTML(user.city);
         const distance = user.distance ? `${user.distance} km` : 'À proximité';
-        
+        const affinityScore = user.compatibility_score || 50;
+        const affinityColor = getAffinityColor(affinityScore);
+
         card.innerHTML = `
           <div class="user-header">
             <div class="user-avatar">${initials}</div>
             <div class="user-info">
               <h3>${pseudo}</h3>
-              <div class="user-distance">${distance}</div>
+              <div class="user-distance">${distance} • <span style="color: ${affinityColor}; font-weight: 600;">🎯 ${affinityScore}%</span></div>
             </div>
           </div>
           <div class="user-suggestion">${suggestion}</div>
           <div class="user-location">📍 ${city}</div>
-          <div class="user-actions">
-            <button class="btn btn-primary" onclick="contactUser('${user.id}')">💬 Contacter</button>
-            <button class="btn btn-secondary" onclick="viewProfile('${user.id}')">👀 Profil</button>
-          </div>
-        `;
+                  <div class="user-actions">
+                    <button class="btn btn-primary" onclick="contactUser('${user.id}')">💬 Contacter</button>
+                    <button class="btn btn-secondary" onclick="viewProfile('${user.id}')">👀 Profil</button>
+                  </div>
+                `;
         
         card.onclick = function() {
           centerOnMarker(index);
