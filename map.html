@@ -605,15 +605,17 @@ function createDropletIcon(color, affinityScore = 50, plan = "free", visibility 
     </text>
     
     <!-- Filtre glow pour le halo -->
-    <defs>
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-    </defs>
+<defs>
+  <filter id="glow">
+    <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
+    <feMerge>
+      <feMergeNode in="coloredBlur"/>
+      <feMergeNode in="coloredBlur"/>
+      <feMergeNode in="coloredBlur"/>
+      <feMergeNode in="SourceGraphic"/>
+    </feMerge>
+  </filter>
+</defs>
   </svg>`;
 }
     
