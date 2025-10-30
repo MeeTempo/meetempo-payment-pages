@@ -556,28 +556,46 @@ function getAffinityColor(score) {
   return '#9CA3AF'; // Gris (faible affinité)
 }
 
-// 📍 Créer SVG icône goutte avec anneau de score
-function createDropletIcon(color, affinityScore = 50) {
+// 📍 Créer SVG icône goutte avec anneau de score ET halo de visibilité
+function createDropletIcon(color, affinityScore = 50, plan = "free", visibility = "visible") {
   const ringColor = getAffinityColor(affinityScore);
   const ringWidth = 4;
   
-  return `<svg width="48" height="54" xmlns="http://www.w3.org/2000/svg">
+  // 🔥 NOUVEAU : Halo selon plan et visibilité
+  let haloColor = 'none';
+  let haloOpacity = 0;
+  
+  if (plan === 'vip' && visibility === 'visible') {
+    haloColor = '#F49F1C'; // Gold pour VIP visible
+    haloOpacity = 0.4;
+  } else if (visibility === 'discret') {
+    haloColor = '#3B82F6'; // Bleu pour mode discret
+    haloOpacity = 0.3;
+  }
+  
+  return `<svg width="56" height="62" xmlns="http://www.w3.org/2000/svg">
+    <!-- Halo de visibilité (glow externe) -->
+    <circle cx="28" cy="24" r="26" 
+            fill="${haloColor}" 
+            opacity="${haloOpacity}"
+            filter="url(#glow)"/>
+    
     <!-- Anneau d'affinité (cercle extérieur) -->
-    <circle cx="24" cy="20" r="20" 
+    <circle cx="28" cy="24" r="20" 
             fill="none" 
             stroke="${ringColor}" 
             stroke-width="${ringWidth}"
             opacity="0.9"/>
     
     <!-- Goutte centrale -->
-    <path d="M24 8 C24 8, 14 20, 14 28 C14 33, 18 38, 24 38 C30 38, 34 33, 34 28 C34 20, 24 8, 24 8 Z" 
+    <path d="M28 12 C28 12, 18 24, 18 32 C18 37, 22 42, 28 42 C34 42, 38 37, 38 32 C38 24, 28 12, 28 12 Z" 
           fill="${color}" 
           stroke="white" 
           stroke-width="2.5"
           stroke-linejoin="round"/>
     
-    <!-- Score textuel (optionnel, pour debug) -->
-    <text x="24" y="50" 
+    <!-- Score textuel -->
+    <text x="28" y="58" 
           font-family="Montserrat, sans-serif" 
           font-size="9" 
           font-weight="700" 
@@ -585,6 +603,17 @@ function createDropletIcon(color, affinityScore = 50) {
           text-anchor="middle">
       ${affinityScore}%
     </text>
+    
+    <!-- Filtre glow pour le halo -->
+    <defs>
+      <filter id="glow">
+        <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+        <feMerge>
+          <feMergeNode in="coloredBlur"/>
+          <feMergeNode in="SourceGraphic"/>
+        </feMerge>
+      </filter>
+    </defs>
   </svg>`;
 }
     
@@ -769,11 +798,11 @@ function createDropletIcon(color, affinityScore = 50) {
         }, 100);
       });
       
-      // Add user position marker (blue droplet)
-      const userIcon = new H.map.Icon(createDropletIcon('#3B82F6'), { 
-        size: { w: 36, h: 42 },
-        anchor: { x: 18, y: 38 }
-      });
+      // Add user position marker (blue droplet) - sans halo pour l'utilisateur courant
+      const userIcon = new H.map.Icon(createDropletIcon('#3B82F6', 100, 'premium', 'visible'), { 
+      size: { w: 56, h: 62 },
+      anchor: { x: 28, y: 58 }
+});
       
       const userMarker = new H.map.Marker(currentLocation, { icon: userIcon });
       map.addObject(userMarker);
@@ -837,14 +866,16 @@ function createDropletIcon(color, affinityScore = 50) {
         // 🎨 Get color for this user (rotation every 8)
         const color = getMarkerColor(index);
         
-        // 🔥 NOUVEAU : Utiliser le score d'affinité
-    const affinityScore = user.compatibility_score || 50;
-    
-    // 📍 Create droplet icon AVEC anneau de score
-    const markerIcon = new H.map.Icon(createDropletIcon(color, affinityScore), {
-      size: { w: 48, h: 54 },
-      anchor: { x: 24, y: 50 }
-    });
+        // 🔥 Récupérer toutes les infos pour le marker
+const affinityScore = user.compatibility_score || 50;
+const plan = user.plan || 'free';
+const visibility = user.visibility || 'visible';
+
+// 📍 Create droplet icon AVEC anneau de score ET halo
+const markerIcon = new H.map.Icon(createDropletIcon(color, affinityScore, plan, visibility), {
+  size: { w: 56, h: 62 },
+  anchor: { x: 28, y: 58 }
+});
     
     const marker = new H.map.Marker(user.location, { icon: markerIcon });
     marker.setData({ userId: user.id, index, affinityScore });
