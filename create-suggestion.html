@@ -347,8 +347,14 @@ if (!session_token) {
         });
         
         if (!response.ok) {
-          throw new Error('Erreur lors de la création');
-        }
+  const errorData = await response.json().catch(() => ({}));
+  if (errorData.upgrade_required) {
+    const upgradeError = new Error('upgrade_required');
+    upgradeError.data = errorData;
+    throw upgradeError;
+  }
+  throw new Error('Erreur lors de la création');
+}
         
         const data = await response.json();
         
@@ -373,15 +379,22 @@ btnText.style.display = 'inline';
 btnLoading.style.display = 'none';
         
       } catch (err) {
-        console.error('Error:', err);
-        errorMessage.textContent = '❌ Erreur lors de la création. Réessayez.';
-        errorMessage.style.display = 'block';
-        
-        // Reset button
-        submitBtn.disabled = false;
-        btnText.style.display = 'inline';
-        btnLoading.style.display = 'none';
-      }
+  console.error('Error:', err);
+  
+  // Gérer erreur plan Free
+  if (err.message && err.message.includes('upgrade_required')) {
+    errorMessage.textContent = '❌ Abonnement requis : Meeting, Premium ou VIP nécessaire pour créer des suggestions.';
+  } else {
+    errorMessage.textContent = '❌ Erreur lors de la création. Réessayez.';
+  }
+  
+  errorMessage.style.display = 'block';
+  
+  // Reset button
+  submitBtn.disabled = false;
+  btnText.style.display = 'inline';
+  btnLoading.style.display = 'none';
+}
     });
     
     // Fonctions de navigation après création
