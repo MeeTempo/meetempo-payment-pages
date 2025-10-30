@@ -1017,8 +1017,19 @@ async function toggleVisibility() {
     toggle.style.borderColor = 'rgba(255,255,255,0.2)';
   }
   
-  // TODO: Sauvegarder la préférence via API
-  // await fetch(`${API_BASE}/profile/update?token=${token}&visibility=${currentVisibility}`);
+  // 🔥 Sauvegarder la préférence via API
+try {
+  const response = await fetch(`${API_BASE}/profile/update?token=${token}&visibility=${currentVisibility}`);
+  
+  if (response.ok) {
+    const data = await response.json();
+    console.log(`✅ Mode ${currentVisibility} sauvegardé sur le serveur`);
+  } else {
+    console.warn('⚠️ Erreur lors de la sauvegarde de la visibilité');
+  }
+} catch (err) {
+  console.error('❌ Erreur API:', err);
+}
   
   console.log(`✅ Mode ${currentVisibility} activé`);
 }
