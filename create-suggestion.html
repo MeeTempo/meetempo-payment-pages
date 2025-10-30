@@ -320,14 +320,7 @@ if (!session_token) {
     const btnLoading = document.getElementById('btnLoading');
     const successMessage = document.getElementById('successMessage');
     const errorMessage = document.getElementById('errorMessage');
-    
-    // Vérifier token
-    if (!token) {
-      errorMessage.textContent = '❌ Token manquant. Accédez via MeeTempo GPT.';
-      errorMessage.style.display = 'block';
-      submitBtn.disabled = true;
-    }
-    
+        
     form.addEventListener('submit', async (e) => {
       e.preventDefault();
       
@@ -360,13 +353,24 @@ if (!session_token) {
         const data = await response.json();
         
         // Success
-        successMessage.style.display = 'block';
-        textarea.value = '';
-        
-        // Redirect après 2 secondes
-        setTimeout(() => {
-          window.location.href = `map.html?token=${token}`;
-        }, 2000);
+successMessage.innerHTML = `
+  ✅ Suggestion créée avec succès !
+  <div style="display: flex; gap: 12px; margin-top: 16px;">
+    <button onclick="backToGPT()" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-weight: 600; cursor: pointer; font-family: inherit;">
+      💬 Retour GPT
+    </button>
+    <button onclick="goToMap()" style="flex: 1; padding: 12px; background: #F49F1C; border: none; border-radius: 8px; color: #111; font-weight: 600; cursor: pointer; font-family: inherit;">
+      🗺️ Voir la carte
+    </button>
+  </div>
+`;
+successMessage.style.display = 'block';
+textarea.value = '';
+
+// Reset button
+submitBtn.disabled = false;
+btnText.style.display = 'inline';
+btnLoading.style.display = 'none';
         
       } catch (err) {
         console.error('Error:', err);
@@ -379,6 +383,27 @@ if (!session_token) {
         btnLoading.style.display = 'none';
       }
     });
+    
+    // Fonctions de navigation après création
+    function backToGPT() {
+      window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+    }
+
+    async function goToMap() {
+      // Générer token 15min pour la carte
+      try {
+        const elevateResponse = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
+        if (elevateResponse.ok) {
+          const elevateData = await elevateResponse.json();
+          window.location.href = `map.html?token=${elevateData.token}`;
+        } else {
+          backToGPT();
+        }
+      } catch (err) {
+        console.error('Erreur:', err);
+        backToGPT();
+      }
+    }
   </script>
 </body>
 </html>
