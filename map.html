@@ -548,16 +548,45 @@
       return MARKER_COLORS[index % MARKER_COLORS.length];
     }
     
-    // 📍 Créer SVG icône goutte avec couleur
-    function createDropletIcon(color) {
-      return `<svg width="36" height="42" xmlns="http://www.w3.org/2000/svg">
-        <path d="M18 2 C18 2, 6 16, 6 26 C6 32, 11 38, 18 38 C25 38, 30 32, 30 26 C30 16, 18 2, 18 2 Z" 
-              fill="${color}" 
-              stroke="white" 
-              stroke-width="3"
-              stroke-linejoin="round"/>
-      </svg>`;
-    }
+    // 🎨 Fonction pour obtenir couleur d'anneau selon score (0-100)
+function getAffinityColor(score) {
+  if (score >= 80) return '#10B981'; // Vert (excellente affinité)
+  if (score >= 60) return '#F49F1C'; // Orange (bonne affinité)
+  if (score >= 40) return '#3B82F6'; // Bleu (affinité moyenne)
+  return '#9CA3AF'; // Gris (faible affinité)
+}
+
+// 📍 Créer SVG icône goutte avec anneau de score
+function createDropletIcon(color, affinityScore = 50) {
+  const ringColor = getAffinityColor(affinityScore);
+  const ringWidth = 4;
+  
+  return `<svg width="48" height="54" xmlns="http://www.w3.org/2000/svg">
+    <!-- Anneau d'affinité (cercle extérieur) -->
+    <circle cx="24" cy="20" r="20" 
+            fill="none" 
+            stroke="${ringColor}" 
+            stroke-width="${ringWidth}"
+            opacity="0.9"/>
+    
+    <!-- Goutte centrale -->
+    <path d="M24 8 C24 8, 14 20, 14 28 C14 33, 18 38, 24 38 C30 38, 34 33, 34 28 C34 20, 24 8, 24 8 Z" 
+          fill="${color}" 
+          stroke="white" 
+          stroke-width="2.5"
+          stroke-linejoin="round"/>
+    
+    <!-- Score textuel (optionnel, pour debug) -->
+    <text x="24" y="50" 
+          font-family="Montserrat, sans-serif" 
+          font-size="9" 
+          font-weight="700" 
+          fill="${ringColor}" 
+          text-anchor="middle">
+      ${affinityScore}%
+    </text>
+  </svg>`;
+}
     
     // ✅ Fonction erreur précise
     function showError(title, message, type = 'unknown') {
@@ -808,32 +837,39 @@
         // 🎨 Get color for this user (rotation every 8)
         const color = getMarkerColor(index);
         
-        // 📍 Create droplet icon
-        const markerIcon = new H.map.Icon(createDropletIcon(color), {
-          size: { w: 36, h: 42 },
-          anchor: { x: 18, y: 38 }
-        });
-        
-        const marker = new H.map.Marker(user.location, { icon: markerIcon });
-        marker.setData({ userId: user.id, index });
-        
-        // ✅ Add tooltip
-        marker.addEventListener('tap', function(evt) {
-          const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
-            content: `
-              <div style="padding: 8px; font-family: Montserrat, sans-serif;">
-                <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">
-                  ${escapeHTML(user.pseudo)}
-                </div>
-                <div style="font-size: 13px; margin-bottom: 4px;">
-                  ${escapeHTML(user.latest_suggestion)}
-                </div>
-                <div style="font-size: 12px; color: #666;">
-                  📍 ${escapeHTML(user.city)}
-                </div>
-              </div>
-            `
-          });
+        // 🔥 NOUVEAU : Utiliser le score d'affinité
+    const affinityScore = user.compatibility_score || 50;
+    
+    // 📍 Create droplet icon AVEC anneau de score
+    const markerIcon = new H.map.Icon(createDropletIcon(color, affinityScore), {
+      size: { w: 48, h: 54 },
+      anchor: { x: 24, y: 50 }
+    });
+    
+    const marker = new H.map.Marker(user.location, { icon: markerIcon });
+    marker.setData({ userId: user.id, index, affinityScore });
+    
+    // ✅ Add tooltip AVEC score
+    marker.addEventListener('tap', function(evt) {
+      const data = evt.target.getData();
+      const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
+        content: `
+          <div style="padding: 8px; font-family: Montserrat, sans-serif;">
+            <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">
+              ${escapeHTML(user.pseudo)}
+            </div>
+            <div style="font-size: 13px; margin-bottom: 4px;">
+              ${escapeHTML(user.latest_suggestion)}
+            </div>
+            <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
+              📍 ${escapeHTML(user.city)}
+            </div>
+            <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(data.affinityScore)};">
+              🎯 Affinité : ${data.affinityScore}%
+            </div>
+          </div>
+        `
+      });
           ui.addBubble(bubble);
           
           // Highlight card
