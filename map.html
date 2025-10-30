@@ -561,61 +561,51 @@ function createDropletIcon(color, affinityScore = 50, plan = "free", visibility 
   const ringColor = getAffinityColor(affinityScore);
   const ringWidth = 4;
   
-  // 🔥 NOUVEAU : Halo selon plan et visibilité
-  let haloColor = 'none';
-  let haloOpacity = 0;
+  // 🔥 Halo selon plan et visibilité
+  let haloStroke = 'none';
+  let haloWidth = 0;
   
   if (plan === 'vip' && visibility === 'visible') {
-    haloColor = '#F49F1C'; // Gold pour VIP visible
-    haloOpacity = 0.4;
+    haloStroke = '#F49F1C'; // Gold pour VIP visible
+    haloWidth = 6;
   } else if (visibility === 'discret') {
-    haloColor = '#3B82F6'; // Bleu pour mode discret
-    haloOpacity = 0.3;
+    haloStroke = '#3B82F6'; // Bleu pour mode discret
+    haloWidth = 5;
   }
   
-  return `<svg width="56" height="62" xmlns="http://www.w3.org/2000/svg">
-    <!-- Halo de visibilité (glow externe) -->
-    <circle cx="28" cy="24" r="26" 
-            fill="${haloColor}" 
-            opacity="${haloOpacity}"
-            filter="url(#glow)"/>
+  return `<svg width="64" height="70" xmlns="http://www.w3.org/2000/svg">
+    <!-- Halo externe (cercle épais) -->
+    ${haloWidth > 0 ? `
+    <circle cx="32" cy="28" r="28" 
+            fill="none" 
+            stroke="${haloStroke}" 
+            stroke-width="${haloWidth}"
+            opacity="0.6"/>
+    ` : ''}
     
-    <!-- Anneau d'affinité (cercle extérieur) -->
-    <circle cx="28" cy="24" r="20" 
+    <!-- Anneau d'affinité -->
+    <circle cx="32" cy="28" r="20" 
             fill="none" 
             stroke="${ringColor}" 
             stroke-width="${ringWidth}"
             opacity="0.9"/>
     
     <!-- Goutte centrale -->
-    <path d="M28 12 C28 12, 18 24, 18 32 C18 37, 22 42, 28 42 C34 42, 38 37, 38 32 C38 24, 28 12, 28 12 Z" 
+    <path d="M32 16 C32 16, 22 28, 22 36 C22 41, 26 46, 32 46 C38 46, 42 41, 42 36 C42 28, 32 16, 32 16 Z" 
           fill="${color}" 
           stroke="white" 
           stroke-width="2.5"
           stroke-linejoin="round"/>
     
     <!-- Score textuel -->
-    <text x="28" y="58" 
+    <text x="32" y="66" 
           font-family="Montserrat, sans-serif" 
-          font-size="9" 
+          font-size="10" 
           font-weight="700" 
           fill="${ringColor}" 
           text-anchor="middle">
       ${affinityScore}%
     </text>
-    
-    <!-- Filtre glow pour le halo -->
-<defs>
-  <filter id="glow">
-    <feGaussianBlur stdDeviation="8" result="coloredBlur"/>
-    <feMerge>
-      <feMergeNode in="coloredBlur"/>
-      <feMergeNode in="coloredBlur"/>
-      <feMergeNode in="coloredBlur"/>
-      <feMergeNode in="SourceGraphic"/>
-    </feMerge>
-  </filter>
-</defs>
   </svg>`;
 }
     
@@ -802,8 +792,8 @@ function createDropletIcon(color, affinityScore = 50, plan = "free", visibility 
       
       // Add user position marker (blue droplet) - sans halo pour l'utilisateur courant
       const userIcon = new H.map.Icon(createDropletIcon('#3B82F6', 100, 'premium', 'visible'), { 
-      size: { w: 56, h: 62 },
-      anchor: { x: 28, y: 58 }
+  size: { w: 64, h: 70 },
+  anchor: { x: 32, y: 66 }
 });
       
       const userMarker = new H.map.Marker(currentLocation, { icon: userIcon });
@@ -875,8 +865,8 @@ const visibility = user.visibility || 'visible';
 
 // 📍 Create droplet icon AVEC anneau de score ET halo
 const markerIcon = new H.map.Icon(createDropletIcon(color, affinityScore, plan, visibility), {
-  size: { w: 56, h: 62 },
-  anchor: { x: 28, y: 58 }
+  size: { w: 64, h: 70 },
+  anchor: { x: 32, y: 66 }
 });
     
     const marker = new H.map.Marker(user.location, { icon: markerIcon });
