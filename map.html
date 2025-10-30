@@ -469,19 +469,24 @@
       <h1>🗺 Carte MeeTempers</h1>
     </div>
     <div class="stats" id="statsHeader">
-      <div class="stat-item">
-        <span>📍</span>
-        <span id="locationText">Paris</span>
-      </div>
-      <div class="stat-item">
-        <span>👥</span>
-        <span id="userCount">0 MeeTempers</span>
-      </div>
-      <div class="stat-item">
-        <span>📏</span>
-        <span id="radiusText">20 km</span>
-      </div>
-    </div>
+  <div class="stat-item">
+    <span>📍</span>
+    <span id="locationText">Paris</span>
+  </div>
+  <div class="stat-item">
+    <span>👥</span>
+    <span id="userCount">0 MeeTempers</span>
+  </div>
+  <div class="stat-item">
+    <span>📏</span>
+    <span id="radiusText">20 km</span>
+  </div>
+  <!-- 🔘 Toggle Mode Discret -->
+  <div class="stat-item" style="cursor: pointer;" id="visibilityToggle" onclick="toggleVisibility()">
+    <span id="visibilityIcon">👁️</span>
+    <span id="visibilityText">Visible</span>
+  </div>
+</div>
   </div>
   
   <!-- Distance Selector -->
@@ -984,20 +989,50 @@ const markerIcon = new H.map.Icon(createDropletIcon(color, affinityScore, plan, 
     }
     
     // ✅ View profile
-    function viewProfile(userId) {
-      alert('👀 Profil détaillé en développement\n\nLes profils détaillés arrivent bientôt !\n\nActuellement disponible dans les cartes utilisateurs.');
-    }
-    
-    // ✅ Cleanup mémoire
-    window.addEventListener('beforeunload', () => {
-      if (map) {
-        map.dispose();
-        map = null;
-      }
-    });
-    
-    // Start
-    init();
+function viewProfile(userId) {
+  alert('👀 Profil détaillé en développement\n\nLes profils détaillés arrivent bientôt !\n\nActuellement disponible dans les cartes utilisateurs.');
+}
+
+// 🔘 Toggle Visibilité (Mode Discret)
+let currentVisibility = 'visible'; // État par défaut
+
+async function toggleVisibility() {
+  // Alterner entre visible et discret
+  currentVisibility = currentVisibility === 'visible' ? 'discret' : 'visible';
+  
+  // Mettre à jour l'UI
+  const icon = document.getElementById('visibilityIcon');
+  const text = document.getElementById('visibilityText');
+  const toggle = document.getElementById('visibilityToggle');
+  
+  if (currentVisibility === 'discret') {
+    icon.textContent = '🕶️';
+    text.textContent = 'Discret';
+    toggle.style.background = 'rgba(59, 130, 246, 0.2)'; // Bleu
+    toggle.style.borderColor = '#3B82F6';
+  } else {
+    icon.textContent = '👁️';
+    text.textContent = 'Visible';
+    toggle.style.background = 'rgba(255,255,255,0.1)'; // Défaut
+    toggle.style.borderColor = 'rgba(255,255,255,0.2)';
+  }
+  
+  // TODO: Sauvegarder la préférence via API
+  // await fetch(`${API_BASE}/profile/update?token=${token}&visibility=${currentVisibility}`);
+  
+  console.log(`✅ Mode ${currentVisibility} activé`);
+}
+
+// ✅ Cleanup mémoire
+window.addEventListener('beforeunload', () => {
+  if (map) {
+    map.dispose();
+    map = null;
+  }
+});
+
+// Start
+init();
   </script>
 </body>
 </html>
