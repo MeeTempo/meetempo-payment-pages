@@ -90,6 +90,14 @@
             opacity: 0.5;
             cursor: not-allowed;
         }
+        .btn-secondary {
+            background: #e2e8f0;
+            color: #4a5568;
+            margin-top: 12px;
+        }
+        .btn-secondary:hover {
+            background: #cbd5e0;
+        }
         .success {
             background: #48bb78;
             color: white;
@@ -173,6 +181,11 @@
                 <button type="submit" id="submitBtn">
                     💾 Enregistrer mon profil
                 </button>
+                
+                <!-- NOUVEAU : Bouton vers onboarding -->
+                <button type="button" class="btn-secondary" id="onboardingBtn">
+                    ✨ Compléter mes centres d'intérêt
+                </button>
             </form>
             
             <div class="success" id="successMsg">
@@ -190,60 +203,61 @@
 
     <script>
         const API_BASE = 'https://api.meetempo.com';
-        let userId = null;
+        
+        // ✅ CORRECTION : Plus besoin de variable userId globale
         
         // Initialisation
-async function init() {
-    const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
-    
-    // Token requis obligatoire
-    if (!token) {
-        document.getElementById('loading').innerHTML = 
-            '❌ Accès non autorisé.<br><br>' +
-            'Utilisez le lien sécurisé depuis MeeTempo GPT.<br><br>' +
-            '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea;">← Retour à MeeTempo</a>';
-        return;
-    }
-    
-    // Valider token et obtenir user_id
-    try {
-        const response = await fetch(`${API_BASE}/auth/session?token=${token}`);
-        
-        if (!response.ok) {
-            throw new Error('Token invalide');
+        async function init() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const token = urlParams.get('token');
+            
+            // Token requis obligatoire
+            if (!token) {
+                document.getElementById('loading').innerHTML = 
+                    '❌ Accès non autorisé.<br><br>' +
+                    'Utilisez le lien sécurisé depuis MeeTempo GPT.<br><br>' +
+                    '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea;">← Retour à MeeTempo</a>';
+                return;
+            }
+            
+            // Valider token via /auth/session
+            try {
+                const response = await fetch(`${API_BASE}/auth/session?token=${token}`);
+                
+                if (!response.ok) {
+                    throw new Error('Token invalide');
+                }
+                
+                const data = await response.json();
+                
+                if (data.user_id) {
+                    // ✅ CORRECTION : Stocker seulement le token, pas le user_id
+                    sessionStorage.setItem('meetempo_token', token);
+                } else {
+                    throw new Error('Token invalide');
+                }
+            } catch (err) {
+                document.getElementById('loading').innerHTML = 
+                    '❌ Session expirée ou token invalide.<br><br>' +
+                    'Veuillez obtenir un nouveau lien depuis MeeTempo GPT.<br><br>' +
+                    '<small>Les liens sont valables 15 minutes pour votre sécurité.</small><br><br>' +
+                    '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea;">← Retour à MeeTempo</a>';
+                return;
+            }
+            
+            // Charger profil
+            await loadProfile();
+            
+            // Afficher form
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('mainContent').style.display = 'block';
         }
         
-        const data = await response.json();
-        
-        if (data.user_id) {
-            userId = data.user_id;
-            // Stocker token temporairement (pas user_id)
-            sessionStorage.setItem('meetempo_token', token);
-        } else {
-            throw new Error('Token invalide');
-        }
-    } catch (err) {
-        document.getElementById('loading').innerHTML = 
-            '❌ Session expirée ou token invalide.<br><br>' +
-            'Veuillez obtenir un nouveau lien depuis MeeTempo GPT.<br><br>' +
-            '<small>Les liens sont valables 15 minutes pour votre sécurité.</small><br><br>' +
-            '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea;">← Retour à MeeTempo</a>';
-        return;
-    }
-    
-    // Charger profil
-    await loadProfile();
-    
-    // Afficher form
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('mainContent').style.display = 'block';
-}
-        
-        // Charger profil existant
+        // ✅ CORRECTION : Charger profil avec token au lieu de user_id
         async function loadProfile() {
             try {
-                const response = await fetch(`${API_BASE}/profile?user_id=${userId}`);
+                const token = sessionStorage.getItem('meetempo_token');
+                const response = await fetch(`${API_BASE}/profile?token=${token}`);
                 const data = await response.json();
                 
                 // Afficher le code
@@ -259,11 +273,11 @@ async function init() {
                     document.getElementById('bio').value = data.profile.bio || '';
                 }
             } catch (err) {
-                console.log('Nouveau profil');
+                console.log('Nouveau profil ou erreur chargement:', err);
             }
         }
         
-        // Sauvegarder profil (GET version)
+        // ✅ CORRECTION : Sauvegarder avec token au lieu de user_id
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
@@ -274,8 +288,10 @@ async function init() {
             submitBtn.disabled = true;
             submitBtn.textContent = '⏳ Enregistrement...';
             
+            const token = sessionStorage.getItem('meetempo_token');
+            
             const params = new URLSearchParams({
-                user_id: userId,
+                token: token,  // ✅ Utilise token au lieu de user_id
                 name: document.getElementById('name').value,
                 city: document.getElementById('city').value,
                 role: document.getElementById('role').value,
@@ -298,6 +314,12 @@ async function init() {
                 submitBtn.disabled = false;
                 submitBtn.textContent = '💾 Réessayer';
             }
+        });
+        
+        // ✅ NOUVEAU : Bouton vers onboarding
+        document.getElementById('onboardingBtn').addEventListener('click', function() {
+            const token = sessionStorage.getItem('meetempo_token');
+            window.location.href = `onboarding.html?token=${token}`;
         });
         
         // Copier le code
