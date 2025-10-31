@@ -322,29 +322,63 @@ if (!session_token) {
     const errorMessage = document.getElementById('errorMessage');
         
     form.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      
-      const text = textarea.value.trim();
-      if (!text) return;
-      
-      // Loading state
-      submitBtn.disabled = true;
-      btnText.style.display = 'none';
-      btnLoading.style.display = 'block';
-      successMessage.style.display = 'none';
-      errorMessage.style.display = 'none';
-      
-      try {
-        const response = await fetch(`${API_BASE}/suggestions/create`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({
-          session_token: session_token, // Au lieu de token
-          text: text
-          })
-        });
+  e.preventDefault();
+  
+  const text = textarea.value.trim();
+  if (!text) return;
+  
+  // Loading state
+  submitBtn.disabled = true;
+  btnText.style.display = 'none';
+  btnLoading.style.display = 'block';
+  successMessage.style.display = 'none';
+  errorMessage.style.display = 'none';
+  
+  try {
+    // 🔥 ÉTAPE 1 : Capturer GPS utilisateur
+    let userLocation = null;
+    try {
+      const position = await new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(
+          (pos) => resolve(pos),
+          (err) => reject(err),
+          { timeout: 5000, enableHighAccuracy: true }
+        );
+      });
+      userLocation = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude
+      };
+      console.log('📍 GPS capturé:', userLocation);
+    } catch (gpsErr) {
+      console.warn('⚠️ Géolocalisation échouée, utilisation position par défaut');
+    }
+    
+    // 🔥 ÉTAPE 2 : Détecter mobile
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    
+    const payload = {
+      session_token: session_token,
+      text: text,
+      user_location: userLocation
+    };
+    
+    // 🔥 ÉTAPE 3 : GET (mobile) ou POST (PC)
+    if (isMobile) {
+      // Mobile : GET avec base64
+      const encoded = btoa(JSON.stringify(payload));
+      window.location.href = `${API_BASE}/suggestions/create?data=${encoded}`;
+      return; // Stop ici pour mobile
+    }
+    
+    // PC : POST classique
+    const response = await fetch(`${API_BASE}/suggestions/create`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(payload)
+    });
         
         if (!response.ok) {
   const errorData = await response.json().catch(() => ({}));
