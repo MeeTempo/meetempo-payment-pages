@@ -79,79 +79,154 @@
       padding: 32px;
       box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     }
+    .success-screen {
+      display: none;
+      text-align: center;
+      padding: 20px;
+    }
+    
+    .success-icon {
+      font-size: 64px;
+      margin-bottom: 24px;
+      animation: bounce 0.6s ease;
+    }
+    
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-20px); }
+    }
+    
+    .success-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--ok);
+      margin-bottom: 16px;
+    }
+    
+    .success-subtitle {
+      font-size: 16px;
+      color: var(--mt-muted);
+      margin-bottom: 24px;
+    }
+    
+    .success-details {
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      text-align: left;
+    }
+    
+    .success-detail-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+    
+    .success-detail-icon {
+      font-size: 20px;
+    }
+    
+    .success-buttons {
+      display: flex;
+      gap: 12px;
+    }
     
     .form-group {
-      margin-bottom: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .form-section {
+      margin-bottom: 32px;
+      padding-bottom: 32px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .form-section:last-of-type {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--mt-accent);
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
     
     label {
       display: block;
       font-size: 14px;
       font-weight: 600;
-      color: var(--mt-muted);
+      color: var(--mt-text);
       margin-bottom: 8px;
     }
     
-    textarea {
+    .label-optional {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--mt-muted);
+      margin-left: 6px;
+    }
+    
+    .label-recommended {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--mt-accent);
+      margin-left: 6px;
+    }
+    
+    input, select, textarea {
       width: 100%;
-      min-height: 180px;
-      padding: 16px;
+      padding: 14px 16px;
       background: rgba(255,255,255,0.05);
       border: 2px solid rgba(255,255,255,0.1);
       border-radius: 12px;
       color: var(--mt-text);
       font-family: inherit;
       font-size: 16px;
-      line-height: 1.6;
-      resize: vertical;
       transition: all 0.3s;
     }
     
-    textarea:focus {
+    input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: var(--mt-accent);
       background: rgba(255,255,255,0.08);
     }
     
-    textarea::placeholder {
+    select {
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6L11 1' stroke='%23c9d1ff' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
+    }
+    
+    textarea {
+      min-height: 100px;
+      resize: vertical;
+      line-height: 1.6;
+    }
+    
+    textarea::placeholder, input::placeholder {
       color: rgba(201, 209, 255, 0.5);
     }
     
-    .examples {
-      background: rgba(244, 159, 28, 0.1);
-      border: 1px solid rgba(244, 159, 28, 0.3);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 24px;
+    .time-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
     }
     
-    .examples-title {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--mt-accent);
-      margin-bottom: 8px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-    
-    .example {
-      font-size: 13px;
-      color: var(--mt-muted);
-      margin-bottom: 6px;
-      padding-left: 12px;
-      position: relative;
-    }
-    
-    .example:before {
-      content: "•";
-      position: absolute;
-      left: 0;
-      color: var(--mt-accent);
-    }
-    
-    .example:last-child {
-      margin-bottom: 0;
+    #customActivityInput {
+      display: none;
+      margin-top: 12px;
     }
     
     .btn {
@@ -210,18 +285,6 @@
       to { transform: rotate(360deg); }
     }
     
-    .success-message {
-      display: none;
-      background: rgba(35, 197, 94, 0.2);
-      border: 1px solid rgba(35, 197, 94, 0.4);
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 20px;
-      color: var(--ok);
-      font-weight: 600;
-      text-align: center;
-    }
-    
     .error-message {
       display: none;
       background: rgba(239, 68, 68, 0.2);
@@ -247,8 +310,8 @@
         font-size: 24px;
       }
       
-      textarea {
-        min-height: 160px;
+      .time-group {
+        grid-template-columns: 1fr;
       }
     }
   </style>
@@ -258,35 +321,104 @@
     <div class="header">
       <div class="logo-badge">MT</div>
       <h1>✨ Créer une Suggestion</h1>
-      <p class="subtitle">Décrivez librement votre disponibilité</p>
+      <p class="subtitle">Partagez votre disponibilité</p>
     </div>
     
     <div class="card">
-      <div id="successMessage" class="success-message">
-        ✅ Suggestion créée avec succès !
-      </div>
-      
-      <div id="errorMessage" class="error-message">
-        ❌ Une erreur est survenue
-      </div>
-      
-      <div class="examples">
-        <div class="examples-title">💡 Exemples de suggestions</div>
-        <div class="example">Dispo pour un café aéroport CDG ce soir 18h-19h entre VIP. Discuter levée de fonds série A.</div>
-        <div class="example">Match tennis demain matin 10h Parc de Sceaux. Niveau intermédiaire, court réservé.</div>
-        <div class="example">Déjeuner d'affaires vendredi 12h30 quartier La Défense. Networking fintech Premium.</div>
-        <div class="example">Running dimanche 9h Bois de Vincennes. 10km allure tranquille, tous niveaux.</div>
-      </div>
-      
+      <!-- Formulaire -->
       <form id="suggestionForm">
-        <div class="form-group">
-          <label for="suggestionText">Votre suggestion</label>
-          <textarea 
-            id="suggestionText" 
-            name="suggestionText" 
-            required
-            placeholder="Ex: Dispo pour un café networking ce soir 19h à Paris 8ème entre entrepreneurs tech. Échanger sur growth hacking et acquisition client."
-          ></textarea>
+        <div id="errorMessage" class="error-message"></div>
+        
+        <!-- BLOC 1 : Informations principales -->
+        <div class="form-section">
+          <div class="section-title">📋 Informations principales</div>
+          
+          <div class="form-group">
+            <label for="activityType">Type d'activité</label>
+            <select id="activityType" name="activityType" required>
+              <option value="">-- Choisir --</option>
+              <option value="☕ Café networking">☕ Café networking</option>
+              <option value="💼 Réunion business">💼 Réunion business</option>
+              <option value="🎾 Sport/Activité">🎾 Sport/Activité</option>
+              <option value="🍽️ Déjeuner/Dîner">🍽️ Déjeuner/Dîner</option>
+              <option value="custom">✍️ Activité libre</option>
+            </select>
+            
+            <div id="customActivityInput">
+              <input 
+                type="text" 
+                id="customActivity" 
+                placeholder="Transformez une attente en opportunité... Décrivez votre idée."
+              />
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="city">Ville</label>
+            <input 
+              type="text" 
+              id="city" 
+              name="city" 
+              required
+              placeholder="Ex: Paris, Puteaux, Lyon..."
+            />
+          </div>
+          
+          <div class="form-group">
+            <label for="place">
+              Lieu précis
+              <span class="label-optional">(optionnel)</span>
+            </label>
+            <input 
+              type="text" 
+              id="place" 
+              name="place"
+              placeholder="Ex: Five, Stade de France, CDG Terminal 2E..."
+            />
+          </div>
+        </div>
+        
+        <!-- BLOC 2 : Date & Description -->
+        <div class="form-section">
+          <div class="section-title">📅 Date & Détails</div>
+          
+          <div class="form-group">
+            <label for="date">Date</label>
+            <input 
+              type="date" 
+              id="date" 
+              name="date" 
+              required
+            />
+          </div>
+          
+          <div class="form-group">
+            <label>Horaire</label>
+            <div class="time-group">
+              <input 
+                type="time" 
+                id="time" 
+                name="time" 
+                required
+              />
+              <select id="ampm" name="ampm" required>
+                <option value="AM">AM (matin)</option>
+                <option value="PM" selected>PM (après-midi/soir)</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="description">
+              Description
+              <span class="label-recommended">(recommandé)</span>
+            </label>
+            <textarea 
+              id="description" 
+              name="description"
+              placeholder="Perdez votre temps de la meilleure des façons... Un café à l'aéroport ? Un tennis entre deux meetings ? Décrivez l'ambiance."
+            ></textarea>
+          </div>
         </div>
         
         <button type="submit" class="btn btn-primary" id="submitBtn">
@@ -295,149 +427,188 @@
         </button>
         
         <button type="button" class="btn btn-secondary" onclick="window.history.back()">
-          ← Retour à la carte
+          ← Retour
         </button>
       </form>
+      
+      <!-- Écran de succès -->
+      <div id="successScreen" class="success-screen">
+        <div class="success-icon">🎉</div>
+        <div class="success-title">FÉLICITATIONS !</div>
+        <div class="success-subtitle">Votre suggestion est maintenant en ligne et visible sur la carte</div>
+        
+        <div class="success-details" id="successDetails">
+          <!-- Rempli dynamiquement -->
+        </div>
+        
+        <div class="success-buttons">
+          <button class="btn btn-secondary" onclick="backToGPT()" style="flex: 1;">
+            💬 Retour GPT
+          </button>
+          <button class="btn btn-primary" onclick="goToMap()" style="flex: 1;">
+            🗺️ Voir la carte
+          </button>
+        </div>
+      </div>
     </div>
   </div>
-
   <script>
     const API_BASE = 'https://api.meetempo.com';
     const params = new URLSearchParams(location.search);
     const session_token = params.get('session_token');
-
-// Vérifier token + plan
-if (!session_token) {
-  errorMessage.textContent = '❌ Token manquant. Accédez via MeeTempo GPT.';
-  errorMessage.style.display = 'block';
-  submitBtn.disabled = true;
-}
     
-    const form = document.getElementById('suggestionForm');
-    const textarea = document.getElementById('suggestionText');
-    const submitBtn = document.getElementById('submitBtn');
-    const btnText = document.getElementById('btnText');
-    const btnLoading = document.getElementById('btnLoading');
-    const successMessage = document.getElementById('successMessage');
-    const errorMessage = document.getElementById('errorMessage');
-        
-    form.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  
-  const text = textarea.value.trim();
-  if (!text) return;
-  
-  // Loading state
-  submitBtn.disabled = true;
-  btnText.style.display = 'none';
-  btnLoading.style.display = 'block';
-  successMessage.style.display = 'none';
-  errorMessage.style.display = 'none';
-  
-  try {
-    // 🔥 ÉTAPE 1 : Capturer GPS utilisateur
-    let userLocation = null;
-    try {
-      const position = await new Promise((resolve, reject) => {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => resolve(pos),
-          (err) => reject(err),
-          { timeout: 5000, enableHighAccuracy: true }
-        );
-      });
-      userLocation = {
-        lat: position.coords.latitude,
-        lng: position.coords.longitude
-      };
-      console.log('📍 GPS capturé:', userLocation);
-    } catch (gpsErr) {
-      console.warn('⚠️ Géolocalisation échouée, utilisation position par défaut');
+    // Vérifier token
+    if (!session_token) {
+      document.getElementById('errorMessage').textContent = '❌ Token manquant. Accédez via MeeTempo GPT.';
+      document.getElementById('errorMessage').style.display = 'block';
+      document.getElementById('submitBtn').disabled = true;
     }
     
-    // 🔥 ÉTAPE 2 : Détecter mobile
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+    // Date par défaut : aujourd'hui
+    document.getElementById('date').valueAsDate = new Date();
     
-    const payload = {
-      session_token: session_token,
-      text: text,
-      user_location: userLocation
-    };
-    
-    // 🔥 ÉTAPE 3 : GET (mobile) ou POST (PC)
-    if (isMobile) {
-      // Mobile : GET avec base64
-      const encoded = btoa(JSON.stringify(payload));
-      window.location.href = `${API_BASE}/suggestions/create?data=${encoded}`;
-      return; // Stop ici pour mobile
-    }
-    
-    // PC : POST classique
-    const response = await fetch(`${API_BASE}/suggestions/create`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(payload)
+    // Toggle activité libre
+    document.getElementById('activityType').addEventListener('change', (e) => {
+      const customInput = document.getElementById('customActivityInput');
+      const customField = document.getElementById('customActivity');
+      
+      if (e.target.value === 'custom') {
+        customInput.style.display = 'block';
+        customField.required = true;
+      } else {
+        customInput.style.display = 'none';
+        customField.required = false;
+      }
     });
+    
+    // Soumission formulaire
+    document.getElementById('suggestionForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const submitBtn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const btnLoading = document.getElementById('btnLoading');
+      const errorMessage = document.getElementById('errorMessage');
+      
+      // Loading state
+      submitBtn.disabled = true;
+      btnText.style.display = 'none';
+      btnLoading.style.display = 'block';
+      errorMessage.style.display = 'none';
+      
+      try {
+        // Récupérer données formulaire
+        const activityTypeSelect = document.getElementById('activityType').value;
+        const customActivity = document.getElementById('customActivity').value;
+        const activityType = activityTypeSelect === 'custom' ? customActivity : activityTypeSelect;
+        
+        const city = document.getElementById('city').value.trim();
+        const place = document.getElementById('place').value.trim();
+        const date = document.getElementById('date').value;
+        const time = document.getElementById('time').value;
+        const ampm = document.getElementById('ampm').value;
+        const description = document.getElementById('description').value.trim();
+        
+        // Construire le texte complet pour backward compatibility
+        const fullLocation = place ? `${place}, ${city}` : city;
+        const fullText = `${activityType} - ${fullLocation} le ${date} à ${time} ${ampm}${description ? '. ' + description : ''}`;
+        
+        // Payload
+        const payload = {
+          session_token: session_token,
+          // Nouveaux champs structurés
+          activity_type: activityType,
+          city: city,
+          place: place || null,
+          date: date,
+          time: time,
+          ampm: ampm,
+          description: description || null,
+          // Backward compatibility
+          text: fullText
+        };
+        
+        // Appel API
+        const response = await fetch(`${API_BASE}/suggestions/create`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
         
         if (!response.ok) {
-  const errorData = await response.json().catch(() => ({}));
-  if (errorData.upgrade_required) {
-    const upgradeError = new Error('upgrade_required');
-    upgradeError.data = errorData;
-    throw upgradeError;
-  }
-  throw new Error('Erreur lors de la création');
-}
+          const errorData = await response.json().catch(() => ({}));
+          if (errorData.upgrade_required) {
+            throw new Error('❌ Abonnement requis : Meeting, Premium ou VIP nécessaire pour créer des suggestions.');
+          }
+          throw new Error('Erreur lors de la création');
+        }
         
         const data = await response.json();
         
-        // Success
-successMessage.innerHTML = `
-  ✅ Suggestion créée avec succès !
-  <div style="display: flex; gap: 12px; margin-top: 16px;">
-    <button onclick="backToGPT()" style="flex: 1; padding: 12px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; color: white; font-weight: 600; cursor: pointer; font-family: inherit;">
-      💬 Retour GPT
-    </button>
-    <button onclick="goToMap()" style="flex: 1; padding: 12px; background: #F49F1C; border: none; border-radius: 8px; color: #111; font-weight: 600; cursor: pointer; font-family: inherit;">
-      🗺️ Voir la carte
-    </button>
-  </div>
-`;
-successMessage.style.display = 'block';
-textarea.value = '';
-
-// Reset button
-submitBtn.disabled = false;
-btnText.style.display = 'inline';
-btnLoading.style.display = 'none';
+        // Afficher écran de succès
+        showSuccessScreen(data, {
+          activityType,
+          fullLocation,
+          date,
+          time,
+          ampm,
+          description
+        });
         
       } catch (err) {
-  console.error('Error:', err);
-  
-  // Gérer erreur plan Free
-  if (err.message && err.message.includes('upgrade_required')) {
-    errorMessage.textContent = '❌ Abonnement requis : Meeting, Premium ou VIP nécessaire pour créer des suggestions.';
-  } else {
-    errorMessage.textContent = '❌ Erreur lors de la création. Réessayez.';
-  }
-  
-  errorMessage.style.display = 'block';
-  
-  // Reset button
-  submitBtn.disabled = false;
-  btnText.style.display = 'inline';
-  btnLoading.style.display = 'none';
-}
+        console.error('Error:', err);
+        errorMessage.textContent = err.message || '❌ Erreur lors de la création. Réessayez.';
+        errorMessage.style.display = 'block';
+        
+        // Reset button
+        submitBtn.disabled = false;
+        btnText.style.display = 'inline';
+        btnLoading.style.display = 'none';
+      }
     });
     
-    // Fonctions de navigation après création
+    // Afficher écran de succès
+    function showSuccessScreen(apiData, formData) {
+      const form = document.getElementById('suggestionForm');
+      const successScreen = document.getElementById('successScreen');
+      const successDetails = document.getElementById('successDetails');
+      
+      // Calculer expiration
+      const expiresDate = new Date();
+      expiresDate.setDate(expiresDate.getDate() + 7);
+      const daysLeft = 7;
+      
+      // Détails
+      successDetails.innerHTML = `
+        <div class="success-detail-item">
+          <span class="success-detail-icon">${formData.activityType.split(' ')[0]}</span>
+          <span><strong>${formData.activityType}</strong></span>
+        </div>
+        <div class="success-detail-item">
+          <span class="success-detail-icon">📍</span>
+          <span>${formData.fullLocation}</span>
+        </div>
+        <div class="success-detail-item">
+          <span class="success-detail-icon">🕐</span>
+          <span>${formData.date} à ${formData.time} ${formData.ampm}</span>
+        </div>
+        <div class="success-detail-item">
+          <span class="success-detail-icon">⏳</span>
+          <span>Expire dans ${daysLeft} jours</span>
+        </div>
+      `;
+      
+      // Masquer form, afficher succès
+      form.style.display = 'none';
+      successScreen.style.display = 'block';
+    }
+    
+    // Navigation
     function backToGPT() {
       window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
     }
-
+    
     async function goToMap() {
-      // Générer token 15min pour la carte
       try {
         const elevateResponse = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
         if (elevateResponse.ok) {
