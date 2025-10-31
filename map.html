@@ -515,6 +515,23 @@
 
   <script>
     const API_BASE = 'https://api.meetempo.com';
+
+    // 🔥 Mettre à jour position utilisateur dans KV
+async function updateUserLocation(lat, lng) {
+  try {
+    const response = await fetch(
+      `${API_BASE}/profile/update?token=${token}&lat=${lat}&lng=${lng}`
+    );
+    
+    if (response.ok) {
+      console.log('✅ Position GPS sauvegardée:', { lat, lng });
+    } else {
+      console.warn('⚠️ Impossible de sauvegarder la position');
+    }
+  } catch (err) {
+    console.error('❌ Erreur sauvegarde position:', err);
+  }
+}
     
     // 🎨 Palette de couleurs MeeTempo (8 couleurs harmonieuses)
     const MARKER_COLORS = [
@@ -766,7 +783,7 @@ ${haloWidth > 0 ? `
     }
     
     // Initialize HERE Map
-    function initMap() {
+      async function initMap() {
       const platform = new H.service.Platform({
         apikey: HERE_API_KEY
       });
@@ -805,10 +822,15 @@ ${haloWidth > 0 ? `
 });
       
       const userMarker = new H.map.Marker(currentLocation, { icon: userIcon });
-      map.addObject(userMarker);
-      
-      // Load nearby users
-      loadNearbyUsers();
+map.addObject(userMarker);
+
+// 🔥 NOUVEAU : Sauvegarder position GPS dans profil
+if (currentLocation.source === 'gps') {
+  await updateUserLocation(currentLocation.lat, currentLocation.lng);
+}
+
+// Load nearby users
+loadNearbyUsers();
     }
     
     // ✅ Load nearby users from API
