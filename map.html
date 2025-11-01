@@ -556,6 +556,7 @@ async function updateUserLocation(lat, lng) {
     let markers = [];
     let usersData = [];
     let currentUser = null;
+    let currentUserProfile = {}; // 🔥 NOUVEAU
     
     // ✅ Fonction échappement HTML (XSS fix)
     function escapeHTML(str) {
@@ -705,6 +706,19 @@ ${haloWidth > 0 ? `
         
         // 5. Initialiser carte
         initMap();
+
+        // 🔥 NOUVELLE FONCTION : Charger profil user
+        async function loadCurrentUserProfile() {
+        try {
+        const response = await fetch(`${API_BASE}/profile?token=${token}`);
+        if (response.ok) {
+        currentUserProfile = await response.json();
+        console.log('✅ Profil utilisateur chargé', currentUserProfile);
+        }
+        } catch (error) {
+        console.error('❌ Erreur chargement profil:', error);
+        }
+      }
         
         // 6. Setup distance selector
         setupDistanceSelector();
@@ -877,7 +891,51 @@ loadNearbyUsers();
         showError('Erreur chargement', 'Impossible de charger les MeeTempers à proximité', 'load');
       }
     }
-    
+
+    // 🔥 NOUVELLE FONCTION : Calcul compatibilité défensif
+function calculateCompatibility(currentUser, otherUser) {
+  // Valeurs par défaut si données manquantes
+  const result = { interests: 0, compatibility: 0 };
+  
+  // Vérifier que profile_rich existe
+  if (!currentUser?.profile_rich || !otherUser?.profile_rich) {
+    console.warn('calculateCompatibility: profile_rich manquant');
+    return result;
+  }
+  
+  const my = currentUser.profile_rich;
+  const other = otherUser.profile_rich;
+  
+  // 1. Calcul intérêts communs (icône !)
+  const myInterests = new Set([...(my.sports || []), ...(my.hobbies || [])]);
+  const otherInterests = new Set([...(other.sports || []), ...(other.hobbies || [])]);
+  
+  for (const interest of myInterests) {
+    if (otherInterests.has(interest)) {
+      result.interests++;
+    }
+  }
+  
+  // 2. Calcul score compatibilité (icône ?)
+  let score = 0;
+  
+  // Même secteur
+  if (my.industry === other.industry) score += 30;
+  
+  // Langues communes
+  if (my.languages && other.languages) {
+    const commonLang = my.languages.filter(l => other.languages.includes(l));
+    score += commonLang.length * 15;
+  }
+  
+  // Même ville
+  if (my.city === other.city) score += 20;
+  
+  result.compatibility = Math.min(100, score);
+  
+  return result;
+}
+
     // 🎨 Add markers to map with colored droplets
     function addMarkersToMap(users) {
       // Clear existing markers (except user marker)
@@ -956,13 +1014,17 @@ const markerIcon = new H.map.Icon(createDropletIcon(color, affinityScore, plan, 
         const distance = user.distance ? `${user.distance} km` : 'À proximité';
         const affinityScore = user.compatibility_score || 50;
         const affinityColor = getAffinityColor(affinityScore);
+        // 🔥 Calculer compatibilité pour icônes ! ?
+        const compat = calculateCompatibility(currentUserProfile, user);
+        const interestsIcon = compat.interests > 0 ? `${compat.interests}` : '0';
+        const compatIcon = compat.compatibility > 0 ? `${compat.compatibility}%` : '0%';
 
         card.innerHTML = `
           <div class="user-header">
             <div class="user-avatar">${initials}</div>
             <div class="user-info">
               <h3>${pseudo}</h3>
-              <div class="user-distance">${distance} • <span style="color: ${affinityColor}; font-weight: 600;">🎯 ${affinityScore}%</span></div>
+              <div class="user-distance">${distance} • ${interestsIcon} ${compatIcon}</div>
             </div>
           </div>
           <div class="user-suggestion">${suggestion}</div>
