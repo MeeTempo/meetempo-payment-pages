@@ -393,19 +393,8 @@
           </div>
           
           <div class="form-group">
-            <label>Horaire</label>
-            <div class="time-group">
-              <input 
-                type="time" 
-                id="time" 
-                name="time" 
-                required
-              />
-              <select id="ampm" name="ampm" required>
-                <option value="AM">AM (matin)</option>
-                <option value="PM" selected>PM (après-midi/soir)</option>
-              </select>
-            </div>
+          <label>Horaire</label>
+          <input type="time" id="time" name="time" required />
           </div>
           
           <div class="form-group">
@@ -506,7 +495,9 @@
         const place = document.getElementById('place').value.trim();
         const date = document.getElementById('date').value;
         const time = document.getElementById('time').value;
-        const ampm = document.getElementById('ampm').value;
+        // Détecter AM/PM depuis l'heure 24h
+        const hour24 = parseInt(time.split(':')[0]);
+        const ampm = hour24 >= 12 ? 'PM' : 'AM';
         const description = document.getElementById('description').value.trim();
         
         // Construire le texte complet pour backward compatibility
