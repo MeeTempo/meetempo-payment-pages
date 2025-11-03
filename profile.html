@@ -187,6 +187,11 @@
                     ✨ Compléter mes centres d'intérêt
                 </button>
             </form>
+            <!-- 🔥 BONUS : Affichage profil enrichi -->
+<div id="richProfileSection" style="display:none; margin-top: 30px; padding: 20px; background: #f7fafc; border-radius: 10px;">
+    <h3 style="color: #4a5568; margin-bottom: 15px;">📊 Mon profil enrichi</h3>
+    <div id="richProfileContent" style="font-size: 14px; color: #718096; line-height: 1.6;"></div>
+</div>
             
             <div class="success" id="successMsg">
                 ✅ Profil enregistré avec succès!<br><br>
@@ -254,28 +259,89 @@
         }
         
         // ✅ CORRECTION : Charger profil avec token au lieu de user_id
-        async function loadProfile() {
-            try {
-                const token = sessionStorage.getItem('meetempo_token');
-                const response = await fetch(`${API_BASE}/profile?token=${token}`);
-                const data = await response.json();
-                
-                // Afficher le code
-                if (data.code) {
-                    document.getElementById('codeDisplay').textContent = data.code;
-                }
-                
-                // Pré-remplir profil
-                if (data.profile) {
-                    document.getElementById('name').value = data.profile.name || '';
-                    document.getElementById('city').value = data.profile.city || '';
-                    document.getElementById('role').value = data.profile.role || '';
-                    document.getElementById('bio').value = data.profile.bio || '';
-                }
-            } catch (err) {
-                console.log('Nouveau profil ou erreur chargement:', err);
+async function loadProfile() {
+    try {
+        const token = sessionStorage.getItem('meetempo_token');
+        const response = await fetch(`${API_BASE}/profile?token=${token}`);
+        const data = await response.json();
+        
+        console.log('Profil chargé:', data); // 🔥 Debug
+        
+        // Afficher le code
+        if (data.code) {
+            document.getElementById('codeDisplay').textContent = data.code;
+        }
+        
+        // 🔥 AMÉLIORATION : Pré-remplir TOUS les champs
+        
+        // Champs basiques (profile)
+        if (data.profile || data.name) {
+            document.getElementById('name').value = data.name || data.profile?.name || '';
+            document.getElementById('city').value = data.city || data.profile?.city || '';
+            document.getElementById('role').value = data.profile_rich?.role || data.profile?.role || '';
+            document.getElementById('bio').value = data.profile?.bio || '';
+        }
+        
+        // 🔥 BONUS : Badge profil complet
+        if (data.profile_rich && Object.keys(data.profile_rich).length > 0) {
+            console.log('✅ Profil enrichi détecté:', data.profile_rich);
+            
+            const codeBox = document.querySelector('.code-box');
+            if (codeBox && !document.getElementById('profileCompleteBadge')) {
+                const badge = document.createElement('div');
+                badge.id = 'profileCompleteBadge';
+                badge.style.cssText = 'margin-top: 10px; padding: 8px; background: #48bb78; color: white; border-radius: 8px; font-size: 14px;';
+                badge.textContent = '✅ Profil enrichi complété';
+                codeBox.appendChild(badge);
+            }
+            
+            // 🔥 NOUVEAU : Afficher profil enrichi détaillé
+            const section = document.getElementById('richProfileSection');
+            const content = document.getElementById('richProfileContent');
+            
+            let html = '';
+            
+            if (data.profile_rich.sports?.length) {
+                html += `<p><strong>⚽ Sports :</strong> ${data.profile_rich.sports.join(', ')}</p>`;
+            }
+            if (data.profile_rich.hobbies?.length) {
+                html += `<p><strong>🎨 Hobbies :</strong> ${data.profile_rich.hobbies.join(', ')}</p>`;
+            }
+            if (data.profile_rich.languages?.length) {
+                html += `<p><strong>🌍 Langues :</strong> ${data.profile_rich.languages.join(', ')}</p>`;
+            }
+            if (data.profile_rich.industry) {
+                html += `<p><strong>💼 Secteur :</strong> ${data.profile_rich.industry}</p>`;
+            }
+            if (data.profile_rich.job_title) {
+                html += `<p><strong>👔 Poste :</strong> ${data.profile_rich.job_title}</p>`;
+            }
+            if (data.profile_rich.company) {
+                html += `<p><strong>🏢 Entreprise :</strong> ${data.profile_rich.company}</p>`;
+            }
+            if (data.profile_rich.linkedin) {
+                html += `<p><strong>💼 LinkedIn :</strong> <a href="${data.profile_rich.linkedin}" target="_blank" style="color: #667eea;">Voir profil</a></p>`;
+            }
+            if (data.profile_rich.meeting_types?.length) {
+                html += `<p><strong>🤝 Types de rencontres :</strong> ${data.profile_rich.meeting_types.join(', ')}</p>`;
+            }
+            if (data.profile_rich.max_distance) {
+                html += `<p><strong>📍 Distance max :</strong> ${data.profile_rich.max_distance} km</p>`;
+            }
+            if (data.profile_rich.bio_rich) {
+                html += `<p><strong>✍️ Bio :</strong> ${data.profile_rich.bio_rich}</p>`;
+            }
+            
+            if (html) {
+                content.innerHTML = html;
+                section.style.display = 'block';
             }
         }
+        
+    } catch (err) {
+        console.log('Nouveau profil ou erreur chargement:', err);
+    }
+}
         
         // ✅ CORRECTION : Sauvegarder avec token au lieu de user_id
         document.getElementById('profileForm').addEventListener('submit', async (e) => {
