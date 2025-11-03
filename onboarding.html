@@ -650,42 +650,135 @@
         
         // Initialisation
         async function init() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            
-            if (!token) {
-                document.getElementById('loading').innerHTML = 
-                    '<p style="color: #e53e3e;">❌ Accès non autorisé</p>' +
-                    '<p style="font-size: 14px; margin-top: 10px;">Utilisez le lien depuis MeeTempo GPT</p>' +
-                    '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea; margin-top: 20px; display: inline-block;">← Retour</a>';
-                return;
-            }
-            
-            try {
-                const response = await fetch(`${API_BASE}/auth/session?token=${token}`);
-                
-                if (!response.ok) throw new Error('Token invalide');
-                
-                const data = await response.json();
-                
-                if (data.user_id) {
-                    userId = data.user_id;
-                    sessionStorage.setItem('meetempo_token', token);
-                } else {
-                    throw new Error('Token invalide');
-                }
-            } catch (err) {
-                document.getElementById('loading').innerHTML = 
-                    '<p style="color: #e53e3e;">❌ Session expirée</p>' +
-                    '<p style="font-size: 14px; margin-top: 10px;">Veuillez obtenir un nouveau lien depuis MeeTempo GPT</p>' +
-                    '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea; margin-top: 20px; display: inline-block;">← Retour</a>';
-                return;
-            }
-            
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
-            updateProgress();
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    
+    if (!token) {
+        document.getElementById('loading').innerHTML = 
+            '<p style="color: #e53e3e;">❌ Accès non autorisé</p>' +
+            '<p style="font-size: 14px; margin-top: 10px;">Utilisez le lien depuis MeeTempo GPT</p>' +
+            '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea; margin-top: 20px; display: inline-block;">← Retour</a>';
+        return;
+    }
+    
+    try {
+        const response = await fetch(`${API_BASE}/auth/session?token=${token}`);
+        
+        if (!response.ok) throw new Error('Token invalide');
+        
+        const data = await response.json();
+        
+        if (data.user_id) {
+            userId = data.user_id;
+            sessionStorage.setItem('meetempo_token', token);
+        } else {
+            throw new Error('Token invalide');
         }
+    } catch (err) {
+        document.getElementById('loading').innerHTML = 
+            '<p style="color: #e53e3e;">❌ Session expirée</p>' +
+            '<p style="font-size: 14px; margin-top: 10px;">Veuillez obtenir un nouveau lien depuis MeeTempo GPT</p>' +
+            '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea; margin-top: 20px; display: inline-block;">← Retour</a>';
+        return;
+    }
+    
+    // 🔥 NOUVEAU : Charger profil existant pour pré-remplir
+    await loadExistingProfile(token);
+    
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+    updateProgress();
+}
+
+// 🔥 NOUVELLE FONCTION : Pré-remplir onboarding
+async function loadExistingProfile(token) {
+    try {
+        const response = await fetch(`${API_BASE}/profile?token=${token}`);
+        if (!response.ok) return; // Pas grave si erreur
+        
+        const data = await response.json();
+        console.log('Profil existant chargé:', data);
+        
+        if (!data.profile_rich) return; // Pas de données à pré-remplir
+        
+        const rich = data.profile_rich;
+        
+        // ÉTAPE 1 : Professionnel
+        if (rich.linkedin) document.getElementById('linkedin').value = rich.linkedin;
+        if (rich.job_title) document.getElementById('job_title').value = rich.job_title;
+        if (rich.company) document.getElementById('company').value = rich.company;
+        if (rich.industry) {
+            document.getElementById('industry').value = rich.industry;
+            toggleOtherIndustry(); // Afficher champ "autre" si nécessaire
+        }
+        
+        // ÉTAPE 2 : Centres d'intérêt
+        if (rich.sports && Array.isArray(rich.sports)) {
+            rich.sports.forEach(sport => {
+                const checkbox = document.getElementById(`sport_${sport}`);
+                if (checkbox) checkbox.checked = true;
+            });
+            // Sports non-standards dans "other_sports"
+            const standardSports = ['tennis', 'running', 'fitness', 'cycling', 'swimming', 'yoga', 'golf', 'football'];
+            const otherSports = rich.sports.filter(s => !standardSports.includes(s));
+            if (otherSports.length) {
+                document.getElementById('other_sports').value = otherSports.join(', ');
+            }
+        }
+        
+        if (rich.hobbies && Array.isArray(rich.hobbies)) {
+            rich.hobbies.forEach(hobby => {
+                const checkbox = document.getElementById(`hobby_${hobby}`);
+                if (checkbox) checkbox.checked = true;
+            });
+            // Hobbies non-standards dans "other_hobbies"
+            const standardHobbies = ['reading', 'music', 'cinema', 'travel', 'cooking', 'photo', 'art', 'gaming'];
+            const otherHobbies = rich.hobbies.filter(h => !standardHobbies.includes(h));
+            if (otherHobbies.length) {
+                document.getElementById('other_hobbies').value = otherHobbies.join(', ');
+            }
+        }
+        
+        // ÉTAPE 3 : Lifestyle
+        if (rich.countries_visited && Array.isArray(rich.countries_visited)) {
+            document.getElementById('countries_visited').value = rich.countries_visited.join(', ');
+        }
+        if (rich.dream_destinations && Array.isArray(rich.dream_destinations)) {
+            document.getElementById('dream_destinations').value = rich.dream_destinations.join(', ');
+        }
+        if (rich.languages && Array.isArray(rich.languages)) {
+            rich.languages.forEach(lang => {
+                const checkbox = document.getElementById(`lang_${lang}`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+        
+        // ÉTAPE 4 : Préférences
+        if (rich.meeting_types && Array.isArray(rich.meeting_types)) {
+            rich.meeting_types.forEach(type => {
+                const checkbox = document.getElementById(`pref_${type}`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+        if (rich.max_distance) {
+            document.getElementById('max_distance').value = rich.max_distance;
+        }
+        if (rich.availability_times && Array.isArray(rich.availability_times)) {
+            rich.availability_times.forEach(time => {
+                const checkbox = document.getElementById(`time_${time}`);
+                if (checkbox) checkbox.checked = true;
+            });
+        }
+        if (rich.bio_rich) {
+            document.getElementById('bio_rich').value = rich.bio_rich;
+        }
+        
+        console.log('✅ Formulaire pré-rempli avec succès');
+        
+    } catch (err) {
+        console.log('Aucun profil à pré-remplir ou erreur:', err);
+    }
+}
         
         function updateProgress() {
             const progress = (currentStep / totalSteps) * 100;
@@ -728,16 +821,19 @@
         }
         
         // AJOUT: Toggle secteur autre
-        function toggleOtherIndustry() {
-            const industry = document.getElementById('industry').value;
-            const otherGroup = document.getElementById('otherIndustryGroup');
-            
-            if (industry === 'other') {
-                otherGroup.style.display = 'block';
-            } else {
-                otherGroup.style.display = 'none';
-            }
-        }
+function toggleOtherIndustry() {
+    const industry = document.getElementById('industry').value;
+    const otherGroup = document.getElementById('otherIndustryGroup');
+    
+    if (industry === 'other') {
+        otherGroup.style.display = 'block';
+    } else {
+        otherGroup.style.display = 'none';
+    }
+}
+
+// 🔥 AJOUTER : Écouteur pour déclencher automatiquement
+document.getElementById('industry').addEventListener('change', toggleOtherIndustry);
         
         async function submitOnboarding() {
             const submitBtn = document.getElementById('submitBtn');
