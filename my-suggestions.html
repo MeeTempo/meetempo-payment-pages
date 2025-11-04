@@ -412,18 +412,28 @@
     let currentTab = 'active';
     
     // Initialisation
-    async function init() {
-      const token = sessionStorage.getItem('meetempo_token');
-      
-      if (!token) {
-  alert('Session expirée. Retour à MeeTempo GPT.');
-  window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-  return;
-}
-      
-      await loadSuggestions(token);
-      setupTabs();
+async function init() {
+  // 🔥 FIX : Récupérer token depuis URL si pas dans sessionStorage
+  let token = sessionStorage.getItem('meetempo_token');
+  
+  if (!token) {
+    // Essayer de récupérer depuis URL
+    const urlParams = new URLSearchParams(window.location.search);
+    token = urlParams.get('token');
+    
+    if (token) {
+      // Sauvegarder dans sessionStorage pour navigation future
+      sessionStorage.setItem('meetempo_token', token);
+    } else {
+      alert('Session expirée. Retour à MeeTempo GPT.');
+      window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+      return;
     }
+  }
+  
+  await loadSuggestions(token);
+  setupTabs();
+}
     
     // Charger suggestions
     async function loadSuggestions(token) {
