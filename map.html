@@ -941,20 +941,34 @@
       ui = H.ui.UI.createDefault(map, defaultLayers);
       
       // 🔥 NOUVEAU : Listener zoom auto-ajuste rayon
-      map.addEventListener('mapviewchangeend', async function() {
-        if (isManualRadius) return; // Skip si mode manuel
-        
-        const zoom = map.getZoom();
-        const bounds = map.getViewPort().getBoundingBox();
-        
-        // Calculer rayon nécessaire
-        const center = map.getCenter();
-        const topRight = bounds.getTopRight();
-        
-        const distance = calculateDistance(
-          center.lat, center.lng,
-          topRight.lat, topRight.lng
-        );
+map.addEventListener('mapviewchangeend', async function() {
+  if (isManualRadius) return; // Skip si mode manuel
+  
+  const zoom = map.getZoom();
+  
+  // 🔥 Calculer rayon depuis le zoom
+  let radiusNeeded;
+  if (zoom <= 6) radiusNeeded = 500;      // Vue monde
+  else if (zoom <= 8) radiusNeeded = 200; // Vue continent
+  else if (zoom <= 10) radiusNeeded = 100; // Vue pays
+  else if (zoom <= 12) radiusNeeded = 50;  // Vue région
+  else if (zoom <= 14) radiusNeeded = 20;  // Vue ville
+  else radiusNeeded = 10;                  // Vue quartier
+  
+  // Si rayon > actuel, recharger
+  if (radiusNeeded > currentRadius) {
+    currentRadius = radiusNeeded;
+    
+    // Update UI
+    updateDistanceButtons(radiusNeeded);
+    document.getElementById('radiusText').textContent = `${radiusNeeded} km (auto)`;
+    
+    // Recharger
+    await loadNearbyUsers();
+    
+    console.log(`🔄 Auto-ajusté: ${radiusNeeded} km (zoom ${zoom})`);
+  }
+});
         
         const radiusNeeded = Math.ceil(distance);
         
