@@ -729,8 +729,14 @@
     }
     
     function backToGPT() {
-      window.close();
-    }
+  // Essayer de fermer l'onglet (fonctionne si ouvert depuis GPT)
+  if (window.opener) {
+    window.close();
+  } else {
+    // Sinon rediriger vers GPT
+    window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+  }
+}
     
     // Tabs
     function setupTabs() {
