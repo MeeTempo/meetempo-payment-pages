@@ -1343,11 +1343,13 @@ function addMarkersWithClustering(users) {
     // 🔥 NOUVEAU : Recentrer sur ma position
 function goToMyLocation() {
   if (currentLocation && currentLocation.source === 'gps') {
-    // Position GPS connue
-    map.setCenter(currentLocation, true);
-    map.setZoom(14, true);
+    // Position GPS connue - Forcer recentrage
+    const position = { lat: currentLocation.lat, lng: currentLocation.lng };
     
-    console.log('🎯 Recentré sur ma position GPS');
+    map.setCenter(position);
+    map.setZoom(14);
+    
+    console.log(`🎯 Recentré sur GPS: ${position.lat}, ${position.lng}`);
   } else {
     // Redemander géolocalisation
     if (navigator.geolocation) {
@@ -1360,10 +1362,11 @@ function goToMyLocation() {
             accuracy: position.coords.accuracy
           };
           
-          map.setCenter(currentLocation, true);
-          map.setZoom(14, true);
+          const pos = { lat: currentLocation.lat, lng: currentLocation.lng };
+          map.setCenter(pos);
+          map.setZoom(14);
           
-          console.log('🎯 Position GPS rafraîchie');
+          console.log(`🎯 Position GPS rafraîchie: ${pos.lat}, ${pos.lng}`);
         },
         (error) => {
           alert('❌ Impossible d\'accéder à votre position GPS');
