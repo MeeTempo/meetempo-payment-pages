@@ -492,12 +492,26 @@ async function init() {
     
     // Afficher suggestions
     function renderSuggestions() {
-      const now = new Date();
-      
       // Séparer actives / expirées
-      const active = allSuggestions.filter(s => 
-        s.statut === 'active' && new Date(s.expires_date) > now
-      );
+    const now = new Date();
+
+    const active = allSuggestions.filter(s => {
+      if (s.statut !== 'active') return false;
+      
+      // Vérifier expires_date
+      if (new Date(s.expires_date) <= now) return false;
+      
+      // 🔥 NOUVEAU : Vérifier si événement passé
+      if (s.date) {
+        const eventDate = new Date(s.date);
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        if (eventDate < today) return false; // Événement passé
+      }
+      
+      return true;
+    });
       const expired = allSuggestions.filter(s => 
         s.statut !== 'active' || new Date(s.expires_date) <= now
       );
@@ -715,11 +729,29 @@ async function init() {
     
     // Supprimer suggestion
     async function deleteSuggestion(suggestionId) {
-      if (!confirm('Supprimer cette suggestion ?')) return;
-      
-      alert('⚠️ Fonction suppression à implémenter (endpoint DELETE /suggestions/{id})');
-      // TODO: Implémenter DELETE endpoint
-    }
+  if (!confirm('⚠️ Supprimer définitivement cette suggestion ?\n\nCette action est irréversible.')) return;
+  
+  const token = sessionStorage.getItem('meetempo_token');
+  
+  try {
+    const response = await fetch(
+      `${API_BASE}/suggestions/${suggestionId}?session_token=${token}`,
+      { method: 'DELETE' }
+    );
+    
+    const data = await response.json();
+    
+    if (!response.ok) throw new Error(data.error || 'Erreur suppression');
+    
+    alert('✅ Suggestion supprimée avec succès !');
+    
+    // Recharger la liste
+    await loadSuggestions(token);
+    
+  } catch (err) {
+    alert('❌ Erreur: ' + err.message);
+  }
+}
     
     // Voir sur carte
     function viewOnMap(suggestionId) {
