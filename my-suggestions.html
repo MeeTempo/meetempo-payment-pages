@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Suggestions - MeeTempo</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --mt-dark: #030E4F;
+      --mt-accent: #F49F1C;
+      --mt-bg: #0a133f;
+      --mt-card: #0e184f;
+      --mt-text: #ffffff;
+      --mt-muted: #c9d1ff;
+      --ok: #23c55e;
+      --err: #ef4444;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Montserrat, system-ui, -apple-system, sans-serif;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      color: var(--mt-text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .logo-badge {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-weight: 800;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      font-size: 16px;
+      color: var(--mt-muted);
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .tab:hover {
+      background: rgba(255,255,255,0.12);
+    }
+    
+    .tab.active {
+      background: var(--mt-accent);
+      color: #111;
+      border-color: var(--mt-accent);
+    }
+    
+    /* Suggestion Card */
+    .suggestion-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+    
+    .suggestion-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(244,159,28,0.3);
+    }
+    
+    .suggestion-card.expired {
+      opacity: 0.6;
+      border-color: rgba(255,255,255,0.08);
+    }
+    
+    .suggestion-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    
+    .suggestion-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .suggestion-meta {
+      font-size: 14px;
+      color: var(--mt-muted);
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .badge-active {
+      background: rgba(35, 197, 94, 0.2);
+      color: var(--ok);
+    }
+    
+    .badge-expired {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--err);
+    }
+    
+    .badge-pending {
+      background: rgba(244, 159, 28, 0.2);
+      color: var(--mt-accent);
+    }
+    
+    /* Requests Section */
+    .requests-section {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .requests-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    
+    .requests-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mt-accent);
+    }
+    
+    .request-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      margin-bottom: 8px;
+    }
+    
+    .request-checkbox {
+      width: 20px;
+      height: 20px;
+      cursor: pointer;
+    }
+    
+    .request-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--mt-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    
+    .request-info {
+      flex: 1;
+    }
+    
+    .request-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .request-city {
+      font-size: 12px;
+      color: var(--mt-muted);
+    }
+    
+    .request-score {
+      padding: 4px 8px;
+      background: rgba(35, 197, 94, 0.2);
+      color: var(--ok);
+      border-radius: 8px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    
+    .btn-primary {
+      background: var(--mt-accent);
+      color: #111;
+      flex: 1;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(244,159,28,0.4);
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: var(--mt-text);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--err);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+    
+    /* Loading & Empty */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--mt-muted);
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: var(--mt-accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--mt-muted);
+    }
+    
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 640px) {
+      .suggestion-meta {
+        font-size: 12px;
+      }
+      
+      .actions {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-badge">MT</div>
+      <h1>📋 Mes Suggestions</h1>
+      <p class="subtitle">Gérez vos suggestions et demandes reçues</p>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" data-tab="active">
+        ✨ Actives
+      </div>
+      <div class="tab" data-tab="history">
+        📜 Historique
+      </div>
+    </div>
+    
+    <!-- Loading -->
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <div>Chargement...</div>
+    </div>
+    
+    <!-- Content -->
+    <div id="content" style="display:none;">
+      <!-- Active Suggestions -->
+      <div id="activeSuggestions"></div>
+      
+      <!-- History -->
+      <div id="historySuggestions" style="display:none;"></div>
+      
+      <!-- Empty State -->
+      <div id="empty" class="empty" style="display:none;">
+        <div class="empty-icon">📭</div>
+        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
+          Aucune suggestion
+        </div>
+        <div style="font-size: 14px;">
+          Créez votre première suggestion pour commencer !
+        </div>
+      </div>
+    </div>
+    
+    <!-- Bottom Actions -->
+    <div class="actions" style="margin-top: 32px;">
+      <button class="btn btn-primary" onclick="createNew()">
+        ✨ Créer une suggestion
+      </button>
+      <button class="btn btn-secondary" onclick="goToMap()">
+        🗺️ Voir la carte
+      </button>
+      <button class="btn btn-secondary" onclick="backToGPT()">
+        💬 Retour GPT
+      </button>
+    </div>
+  </div>
+  <script>
+    const API_BASE = 'https://api.meetempo.com';
+    let allSuggestions = [];
+    let currentTab = 'active';
+    
+    // Initialisation
+    async function init() {
+      const token = sessionStorage.getItem('meetempo_token');
+      
+      if (!token) {
+        alert('Session expirée. Retour à MeeTempo GPT.');
+        window.location.href = 'https://chatgpt.com/g/g-YOUR-GPT-ID';
+        return;
+      }
+      
+      await loadSuggestions(token);
+      setupTabs();
+    }
+    
+    // Charger suggestions
+    async function loadSuggestions(token) {
+      try {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('content').style.display = 'none';
+        
+        // 1. Récupérer MES suggestions
+        const response = await fetch(`${API_BASE}/user/suggestions?session_token=${token}`);
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Erreur chargement');
+        }
+        
+        allSuggestions = data.suggestions || [];
+        
+        // 2. Pour chaque suggestion, récupérer les demandes
+        for (let sugg of allSuggestions) {
+          try {
+            const reqResponse = await fetch(
+              `${API_BASE}/suggestions/${sugg.id}/requests?session_token=${token}`
+            );
+            const reqData = await reqResponse.json();
+            
+            if (reqResponse.ok) {
+              sugg.requests = reqData.requests || [];
+              sugg.participants_current = reqData.participants_current || 1;
+              sugg.participants_max = reqData.participants_max || 3;
+            } else {
+              sugg.requests = [];
+            }
+          } catch (err) {
+            console.log('Erreur récupération demandes:', err);
+            sugg.requests = [];
+          }
+        }
+        
+        // 3. Afficher
+        renderSuggestions();
+        
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        
+      } catch (err) {
+        console.error('Erreur:', err);
+        alert('Erreur chargement suggestions: ' + err.message);
+        document.getElementById('loading').innerHTML = `
+          <div style="color: var(--err);">❌ ${err.message}</div>
+          <button class="btn btn-primary" onclick="init()" style="margin-top: 16px;">
+            Réessayer
+          </button>
+        `;
+      }
+    }
+    
+    // Afficher suggestions
+    function renderSuggestions() {
+      const now = new Date();
+      
+      // Séparer actives / expirées
+      const active = allSuggestions.filter(s => 
+        s.statut === 'active' && new Date(s.expires_date) > now
+      );
+      const expired = allSuggestions.filter(s => 
+        s.statut !== 'active' || new Date(s.expires_date) <= now
+      );
+      
+      // Afficher actives
+      const activeContainer = document.getElementById('activeSuggestions');
+      if (active.length === 0) {
+        activeContainer.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">📭</div>
+            <div>Aucune suggestion active</div>
+          </div>
+        `;
+      } else {
+        activeContainer.innerHTML = active.map(s => renderSuggestionCard(s, false)).join('');
+      }
+      
+      // Afficher historique
+      const historyContainer = document.getElementById('historySuggestions');
+      if (expired.length === 0) {
+        historyContainer.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">📜</div>
+            <div>Aucune suggestion expirée</div>
+          </div>
+        `;
+      } else {
+        historyContainer.innerHTML = expired.map(s => renderSuggestionCard(s, true)).join('');
+      }
+    }
+    
+    // Render une carte suggestion
+    function renderSuggestionCard(sugg, isExpired) {
+      const pendingRequests = (sugg.requests || []).filter(r => r.status === 'pending');
+      const acceptedRequests = (sugg.requests || []).filter(r => r.status === 'accepted');
+      
+      const date = sugg.date ? new Date(sugg.date).toLocaleDateString('fr-FR') : '?';
+      const time = sugg.time || '?';
+      
+      return `
+        <div class="suggestion-card ${isExpired ? 'expired' : ''}">
+          <div class="suggestion-header">
+            <div style="flex: 1;">
+              <div class="suggestion-title">${sugg.ai_final_text || sugg.description}</div>
+              <div class="suggestion-meta">
+                <div class="meta-item">📍 ${sugg.city || sugg.location_name || '?'}</div>
+                <div class="meta-item">📅 ${date}</div>
+                <div class="meta-item">⏰ ${time}</div>
+              </div>
+              <div>
+                <span class="badge ${isExpired ? 'badge-expired' : 'badge-active'}">
+                  ${isExpired ? '⏰ Expirée' : '✨ Active'}
+                </span>
+                ${pendingRequests.length > 0 ? `
+                  <span class="badge badge-pending">
+                    ${pendingRequests.length} demande${pendingRequests.length > 1 ? 's' : ''}
+                  </span>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+          
+          ${!isExpired && pendingRequests.length > 0 ? `
+            <div class="requests-section">
+              <div class="requests-header">
+                <div class="requests-title">
+                  🤝 Demandes de participation (${pendingRequests.length})
+                </div>
+                <div style="font-size: 12px; color: var(--mt-muted);">
+                  ${sugg.participants_current}/${sugg.participants_max} participants
+                </div>
+              </div>
+              
+              ${pendingRequests.map(req => `
+                <div class="request-item">
+                  <input 
+                    type="checkbox" 
+                    class="request-checkbox" 
+                    data-match-id="${req.match_id}"
+                    id="req_${req.match_id}"
+                  >
+                  <label for="req_${req.match_id}" style="display: flex; align-items: center; gap: 12px; flex: 1; cursor: pointer;">
+                    <div class="request-avatar">
+                      ${req.user_name.substring(0, 2).toUpperCase()}
+                    </div>
+                    <div class="request-info">
+                      <div class="request-name">${req.user_name}</div>
+                      <div class="request-city">📍 ${req.user_city}</div>
+                    </div>
+                    ${req.compatibility_score ? `
+                      <div class="request-score">
+                        ${req.compatibility_score}% match
+                      </div>
+                    ` : ''}
+                  </label>
+                </div>
+              `).join('')}
+              
+              <div class="actions" style="margin-top: 12px;">
+                <button 
+                  class="btn btn-primary btn-small" 
+                  onclick="acceptSelected('${sugg.id}')"
+                >
+                  ✅ Accepter sélectionnés
+                </button>
+                <button 
+                  class="btn btn-secondary btn-small" 
+                  onclick="selectAll('${sugg.id}')"
+                >
+                  ☑️ Tout sélectionner
+                </button>
+                <button 
+                  class="btn btn-danger btn-small" 
+                  onclick="declineAll('${sugg.id}')"
+                >
+                  ❌ Tout refuser
+                </button>
+              </div>
+            </div>
+          ` : ''}
+          
+          ${acceptedRequests.length > 0 ? `
+            <div class="requests-section">
+              <div class="requests-title">✅ Participants confirmés (${acceptedRequests.length})</div>
+              ${acceptedRequests.map(req => `
+                <div class="request-item" style="opacity: 0.7;">
+                  <div class="request-avatar">
+                    ${req.user_name.substring(0, 2).toUpperCase()}
+                  </div>
+                  <div class="request-info">
+                    <div class="request-name">${req.user_name}</div>
+                    <div class="request-city">📍 ${req.user_city}</div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+          
+          <div class="actions">
+            <button class="btn btn-secondary btn-small" onclick="viewOnMap('${sugg.id}')">
+              🗺️ Voir sur carte
+            </button>
+            ${!isExpired ? `
+              <button class="btn btn-danger btn-small" onclick="deleteSuggestion('${sugg.id}')">
+                🗑️ Supprimer
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+    
+    // Accepter sélectionnés
+    async function acceptSelected(suggestionId) {
+      const checkboxes = document.querySelectorAll(`input[data-match-id]:checked`);
+      const matchIds = Array.from(checkboxes).map(cb => cb.dataset.matchId);
+      
+      if (matchIds.length === 0) {
+        alert('Sélectionnez au moins une demande !');
+        return;
+      }
+      
+      if (!confirm(`Accepter ${matchIds.length} demande(s) ?`)) return;
+      
+      const token = sessionStorage.getItem('meetempo_token');
+      
+      try {
+        const response = await fetch(
+          `${API_BASE}/match/respond?session_token=${token}&match_ids=${matchIds.join(',')}&action=accept`
+        );
+        const data = await response.json();
+        
+        if (!response.ok) throw new Error(data.error || 'Erreur');
+        
+        alert(`✅ ${data.success} demande(s) acceptée(s) !`);
+        await loadSuggestions(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+    
+    // Sélectionner tout
+    function selectAll(suggestionId) {
+      const checkboxes = document.querySelectorAll(`input[data-match-id]`);
+      checkboxes.forEach(cb => cb.checked = true);
+    }
+    
+    // Refuser tout
+    async function declineAll(suggestionId) {
+      const checkboxes = document.querySelectorAll(`input[data-match-id]`);
+      const matchIds = Array.from(checkboxes).map(cb => cb.dataset.matchId);
+      
+      if (matchIds.length === 0) return;
+      
+      if (!confirm(`Refuser ${matchIds.length} demande(s) ?`)) return;
+      
+      const token = sessionStorage.getItem('meetempo_token');
+      
+      try {
+        const response = await fetch(
+          `${API_BASE}/match/respond?session_token=${token}&match_ids=${matchIds.join(',')}&action=decline`
+        );
+        const data = await response.json();
+        
+        if (!response.ok) throw new Error(data.error || 'Erreur');
+        
+        alert(`❌ ${data.success} demande(s) refusée(s)`);
+        await loadSuggestions(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+    
+    // Supprimer suggestion
+    async function deleteSuggestion(suggestionId) {
+      if (!confirm('Supprimer cette suggestion ?')) return;
+      
+      alert('⚠️ Fonction suppression à implémenter (endpoint DELETE /suggestions/{id})');
+      // TODO: Implémenter DELETE endpoint
+    }
+    
+    // Voir sur carte
+    function viewOnMap(suggestionId) {
+      const token = sessionStorage.getItem('meetempo_token');
+      window.open(`map.html?token=${token}&highlight=${suggestionId}`, '_blank');
+    }
+    
+    // Navigation
+    function createNew() {
+      const token = sessionStorage.getItem('meetempo_token');
+      window.location.href = `create-suggestion.html?token=${token}`;
+    }
+    
+    function goToMap() {
+      const token = sessionStorage.getItem('meetempo_token');
+      window.location.href = `map.html?token=${token}`;
+    }
+    
+    function backToGPT() {
+      window.close();
+    }
+    
+    // Tabs
+    function setupTabs() {
+      const tabs = document.querySelectorAll('.tab');
+      const activeContainer = document.getElementById('activeSuggestions');
+      const historyContainer = document.getElementById('historySuggestions');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          
+          const tabName = tab.dataset.tab;
+          
+          if (tabName === 'active') {
+            activeContainer.style.display = 'block';
+            historyContainer.style.display = 'none';
+          } else {
+            activeContainer.style.display = 'none';
+            historyContainer.style.display = 'block';
+          }
+        });
+      });
+    }
+    
+    // Lancer au chargement
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
