@@ -864,11 +864,12 @@
       isManualRadius = true;
       document.getElementById('radiusText').textContent = `${radius} km`;
       
-      // 🔥 Recentrer sur position GPS utilisateur (pas centre carte actuel)
+      // 🔥 Recentrer sur position GPS utilisateur
 if (currentLocation && (currentLocation.source === 'gps' || currentLocation.source === 'default')) {
-  map.setCenter(currentLocation, true);
+  const position = { lat: currentLocation.lat, lng: currentLocation.lng };
+  map.setCenter(position);
+  // Le zoom est déjà géré juste après dans le if/else
 } else {
-  // Si pas de position connue, redemander
   alert('⚠️ Position GPS inconnue. Utilisez le bouton 🎯 pour actualiser.');
   return;
 }
