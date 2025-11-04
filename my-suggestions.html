@@ -727,16 +727,15 @@ async function init() {
       }
     }
     
-    // Supprimer suggestion
     async function deleteSuggestion(suggestionId) {
   if (!confirm('⚠️ Supprimer définitivement cette suggestion ?\n\nCette action est irréversible.')) return;
   
   const token = sessionStorage.getItem('meetempo_token');
   
   try {
+    // 🔥 Utiliser GET au lieu de DELETE (CORS-safe)
     const response = await fetch(
-      `${API_BASE}/suggestions/${suggestionId}?session_token=${token}`,
-      { method: 'DELETE' }
+      `${API_BASE}/suggestions/${suggestionId}/delete?session_token=${token}`
     );
     
     const data = await response.json();
