@@ -316,6 +316,11 @@
       <div class="logo-badge">MT</div>
       <h1>✨ Créer une Suggestion</h1>
       <p class="subtitle">Partagez votre disponibilité</p>
+      
+      <!-- 🔥 NOUVEAU : Bouton vers Mes Suggestions -->
+      <button class="btn-link" onclick="goToMySuggestions()" style="margin-top: 16px;">
+        📋 Voir mes suggestions
+      </button>
     </div>
     
     <div class="card">
@@ -402,8 +407,28 @@
               placeholder="Perdez votre temps de la meilleure des façons... Un café à l'aéroport ? Un tennis entre deux meetings ? Décrivez l'ambiance."
             ></textarea>
           </div>
+          <!-- Nombre de participants -->
+          <div class="form-group">
+            <label for="max_participants">
+              👥 Nombre de participants maximum
+          </label>
+          <select id="max_participants" name="max_participants" required>
+            <option value="2">2 personnes (tête-à-tête)</option>
+            <option value="3" selected>3 personnes (petit groupe)</option>
+            <option value="4">4 personnes (table standard)</option>
+            <option value="5">5 personnes</option>
+            <option value="6">6 personnes</option>
+            <option value="8">8 personnes (équipe)</option>
+            <option value="10">10 personnes</option>
+            <option value="15">15 personnes (groupe large)</option>
+            <option value="20">20 personnes</option>
+            <option value="50">50+ personnes (événement)</option>
+            </select>
+            <div class="helper-text">
+            💡 Choisissez selon votre activité (café, sport, conférence...)
+            </div>
         </div>
-        
+                
         <button type="submit" class="btn btn-primary" id="submitBtn">
           <span id="btnText">✨ Créer ma suggestion</span>
           <div id="btnLoading" class="loading"></div>
@@ -499,19 +524,20 @@
         const fullText = `${activityType} - ${fullLocation} le ${date} à ${time} ${ampm}${description ? '. ' + description : ''}`;
         
         // Payload
-        const payload = {
-          session_token: session_token,
-          // Nouveaux champs structurés
-          activity_type: activityType,
-          city: city,
-          place: place || null,
-          date: date,
-          time: time,
-          ampm: ampm,
-          description: description || null,
-          // Backward compatibility
-          text: fullText
-        };
+const payload = {
+  session_token: session_token,
+  // Nouveaux champs structurés
+  activity_type: activityType,
+  city: city,
+  place: place || null,
+  date: date,
+  time: time,
+  ampm: ampm,
+  description: description || null,
+  max_participants: parseInt(document.getElementById('max_participants').value), // 🔥 NOUVEAU
+  // Backward compatibility
+  text: fullText
+};
         
         // Appel API
         const response = await fetch(`${API_BASE}/suggestions/create`, {
@@ -530,15 +556,28 @@
         
         const data = await response.json();
         
-        // Afficher écran de succès
-        showSuccessScreen(data, {
-          activityType,
-          fullLocation,
-          date,
-          time,
-          ampm,
-          description
-        });
+        // Demander si l'utilisateur veut voir ses suggestions
+const goToList = confirm(
+  '✅ Suggestion créée avec succès !\n\n' +
+  '📋 Voulez-vous voir vos suggestions maintenant ?\n\n' +
+  '✅ Oui → Mes Suggestions\n' +
+  '❌ Non → Rester ici'
+);
+
+if (goToList) {
+  // Aller vers mes suggestions
+  goToMySuggestions();
+} else {
+  // Afficher écran de succès
+  showSuccessScreen(data, {
+    activityType,
+    fullLocation,
+    date,
+    time,
+    ampm,
+    description
+  });
+}
         
       } catch (err) {
         console.error('Error:', err);
@@ -607,6 +646,10 @@
         backToGPT();
       }
     }
+    // Fonction pour aller vers mes suggestions
+function goToMySuggestions() {
+  window.location.href = `my-suggestions.html?token=${session_token}`;
+}
   </script>
 </body>
 </html>
