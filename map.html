@@ -969,25 +969,8 @@ map.addEventListener('mapviewchangeend', async function() {
     console.log(`🔄 Auto-ajusté: ${radiusNeeded} km (zoom ${zoom})`);
   }
 });
-        
-        const radiusNeeded = Math.ceil(distance);
-        
-        // Si rayon > actuel, recharger
-        if (radiusNeeded > currentRadius) {
-          currentRadius = radiusNeeded;
-          
-          // Update UI
-          updateDistanceButtons(radiusNeeded);
-          document.getElementById('radiusText').textContent = `${radiusNeeded} km (auto)`;
-          
-          // Recharger
-          await loadNearbyUsers();
-          
-          console.log(`🔄 Auto-ajusté: ${radiusNeeded} km`);
-        }
-      });
-      
-      window.addEventListener('resize', () => {
+  
+        window.addEventListener('resize', () => {
         if (map) map.getViewPort().resize();
       });
       
