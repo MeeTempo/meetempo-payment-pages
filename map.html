@@ -146,10 +146,79 @@
     }
     
     .distance-btn.active {
-      background: var(--mt-accent);
-      color: #111;
-      border-color: var(--mt-accent);
+    background: var(--mt-accent);
+    color: #111;
+    border-color: var(--mt-accent);
+  }
+
+  /* 🔥 NOUVEAU : Barre de recherche ville */
+  .city-search {
+    position: fixed;
+    top: 70px;
+    left: 20px;
+    right: 200px;
+    z-index: 999;
+  }
+
+  .search-input-wrapper {
+    display: flex;
+    gap: 8px;
+    background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+    border: 1px solid rgba(255,255,255,0.12);
+    backdrop-filter: blur(6px);
+    border-radius: 12px;
+    padding: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  }
+
+  #citySearchInput {
+    flex: 1;
+    border: none;
+    background: rgba(255,255,255,0.08);
+    padding: 8px 12px;
+    font-size: 14px;
+    font-family: 'Montserrat', sans-serif;
+    color: var(--mt-text);
+    border-radius: 8px;
+    outline: none;
+  }
+
+  #citySearchInput::placeholder {
+    color: var(--mt-muted);
+  }
+
+  .search-btn {
+    background: var(--mt-accent);
+    border: none;
+    border-radius: 8px;
+    width: 40px;
+    height: 40px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: transform 0.2s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #111;
+    font-weight: 700;
+  }
+
+  .search-btn:hover {
+    transform: scale(1.05);
+  }
+
+  .search-btn:active {
+    transform: scale(0.95);
+  }
+
+  /* Responsive mobile */
+  @media (max-width: 640px) {
+    .city-search {
+      top: 140px;
+      left: 12px;
+      right: 12px;
     }
+  }
     
     /* Map Container */
     #map {
@@ -499,6 +568,21 @@
       <button class="distance-btn" data-radius="50">50 km</button>
     </div>
   </div>
+
+  <!-- 🔥 NOUVEAU : Barre de recherche ville -->
+<div class="city-search">
+  <div class="search-input-wrapper">
+    <input 
+      type="text" 
+      id="citySearchInput" 
+      placeholder="🔍 Rechercher une ville..."
+      autocomplete="off"
+    >
+    <button id="citySearchBtn" class="search-btn">
+      🔍
+    </button>
+  </div>
+</div>
   
   <!-- Map -->
   <div id="map"></div>
@@ -706,6 +790,33 @@ ${haloWidth > 0 ? `
         
         // 5. Initialiser carte
         initMap();
+        // 🔥 NOUVEAU : Centrer sur ville si paramètre URL
+        const cityParam = params.get('city');
+
+        if (cityParam) {
+          // Géocoder la ville
+          try {
+            const geocodeUrl = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(cityParam)}&apiKey=${HERE_API_KEY}`;
+            const response = await fetch(geocodeUrl);
+            const data = await response.json();
+            
+            if (data.items && data.items.length > 0) {
+              const position = data.items[0].position;
+              
+              // Mettre à jour currentLocation
+              currentLocation = {
+                lat: position.lat,
+                lng: position.lng,
+                source: 'search',
+                city: cityParam
+              };
+              
+              console.log(`📍 Carte centrée sur ${cityParam} (${position.lat}, ${position.lng})`);
+            }
+          } catch (err) {
+            console.error('Erreur géocodage ville:', err);
+          }
+        }
 
         // 🔥 NOUVELLE FONCTION : Charger profil user
         async function loadCurrentUserProfile() {
@@ -722,6 +833,8 @@ ${haloWidth > 0 ? `
         
         // 6. Setup distance selector
         setupDistanceSelector();
+        // 🔥 NOUVEAU : Setup recherche ville
+        setupCitySearch();
         
       } catch (err) {
         console.error('Init error:', err);
@@ -795,6 +908,71 @@ ${haloWidth > 0 ? `
         });
       });
     }
+
+    // 🔥 NOUVEAU : Setup recherche ville
+function setupCitySearch() {
+  const input = document.getElementById('citySearchInput');
+  const button = document.getElementById('citySearchBtn');
+  
+  // Fonction de recherche
+  async function searchCity() {
+    const cityQuery = input.value.trim();
+    
+    if (!cityQuery) {
+      alert('⚠️ Veuillez saisir une ville');
+      return;
+    }
+    
+    try {
+      // Géocoder la ville
+      const geocodeUrl = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(cityQuery)}&apiKey=${HERE_API_KEY}`;
+      const response = await fetch(geocodeUrl);
+      const data = await response.json();
+      
+      if (data.items && data.items.length > 0) {
+        const position = data.items[0].position;
+        const cityName = data.items[0].address.city || cityQuery;
+        
+        // Centrer la carte
+        map.setCenter({ lat: position.lat, lng: position.lng });
+        map.setZoom(13);
+        
+        // Mettre à jour currentLocation
+        currentLocation = {
+          lat: position.lat,
+          lng: position.lng,
+          source: 'search',
+          city: cityName
+        };
+        
+        // Recharger les suggestions
+        await loadNearbyUsers();
+        
+        console.log(`✅ Carte centrée sur ${cityName}`);
+        
+        // Optionnel : Effacer le champ
+        input.value = '';
+        input.blur();
+        
+      } else {
+        alert(`❌ Ville "${cityQuery}" introuvable`);
+      }
+      
+    } catch (err) {
+      console.error('Erreur recherche ville:', err);
+      alert('❌ Erreur lors de la recherche');
+    }
+  }
+  
+  // Event listeners
+  button.addEventListener('click', searchCity);
+  
+  input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+      searchCity();
+    }
+  });
+}
     
     // Initialize HERE Map
       async function initMap() {
