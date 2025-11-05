@@ -575,18 +575,24 @@ const payload = {
           if (errorData.upgrade_required) {
             throw new Error('❌ Abonnement requis : Meeting, Premium ou VIP nécessaire pour créer des suggestions.');
           }
-          throw new Error('Erreur lors de la création');
+          throw new Error(errorData.error || 'Erreur lors de la création');
         }
         
-        const data = await response.json();
+        // 🔥 Parser réponse JSON
+        let data;
+        try {
+          data = JSON.parse(responseText);
+        } catch (e) {
+          throw new Error(`Réponse invalide (pas JSON): ${responseText.substring(0, 200)}`);
+        }
         
         // Demander si l'utilisateur veut voir ses suggestions
-const goToList = confirm(
-  '✅ Suggestion créée avec succès !\n\n' +
-  '📋 Voulez-vous voir vos suggestions maintenant ?\n\n' +
-  '✅ Oui → Mes Suggestions\n' +
-  '❌ Non → Rester ici'
-);
+        const goToList = confirm(
+          '✅ Suggestion créée avec succès !\n\n' +
+          '📋 Voulez-vous voir vos suggestions maintenant ?\n\n' +
+          '✅ Oui → Mes Suggestions\n' +
+          '❌ Non → Rester ici'
+        );
 
 if (goToList) {
   // Aller vers mes suggestions
