@@ -901,6 +901,18 @@
       });
       document.getElementById('radiusText').textContent = `${currentRadius} km (élargi)`;
       
+      // 🔥 NOUVEAU : Dézoomer carte selon rayon
+      let newZoom;
+      if (currentRadius <= 5) newZoom = 14;
+      else if (currentRadius <= 10) newZoom = 13;
+      else if (currentRadius <= 20) newZoom = 12;
+      else if (currentRadius <= 50) newZoom = 11;
+      else if (currentRadius <= 100) newZoom = 10;
+      else if (currentRadius <= 200) newZoom = 8;
+      else newZoom = 6;
+      
+      map.setZoom(newZoom, true);
+      
       // 🔥 Recharger users/suggestions avec nouveau rayon
       await loadNearbyUsers();
       
