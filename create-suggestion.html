@@ -551,14 +551,27 @@ const payload = {
 };
         
         // Appel API
+        // 🔥 DEBUG : Logger payload avant envoi
+        console.log('📤 Payload:', payload);
+        
         const response = await fetch(`${API_BASE}/suggestions/create`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(payload)
         });
         
+        // 🔥 DEBUG : Logger réponse
+        console.log('📥 Response status:', response.status);
+        const responseText = await response.text();
+        console.log('📥 Response body:', responseText);
+        
         if (!response.ok) {
-          const errorData = await response.json().catch(() => ({}));
+          let errorData = {};
+          try {
+            errorData = JSON.parse(responseText);
+          } catch (e) {
+            throw new Error(`Erreur serveur (${response.status}): ${responseText.substring(0, 200)}`);
+          }
           if (errorData.upgrade_required) {
             throw new Error('❌ Abonnement requis : Meeting, Premium ou VIP nécessaire pour créer des suggestions.');
           }
