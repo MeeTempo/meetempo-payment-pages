@@ -780,14 +780,43 @@
       '#EF4444', '#F59E0B', '#06B6D4', '#EC4899'
     ];
     
-    // 🔥 NOUVEAU : Ouvrir panneau suggestions
-    async function openSuggestionsList() {
+    // 🔥 MODIFIÉ : Ouvrir panneau suggestions (utilise suggestionsData déjà chargé)
+    function openSuggestionsList() {
       const panel = document.getElementById('suggestionsPanel');
       panel.classList.add('open');
       
-      // Charger suggestions zone actuelle
-      suggestionsRadius = currentRadius;
-      await loadSuggestionsNearby(suggestionsRadius);
+      // 🔥 Afficher suggestions déjà chargées
+      displaySuggestionsList();
+    }
+    
+    // 🔥 NOUVEAU : Afficher liste suggestions
+    function displaySuggestionsList() {
+      const listContainer = document.getElementById('suggestionsList');
+      
+      if (!suggestionsData || suggestionsData.length === 0) {
+        listContainer.innerHTML = `
+          <div class="panel-empty">
+            <div class="panel-empty-icon">📭</div>
+            <div style="font-weight:600;margin-bottom:8px;">Aucune suggestion</div>
+            <div style="font-size:13px;">Aucune suggestion dans ce rayon</div>
+          </div>
+        `;
+        document.getElementById('loadMoreBtn').style.display = 'none';
+      } else {
+        listContainer.innerHTML = suggestionsData.map(sugg => `
+          <div class="suggestion-item" onclick="highlightSuggestion('${sugg.id}')">
+            <div class="suggestion-item-title">${escapeHTML(sugg.title)}</div>
+            <div class="suggestion-item-meta">
+              <span>👤 ${escapeHTML(sugg.user_pseudo)}</span>
+              <span>📍 ${sugg.distance_km} km</span>
+              <span>🏙️ ${escapeHTML(sugg.user_city)}</span>
+            </div>
+          </div>
+        `).join('');
+        
+        // Masquer bouton "Voir plus" (géré par rayon carte)
+        document.getElementById('loadMoreBtn').style.display = 'none';
+      }
     }
     
     // 🔥 NOUVEAU : Fermer panneau
