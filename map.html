@@ -1376,9 +1376,36 @@ map.addEventListener('mapviewchangeend', async function() {
             lat: u.location.lat,
             lng: u.location.lng,
             user_pseudo: u.pseudo,
-            user_city: u.city
+            user_city: u.city,
+            suggestion_date: u.suggestion_date,
+            suggestion_time: u.suggestion_time
           }))
-          .sort((a, b) => a.distance_km - b.distance_km);
+          .sort((a, b) => {
+            // 🔥 TRI INTELLIGENT : < 24h prioritaire, sinon distance
+            const now = new Date();
+            const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+            
+            // Parser dates suggestions
+            const dateA = a.suggestion_date ? new Date(a.suggestion_date) : null;
+            const dateB = b.suggestion_date ? new Date(b.suggestion_date) : null;
+            
+            const isASoon = dateA && dateA <= in24h && dateA >= now;
+            const isBSoon = dateB && dateB <= in24h && dateB >= now;
+            
+            // Cas 1 : Les deux < 24h → Trier par date/heure
+            if (isASoon && isBSoon) {
+              return dateA - dateB;
+            }
+            
+            // Cas 2 : Seulement A < 24h → A en premier
+            if (isASoon) return -1;
+            
+            // Cas 3 : Seulement B < 24h → B en premier
+            if (isBSoon) return 1;
+            
+            // Cas 4 : Aucun < 24h → Trier par distance
+            return a.distance_km - b.distance_km;
+          });
         
         // 🔥 Mettre à jour compteur suggestions
         document.getElementById('suggestionCount').textContent = suggestionsData.length;
