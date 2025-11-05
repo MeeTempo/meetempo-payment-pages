@@ -803,7 +803,7 @@
         listContainer.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mt-muted);">Chargement...</div>';
         
         const response = await fetch(
-          `${API_BASE}/suggestions/nearby?session_token=${token}&lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${radius}`
+          `${API_BASE}/suggestions/nearby?token=${token}&lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${radius}`
         );
         
         if (!response.ok) throw new Error('Erreur chargement');
