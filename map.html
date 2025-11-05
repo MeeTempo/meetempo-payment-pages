@@ -1400,7 +1400,14 @@ map.addEventListener('mapviewchangeend', async function() {
           if (response.status === 401) {
             showError('Session expirée', 'Redirection...', 'expired');
           } else if (response.status === 429) {
-            showError('Trop de requêtes', 'Réessayez dans 1 minute', 'rate-limit');
+            // 🔥 MODIFIÉ : Message rassurant + auto-retry
+            document.getElementById('loading').style.display = 'flex';
+            document.querySelector('.loading-text').textContent = '⏳ Carte très sollicitée, rechargement dans 10s...';
+            
+            setTimeout(() => {
+              loadNearbyUsers(); // Retry automatique
+            }, 10000);
+            return;
           } else {
             throw new Error('Failed to load');
           }
