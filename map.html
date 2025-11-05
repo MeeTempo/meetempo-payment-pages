@@ -804,15 +804,15 @@
         document.getElementById('loadMoreBtn').style.display = 'none';
       } else {
         listContainer.innerHTML = suggestionsData.map(sugg => `
-          <div class="suggestion-item" onclick="highlightSuggestion('${sugg.id}')">
-            <div class="suggestion-item-title">${escapeHTML(sugg.title)}</div>
-            <div class="suggestion-item-meta">
-              <span>👤 ${escapeHTML(sugg.user_pseudo)}</span>
-              <span>📍 ${sugg.distance_km} km</span>
-              <span>🏙️ ${escapeHTML(sugg.user_city)}</span>
-            </div>
-          </div>
-        `).join('');
+  <div class="suggestion-item" onclick="highlightSuggestion('${sugg.id}')">
+    <div class="suggestion-item-title">${escapeHTML(sugg.title)}</div>
+    <div class="suggestion-item-meta">
+      <span>👤 ${escapeHTML(sugg.user_pseudo)}</span>
+      <span>📍 ${sugg.distance_km} km</span>
+      <span>🏙️ ${escapeHTML(sugg.city || sugg.location_name || '?')}</span>  // 🔥 FIX
+    </div>
+  </div>
+`).join('');
         
         // 🔥 MODIFIÉ : Afficher bouton "Voir plus" si suggestions trouvées
         const loadMoreBtn = document.getElementById('loadMoreBtn');
@@ -862,14 +862,15 @@
           document.getElementById('loadMoreBtn').style.display = 'none';
         } else {
           listContainer.innerHTML = suggestionsData.map(sugg => `
-            <div class="suggestion-item" onclick="highlightSuggestion('${sugg.id}')">
-              <div class="suggestion-item-title">${escapeHTML(sugg.title)}</div>
-              <div class="suggestion-item-meta">
-                <span>${sugg.activity || '📍'}</span>
-                <span>${sugg.distance_km} km</span>
-              </div>
-            </div>
-          `).join('');
+  <div class="suggestion-item" onclick="highlightSuggestion('${sugg.id}')">
+    <div class="suggestion-item-title">${escapeHTML(sugg.title)}</div>
+    <div class="suggestion-item-meta">
+      <span>${sugg.activity || '📍'}</span>
+      <span>${sugg.distance_km} km</span>
+      <span>🏙️ ${escapeHTML(sugg.city || sugg.location_name || '?')}</span>  // 🔥 AJOUTÉ
+    </div>
+  </div>
+`).join('');
           
           // Afficher bouton "Voir plus" si suggestions trouvées
           document.getElementById('loadMoreBtn').style.display = 'block';
