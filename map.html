@@ -922,14 +922,33 @@
       btn.disabled = false;
     }
     
-    // 🔥 NOUVEAU : Highlight suggestion sur carte
+    // 🔥 MODIFIÉ : Highlight suggestion + fermer panneau
     function highlightSuggestion(suggestionId) {
       const sugg = suggestionsData.find(s => s.id === suggestionId);
-      if (sugg) {
-        map.setCenter({ lat: sugg.lat, lng: sugg.lng });
-        map.setZoom(15);
-        console.log(`📍 Centré sur suggestion: ${sugg.title}`);
+      if (!sugg) {
+        console.warn(`⚠️ Suggestion ${suggestionId} introuvable`);
+        return;
       }
+      
+      // 🔥 Centrer + zoomer sur la suggestion
+      map.setCenter({ lat: sugg.lat, lng: sugg.lng });
+      map.setZoom(15, true); // Animation smooth
+      
+      // 🔥 Fermer le panneau suggestions (pour voir la carte)
+      const panel = document.getElementById('suggestionsPanel');
+      panel.classList.remove('open');
+      
+      // 🔥 Highlight la carte utilisateur correspondante dans le bottom sheet
+      const userIndex = usersData.findIndex(u => 
+        u.suggestion_id === suggestionId || 
+        (u.location.lat === sugg.lat && u.location.lng === sugg.lng)
+      );
+      
+      if (userIndex !== -1) {
+        highlightUserCard(userIndex);
+      }
+      
+      console.log(`📍 Centré sur: ${sugg.title.substring(0, 50)}...`);
     }
     
     function escapeHTML(str) {
