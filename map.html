@@ -814,8 +814,15 @@
           </div>
         `).join('');
         
-        // Masquer bouton "Voir plus" (géré par rayon carte)
-        document.getElementById('loadMoreBtn').style.display = 'none';
+        // 🔥 MODIFIÉ : Afficher bouton "Voir plus" si suggestions trouvées
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (currentRadius < 200) {
+          loadMoreBtn.style.display = 'block';
+          loadMoreBtn.textContent = `🔍 Voir plus loin (+10 km) - Rayon actuel: ${currentRadius} km`;
+          loadMoreBtn.disabled = false;
+        } else {
+          loadMoreBtn.style.display = 'none';
+        }
       }
     }
     
@@ -879,19 +886,28 @@
       }
     }
     
-    // 🔥 NOUVEAU : Charger plus (rayon +30km)
+    // 🔥 MODIFIÉ : Augmenter rayon carte (+10 km)
     async function loadMoreSuggestions() {
       const btn = document.getElementById('loadMoreBtn');
       btn.disabled = true;
-      btn.textContent = 'Chargement...';
+      btn.textContent = '⏳ Chargement...';
       
-      // Augmenter rayon de 30km
-      suggestionsRadius += 30;
+      // 🔥 Augmenter rayon de 10 km
+      currentRadius += 10;
       
-      await loadSuggestionsNearby(suggestionsRadius);
+      // 🔥 Mettre à jour UI bouton rayon
+      document.querySelectorAll('.distance-btn').forEach(b => {
+        b.classList.remove('active', 'auto');
+      });
+      document.getElementById('radiusText').textContent = `${currentRadius} km (élargi)`;
+      
+      // 🔥 Recharger users/suggestions avec nouveau rayon
+      await loadNearbyUsers();
+      
+      // 🔥 Réafficher panneau suggestions
+      displaySuggestionsList();
       
       btn.disabled = false;
-      btn.textContent = `🔍 Voir plus loin (+30km) - Rayon: ${suggestionsRadius}km`;
     }
     
     // 🔥 NOUVEAU : Highlight suggestion sur carte
