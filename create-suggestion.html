@@ -461,9 +461,20 @@
     </div>
   </div>
   <script>
+    <script>
     const API_BASE = 'https://api.meetempo.com';
     const params = new URLSearchParams(location.search);
-    const session_token = params.get('session_token');
+    
+    // 🔥 FIX : Accepter 'token' OU 'session_token'
+    let session_token = params.get('session_token') || params.get('token');
+    
+    // 🔥 NOUVEAU : Sauvegarder dans sessionStorage pour navigation future
+    if (session_token) {
+      sessionStorage.setItem('meetempo_token', session_token);
+    } else {
+      // Fallback : Essayer sessionStorage
+      session_token = sessionStorage.getItem('meetempo_token');
+    }
     
     // Vérifier token
     if (!session_token) {
