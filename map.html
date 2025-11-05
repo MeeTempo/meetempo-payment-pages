@@ -482,6 +482,128 @@
       line-height: 1.5;
     }
     
+    /* 🔥 NOUVEAU : Panneau Suggestions */
+    .suggestions-panel {
+      position: fixed;
+      top: 60px;
+      right: -400px;
+      width: 400px;
+      height: calc(100vh - 60px);
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      box-shadow: -4px 0 30px rgba(0,0,0,0.4);
+      z-index: 1001;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .suggestions-panel.open {
+      right: 0;
+    }
+    
+    .panel-header {
+      padding: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .panel-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .close-btn {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 18px;
+      cursor: pointer;
+      color: var(--mt-text);
+      transition: all 0.2s;
+    }
+    
+    .close-btn:hover {
+      background: rgba(255,255,255,0.2);
+      transform: rotate(90deg);
+    }
+    
+    .panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    
+    .suggestion-item {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .suggestion-item:hover {
+      transform: translateX(-4px);
+      border-color: var(--mt-accent);
+      box-shadow: 0 4px 20px rgba(244,159,28,0.3);
+    }
+    
+    .suggestion-item-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--mt-text);
+    }
+    
+    .suggestion-item-meta {
+      font-size: 12px;
+      color: var(--mt-muted);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .load-more-btn {
+      margin: 16px;
+      padding: 12px;
+      background: var(--mt-accent);
+      color: #111;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: calc(100% - 32px);
+    }
+    
+    .load-more-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(244,159,28,0.4);
+    }
+    
+    .load-more-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .panel-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--mt-muted);
+    }
+    
+    .panel-empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    
     /* Responsive */
 @media (max-width: 640px) {
   .top-bar {
@@ -566,6 +688,10 @@
         <span>👥</span>
         <span id="userCount">0</span>
       </div>
+      <div class="stat-item" onclick="openSuggestionsList()" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(244,159,28,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+        <span>📋</span>
+        <span id="suggestionCount">0</span>
+      </div>
       <div class="stat-item">
         <span>📏</span>
         <span id="radiusText">20 km</span>
@@ -617,6 +743,20 @@
     </div>
   </div>
 
+  <!-- 🔥 NOUVEAU : Panneau Suggestions -->
+  <div class="suggestions-panel" id="suggestionsPanel">
+    <div class="panel-header">
+      <h2>📋 Suggestions à proximité</h2>
+      <button class="close-btn" onclick="closeSuggestionsPanel()">✕</button>
+    </div>
+    <div class="panel-content" id="suggestionsList">
+      <!-- Liste remplie dynamiquement -->
+    </div>
+    <button class="load-more-btn" id="loadMoreBtn" onclick="loadMoreSuggestions()" style="display: none;">
+      🔍 Voir plus loin
+    </button>
+  </div>
+
   <script>
     const API_BASE = 'https://api.meetempo.com';
     const params = new URLSearchParams(location.search);
@@ -632,11 +772,108 @@
     let currentVisibility = 'visible';
     let clusteringLayer = null;
     let isManualRadius = false; // 🔥 NOUVEAU : Mode manuel vs auto
+    let suggestionsData = []; // 🔥 NOUVEAU : Cache suggestions
+    let suggestionsRadius = 20; // 🔥 NOUVEAU : Rayon actuel suggestions
     
     const MARKER_COLORS = [
       '#F49F1C', '#3B82F6', '#10B981', '#8B5CF6',
       '#EF4444', '#F59E0B', '#06B6D4', '#EC4899'
     ];
+    
+    // 🔥 NOUVEAU : Ouvrir panneau suggestions
+    async function openSuggestionsList() {
+      const panel = document.getElementById('suggestionsPanel');
+      panel.classList.add('open');
+      
+      // Charger suggestions zone actuelle
+      suggestionsRadius = currentRadius;
+      await loadSuggestionsNearby(suggestionsRadius);
+    }
+    
+    // 🔥 NOUVEAU : Fermer panneau
+    function closeSuggestionsPanel() {
+      const panel = document.getElementById('suggestionsPanel');
+      panel.classList.remove('open');
+    }
+    
+    // 🔥 NOUVEAU : Charger suggestions
+    async function loadSuggestionsNearby(radius) {
+      try {
+        const listContainer = document.getElementById('suggestionsList');
+        listContainer.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mt-muted);">Chargement...</div>';
+        
+        const response = await fetch(
+          `${API_BASE}/suggestions/nearby?session_token=${token}&lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${radius}`
+        );
+        
+        if (!response.ok) throw new Error('Erreur chargement');
+        
+        const data = await response.json();
+        suggestionsData = data.results || [];
+        
+        // Mettre à jour compteur
+        document.getElementById('suggestionCount').textContent = suggestionsData.length;
+        
+        // Afficher liste
+        if (suggestionsData.length === 0) {
+          listContainer.innerHTML = `
+            <div class="panel-empty">
+              <div class="panel-empty-icon">📭</div>
+              <div style="font-weight:600;margin-bottom:8px;">Aucune suggestion</div>
+              <div style="font-size:13px;">Aucune suggestion dans ce rayon</div>
+            </div>
+          `;
+          document.getElementById('loadMoreBtn').style.display = 'none';
+        } else {
+          listContainer.innerHTML = suggestionsData.map(sugg => `
+            <div class="suggestion-item" onclick="highlightSuggestion('${sugg.id}')">
+              <div class="suggestion-item-title">${escapeHTML(sugg.title)}</div>
+              <div class="suggestion-item-meta">
+                <span>${sugg.activity || '📍'}</span>
+                <span>${sugg.distance_km} km</span>
+              </div>
+            </div>
+          `).join('');
+          
+          // Afficher bouton "Voir plus" si suggestions trouvées
+          document.getElementById('loadMoreBtn').style.display = 'block';
+        }
+        
+      } catch (err) {
+        console.error('Erreur suggestions:', err);
+        document.getElementById('suggestionsList').innerHTML = `
+          <div class="panel-empty">
+            <div class="panel-empty-icon">❌</div>
+            <div>Erreur chargement</div>
+          </div>
+        `;
+      }
+    }
+    
+    // 🔥 NOUVEAU : Charger plus (rayon +30km)
+    async function loadMoreSuggestions() {
+      const btn = document.getElementById('loadMoreBtn');
+      btn.disabled = true;
+      btn.textContent = 'Chargement...';
+      
+      // Augmenter rayon de 30km
+      suggestionsRadius += 30;
+      
+      await loadSuggestionsNearby(suggestionsRadius);
+      
+      btn.disabled = false;
+      btn.textContent = `🔍 Voir plus loin (+30km) - Rayon: ${suggestionsRadius}km`;
+    }
+    
+    // 🔥 NOUVEAU : Highlight suggestion sur carte
+    function highlightSuggestion(suggestionId) {
+      const sugg = suggestionsData.find(s => s.id === suggestionId);
+      if (sugg) {
+        map.setCenter({ lat: sugg.lat, lng: sugg.lng });
+        map.setZoom(15);
+        console.log(`📍 Centré sur suggestion: ${sugg.title}`);
+      }
+    }
     
     function escapeHTML(str) {
       if (!str) return '';
