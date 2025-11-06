@@ -765,7 +765,8 @@
     let HERE_API_KEY = null;
     let map;
     let ui;
-    let currentLocation = { lat: 48.8566, lng: 2.3522 };
+    let userGpsLocation = { lat: 48.8566, lng: 2.3522, source: 'default' }; // 🔥 NOUVEAU : Position GPS réelle
+    let currentLocation = { lat: 48.8566, lng: 2.3522 }; // Centre carte actuel
     let currentRadius = 20;
     let markers = [];
     let usersData = [];
@@ -1130,13 +1131,14 @@
         if (navigator.geolocation) {
           navigator.geolocation.getCurrentPosition(
             (position) => {
-              currentLocation = {
-                lat: position.coords.latitude,
-                lng: position.coords.longitude,
-                source: 'gps',
-                accuracy: position.coords.accuracy
-              };
-              console.log('✅ GPS:', currentLocation);
+              userGpsLocation = {  // 🔥 MODIFIÉ : Sauvegarder dans userGpsLocation
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+              source: 'gps',
+              accuracy: position.coords.accuracy
+            };
+            currentLocation = { ...userGpsLocation }; // Centre carte = GPS au démarrage
+            console.log('✅ GPS:', userGpsLocation);
               resolve();
             },
             (error) => {
@@ -1180,8 +1182,9 @@
       document.getElementById('radiusText').textContent = `${radius} km`;
       
       // 🔥 Recentrer sur position GPS utilisateur
-if (currentLocation && (currentLocation.source === 'gps' || currentLocation.source === 'default')) {
-  const position = { lat: currentLocation.lat, lng: currentLocation.lng };
+if (userGpsLocation && (userGpsLocation.source === 'gps' || userGpsLocation.source === 'default')) {
+  const position = { lat: userGpsLocation.lat, lng: userGpsLocation.lng };
+  currentLocation = { ...userGpsLocation }; // 🔥 NOUVEAU : Réinitialiser currentLocation
   map.setCenter(position);
   // Le zoom est déjà géré juste après dans le if/else
 } else {
@@ -1717,12 +1720,16 @@ function addMarkersWithClustering(users) {
 
     // 🔥 NOUVEAU : Recentrer sur ma position
 function goToMyLocation() {
-  if (currentLocation && currentLocation.source === 'gps') {
-    // Position GPS connue - Forcer recentrage
-    const position = { lat: currentLocation.lat, lng: currentLocation.lng };
+  if (userGpsLocation && userGpsLocation.source === 'gps') {
+    // 🔥 Utiliser userGpsLocation (position réelle)
+    const position = { lat: userGpsLocation.lat, lng: userGpsLocation.lng };
     
     map.setCenter(position);
     map.setZoom(14);
+    
+    // 🔥 NOUVEAU : Forcer mise à jour currentLocation + recharger
+    currentLocation = { ...userGpsLocation };
+    loadNearbyUsers();
     
     console.log(`🎯 Recentré sur GPS: ${position.lat}, ${position.lng}`);
   } else {
@@ -1730,16 +1737,18 @@ function goToMyLocation() {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          currentLocation = {
+          userGpsLocation = {  // 🔥 MODIFIÉ : Sauvegarder GPS
             lat: position.coords.latitude,
             lng: position.coords.longitude,
             source: 'gps',
             accuracy: position.coords.accuracy
           };
           
+          currentLocation = { ...userGpsLocation };
           const pos = { lat: currentLocation.lat, lng: currentLocation.lng };
           map.setCenter(pos);
           map.setZoom(14);
+          loadNearbyUsers();
           
           console.log(`🎯 Position GPS rafraîchie: ${pos.lat}, ${pos.lng}`);
         },
