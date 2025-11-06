@@ -654,9 +654,11 @@ function selectPlace(id, title, lat, lng) {
   console.log('📍 Lieu sélectionné:', selectedPlaceData);
 }
 
-// Helper: Escape quotes pour onclick
-function escapeQuotes(str) {
-  return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+// Helper: Escape HTML pour affichage sécurisé
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
 }
 
 // Masquer autocomplete si clic extérieur
