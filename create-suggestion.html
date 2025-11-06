@@ -859,19 +859,26 @@ if (goToList) {
     }
     
     async function goToMap() {
-      try {
-        const elevateResponse = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
-        if (elevateResponse.ok) {
-          const elevateData = await elevateResponse.json();
-          window.location.href = `map.html?token=${elevateData.token}`;
-        } else {
-          backToGPT();
-        }
-      } catch (err) {
-        console.error('Erreur:', err);
-        backToGPT();
-      }
+  try {
+    // 🔥 Générer token frais immédiatement
+    const elevateResponse = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
+    
+    if (!elevateResponse.ok) {
+      alert('❌ Impossible de générer le lien carte. Session expirée ?');
+      return;
     }
+    
+    const elevateData = await elevateResponse.json();
+    const mapUrl = `https://meetempo.github.io/meetempo-payment-pages/map.html?token=${elevateData.token}`;
+    
+    // 🔥 Ouvrir dans nouvel onglet (évite expiration)
+    window.open(mapUrl, '_blank');
+    
+  } catch (err) {
+    console.error('Erreur génération lien carte:', err);
+    alert('❌ Erreur lors de l\'ouverture de la carte');
+  }
+}
     // Fonction pour aller vers mes suggestions
 function goToMySuggestions() {
   window.location.href = `my-suggestions.html?token=${session_token}`;
