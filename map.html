@@ -774,6 +774,7 @@
     let isManualRadius = false; // 🔥 NOUVEAU : Mode manuel vs auto
     let suggestionsData = []; // 🔥 NOUVEAU : Cache suggestions
     let suggestionsRadius = 20; // 🔥 NOUVEAU : Rayon actuel suggestions
+    let reloadTimeout = null; // 🔥 NOUVEAU : Debounce reload carte
     
     const MARKER_COLORS = [
       '#F49F1C', '#3B82F6', '#10B981', '#8B5CF6',
@@ -1320,15 +1321,23 @@ if (currentLocation && (currentLocation.source === 'gps' || currentLocation.sour
 const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
 ui = H.ui.UI.createDefault(map, defaultLayers);
 
-// 🔥 MODIFIÉ : Listener drag/zoom → rafraîchir markers
+// 🔥 MODIFIÉ : Listener drag/zoom → rafraîchir markers (avec debounce)
 map.addEventListener('mapviewchangeend', async function() {
-  // 🔥 NOUVEAU : Mettre à jour position actuelle
-  const center = map.getCenter();
-  currentLocation.lat = center.lat;
-  currentLocation.lng = center.lng;
+  // 🔥 Annuler timer précédent
+  if (reloadTimeout) {
+    clearTimeout(reloadTimeout);
+  }
   
-  // 🔥 NOUVEAU : Recharger users à la nouvelle position
-  await loadNearbyUsers();
+  // 🔥 Attendre 800ms après arrêt du drag
+  reloadTimeout = setTimeout(async () => {
+    // Mettre à jour position actuelle
+    const center = map.getCenter();
+    currentLocation.lat = center.lat;
+    currentLocation.lng = center.lng;
+    
+    // Recharger users à la nouvelle position
+    await loadNearbyUsers();
+  }, 800);
   
   // Ancien code zoom auto-ajuste (garde si besoin, sinon supprime)
   if (isManualRadius) return;
