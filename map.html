@@ -4,6 +4,13 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Carte MeeTempers - MeeTempo</title>
+  <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'self'; 
+                 img-src https: data:; 
+                 script-src 'self' https://js.api.here.com 'unsafe-inline'; 
+                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+                 font-src https://fonts.gstatic.com; 
+                 connect-src https://api.meetempo.com https://*.hereapi.com;">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   
@@ -845,6 +852,7 @@
     let suggestionsRadius = 20; // 🔥 NOUVEAU : Rayon actuel suggestions
     let reloadTimeout = null; // 🔥 NOUVEAU : Debounce reload carte
     let searchAutocompleteTimeout = null; // 🔥 NOUVEAU : Debounce autocomplete recherche
+    let lastReverseGeocodingCall = 0; // 🔥 NOUVEAU : Throttle reverse geocoding
     
     const MARKER_COLORS = [
       '#F49F1C', '#3B82F6', '#10B981', '#8B5CF6',
@@ -1488,7 +1496,12 @@ document.addEventListener('click', (e) => {
   {
     center: currentLocation,
     zoom: 13,
-    pixelRatio: window.devicePixelRatio || 1
+    pixelRatio: window.devicePixelRatio || 1,
+    // 🔥 NOUVEAU : Limiter zoom pour économiser tiles
+    restrictions: {
+      minZoom: 8,   // Éviter zoom continent
+      maxZoom: 15   // Éviter zoom rue
+    }
   }
 );
 
@@ -1955,7 +1968,29 @@ function goToMyLocation() {
 // 🔥 NOUVEAU : Mettre à jour indicateur ville (reverse geocoding)
 async function updateLocationIndicator(lat, lng) {
   try {
-    // Appel reverse geocoding HERE Maps
+    // 🔥 NOUVEAU : Throttle 1.2s minimum entre appels
+    const now = Date.now();
+    if (now - lastReverseGeocodingCall < 1200) {
+      console.log('⏳ Throttle reverse geocoding (1.2s)');
+      return;
+    }
+    lastReverseGeocodingCall = now;
+    
+    // 🔥 NOUVEAU : Cache 5min (arrondi 0.01° ≈ 1km)
+    const cacheKey = `city_${lat.toFixed(2)}_${lng.toFixed(2)}`;
+    const cached = sessionStorage.getItem(cacheKey);
+    
+    if (cached) {
+      const { city, timestamp } = JSON.parse(cached);
+      if (Date.now() - timestamp < 300000) { // 5min
+        document.getElementById('locationText').textContent = city;
+        currentLocation.city = city;
+        console.log(`📍 Ville (cache): ${city}`);
+        return;
+      }
+    }
+    
+    // Appel API HERE
     const reverseUrl = `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${lat},${lng}&apiKey=${HERE_API_KEY}`;
     const response = await fetch(reverseUrl);
     
@@ -1970,13 +2005,17 @@ async function updateLocationIndicator(lat, lng) {
       const address = data.items[0].address;
       const cityName = address.city || address.county || address.state || 'Lieu inconnu';
       
-      // Mettre à jour l'indicateur
+      // Mettre à jour indicateur
       document.getElementById('locationText').textContent = cityName;
-      
-      // Mettre à jour currentLocation.city
       currentLocation.city = cityName;
       
-      console.log(`📍 Ville mise à jour: ${cityName}`);
+      // 🔥 NOUVEAU : Sauvegarder en cache
+      sessionStorage.setItem(cacheKey, JSON.stringify({
+        city: cityName,
+        timestamp: Date.now()
+      }));
+      
+      console.log(`📍 Ville mise à jour (API): ${cityName}`);
     }
     
   } catch (err) {
