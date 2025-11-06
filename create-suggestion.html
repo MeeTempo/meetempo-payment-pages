@@ -545,6 +545,18 @@
       document.getElementById('submitBtn').disabled = true;
     }
 
+// Helper: Escape quotes pour onclick
+function escapeQuotes(str) {
+  return str.replace(/'/g, "\\'").replace(/"/g, '\\"');
+}
+
+// Helper: Escape HTML pour affichage sécurisé
+function escapeHTML(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
     // 🔥 NOUVEAU : Variables autocomplete
 let selectedPlaceData = null; // Stocker données lieu sélectionné
 let autocompleteTimeout = null;
@@ -654,13 +666,6 @@ function selectPlace(id, title, lat, lng) {
   console.log('📍 Lieu sélectionné:', selectedPlaceData);
 }
 
-// Helper: Escape HTML pour affichage sécurisé
-function escapeHTML(str) {
-  const div = document.createElement('div');
-  div.textContent = str;
-  return div.innerHTML;
-}
-
 // Masquer autocomplete si clic extérieur
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.autocomplete-container')) {
@@ -720,20 +725,26 @@ document.addEventListener('click', (e) => {
         const fullText = `${activityType} - ${fullLocation} le ${date} à ${time} ${ampm}${description ? '. ' + description : ''}`;
         
         // Payload
-const payload = {
-  session_token: session_token,
-  // Nouveaux champs structurés
-  activity_type: activityType,
-  city: city,
-  place: place || null,
-  date: date,
-  time: time,
-  ampm: ampm,
-  description: description || null,
-  max_participants: parseInt(document.getElementById('max_participants').value), // 🔥 NOUVEAU
-  // Backward compatibility
-  text: fullText
-};
+        const payload = {
+          session_token: session_token,
+          // Nouveaux champs structurés
+          activity_type: activityType,
+          city: city,
+          place: place || null,
+          date: date,
+          time: time,
+          ampm: ampm,
+          description: description || null,
+          max_participants: parseInt(document.getElementById('max_participants').value),
+          // 🔥 NOUVEAU : Coordonnées précises si autocomplete utilisé
+          exact_location: selectedPlaceData ? {
+            lat: selectedPlaceData.lat,
+            lng: selectedPlaceData.lng,
+            source: 'autocomplete'
+          } : null,
+          // Backward compatibility
+          text: fullText
+        };
         
         // Appel API
         // 🔥 DEBUG : Logger payload avant envoi
