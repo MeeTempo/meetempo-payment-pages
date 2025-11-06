@@ -1308,44 +1308,44 @@ if (currentLocation && (currentLocation.source === 'gps' || currentLocation.sour
       const defaultLayers = platform.createDefaultLayers();
       
       map = new H.Map(
-        document.getElementById('map'),
-        defaultLayers.vector.normal.map,
-        {
-          center: currentLocation,
-          zoom: 13,
-          pixelRatio: window.devicePixelRatio || 1
-        }
-      );
-      
-      const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-      ui = H.ui.UI.createDefault(map, defaultLayers);
-      
-      // 🔥 NOUVEAU : Listener zoom auto-ajuste rayon
+  document.getElementById('map'),
+  defaultLayers.vector.normal.map,
+  {
+    center: currentLocation,
+    zoom: 13,
+    pixelRatio: window.devicePixelRatio || 1
+  }
+);
+
+const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+ui = H.ui.UI.createDefault(map, defaultLayers);
+
+// 🔥 MODIFIÉ : Listener drag/zoom → rafraîchir markers
 map.addEventListener('mapviewchangeend', async function() {
-  if (isManualRadius) return; // Skip si mode manuel
+  // 🔥 NOUVEAU : Mettre à jour position actuelle
+  const center = map.getCenter();
+  currentLocation.lat = center.lat;
+  currentLocation.lng = center.lng;
+  
+  // 🔥 NOUVEAU : Recharger users à la nouvelle position
+  await loadNearbyUsers();
+  
+  // Ancien code zoom auto-ajuste (garde si besoin, sinon supprime)
+  if (isManualRadius) return;
   
   const zoom = map.getZoom();
-  
-  // 🔥 Calculer rayon depuis le zoom
   let radiusNeeded;
-  if (zoom <= 6) radiusNeeded = 500;      // Vue monde
-  else if (zoom <= 8) radiusNeeded = 200; // Vue continent
-  else if (zoom <= 10) radiusNeeded = 100; // Vue pays
-  else if (zoom <= 12) radiusNeeded = 50;  // Vue région
-  else if (zoom <= 14) radiusNeeded = 20;  // Vue ville
-  else radiusNeeded = 10;                  // Vue quartier
+  if (zoom <= 6) radiusNeeded = 500;
+  else if (zoom <= 8) radiusNeeded = 200;
+  else if (zoom <= 10) radiusNeeded = 100;
+  else if (zoom <= 12) radiusNeeded = 50;
+  else if (zoom <= 14) radiusNeeded = 20;
+  else radiusNeeded = 10;
   
-  // Si rayon > actuel, recharger
   if (radiusNeeded > currentRadius) {
     currentRadius = radiusNeeded;
-    
-    // Update UI
     updateDistanceButtons(radiusNeeded);
     document.getElementById('radiusText').textContent = `${radiusNeeded} km (auto)`;
-    
-    // Recharger
-    await loadNearbyUsers();
-    
     console.log(`🔄 Auto-ajusté: ${radiusNeeded} km (zoom ${zoom})`);
   }
 });
