@@ -122,6 +122,72 @@
       padding: 12px 16px;
       box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
     }
+
+    /* 🔥 NOUVEAU : Autocomplete search */
+.search-autocomplete-results {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(14, 24, 79, 0.98);
+  border: 2px solid var(--mt-accent);
+  border-radius: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 10000;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+.search-autocomplete-results.show {
+  display: block;
+}
+
+.search-autocomplete-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: start;
+  gap: 12px;
+}
+
+.search-autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.search-autocomplete-item:hover {
+  background: rgba(244, 159, 28, 0.2);
+}
+
+.search-autocomplete-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.search-autocomplete-content {
+  flex: 1;
+}
+
+.search-autocomplete-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mt-text);
+  margin-bottom: 4px;
+}
+
+.search-autocomplete-subtitle {
+  font-size: 12px;
+  color: var(--mt-muted);
+}
+
+.search-autocomplete-loading {
+  padding: 16px;
+  text-align: center;
+  color: var(--mt-muted);
+  font-size: 14px;
+}
     
     .search-icon {
       font-size: 20px;
@@ -704,17 +770,19 @@
   </div>
   
   <!-- 🔥 NOUVEAU : Barre recherche centrée -->
-  <div class="search-bar">
-    <div class="search-wrapper">
-      <span class="search-icon">🔍</span>
-      <input 
-        type="text" 
-        id="citySearchInput" 
-        placeholder="Où aller ?"
-        autocomplete="off"
-      >
-    </div>
+<div class="search-bar">
+  <div class="search-wrapper">
+    <span class="search-icon">🔍</span>
+    <input 
+      type="text" 
+      id="citySearchInput" 
+      placeholder="Où aller ?"
+      autocomplete="off"
+    >
+    <!-- 🔥 NOUVEAU : Autocomplete résultats -->
+    <div id="searchAutocomplete" class="search-autocomplete-results"></div>
   </div>
+</div>
   
   <!-- Distance Selector -->
   <div class="distance-selector">
@@ -776,6 +844,7 @@
     let suggestionsData = []; // 🔥 NOUVEAU : Cache suggestions
     let suggestionsRadius = 20; // 🔥 NOUVEAU : Rayon actuel suggestions
     let reloadTimeout = null; // 🔥 NOUVEAU : Debounce reload carte
+    let searchAutocompleteTimeout = null; // 🔥 NOUVEAU : Debounce autocomplete recherche
     
     const MARKER_COLORS = [
       '#F49F1C', '#3B82F6', '#10B981', '#8B5CF6',
@@ -1206,55 +1275,157 @@ if (userGpsLocation && (userGpsLocation.source === 'gps' || userGpsLocation.sour
 }
     
     function setupCitySearch() {
-      const input = document.getElementById('citySearchInput');
-      
-      async function searchCity() {
-        const cityQuery = input.value.trim();
-        
-        if (!cityQuery) return;
-        
-        try {
-          const geocodeUrl = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(cityQuery)}&apiKey=${HERE_API_KEY}`;
-          const response = await fetch(geocodeUrl);
-          const data = await response.json();
-          
-          if (data.items && data.items.length > 0) {
-            const position = data.items[0].position;
-            const cityName = data.items[0].address.city || cityQuery;
-            
-            map.setCenter({ lat: position.lat, lng: position.lng });
-            map.setZoom(13);
-            
-            currentLocation = {
-              lat: position.lat,
-              lng: position.lng,
-              source: 'search',
-              city: cityName
-            };
-            
-            await loadNearbyUsers();
-            
-            console.log(`✅ Carte centrée sur ${cityName}`);
-            
-            input.value = '';
-            input.blur();
-            
-          } else {
-            alert(`❌ Ville "${cityQuery}" introuvable`);
-          }
-          
-        } catch (err) {
-          console.error('Erreur recherche:', err);
-          alert('❌ Erreur lors de la recherche');
-        }
-      }
-      
-      input.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          searchCity();
-        }
-      });
+  const input = document.getElementById('citySearchInput');
+  const resultsDiv = document.getElementById('searchAutocomplete');
+  
+  // 🔥 NOUVEAU : Autocomplete recherche
+  input.addEventListener('input', async (e) => {
+    const query = e.target.value.trim();
+    
+    // Clear timeout précédent
+    if (searchAutocompleteTimeout) {
+      clearTimeout(searchAutocompleteTimeout);
     }
+    
+    // Si vide, masquer résultats
+    if (!query || query.length < 3) {
+      resultsDiv.classList.remove('show');
+      return;
+    }
+    
+    // Attendre 400ms après arrêt de frappe
+    searchAutocompleteTimeout = setTimeout(async () => {
+      try {
+        // Afficher loading
+        resultsDiv.innerHTML = '<div class="search-autocomplete-loading">🔍 Recherche...</div>';
+        resultsDiv.classList.add('show');
+        
+        // Appel HERE Autosuggest API
+        const autosuggestUrl = `https://autosuggest.search.hereapi.com/v1/autosuggest?q=${encodeURIComponent(query)}&at=${currentLocation.lat},${currentLocation.lng}&limit=6&apiKey=${HERE_API_KEY}`;
+        
+        const response = await fetch(autosuggestUrl);
+        
+        if (!response.ok) {
+          throw new Error('Erreur autocomplete');
+        }
+        
+        const data = await response.json();
+        
+        // Afficher résultats
+        if (data.items && data.items.length > 0) {
+          resultsDiv.innerHTML = data.items.map(item => {
+            const title = item.title || item.address?.label || '';
+            const subtitle = item.address?.label || item.vicinity || '';
+            const lat = item.position?.lat || 0;
+            const lng = item.position?.lng || 0;
+            
+            // Déterminer icône selon type
+            let icon = '📍';
+            if (item.resultType === 'locality') icon = '🏙️';
+            else if (item.resultType === 'place') icon = '🏢';
+            else if (item.resultType === 'street') icon = '🛣️';
+            
+            // Escape pour onclick
+            const safeLat = lat.toFixed(6);
+            const safeLng = lng.toFixed(6);
+            const safeTitle = title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+            
+            return `
+              <div class="search-autocomplete-item" onclick="selectSearchLocation(${safeLat}, ${safeLng}, '${safeTitle}')">
+                <div class="search-autocomplete-icon">${icon}</div>
+                <div class="search-autocomplete-content">
+                  <div class="search-autocomplete-title">${escapeHTML(title)}</div>
+                  <div class="search-autocomplete-subtitle">${escapeHTML(subtitle)}</div>
+                </div>
+              </div>
+            `;
+          }).join('');
+        } else {
+          resultsDiv.innerHTML = '<div class="search-autocomplete-loading">Aucun résultat</div>';
+        }
+        
+      } catch (err) {
+        console.error('Erreur autocomplete recherche:', err);
+        resultsDiv.innerHTML = '<div class="search-autocomplete-loading">❌ Erreur recherche</div>';
+      }
+    }, 400);
+  });
+  
+  // Conserver recherche Enter (fallback)
+  input.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter') {
+      const cityQuery = input.value.trim();
+      
+      if (!cityQuery) return;
+      
+      try {
+        const geocodeUrl = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(cityQuery)}&apiKey=${HERE_API_KEY}`;
+        const response = await fetch(geocodeUrl);
+        const data = await response.json();
+        
+        if (data.items && data.items.length > 0) {
+          const position = data.items[0].position;
+          const cityName = data.items[0].address.city || cityQuery;
+          
+          selectSearchLocation(position.lat, position.lng, cityName);
+          
+        } else {
+          alert(`❌ Ville "${cityQuery}" introuvable`);
+        }
+        
+      } catch (err) {
+        console.error('Erreur recherche:', err);
+        alert('❌ Erreur lors de la recherche');
+      }
+    }
+  });
+}
+
+// 🔥 NOUVEAU : Sélectionner un résultat autocomplete
+function selectSearchLocation(lat, lng, name) {
+  const input = document.getElementById('citySearchInput');
+  const resultsDiv = document.getElementById('searchAutocomplete');
+  
+  // Masquer autocomplete
+  resultsDiv.classList.remove('show');
+  
+  // Vider input
+  input.value = '';
+  input.blur();
+  
+  // Mettre à jour position
+  currentLocation.lat = lat;
+  currentLocation.lng = lng;
+  currentLocation.city = name;
+  
+  // Recentrer carte
+  map.setCenter({ lat, lng });
+  map.setZoom(13);
+  
+  // Mettre à jour indicateur
+  document.getElementById('locationText').textContent = name;
+  
+  // Recharger users
+  loadNearbyUsers();
+  
+  console.log(`🔍 Recherche: ${name} (${lat}, ${lng})`);
+}
+
+// Helper: Escape HTML
+function escapeHTML(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Masquer autocomplete si clic extérieur
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-wrapper')) {
+    const resultsDiv = document.getElementById('searchAutocomplete');
+    if (resultsDiv) resultsDiv.classList.remove('show');
+  }
+});
     
     // 🔥 NOUVEAU : Setup bottom sheet expansible
     function setupBottomSheet() {
