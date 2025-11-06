@@ -1324,6 +1324,18 @@ if (userGpsLocation && (userGpsLocation.source === 'gps' || userGpsLocation.sour
 const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
 ui = H.ui.UI.createDefault(map, defaultLayers);
 
+// 🔥 NOUVEAU : Double-clic sur carte → Mettre à jour ville
+map.addEventListener('dbltap', async (evt) => {
+  const coords = map.screenToGeo(
+    evt.currentPointer.viewportX,
+    evt.currentPointer.viewportY
+  );
+  
+  if (coords) {
+    await updateLocationIndicator(coords.lat, coords.lng);
+  }
+});
+
 // 🔥 MODIFIÉ : Listener drag/zoom → rafraîchir markers (avec debounce)
 map.addEventListener('mapviewchangeend', async function() {
   // 🔥 Annuler timer précédent
@@ -1331,16 +1343,18 @@ map.addEventListener('mapviewchangeend', async function() {
     clearTimeout(reloadTimeout);
   }
   
-  // 🔥 Attendre 800ms après arrêt du drag
   reloadTimeout = setTimeout(async () => {
-    // Mettre à jour position actuelle
-    const center = map.getCenter();
-    currentLocation.lat = center.lat;
-    currentLocation.lng = center.lng;
-    
-    // Recharger users à la nouvelle position
-    await loadNearbyUsers();
-  }, 800);
+  // Mettre à jour position actuelle
+  const center = map.getCenter();
+  currentLocation.lat = center.lat;
+  currentLocation.lng = center.lng;
+  
+  // 🔥 NOUVEAU : Mettre à jour indicateur ville
+  await updateLocationIndicator(center.lat, center.lng);
+  
+  // Recharger users à la nouvelle position
+  await loadNearbyUsers();
+}, 800);
   
   // Ancien code zoom auto-ajuste (garde si besoin, sinon supprime)
   if (isManualRadius) return;
@@ -1763,7 +1777,38 @@ function goToMyLocation() {
     }
   }
 }
+// 🔥 NOUVEAU : Mettre à jour indicateur ville (reverse geocoding)
+async function updateLocationIndicator(lat, lng) {
+  try {
+    // Appel reverse geocoding HERE Maps
+    const reverseUrl = `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${lat},${lng}&apiKey=${HERE_API_KEY}`;
+    const response = await fetch(reverseUrl);
     
+    if (!response.ok) {
+      console.warn('⚠️ Reverse geocoding échoué');
+      return;
+    }
+    
+    const data = await response.json();
+    
+    if (data.items && data.items.length > 0) {
+      const address = data.items[0].address;
+      const cityName = address.city || address.county || address.state || 'Lieu inconnu';
+      
+      // Mettre à jour l'indicateur
+      document.getElementById('locationText').textContent = cityName;
+      
+      // Mettre à jour currentLocation.city
+      currentLocation.city = cityName;
+      
+      console.log(`📍 Ville mise à jour: ${cityName}`);
+    }
+    
+  } catch (err) {
+    console.error('❌ Erreur reverse geocoding:', err);
+  }
+}
+
     init();
   </script>
 </body>
