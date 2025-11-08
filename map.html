@@ -1287,29 +1287,50 @@ if (userGpsLocation && (userGpsLocation.source === 'gps' || userGpsLocation.sour
   const input = document.getElementById('citySearchInput');
   const resultsDiv = document.getElementById('searchAutocomplete');
   
-  // 🔥 NOUVEAU : Autocomplete recherche
-  input.addEventListener('input', async (e) => {
-    const query = e.target.value.trim();
-    
-    // Clear timeout précédent
-    if (searchAutocompleteTimeout) {
-      clearTimeout(searchAutocompleteTimeout);
-    }
-    
-    // Si vide, masquer résultats
-    if (!query || query.length < 3) {
-      resultsDiv.classList.remove('show');
-      return;
-    }
-    
-    // Attendre 400ms après arrêt de frappe
-    searchAutocompleteTimeout = setTimeout(async () => {
-      try {
-        // Afficher loading
-        resultsDiv.innerHTML = '<div class="search-autocomplete-loading">🔍 Recherche...</div>';
-        resultsDiv.classList.add('show');
+  // 🔥 NOUVEAU : Autocomplete recherche AVEC CACHE
+input.addEventListener('input', async (e) => {
+  const query = e.target.value.trim();
+  
+  // Clear timeout précédent
+  if (searchAutocompleteTimeout) {
+    clearTimeout(searchAutocompleteTimeout);
+  }
+  
+  // Si vide, masquer résultats
+  if (!query || query.length < 3) {
+    resultsDiv.classList.remove('show');
+    return;
+  }
+  
+  // Attendre 400ms après arrêt de frappe
+  searchAutocompleteTimeout = setTimeout(async () => {
+    try {
+      // Afficher loading
+      resultsDiv.innerHTML = '<div class="search-autocomplete-loading">🔍 Recherche...</div>';
+      resultsDiv.classList.add('show');
+      
+      // 🔥 NOUVEAU : Vérifier cache sessionStorage (1h)
+      const cacheKey = `autocomplete:${query.toLowerCase()}`;
+      const cached = sessionStorage.getItem(cacheKey);
+      
+      let data;
+      
+      if (cached) {
+        // Cache HIT
+        const cachedData = JSON.parse(cached);
+        const age = Date.now() - cachedData.timestamp;
         
-        // Appel HERE Autosuggest API
+        if (age < 3600000) { // 1 heure
+          data = cachedData.results;
+          console.log(`✅ Autocomplete (cache): "${query}" - ${data.items?.length || 0} résultats`);
+        } else {
+          // Cache expiré, supprimer
+          sessionStorage.removeItem(cacheKey);
+        }
+      }
+      
+      if (!data) {
+        // Cache MISS - Appel HERE Autosuggest API
         const autosuggestUrl = `https://autosuggest.search.hereapi.com/v1/autosuggest?q=${encodeURIComponent(query)}&at=${currentLocation.lat},${currentLocation.lng}&limit=6&apiKey=${HERE_API_KEY}`;
         
         const response = await fetch(autosuggestUrl);
@@ -1318,47 +1339,56 @@ if (userGpsLocation && (userGpsLocation.source === 'gps' || userGpsLocation.sour
           throw new Error('Erreur autocomplete');
         }
         
-        const data = await response.json();
+        data = await response.json();
         
-        // Afficher résultats
-        if (data.items && data.items.length > 0) {
-          resultsDiv.innerHTML = data.items.map(item => {
-            const title = item.title || item.address?.label || '';
-            const subtitle = item.address?.label || item.vicinity || '';
-            const lat = item.position?.lat || 0;
-            const lng = item.position?.lng || 0;
-            
-            // Déterminer icône selon type
-            let icon = '📍';
-            if (item.resultType === 'locality') icon = '🏙️';
-            else if (item.resultType === 'place') icon = '🏢';
-            else if (item.resultType === 'street') icon = '🛣️';
-            
-            // Escape pour onclick
-            const safeLat = lat.toFixed(6);
-            const safeLng = lng.toFixed(6);
-            const safeTitle = title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
-            
-            return `
-              <div class="search-autocomplete-item" onclick="selectSearchLocation(${safeLat}, ${safeLng}, '${safeTitle}')">
-                <div class="search-autocomplete-icon">${icon}</div>
-                <div class="search-autocomplete-content">
-                  <div class="search-autocomplete-title">${escapeHTML(title)}</div>
-                  <div class="search-autocomplete-subtitle">${escapeHTML(subtitle)}</div>
-                </div>
-              </div>
-            `;
-          }).join('');
-        } else {
-          resultsDiv.innerHTML = '<div class="search-autocomplete-loading">Aucun résultat</div>';
-        }
+        // 🔥 NOUVEAU : Sauvegarder en cache
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          results: data,
+          timestamp: Date.now()
+        }));
         
-      } catch (err) {
-        console.error('Erreur autocomplete recherche:', err);
-        resultsDiv.innerHTML = '<div class="search-autocomplete-loading">❌ Erreur recherche</div>';
+        console.log(`✅ Autocomplete (API): "${query}" - ${data.items?.length || 0} résultats - Mis en cache`);
       }
-    }, 400);
-  });
+      
+      // Afficher résultats
+      if (data.items && data.items.length > 0) {
+        resultsDiv.innerHTML = data.items.map(item => {
+          const title = item.title || item.address?.label || '';
+          const subtitle = item.address?.label || item.vicinity || '';
+          const lat = item.position?.lat || 0;
+          const lng = item.position?.lng || 0;
+          
+          // Déterminer icône selon type
+          let icon = '📍';
+          if (item.resultType === 'locality') icon = '🏙️';
+          else if (item.resultType === 'place') icon = '🏢';
+          else if (item.resultType === 'street') icon = '🛣️';
+          
+          // Escape pour onclick
+          const safeLat = lat.toFixed(6);
+          const safeLng = lng.toFixed(6);
+          const safeTitle = title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          
+          return `
+            <div class="search-autocomplete-item" onclick="selectSearchLocation(${safeLat}, ${safeLng}, '${safeTitle}')">
+              <div class="search-autocomplete-icon">${icon}</div>
+              <div class="search-autocomplete-content">
+                <div class="search-autocomplete-title">${escapeHTML(title)}</div>
+                <div class="search-autocomplete-subtitle">${escapeHTML(subtitle)}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        resultsDiv.innerHTML = '<div class="search-autocomplete-loading">Aucun résultat</div>';
+      }
+      
+    } catch (err) {
+      console.error('Erreur autocomplete recherche:', err);
+      resultsDiv.innerHTML = '<div class="search-autocomplete-loading">❌ Erreur recherche</div>';
+    }
+  }, 400);
+});
   
   // Conserver recherche Enter (fallback)
   input.addEventListener('keypress', async (e) => {
