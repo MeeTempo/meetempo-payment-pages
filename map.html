@@ -1884,14 +1884,18 @@ const dataSource = (zoom < 10 && allSuggestionsData.length > 0) ? allSuggestions
 
 console.log(`📊 Source: ${dataSource.length} items (zoom ${zoom}, source: ${zoom < 10 ? 'monde' : 'proximité'})`);
 
-// 🔥 Si zoom < 10 : Activer clustering
+// 🔥 MODIFIÉ : EPS adaptatif selon zoom
 let eps;
 if (zoom >= 10) {
-  eps = 64;
+  eps = 64;   // Ville
+} else if (zoom >= 8) {
+  eps = 80;   // Grande région
 } else if (zoom >= 6) {
-  eps = 128;
+  eps = 100;  // Pays
+} else if (zoom >= 4) {
+  eps = 120;  // Continent
 } else {
-  eps = 256;
+  eps = 150;  // Monde (réduit de 256 à 150)
 }
 
 console.log(`🔍 Zoom ${zoom} → eps ${eps}`);
