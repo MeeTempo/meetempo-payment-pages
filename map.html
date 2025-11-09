@@ -1863,6 +1863,28 @@ function addMarkersWithClustering(users, zoom = 13) {
         <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(affinityScore)}; margin-top: 8px;">
           🎯 Affinité : ${affinityScore}%
         </div>
+        
+        <button 
+          onclick="contactUser('${user.id || ''}', '${user.suggestion_id || ''}')" 
+          style="
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px;
+            background: linear-gradient(135deg, #F49F1C 0%, #ffca63 100%);
+            color: #111;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: Montserrat, sans-serif;
+            transition: transform 0.2s;
+          "
+          onmouseover="this.style.transform='scale(1.05)'"
+          onmouseout="this.style.transform='scale(1)'"
+        >
+          💬 Contacter
+        </button>
       </div>
     `
   });
@@ -2030,6 +2052,28 @@ const dataPoints = dataSource.map((item, index) => {
         <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(markerData.affinityScore)}; margin-top: 8px;">
           🎯 Affinité : ${markerData.affinityScore}%
         </div>
+        
+        <button 
+          onclick="contactUser('${user.id || ''}', '${user.suggestion_id || ''}')" 
+          style="
+            width: 100%;
+            margin-top: 12px;
+            padding: 10px;
+            background: linear-gradient(135deg, #F49F1C 0%, #ffca63 100%);
+            color: #111;
+            border: none;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            cursor: pointer;
+            font-family: Montserrat, sans-serif;
+            transition: transform 0.2s;
+          "
+          onmouseover="this.style.transform='scale(1.05)'"
+          onmouseout="this.style.transform='scale(1)'"
+        >
+          💬 Contacter
+        </button>
       </div>
     `
   });
@@ -2320,6 +2364,63 @@ async function updateLocationIndicator(lat, lng) {
     
   } catch (err) {
     console.error('❌ Erreur reverse geocoding:', err);
+  }
+}
+
+// 🔥 NOUVEAU : Contacter un utilisateur (envoyer demande de participation)
+async function contactUser(userId, suggestionId) {
+  console.log(`💬 Contact user ${userId}, suggestion ${suggestionId}`);
+  
+  if (!userId || !suggestionId) {
+    alert('❌ Informations manquantes pour contacter cet utilisateur');
+    return;
+  }
+  
+  // Vérifier session
+  if (!sessionToken) {
+    alert('❌ Session expirée. Veuillez vous reconnecter.');
+    window.location.href = 'login.html';
+    return;
+  }
+  
+  // Demander message optionnel
+  const message = prompt('💬 Message pour le créateur (optionnel) :', '');
+  
+  if (message === null) {
+    // Utilisateur a cliqué "Annuler"
+    return;
+  }
+  
+  try {
+    // Envoyer demande
+    const url = `https://api.meetempo.com/match/request?session_token=${sessionToken}&suggestion_id=${suggestionId}${message ? '&message=' + encodeURIComponent(message) : ''}`;
+    
+    const response = await fetch(url);
+    const data = await response.json();
+    
+    if (!response.ok) {
+      throw new Error(data.error || 'Erreur inconnue');
+    }
+    
+    // Succès
+    alert(`✅ ${data.message}\n\nLe créateur recevra votre demande.`);
+    
+    console.log('✅ Demande envoyée:', data);
+    
+  } catch (error) {
+    console.error('❌ Erreur contact:', error);
+    
+    if (error.message.includes('propre suggestion')) {
+      alert('❌ Vous ne pouvez pas contacter votre propre suggestion !');
+    } else if (error.message.includes('déjà une demande')) {
+      alert('⏳ Vous avez déjà envoyé une demande pour cette suggestion.');
+    } else if (error.message.includes('complète')) {
+      alert('❌ Cette suggestion est complète (nombre max de participants atteint).');
+    } else if (error.message.includes('participez déjà')) {
+      alert('✅ Vous participez déjà à cette suggestion !');
+    } else {
+      alert(`❌ Erreur : ${error.message}`);
+    }
   }
 }
 
