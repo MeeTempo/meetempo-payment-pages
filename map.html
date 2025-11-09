@@ -1796,7 +1796,7 @@ function addMarkersWithClustering(users, zoom = 13) {
   }
   
   // 🔥 MODIFIÉ : Désactiver clustering si zoom >= 14
-  if (zoom >= 14) {
+  if (zoom >= 10) {
     // Mode sans clustering : afficher pins individuels
     users.forEach((user, index) => {
       const color = getMarkerColor(index);
