@@ -2377,7 +2377,7 @@ async function contactUser(userId, suggestionId) {
   }
   
   // Vérifier session
-  if (!sessionToken) {
+  if (!token) {  // ✅ CORRECT
     alert('❌ Session expirée. Veuillez vous reconnecter.');
     window.location.href = 'login.html';
     return;
@@ -2393,7 +2393,7 @@ async function contactUser(userId, suggestionId) {
   
   try {
     // Envoyer demande
-    const url = `https://api.meetempo.com/match/request?session_token=${sessionToken}&suggestion_id=${suggestionId}${message ? '&message=' + encodeURIComponent(message) : ''}`;
+    const url = `https://api.meetempo.com/match/request?session_token=${token}&suggestion_id=${suggestionId}${message ? '&message=' + encodeURIComponent(message) : ''}`;
     
     const response = await fetch(url);
     const data = await response.json();
