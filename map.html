@@ -1767,7 +1767,7 @@ function addMarkersWithClustering(users, zoom = 13) {
   const clusteredDataProvider = new H.clustering.Provider(dataPoints, {
     clusteringOptions: {
       eps,
-      minWeight: 2
+      minWeight: 1
     },
     theme: {
       getClusterPresentation: function(cluster) {
