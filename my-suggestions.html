@@ -550,8 +550,62 @@ async function init() {
       }
     }
     
-    // Render une carte suggestion
-    function renderSuggestionCard(sugg, isExpired) {
+    // 🔥 NOUVEAU : Badge participants pour my-suggestions
+function renderParticipantsBadge(sugg) {
+  if (!sugg.participants || !sugg.participants.min || !sugg.participants.max) {
+    return '';
+  }
+  
+  const min = sugg.participants.min;
+  const max = sugg.participants.max;
+  const current = sugg.participants.current?.length || 1;
+  
+  let color = '';
+  let icon = '';
+  let text = '';
+  
+  // CAS 1 : min = max (seuil obligatoire)
+  if (min === max) {
+    if (current >= min) {
+      color = '#10B981'; // Vert
+      icon = '✅';
+      text = `${current}/${max} confirmés`;
+    } else {
+      color = '#F97316'; // Orange
+      icon = '⚠️';
+      text = `${current}/${min} requis`;
+    }
+  }
+  // CAS 2 : min < max ET min <= 2 (souple)
+  else if (min <= 2) {
+    color = '#10B981'; // Vert
+    icon = '✅';
+    text = `${current}/${max} participants`;
+  }
+  // CAS 3 : min < max ET min > 2 (seuil important)
+  else {
+    if (current >= min) {
+      color = '#10B981'; // Vert
+      icon = '✅';
+      text = `${current}/${max} participants`;
+    } else {
+      color = '#FBBF24'; // Jaune
+      icon = '⚠️';
+      text = `${current}/${max} (min ${min})`;
+    }
+  }
+  
+  return `
+    <div style="margin: 8px 0;">
+      <span style="background: ${color}22; color: ${color}; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; white-space: nowrap;">
+        👥 ${icon} ${text}
+      </span>
+    </div>
+  `;
+}
+
+// Render une carte suggestion
+function renderSuggestionCard(sugg, isExpired) {
       const pendingRequests = (sugg.requests || []).filter(r => r.status === 'pending');
       const acceptedRequests = (sugg.requests || []).filter(r => r.status === 'accepted');
       
@@ -564,10 +618,12 @@ async function init() {
             <div style="flex: 1;">
               <div class="suggestion-title">${sugg.ai_final_text || sugg.description}</div>
               <div class="suggestion-meta">
-                <div class="meta-item">📍 ${sugg.city || sugg.location_name || '?'}</div>
-                <div class="meta-item">📅 ${date}</div>
-                <div class="meta-item">⏰ ${time}</div>
-              </div>
+              <div class="meta-item">📍 ${sugg.city || sugg.location_name || '?'}</div>
+              <div class="meta-item">📅 ${date}</div>
+              <div class="meta-item">⏰ ${time}</div>
+            </div>
+
+            ${renderParticipantsBadge(sugg)}
               <div>
                 <span class="badge ${isExpired ? 'badge-expired' : 'badge-active'}">
                   ${isExpired ? '⏰ Expirée' : '✨ Active'}
