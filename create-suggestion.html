@@ -481,24 +481,63 @@
           <!-- Nombre de participants -->
           <div class="form-group">
             <label for="max_participants">
-              👥 Nombre de participants maximum
-          </label>
-          <select id="max_participants" name="max_participants" required>
-            <option value="2">2 personnes (tête-à-tête)</option>
-            <option value="3" selected>3 personnes (petit groupe)</option>
-            <option value="4">4 personnes (table standard)</option>
-            <option value="5">5 personnes</option>
-            <option value="6">6 personnes</option>
-            <option value="8">8 personnes (équipe)</option>
-            <option value="10">10 personnes</option>
-            <option value="15">15 personnes (groupe large)</option>
-            <option value="20">20 personnes</option>
-            <option value="50">50+ personnes (événement)</option>
+              <!-- 🔥 NOUVEAU : Participants min/max séparés -->
+          <div class="form-group">
+            <label for="min_participants">
+              👥 Participants minimum requis
+            </label>
+            <select id="min_participants" name="min_participants" required>
+              <option value="2" selected>2 personnes</option>
+              <option value="3">3 personnes</option>
+              <option value="5">5 personnes</option>
+              <option value="10">10 personnes</option>
+              <option value="15">15 personnes</option>
+              <option value="20">20 personnes</option>
+              <option value="custom_min">Autre nombre</option>
             </select>
-            <div class="helper-text">
-            💡 Choisissez selon votre activité (café, sport, conférence...)
+            
+            <!-- Champ libre min (caché par défaut) -->
+            <div id="customMinInput" style="display: none; margin-top: 12px;">
+              <input 
+                type="number" 
+                id="customMinParticipants" 
+                placeholder="Ex: 25"
+                min="2"
+                max="1000"
+              />
             </div>
-        </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="max_participants">
+              👥 Participants maximum total
+            </label>
+            <select id="max_participants" name="max_participants" required>
+              <option value="2" selected>2 personnes total</option>
+              <option value="3">3 personnes total</option>
+              <option value="5">5 personnes total</option>
+              <option value="10">10 personnes total</option>
+              <option value="15">15 personnes total</option>
+              <option value="20">20 personnes total</option>
+              <option value="custom_max">Autre nombre</option>
+            </select>
+            
+            <!-- Champ libre max (caché par défaut) -->
+            <div id="customMaxInput" style="display: none; margin-top: 12px;">
+              <input 
+                type="number" 
+                id="customMaxParticipants" 
+                placeholder="Ex: 50"
+                min="2"
+                max="1000"
+              />
+            </div>
+            
+            <div class="helper-text" style="margin-top: 12px;">
+              💡 Minimum = Seuil requis pour maintenir l'événement<br>
+              💡 Maximum = Limite totale de places disponibles
+            </div>
+          </div>
                 
         <button type="submit" class="btn btn-primary" id="submitBtn">
           <span id="btnText">✨ Créer ma suggestion</span>
@@ -697,6 +736,34 @@ document.addEventListener('click', (e) => {
         customField.required = false;
       }
     });
+    // 🔥 NOUVEAU : Toggle champs libres min/max participants
+    document.getElementById('min_participants').addEventListener('change', (e) => {
+      const customMinInput = document.getElementById('customMinInput');
+      const customMinField = document.getElementById('customMinParticipants');
+      
+      if (e.target.value === 'custom_min') {
+        customMinInput.style.display = 'block';
+        customMinField.required = true;
+      } else {
+        customMinInput.style.display = 'none';
+        customMinField.required = false;
+        customMinField.value = ''; // Reset
+      }
+    });
+    
+    document.getElementById('max_participants').addEventListener('change', (e) => {
+      const customMaxInput = document.getElementById('customMaxInput');
+      const customMaxField = document.getElementById('customMaxParticipants');
+      
+      if (e.target.value === 'custom_max') {
+        customMaxInput.style.display = 'block';
+        customMaxField.required = true;
+      } else {
+        customMaxInput.style.display = 'none';
+        customMaxField.required = false;
+        customMaxField.value = ''; // Reset
+      }
+    });
     
     // Soumission formulaire
     document.getElementById('suggestionForm').addEventListener('submit', async (e) => {
@@ -730,6 +797,29 @@ document.addEventListener('click', (e) => {
         
         // Construire le texte complet pour backward compatibility
         const fullLocation = place ? `${place}, ${city}` : city;
+        // 🔥 NOUVEAU : Récupérer min/max participants
+        const minSelect = document.getElementById('min_participants').value;
+        const maxSelect = document.getElementById('max_participants').value;
+        
+        let min_participants, max_participants;
+        
+        // Si "custom" sélectionné, prendre valeur input libre
+        if (minSelect === 'custom_min') {
+          min_participants = parseInt(document.getElementById('customMinParticipants').value) || 2;
+        } else {
+          min_participants = parseInt(minSelect);
+        }
+        
+        if (maxSelect === 'custom_max') {
+          max_participants = parseInt(document.getElementById('customMaxParticipants').value) || 2;
+        } else {
+          max_participants = parseInt(maxSelect);
+        }
+        
+        // Validation : max >= min
+        if (max_participants < min_participants) {
+          throw new Error('Le nombre maximum doit être >= au nombre minimum');
+        }
         const fullText = `${activityType} - ${fullLocation} le ${date} à ${time} ${ampm}${description ? '. ' + description : ''}`;
         
         // Payload
@@ -743,7 +833,8 @@ document.addEventListener('click', (e) => {
           time: time,
           ampm: ampm,
           description: description || null,
-          max_participants: parseInt(document.getElementById('max_participants').value),
+          min_participants: min_participants,
+          max_participants: max_participants,
           // 🔥 NOUVEAU : Coordonnées précises si autocomplete utilisé
           exact_location: selectedPlaceData ? {
             lat: selectedPlaceData.lat,
