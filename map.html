@@ -2028,17 +2028,85 @@ function addMarkersWithClustering(users, zoom = 13) {
         const distance = user.distance ? `${user.distance} km` : 'À proximité';
         const affinityScore = user.compatibility_score || 50;
         
-        card.innerHTML = `
-          <div class="user-header">
-            <div class="user-avatar">${initials}</div>
-            <div class="user-info">
-              <h3>${pseudo}</h3>
-              <div class="user-distance">${distance} • ${affinityScore}%</div>
-            </div>
-          </div>
-          <div class="user-suggestion">${suggestion}</div>
-          <div class="user-location">📍 ${city}</div>
-          <div class="user-actions">
+        // 🔥 NOUVEAU : Formatter date pour carte
+let dateFormatted = '';
+if (user.suggestion_date) {
+  const d = new Date(user.suggestion_date);
+  const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+  const monthNames = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+  dateFormatted = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
+}
+
+// 🔥 NOUVEAU : Badge participants inline
+let participantsBadge = '';
+if (user.participants) {
+  const min = user.participants.min;
+  const max = user.participants.max;
+  const current = user.participants.current?.length || 1;
+  
+  let color = '';
+  let icon = '';
+  let text = '';
+  
+  if (min === max) {
+    if (current >= min) {
+      color = '#10B981';
+      icon = '✅';
+      text = `${current}/${max}`;
+    } else {
+      color = '#F97316';
+      icon = '⚠️';
+      text = `${current}/${min}`;
+    }
+  } else if (min <= 2) {
+    color = '#10B981';
+    icon = '✅';
+    text = `${current}/${max}`;
+  } else {
+    if (current >= min) {
+      color = '#10B981';
+      icon = '✅';
+      text = `${current}/${max}`;
+    } else {
+      color = '#FBBF24';
+      icon = '⚠️';
+      text = `${current}/${max}`;
+    }
+  }
+  
+  participantsBadge = `<span style="background: ${color}22; color: ${color}; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap;">👥 ${icon} ${text}</span>`;
+}
+
+card.innerHTML = `
+  <div class="user-header">
+    <div class="user-avatar">${initials}</div>
+    <div class="user-info">
+      <h3>${pseudo}</h3>
+      <div class="user-distance">${distance} • ${affinityScore}%</div>
+    </div>
+  </div>
+  
+  ${user.suggestion_activity ? `
+    <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--mt-text);">
+      ${escapeHTML(user.suggestion_activity)}
+    </div>
+  ` : ''}
+  
+  <div class="user-location">📍 ${city}</div>
+  
+  ${user.suggestion_date && user.suggestion_time ? `
+    <div style="font-size: 13px; color: var(--mt-muted); margin-top: 4px;">
+      🕐 ${dateFormatted} à ${user.suggestion_time}
+    </div>
+  ` : ''}
+  
+  ${participantsBadge ? `
+    <div style="margin-top: 8px;">
+      ${participantsBadge}
+    </div>
+  ` : ''}
+  
+  <div class="user-actions">
             <button class="btn btn-primary" onclick="contactUser('${user.id}')">💬 Contacter</button>
             <button class="btn btn-secondary" onclick="viewProfile('${user.id}')">👀 Profil</button>
           </div>
