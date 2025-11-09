@@ -750,6 +750,62 @@ document.addEventListener('click', (e) => {
         customMinField.value = ''; // Reset
       }
     });
+
+    // 🔥 NOUVEAU : Validation dynamique min <= max
+    function validateMinMax() {
+      const minSelect = document.getElementById('min_participants');
+      const maxSelect = document.getElementById('max_participants');
+      const customMinField = document.getElementById('customMinParticipants');
+      const customMaxField = document.getElementById('customMaxParticipants');
+      
+      // Récupérer valeurs actuelles
+      let minValue = minSelect.value === 'custom_min' 
+        ? parseInt(customMinField.value) || 2 
+        : parseInt(minSelect.value);
+      
+      let maxValue = maxSelect.value === 'custom_max' 
+        ? parseInt(customMaxField.value) || 2 
+        : parseInt(maxSelect.value);
+      
+      // Si max < min, ajuster max automatiquement
+      if (maxValue < minValue) {
+        // Si max est custom, mettre à jour le champ
+        if (maxSelect.value === 'custom_max') {
+          customMaxField.value = minValue;
+        } else {
+          // Trouver la première option >= minValue
+          const options = Array.from(maxSelect.options);
+          const validOption = options.find(opt => {
+            if (opt.value === 'custom_max') return false;
+            return parseInt(opt.value) >= minValue;
+          });
+          
+          if (validOption) {
+            maxSelect.value = validOption.value;
+          } else {
+            // Aucune option valide, forcer custom
+            maxSelect.value = 'custom_max';
+            document.getElementById('customMaxInput').style.display = 'block';
+            customMaxField.required = true;
+            customMaxField.value = minValue;
+          }
+        }
+        
+        console.log(`⚠️ Max ajusté : ${maxValue} → ${minValue}`);
+      }
+    }
+    
+    // Déclencher validation quand min change
+    document.getElementById('min_participants').addEventListener('change', validateMinMax);
+    
+    // Déclencher validation quand min custom change
+    document.getElementById('customMinParticipants').addEventListener('input', validateMinMax);
+    
+    // Déclencher validation quand max change (pour éviter sélection invalide)
+    document.getElementById('max_participants').addEventListener('change', validateMinMax);
+    
+    // Déclencher validation quand max custom change
+    document.getElementById('customMaxParticipants').addEventListener('input', validateMinMax);
     
     document.getElementById('max_participants').addEventListener('change', (e) => {
       const customMaxInput = document.getElementById('customMaxInput');
