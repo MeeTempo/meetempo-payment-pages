@@ -420,24 +420,31 @@
     
     // Initialisation
 async function init() {
+  console.log('🔍 Initialisation my-suggestions...');
+  
   // 🔥 FIX : Récupérer token depuis URL si pas dans sessionStorage
   let token = sessionStorage.getItem('meetempo_token');
+  console.log('📦 Token sessionStorage:', token ? token.substring(0,20) + '...' : 'null');
   
   if (!token) {
     // Essayer de récupérer depuis URL
     const urlParams = new URLSearchParams(window.location.search);
     token = urlParams.get('token');
+    console.log('🔗 Token URL:', token ? token.substring(0,20) + '...' : 'null');
     
     if (token) {
       // Sauvegarder dans sessionStorage pour navigation future
       sessionStorage.setItem('meetempo_token', token);
+      console.log('💾 Token sauvegardé dans sessionStorage');
     } else {
+      console.error('❌ Aucun token trouvé');
       alert('Session expirée. Retour à MeeTempo GPT.');
       window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
       return;
     }
   }
   
+  console.log('✅ Token final:', token.substring(0,20) + '...');
   await loadSuggestions(token);
   setupTabs();
 }
