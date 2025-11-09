@@ -815,11 +815,28 @@ function renderSuggestionCard(sugg, isExpired) {
   }
 }
     
-    // Voir sur carte
-    function viewOnMap(suggestionId) {
-      const token = sessionStorage.getItem('meetempo_token');
-      window.open(`map.html?token=${token}&highlight=${suggestionId}`, '_blank');
+    async function viewOnMap(suggestionId) {
+  const session_token = sessionStorage.getItem('meetempo_token');
+  
+  try {
+    // 🔥 Générer elevated token (15min)
+    const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
+    
+    if (!response.ok) {
+      alert('❌ Impossible de générer le lien carte. Session expirée ?');
+      return;
     }
+    
+    const data = await response.json();
+    
+    // 🔥 Ouvrir carte avec elevated token
+    window.open(`map.html?token=${data.token}&highlight=${suggestionId}`, '_blank');
+    
+  } catch (err) {
+    console.error('Erreur génération token carte:', err);
+    alert('❌ Erreur lors de l\'ouverture de la carte');
+  }
+}
     
     // Navigation
     function createNew() {
@@ -827,10 +844,28 @@ function renderSuggestionCard(sugg, isExpired) {
       window.location.href = `create-suggestion.html?token=${token}`;
     }
     
-    function goToMap() {
-      const token = sessionStorage.getItem('meetempo_token');
-      window.location.href = `map.html?token=${token}`;
+    async function goToMap() {
+  const session_token = sessionStorage.getItem('meetempo_token');
+  
+  try {
+    // 🔥 Générer elevated token (15min)
+    const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
+    
+    if (!response.ok) {
+      alert('❌ Impossible de générer le lien carte. Session expirée ?');
+      return;
     }
+    
+    const data = await response.json();
+    
+    // 🔥 Ouvrir carte avec elevated token
+    window.location.href = `map.html?token=${data.token}`;
+    
+  } catch (err) {
+    console.error('Erreur génération token carte:', err);
+    alert('❌ Erreur lors de l\'ouverture de la carte');
+  }
+}
     
     function backToGPT() {
   // Essayer de fermer l'onglet (fonctionne si ouvert depuis GPT)
