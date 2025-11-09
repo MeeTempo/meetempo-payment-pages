@@ -1036,7 +1036,15 @@ if (goToList) {
 }
     // Fonction pour aller vers mes suggestions
 function goToMySuggestions() {
-  window.location.href = `my-suggestions.html?token=${session_token}`;
+  const token = sessionStorage.getItem('meetempo_token');
+  
+  if (!token) {
+    alert('❌ Session expirée. Veuillez vous reconnecter.');
+    window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+    return;
+  }
+  
+  window.location.href = `my-suggestions.html?token=${token}`;
 }
   </script>
 </body>
