@@ -1815,29 +1815,50 @@ function addMarkersWithClustering(users, zoom = 13) {
       const marker = new H.map.Marker(user.location, { icon: markerIcon });
       
       marker.addEventListener('tap', function(evt) {
-        const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
-        content: `
-            <div style="padding: 8px; font-family: Montserrat, sans-serif; max-width: 280px;">
-              <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px;">
-                ${escapeHTML(user.pseudo)}
-              </div>
-              <div style="font-size: 13px; margin-bottom: 6px; line-height: 1.3;">
-                ${escapeHTML((user.latest_suggestion || '').substring(0, 80))}${(user.latest_suggestion || '').length > 80 ? '...' : ''}
-              </div>
-              <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
-                📍 ${escapeHTML(user.city)}
-              </div>
-              ${generateParticipantsBadge(user)}
-              <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(affinityScore)};">
-                🎯 Affinité : ${affinityScore}%
-              </div>
-            </div>
-          `
-        });
-        ui.addBubble(bubble);
+  // 🔥 NOUVEAU : Formatter date
+  let dateFormatted = '';
+  if (user.suggestion_date) {
+    const d = new Date(user.suggestion_date);
+    const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    const monthNames = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+    dateFormatted = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
+  }
+  
+  const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
+    content: `
+      <div style="padding: 12px; font-family: Montserrat, sans-serif; max-width: 280px;">
+        <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #030E4F;">
+          ${escapeHTML(user.pseudo)}
+        </div>
         
-        highlightUserCard(index);
-      });
+        ${user.suggestion_activity ? `
+          <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #030E4F;">
+            ${escapeHTML(user.suggestion_activity)}
+          </div>
+        ` : ''}
+        
+        <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
+          📍 ${escapeHTML(user.city)}
+        </div>
+        
+        ${user.suggestion_date && user.suggestion_time ? `
+          <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
+            🕐 ${dateFormatted} à ${user.suggestion_time}
+          </div>
+        ` : ''}
+        
+        ${generateParticipantsBadge(user)}
+        
+        <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(affinityScore)}; margin-top: 8px;">
+          🎯 Affinité : ${affinityScore}%
+        </div>
+      </div>
+    `
+  });
+  ui.addBubble(bubble);
+  
+  highlightUserCard(index);
+});
       
       map.addObject(marker);
       markers.push(marker);
@@ -1921,32 +1942,53 @@ function addMarkersWithClustering(users, zoom = 13) {
         noiseMarker.setData(data);
         
         noiseMarker.addEventListener('tap', function(evt) {
-          const markerData = evt.target.getData();
-          const user = markerData.user;
-          
-          const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
-            content: `
-              <div style="padding: 8px; font-family: Montserrat, sans-serif;">
-                <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">
-                  ${escapeHTML(user.pseudo)}
-                </div>
-                <div style="font-size: 13px; margin-bottom: 4px;">
-                  ${escapeHTML(user.latest_suggestion)}
-                </div>
-                <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
-                  📍 ${escapeHTML(user.city)}
-                </div>
-                ${generateParticipantsBadge(user)}
-                <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(markerData.affinityScore)};">
-                  🎯 Affinité : ${markerData.affinityScore}%
-                </div>
-              </div>
-            `
-          });
-          ui.addBubble(bubble);
-          
-          highlightUserCard(markerData.index);
-        });
+  const markerData = evt.target.getData();
+  const user = markerData.user;
+  
+  // 🔥 NOUVEAU : Formatter date
+  let dateFormatted = '';
+  if (user.suggestion_date) {
+    const d = new Date(user.suggestion_date);
+    const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+    const monthNames = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+    dateFormatted = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
+  }
+  
+  const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
+    content: `
+      <div style="padding: 12px; font-family: Montserrat, sans-serif; max-width: 280px;">
+        <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #030E4F;">
+          ${escapeHTML(user.pseudo)}
+        </div>
+        
+        ${user.suggestion_activity ? `
+          <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #030E4F;">
+            ${escapeHTML(user.suggestion_activity)}
+          </div>
+        ` : ''}
+        
+        <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
+          📍 ${escapeHTML(user.city)}
+        </div>
+        
+        ${user.suggestion_date && user.suggestion_time ? `
+          <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
+            🕐 ${dateFormatted} à ${user.suggestion_time}
+          </div>
+        ` : ''}
+        
+        ${generateParticipantsBadge(user)}
+        
+        <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(markerData.affinityScore)}; margin-top: 8px;">
+          🎯 Affinité : ${markerData.affinityScore}%
+        </div>
+      </div>
+    `
+  });
+  ui.addBubble(bubble);
+  
+  highlightUserCard(markerData.index);
+});
         
         return noiseMarker;
       }
