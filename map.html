@@ -1720,60 +1720,65 @@ map.addEventListener('mapviewchangeend', async function() {
     }
 
     // 🔥 NOUVEAU : Générer badge participants selon règles
-    function generateParticipantsBadge(user) {
-      // Si pas de structure participants, skip
-      if (!user.participants || !user.participants.min || !user.participants.max) {
-        return '';
-      }
-      
-      const min = user.participants.min;
-      const max = user.participants.max;
-      const current = user.participants.current?.length || 1;
-      
-      let badgeHTML = '';
-      let color = '';
-      let icon = '';
-      let text = '';
-      
-      // CAS 1 : min = max (seuil obligatoire)
-      if (min === max) {
-        if (current >= min) {
-          color = '#10B981'; // Vert
-          icon = '✅';
-          text = `${current}/${max} participants confirmés`;
-        } else {
-          color = '#F97316'; // Orange
-          icon = '⚠️';
-          text = `${current}/${min} requis - Minimum NON atteint`;
-        }
-      }
-      // CAS 2 : min < max ET min <= 2 (souple)
-      else if (min <= 2) {
-        color = '#10B981'; // Vert
-        icon = '✅';
-        text = `${min}-${max} participants (${current}/${max})`;
-      }
-      // CAS 3 : min < max ET min > 2 (seuil important)
-      else {
-        if (current >= min) {
-          color = '#10B981'; // Vert
-          icon = '✅';
-          text = `${min}-${max} participants (${current}/${max})`;
-        } else {
-          color = '#FBBF24'; // Jaune
-          icon = '⚠️';
-          text = `${min}-${max} participants (${current}/${max}) - Min ${min} requis`;
-        }
-      }
-      
-      badgeHTML = `
-        <div style="font-size: 12px; margin: 6px 0; padding: 6px 8px; background: ${color}22; border-left: 3px solid ${color}; border-radius: 4px;">
-          <span style="font-weight: 600;">${icon} ${text}</span>
-        </div>
-      `;
-      
-      return badgeHTML;
+function generateParticipantsBadge(user) {
+  // 🔥 DEBUG : Logger structure
+  console.log('📊 Participants data:', user.participants);
+  
+  // Si pas de structure participants, skip
+  if (!user.participants || !user.participants.min || !user.participants.max) {
+    console.log('⚠️ Pas de données participants pour', user.pseudo);
+    return '';
+  }
+  
+  const min = user.participants.min;
+  const max = user.participants.max;
+  const current = user.participants.current?.length || 1;
+  
+  let badgeHTML = '';
+  let color = '';
+  let icon = '';
+  let text = '';
+  
+  // CAS 1 : min = max (seuil obligatoire)
+  if (min === max) {
+    if (current >= min) {
+      color = '#10B981'; // Vert
+      icon = '✅';
+      text = `${current}/${max} confirmés`;
+    } else {
+      color = '#F97316'; // Orange
+      icon = '⚠️';
+      text = `${current}/${min} requis`;
     }
+  }
+  // CAS 2 : min < max ET min <= 2 (souple)
+  else if (min <= 2) {
+    color = '#10B981'; // Vert
+    icon = '✅';
+    text = `${current}/${max} participants`;
+  }
+  // CAS 3 : min < max ET min > 2 (seuil important)
+  else {
+    if (current >= min) {
+      color = '#10B981'; // Vert
+      icon = '✅';
+      text = `${current}/${max} participants`;
+    } else {
+      color = '#FBBF24'; // Jaune
+      icon = '⚠️';
+      text = `${current}/${max} (min ${min})`;
+    }
+  }
+  
+  badgeHTML = `
+    <div style="font-size: 12px; margin: 6px 0; padding: 6px 8px; background: ${color}22; border-left: 3px solid ${color}; border-radius: 4px;">
+      <span style="font-weight: 600;">👥 ${icon} ${text}</span>
+    </div>
+  `;
+  
+  console.log('✅ Badge généré:', text);
+  return badgeHTML;
+}
     
     // 🔥 NOUVEAU : Markers avec clustering
 function addMarkersWithClustering(users, zoom = 13) {
@@ -1811,13 +1816,13 @@ function addMarkersWithClustering(users, zoom = 13) {
       
       marker.addEventListener('tap', function(evt) {
         const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
-          content: `
-            <div style="padding: 8px; font-family: Montserrat, sans-serif;">
-              <div style="font-weight: 700; font-size: 14px; margin-bottom: 4px;">
+        content: `
+            <div style="padding: 8px; font-family: Montserrat, sans-serif; max-width: 280px;">
+              <div style="font-weight: 700; font-size: 14px; margin-bottom: 6px;">
                 ${escapeHTML(user.pseudo)}
               </div>
-              <div style="font-size: 13px; margin-bottom: 4px;">
-                ${escapeHTML(user.latest_suggestion)}
+              <div style="font-size: 13px; margin-bottom: 6px; line-height: 1.3;">
+                ${escapeHTML((user.latest_suggestion || '').substring(0, 80))}${(user.latest_suggestion || '').length > 80 ? '...' : ''}
               </div>
               <div style="font-size: 12px; color: #666; margin-bottom: 4px;">
                 📍 ${escapeHTML(user.city)}
