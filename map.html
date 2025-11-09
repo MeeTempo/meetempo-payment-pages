@@ -849,7 +849,8 @@
     let currentVisibility = 'visible';
     let clusteringLayer = null;
     let isManualRadius = false; // 🔥 NOUVEAU : Mode manuel vs auto
-    let suggestionsData = []; // 🔥 NOUVEAU : Cache suggestions
+    let suggestionsData = []; // 🔥 Cache suggestions proximité
+    let allSuggestionsData = []; // 🔥 NOUVEAU : Toutes suggestions monde (clustering)
     let suggestionsRadius = 20; // 🔥 NOUVEAU : Rayon actuel suggestions
     let reloadTimeout = null; // 🔥 NOUVEAU : Debounce reload carte
     let searchAutocompleteTimeout = null; // 🔥 NOUVEAU : Debounce autocomplete recherche
@@ -1631,93 +1632,103 @@ map.addEventListener('mapviewchangeend', async function() {
     }
     
     async function loadNearbyUsers() {
-      try {
+  try {
+    document.getElementById('loading').style.display = 'flex';
+    
+    // 🔥 NOUVEAU : Charger TOUTES les suggestions pour clustering global
+    console.log('🌍 Chargement suggestions monde entier...');
+    try {
+      const allSuggestionsResponse = await fetch(`${API_BASE}/suggestions/all?token=${token}`);
+      
+      if (allSuggestionsResponse.ok) {
+        const allSuggestionsJson = await allSuggestionsResponse.json();
+        allSuggestionsData = allSuggestionsJson.suggestions || [];
+        console.log(`✅ ${allSuggestionsData.length} suggestions chargées pour clustering global`);
+      } else {
+        console.warn('⚠️ Impossible de charger suggestions globales');
+        allSuggestionsData = [];
+      }
+    } catch (err) {
+      console.warn('⚠️ Erreur chargement suggestions globales:', err);
+      allSuggestionsData = [];
+    }
+    
+    // 🔥 Charger utilisateurs PROCHES (pour cartes bottom sheet)
+    const response = await fetch(
+      `${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${currentRadius}&token=${token}`
+    );
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        showError('Session expirée', 'Redirection...', 'expired');
+      } else if (response.status === 429) {
         document.getElementById('loading').style.display = 'flex';
+        document.querySelector('.loading-text').textContent = '⏳ Carte très sollicitée, rechargement dans 10s...';
         
-        const response = await fetch(
-          `${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${currentRadius}&token=${token}`
-        );
+        setTimeout(() => {
+          loadNearbyUsers();
+        }, 10000);
+        return;
+      } else {
+        throw new Error('Failed to load');
+      }
+      return;
+    }
+    
+    const data = await response.json();
+    usersData = data.users || [];
+    
+    document.getElementById('userCount').textContent = `${usersData.length}`;
+    document.getElementById('locationText').textContent = currentLocation.city || 'Paris';
+    
+    // 🔥 Extraire suggestions depuis users proches
+    suggestionsData = usersData
+      .filter(u => u.latest_suggestion)
+      .map(u => ({
+        id: u.suggestion_id || u.id,
+        title: u.latest_suggestion,
+        distance_km: u.distance,
+        lat: u.location.lat,
+        lng: u.location.lng,
+        user_pseudo: u.pseudo,
+        user_city: u.city,
+        suggestion_date: u.suggestion_date,
+        suggestion_time: u.suggestion_time
+      }))
+      .sort((a, b) => {
+        const now = new Date();
+        const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
         
-        if (!response.ok) {
-          if (response.status === 401) {
-            showError('Session expirée', 'Redirection...', 'expired');
-          } else if (response.status === 429) {
-            // 🔥 MODIFIÉ : Message rassurant + auto-retry
-            document.getElementById('loading').style.display = 'flex';
-            document.querySelector('.loading-text').textContent = '⏳ Carte très sollicitée, rechargement dans 10s...';
-            
-            setTimeout(() => {
-              loadNearbyUsers(); // Retry automatique
-            }, 10000);
-            return;
-          } else {
-            throw new Error('Failed to load');
-          }
-          return;
+        const dateA = a.suggestion_date ? new Date(a.suggestion_date) : null;
+        const dateB = b.suggestion_date ? new Date(b.suggestion_date) : null;
+        
+        const isASoon = dateA && dateA <= in24h && dateA >= now;
+        const isBSoon = dateB && dateB <= in24h && dateB >= now;
+        
+        if (isASoon && isBSoon) {
+          return dateA - dateB;
         }
         
-        const data = await response.json();
-        usersData = data.users || [];
+        if (isASoon) return -1;
+        if (isBSoon) return 1;
         
-        document.getElementById('userCount').textContent = `${usersData.length}`;
-        document.getElementById('locationText').textContent = currentLocation.city || 'Paris';
-        
-        // 🔥 NOUVEAU : Extraire suggestions depuis users
-        suggestionsData = usersData
-          .filter(u => u.latest_suggestion)
-          .map(u => ({
-            id: u.suggestion_id || u.id,
-            title: u.latest_suggestion,
-            distance_km: u.distance,
-            lat: u.location.lat,
-            lng: u.location.lng,
-            user_pseudo: u.pseudo,
-            user_city: u.city,
-            suggestion_date: u.suggestion_date,
-            suggestion_time: u.suggestion_time
-          }))
-          .sort((a, b) => {
-            // 🔥 TRI INTELLIGENT : < 24h prioritaire, sinon distance
-            const now = new Date();
-            const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
-            
-            // Parser dates suggestions
-            const dateA = a.suggestion_date ? new Date(a.suggestion_date) : null;
-            const dateB = b.suggestion_date ? new Date(b.suggestion_date) : null;
-            
-            const isASoon = dateA && dateA <= in24h && dateA >= now;
-            const isBSoon = dateB && dateB <= in24h && dateB >= now;
-            
-            // Cas 1 : Les deux < 24h → Trier par date/heure
-            if (isASoon && isBSoon) {
-              return dateA - dateB;
-            }
-            
-            // Cas 2 : Seulement A < 24h → A en premier
-            if (isASoon) return -1;
-            
-            // Cas 3 : Seulement B < 24h → B en premier
-            if (isBSoon) return 1;
-            
-            // Cas 4 : Aucun < 24h → Trier par distance
-            return a.distance_km - b.distance_km;
-          });
-        
-        // 🔥 Mettre à jour compteur suggestions
-        document.getElementById('suggestionCount').textContent = suggestionsData.length;
-        
-        // 🔥 NOUVEAU : Clustering adaptatif selon zoom
-        const currentZoom = map.getZoom();
-        addMarkersWithClustering(usersData, currentZoom);
-        populateUserCards(usersData, currentZoom);
+        return a.distance_km - b.distance_km;
+      });
+    
+    document.getElementById('suggestionCount').textContent = suggestionsData.length;
+    
+    // 🔥 Clustering adaptatif selon zoom
+    const currentZoom = map.getZoom();
+    addMarkersWithClustering(usersData, currentZoom);
+    populateUserCards(usersData, currentZoom);
 
-        document.getElementById('loading').style.display = 'none';
-                
-      } catch (err) {
-        console.error('Error loading:', err);
-        showError('Erreur chargement', 'Impossible de charger les MeeTempers', 'load');
-      }
-    }
+    document.getElementById('loading').style.display = 'none';
+            
+  } catch (err) {
+    console.error('Error loading:', err);
+    showError('Erreur chargement', 'Impossible de charger les MeeTempers', 'load');
+  }
+}
 
     // 🔥 NOUVEAU : Générer badge participants selon règles
 function generateParticipantsBadge(user) {
@@ -1868,32 +1879,65 @@ function addMarkersWithClustering(users, zoom = 13) {
     return;
   }
   
-  // 🔥 Si zoom < 14 : Activer clustering
-  let eps;
-  if (zoom >= 10) {
-    eps = 64;
-  } else if (zoom >= 6) {
-    eps = 128;
-  } else {
-    eps = 256;
-  }
+  // 🔥 MODIFIÉ : Si zoom < 10, utiliser allSuggestionsData (monde entier)
+const dataSource = (zoom < 10 && allSuggestionsData.length > 0) ? allSuggestionsData : users;
+
+console.log(`📊 Source: ${dataSource.length} items (zoom ${zoom}, source: ${zoom < 10 ? 'monde' : 'proximité'})`);
+
+// 🔥 Si zoom < 10 : Activer clustering
+let eps;
+if (zoom >= 10) {
+  eps = 64;
+} else if (zoom >= 6) {
+  eps = 128;
+} else {
+  eps = 256;
+}
+
+console.log(`🔍 Zoom ${zoom} → eps ${eps}`);
+
+// Créer markers (depuis dataSource)
+const dataPoints = dataSource.map((item, index) => {
+  // 🔥 NOUVEAU : Adapter selon source (suggestion simple ou user complet)
+  const location = item.location || { lat: item.lat, lng: item.lng };
+  const color = getMarkerColor(index);
+  const affinityScore = item.compatibility_score || 50;
+  const plan = item.plan || 'free';
+  const visibility = item.visibility || 'visible';
   
-  console.log(`🔍 Zoom ${zoom} → eps ${eps}`);
+  // 🔥 Données enrichies pour tooltip
+  const enrichedData = zoom < 10 ? {
+    // Suggestion simple (clustering monde)
+    user: {
+      pseudo: item.city || 'Suggestion',
+      city: item.city,
+      suggestion_activity: item.activity_type,
+      suggestion_date: item.date,
+      suggestion_time: item.time,
+      location: location
+    },
+    index,
+    color,
+    affinityScore,
+    plan,
+    visibility
+  } : {
+    // User complet (proximité)
+    user: item,
+    index,
+    color,
+    affinityScore,
+    plan,
+    visibility
+  };
   
-  // Créer markers
-  const dataPoints = users.map((user, index) => {
-    const color = getMarkerColor(index);
-    const affinityScore = user.compatibility_score || 50;
-    const plan = user.plan || 'free';
-    const visibility = user.visibility || 'visible';
-    
-    return new H.clustering.DataPoint(
-      user.location.lat,
-      user.location.lng,
-      null,
-      { user, index, color, affinityScore, plan, visibility }
-    );
-  });
+  return new H.clustering.DataPoint(
+    location.lat,
+    location.lng,
+    null,
+    enrichedData
+  );
+});
   
   // 🔥 Clustering provider
   const clusteredDataProvider = new H.clustering.Provider(dataPoints, {
