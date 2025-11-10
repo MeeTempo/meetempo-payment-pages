@@ -405,6 +405,9 @@
       <button class="btn btn-primary" onclick="createNew()">
         ✨ Créer une suggestion
       </button>
+      <button class="btn btn-secondary" onclick="goToMyRequests()">
+        📬 Mes demandes
+      </button>
       <button class="btn btn-secondary" onclick="goToMap()">
         🗺️ Voir la carte
       </button>
@@ -906,6 +909,12 @@ function renderSuggestionCard(sugg, isExpired) {
           }
         });
       });
+    }
+
+    // Navigation vers my-requests
+    function goToMyRequests() {
+      const token = sessionStorage.getItem('meetempo_token');
+      window.location.href = `my-requests.html?token=${token}`;
     }
     
     // Lancer au chargement
