@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Demandes - MeeTempo</title>
+  <meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; 
+               img-src https: data:; 
+               script-src 'self' 'unsafe-inline'; 
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+               font-src https://fonts.gstatic.com; 
+               connect-src https://api.meetempo.com;">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --mt-dark: #030E4F;
+      --mt-accent: #F49F1C;
+      --mt-bg: #0a133f;
+      --mt-card: #0e184f;
+      --mt-text: #ffffff;
+      --mt-muted: #c9d1ff;
+      --ok: #23c55e;
+      --err: #ef4444;
+      --warn: #FBBF24;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Montserrat, system-ui, -apple-system, sans-serif;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      color: var(--mt-text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .logo-badge {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-weight: 800;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      font-size: 16px;
+      color: var(--mt-muted);
+    }
+    
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    
+    .tab {
+      flex: 1;
+      padding: 12px;
+      background: rgba(255,255,255,0.08);
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+    
+    .tab:hover {
+      background: rgba(255,255,255,0.12);
+    }
+    
+    .tab.active {
+      background: var(--mt-accent);
+      color: #111;
+      border-color: var(--mt-accent);
+    }
+    
+    /* Request Card */
+    .request-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      padding: 24px;
+      margin-bottom: 20px;
+      transition: all 0.3s;
+    }
+    
+    .request-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px rgba(244,159,28,0.3);
+    }
+    
+    .request-card.declined {
+      opacity: 0.6;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+    
+    .request-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    
+    .request-title {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .request-meta {
+      font-size: 14px;
+      color: var(--mt-muted);
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .badge-pending {
+      background: rgba(244, 159, 28, 0.2);
+      color: var(--mt-accent);
+    }
+    
+    .badge-accepted {
+      background: rgba(35, 197, 94, 0.2);
+      color: var(--ok);
+    }
+    
+    .badge-declined {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--err);
+    }
+    
+    /* Creator Info */
+    .creator-section {
+      margin-top: 12px;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .creator-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--mt-accent);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-weight: 700;
+      font-size: 14px;
+    }
+    
+    .creator-info {
+      flex: 1;
+    }
+    
+    .creator-name {
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    .creator-city {
+      font-size: 12px;
+      color: var(--mt-muted);
+    }
+    
+    /* Participants Badge */
+    .participants-badge {
+      margin: 8px 0;
+    }
+    
+    .participants-badge span {
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+      display: inline-block;
+    }
+    
+    /* Actions */
+    .actions {
+      display: flex;
+      gap: 8px;
+      margin-top: 16px;
+    }
+    
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    
+    .btn-primary {
+      background: var(--mt-accent);
+      color: #111;
+      flex: 1;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(244,159,28,0.4);
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: var(--mt-text);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--err);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+    }
+    
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-small {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+    
+    /* Loading & Empty */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--mt-muted);
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: var(--mt-accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--mt-muted);
+    }
+    
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 640px) {
+      .request-meta {
+        font-size: 12px;
+      }
+      
+      .actions {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-badge">MT</div>
+      <h1>📬 Mes Demandes</h1>
+      <p class="subtitle">Suivez vos demandes de participation envoyées</p>
+    </div>
+    
+    <!-- Tabs -->
+    <div class="tabs">
+      <div class="tab active" data-tab="pending">
+        ⏳ En attente
+      </div>
+      <div class="tab" data-tab="accepted">
+        ✅ Confirmées
+      </div>
+      <div class="tab" data-tab="history">
+        📜 Historique
+      </div>
+    </div>
+    
+    <!-- Loading -->
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <div>Chargement...</div>
+    </div>
+    
+    <!-- Content -->
+    <div id="content" style="display:none;">
+      <!-- Pending Requests -->
+      <div id="pendingRequests"></div>
+      
+      <!-- Accepted Requests -->
+      <div id="acceptedRequests" style="display:none;"></div>
+      
+      <!-- History -->
+      <div id="historyRequests" style="display:none;"></div>
+    </div>
+    
+    <!-- Bottom Actions -->
+    <div class="actions" style="margin-top: 32px;">
+      <button class="btn btn-secondary" onclick="goToMySuggestions()">
+        📋 Mes suggestions
+      </button>
+      <button class="btn btn-secondary" onclick="goToMap()">
+        🗺️ Voir la carte
+      </button>
+      <button class="btn btn-secondary" onclick="backToGPT()">
+        💬 Retour GPT
+      </button>
+    </div>
+  </div>
+  
+  <script>
+    const API_BASE = 'https://api.meetempo.com';
+    let allRequests = [];
+    let currentTab = 'pending';
+    
+    // Initialisation
+    async function init() {
+      console.log('🔍 Initialisation my-requests...');
+      
+      // 🔥 PRIORISER le token de l'URL (toujours plus frais)
+      const urlParams = new URLSearchParams(window.location.search);
+      let token = urlParams.get('token');
+      console.log('🔗 Token URL:', token ? token.substring(0,20) + '...' : 'null');
+      
+      // Si pas dans URL, essayer sessionStorage (fallback)
+      if (!token) {
+        token = sessionStorage.getItem('meetempo_token');
+        console.log('📦 Token sessionStorage (fallback):', token ? token.substring(0,20) + '...' : 'null');
+      }
+      
+      // Si toujours pas de token → Erreur
+      if (!token) {
+        console.error('❌ Aucun token trouvé');
+        alert('Session expirée. Retour à MeeTempo GPT.');
+        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        return;
+      }
+      
+      // Sauvegarder le token frais dans sessionStorage
+      sessionStorage.setItem('meetempo_token', token);
+      console.log('💾 Token sauvegardé:', token.substring(0,20) + '...');
+      
+      await loadRequests(token);
+      setupTabs();
+    }
+    
+    // Charger demandes
+    async function loadRequests(token) {
+      try {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('content').style.display = 'none';
+        
+        // Récupérer toutes les demandes
+        const response = await fetch(`${API_BASE}/match/my-requests?session_token=${token}`);
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Erreur chargement');
+        }
+        
+        allRequests = data.requests || [];
+        
+        // Afficher
+        renderRequests();
+        
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        
+      } catch (err) {
+        console.error('Erreur:', err);
+        alert('Erreur chargement demandes: ' + err.message);
+        document.getElementById('loading').innerHTML = `
+          <div style="color: var(--err);">❌ ${err.message}</div>
+          <button class="btn btn-primary" onclick="init()" style="margin-top: 16px;">
+            Réessayer
+          </button>
+        `;
+      }
+    }
+    
+    // Afficher demandes
+    function renderRequests() {
+      const pending = allRequests.filter(r => r.status === 'pending');
+      const accepted = allRequests.filter(r => r.status === 'accepted');
+      const declined = allRequests.filter(r => r.status === 'declined');
+      
+      // Afficher pending
+      const pendingContainer = document.getElementById('pendingRequests');
+      if (pending.length === 0) {
+        pendingContainer.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">📭</div>
+            <div style="font-weight: 600; margin-bottom: 8px;">Aucune demande en attente</div>
+            <div style="font-size: 14px;">Explorez la carte pour découvrir des suggestions !</div>
+          </div>
+        `;
+      } else {
+        pendingContainer.innerHTML = pending.map(r => renderRequestCard(r, 'pending')).join('');
+      }
+      
+      // Afficher accepted
+      const acceptedContainer = document.getElementById('acceptedRequests');
+      if (accepted.length === 0) {
+        acceptedContainer.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">✅</div>
+            <div style="font-weight: 600; margin-bottom: 8px;">Aucune demande confirmée</div>
+            <div style="font-size: 14px;">Vos demandes acceptées apparaîtront ici.</div>
+          </div>
+        `;
+      } else {
+        acceptedContainer.innerHTML = accepted.map(r => renderRequestCard(r, 'accepted')).join('');
+      }
+      
+      // Afficher history (declined)
+      const historyContainer = document.getElementById('historyRequests');
+      if (declined.length === 0) {
+        historyContainer.innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">📜</div>
+            <div style="font-weight: 600; margin-bottom: 8px;">Aucun historique</div>
+            <div style="font-size: 14px;">Les demandes refusées apparaîtront ici.</div>
+          </div>
+        `;
+      } else {
+        historyContainer.innerHTML = declined.map(r => renderRequestCard(r, 'declined')).join('');
+      }
+    }
+    
+    // Render badge participants
+    function renderParticipantsBadge(participants) {
+      if (!participants || !participants.min || !participants.max) {
+        return '';
+      }
+      
+      const min = participants.min;
+      const max = participants.max;
+      const current = participants.current?.length || 1;
+      
+      let color = '';
+      let icon = '';
+      let text = '';
+      
+      if (min === max) {
+        if (current >= min) {
+          color = '#10B981';
+          icon = '✅';
+          text = `${current}/${max} confirmés`;
+        } else {
+          color = '#F97316';
+          icon = '⚠️';
+          text = `${current}/${min} requis`;
+        }
+      } else if (min <= 2) {
+        color = '#10B981';
+        icon = '✅';
+        text = `${current}/${max} participants`;
+      } else {
+        if (current >= min) {
+          color = '#10B981';
+          icon = '✅';
+          text = `${current}/${max} participants`;
+        } else {
+          color = '#FBBF24';
+          icon = '⚠️';
+          text = `${current}/${max} (min ${min})`;
+        }
+      }
+      
+      return `
+        <div class="participants-badge">
+          <span style="background: ${color}22; color: ${color};">
+            👥 ${icon} ${text}
+          </span>
+        </div>
+      `;
+    }
+    
+    // Render une carte demande
+    function renderRequestCard(req, statusType) {
+      const sugg = req.suggestion;
+      const creator = req.creator;
+      
+      const date = sugg.date ? new Date(sugg.date).toLocaleDateString('fr-FR') : '?';
+      const time = sugg.time || '?';
+      const createdDate = new Date(req.created_at).toLocaleDateString('fr-FR');
+      
+      let badgeClass = 'badge-pending';
+      let badgeText = '⏳ En attente';
+      
+      if (statusType === 'accepted') {
+        badgeClass = 'badge-accepted';
+        badgeText = '✅ Confirmée';
+      } else if (statusType === 'declined') {
+        badgeClass = 'badge-declined';
+        badgeText = '❌ Refusée';
+      }
+      
+      return `
+        <div class="request-card ${statusType === 'declined' ? 'declined' : ''}">
+          <div class="request-header">
+            <div style="flex: 1;">
+              <div class="request-title">${sugg.title || sugg.activity_type || 'Suggestion'}</div>
+              <div class="request-meta">
+                <div class="meta-item">📍 ${sugg.city || '?'}</div>
+                ${sugg.place ? `<div class="meta-item">🏢 ${sugg.place}</div>` : ''}
+                <div class="meta-item">📅 ${date}</div>
+                <div class="meta-item">⏰ ${time}</div>
+              </div>
+              
+              ${renderParticipantsBadge(sugg.participants)}
+              
+              <div>
+                <span class="badge ${badgeClass}">${badgeText}</span>
+                <span class="badge" style="background: rgba(255,255,255,0.1); color: var(--mt-muted);">
+                  Envoyée le ${createdDate}
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="creator-section">
+            <div class="creator-avatar">
+              ${creator.name.substring(0, 2).toUpperCase()}
+            </div>
+            <div class="creator-info">
+              <div class="creator-name">Créé par ${creator.name}</div>
+              <div class="creator-city">📍 ${creator.city}</div>
+            </div>
+          </div>
+          
+          ${req.message ? `
+            <div style="margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px; font-size: 14px; font-style: italic;">
+              💬 "${req.message}"
+            </div>
+          ` : ''}
+          
+          <div class="actions">
+            <button class="btn btn-secondary btn-small" onclick="viewSuggestionOnMap('${sugg.id}', ${sugg.location.lat}, ${sugg.location.lng})">
+              🗺️ Voir sur carte
+            </button>
+            ${statusType === 'pending' ? `
+              <button class="btn btn-danger btn-small" onclick="cancelRequest('${req.match_id}')">
+                🚫 Annuler
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+    
+    // Annuler demande
+    async function cancelRequest(matchId) {
+      if (!confirm('⚠️ Annuler cette demande de participation ?')) return;
+      
+      const token = sessionStorage.getItem('meetempo_token');
+      
+      try {
+        const response = await fetch(
+          `${API_BASE}/match/cancel?session_token=${token}&match_id=${matchId}`
+        );
+        const data = await response.json();
+        
+        if (!response.ok) throw new Error(data.error || 'Erreur annulation');
+        
+        alert('✅ Demande annulée avec succès !');
+        await loadRequests(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+    
+    // Voir suggestion sur carte (avec centrage)
+    async function viewSuggestionOnMap(suggestionId, lat, lng) {
+      const session_token = sessionStorage.getItem('meetempo_token');
+      
+      try {
+        // Générer elevated token (15min)
+        const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
+        
+        if (!response.ok) {
+          alert('❌ Impossible de générer le lien carte. Session expirée ?');
+          return;
+        }
+        
+        const data = await response.json();
+        
+        // Ouvrir carte centrée sur suggestion
+        window.open(`map.html?token=${data.token}&lat=${lat}&lng=${lng}&zoom=15&highlight=${suggestionId}`, '_blank');
+        
+      } catch (err) {
+        console.error('Erreur génération token carte:', err);
+        alert('❌ Erreur lors de l\'ouverture de la carte');
+      }
+    }
+    
+    // Navigation
+    function goToMySuggestions() {
+      const token = sessionStorage.getItem('meetempo_token');
+      window.location.href = `my-suggestions.html?token=${token}`;
+    }
+    
+    async function goToMap() {
+      const session_token = sessionStorage.getItem('meetempo_token');
+      
+      try {
+        const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
+        
+        if (!response.ok) {
+          alert('❌ Impossible de générer le lien carte. Session expirée ?');
+          return;
+        }
+        
+        const data = await response.json();
+        window.location.href = `map.html?token=${data.token}`;
+        
+      } catch (err) {
+        console.error('Erreur génération token carte:', err);
+        alert('❌ Erreur lors de l\'ouverture de la carte');
+      }
+    }
+    
+    function backToGPT() {
+      if (window.opener) {
+        window.close();
+      } else {
+        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+      }
+    }
+    
+    // Tabs
+    function setupTabs() {
+      const tabs = document.querySelectorAll('.tab');
+      const pendingContainer = document.getElementById('pendingRequests');
+      const acceptedContainer = document.getElementById('acceptedRequests');
+      const historyContainer = document.getElementById('historyRequests');
+      
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => t.classList.remove('active'));
+          tab.classList.add('active');
+          
+          const tabName = tab.dataset.tab;
+          
+          pendingContainer.style.display = 'none';
+          acceptedContainer.style.display = 'none';
+          historyContainer.style.display = 'none';
+          
+          if (tabName === 'pending') {
+            pendingContainer.style.display = 'block';
+          } else if (tabName === 'accepted') {
+            acceptedContainer.style.display = 'block';
+          } else {
+            historyContainer.style.display = 'block';
+          }
+        });
+      });
+    }
+    
+    // Lancer au chargement
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
