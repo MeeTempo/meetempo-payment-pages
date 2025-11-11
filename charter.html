@@ -225,7 +225,7 @@
   <script>
   const API_BASE = 'https://api.meetempo.com';
   const params = new URLSearchParams(location.search);
-  const token = params.get('token') || '';
+  const token = params.get('session_token') || params.get('token') || '';
   const returnUrl = params.get('return_url') || 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
   const langParam = (params.get('lang') || 'fr').toLowerCase();
   const GPT_URL_FALLBACK = returnUrl;
@@ -257,9 +257,9 @@
 
   // API helper
   const j = (p,opt={}) => fetch(`${API_BASE}${p}`, {
-  ...opt,
-  headers: { "Content-Type":"application/json", ...(opt.headers||{}) }
-}).then(r=>r.json());
+    ...opt,
+    headers: { "Content-Type":"application/json", ...(opt.headers||{}) }
+  }).then(r=>r.json());
 
   function showDenied(msgFr, msgEn){
     stateFr.classList.remove('hidden'); stateEn.classList.remove('hidden');
@@ -271,10 +271,10 @@
   async function verifySession(){
     if(!token){ showDenied("❌ Token manquant.","❌ Missing token."); return false; }
     try{
-      const r = await fetch(`${API_BASE}/auth/session?token=${encodeURIComponent(token)}`);
+      const r = await fetch(`${API_BASE}/auth/check-session?session_token=${encodeURIComponent(token)}`);
       if(!r.ok){ showDenied("❌ Session expirée.","❌ Session expired."); return false; }
       const d = await r.json();
-      if(!d.user_id){ showDenied("❌ Session invalide.","❌ Invalid session."); return false; }
+      if(!d.valid){ showDenied("❌ Session invalide.","❌ Invalid session."); return false; }
       sessionStorage.setItem('meetempo_token', token);
       return true;
     }catch{
@@ -285,7 +285,7 @@
 
   async function loadConsent(){
     try{
-      const s = await j(`/consent/status?token=${encodeURIComponent(token)}`);
+      const s = await j(`/consent/status?session_token=${encodeURIComponent(token)}`);
       const accepted = !!s.accepted;
       chkFr.checked = accepted; chkEn.checked = accepted;
       if(accepted){
@@ -296,48 +296,48 @@
   }
 
   async function accept(lang){
-  const chk = lang==='fr'? chkFr : chkEn;
-  const state = lang==='fr'? stateFr : stateEn;
-  const btn = lang==='fr'? btnAccFr : btnAccEn;
-  
-  if(!chk.checked){ 
-    state.classList.remove('hidden','ok','err'); 
-    state.classList.add('err'); 
-    state.textContent = lang==='fr'?"Cochez la case pour accepter.":"Please tick the checkbox to accept."; 
-    return; 
-  }
-  
-  btn.disabled = true; 
-  state.classList.remove('hidden','ok','err'); 
-  state.textContent = lang==='fr'?"Enregistrement...":"Saving...";
-  
-  try{
-    const response = await fetch(`${API_BASE}/consent/accept`, {
-  method: "POST",
-  headers: { 
-    "Content-Type": "application/json"
-  },
-  body: JSON.stringify({ token })
-});
+    const chk = lang==='fr'? chkFr : chkEn;
+    const state = lang==='fr'? stateFr : stateEn;
+    const btn = lang==='fr'? btnAccFr : btnAccEn;
     
-    const r = await response.json();
-    
-    if(response.ok && r.success){
-      state.classList.add('ok'); 
-      state.textContent = lang==='fr'?"✅ Charte acceptée.":"✅ Charter accepted.";
-      setTimeout(()=>location.href = returnUrl || GPT_URL_FALLBACK, 800);
-    } else {
+    if(!chk.checked){ 
+      state.classList.remove('hidden','ok','err'); 
       state.classList.add('err'); 
-      state.textContent = lang==='fr'?`❌ Erreur: ${r.error || 'inconnue'}`:`❌ Error: ${r.error || 'unknown'}`;
+      state.textContent = lang==='fr'?"Cochez la case pour accepter.":"Please tick the checkbox to accept."; 
+      return; 
+    }
+    
+    btn.disabled = true; 
+    state.classList.remove('hidden','ok','err'); 
+    state.textContent = lang==='fr'?"Enregistrement...":"Saving...";
+    
+    try{
+      const response = await fetch(`${API_BASE}/consent/accept`, {
+        method: "POST",
+        headers: { 
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ token })
+      });
+      
+      const r = await response.json();
+      
+      if(response.ok && r.success){
+        state.classList.add('ok'); 
+        state.textContent = lang==='fr'?"✅ Charte acceptée.":"✅ Charter accepted.";
+        setTimeout(()=>location.href = returnUrl || GPT_URL_FALLBACK, 800);
+      } else {
+        state.classList.add('err'); 
+        state.textContent = lang==='fr'?`❌ Erreur: ${r.error || 'inconnue'}`:`❌ Error: ${r.error || 'unknown'}`;
+        btn.disabled = false;
+      }
+    } catch(err) {
+      console.error('Accept error:', err);
+      state.classList.add('err'); 
+      state.textContent = lang==='fr'?`❌ Erreur réseau: ${err.message}`:`❌ Network error: ${err.message}`;
       btn.disabled = false;
     }
-  } catch(err) {
-    console.error('Accept error:', err);
-    state.classList.add('err'); 
-    state.textContent = lang==='fr'?`❌ Erreur réseau: ${err.message}`:`❌ Network error: ${err.message}`;
-    btn.disabled = false;
   }
-}
 
   btnAccFr.onclick = ()=>accept('fr');
   btnAccEn.onclick = ()=>accept('en');
