@@ -603,10 +603,10 @@
           
           <div class="creator-section">
             <div class="creator-avatar">
-              ${creator.name.substring(0, 2).toUpperCase()}
+              ${creator.anonymous_initiales || creator.name.substring(0, 2).toUpperCase()}
             </div>
             <div class="creator-info">
-              <div class="creator-name">Créé par ${creator.name}</div>
+              <div class="creator-name">${creator.anonymous_display || creator.name}</div>
               <div class="creator-city">📍 ${creator.city}</div>
             </div>
           </div>
