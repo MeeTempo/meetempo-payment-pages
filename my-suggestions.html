@@ -668,10 +668,10 @@ function renderSuggestionCard(sugg, isExpired) {
                   >
                   <label for="req_${req.match_id}" style="display: flex; align-items: center; gap: 12px; flex: 1; cursor: pointer;">
                     <div class="request-avatar">
-                      ${req.user_name.substring(0, 2).toUpperCase()}
+                      ${req.anonymous_initiales || req.user_name.substring(0, 2).toUpperCase()}
                     </div>
                     <div class="request-info">
-                      <div class="request-name">${req.user_name}</div>
+                      <div class="request-name">${req.anonymous_display || req.user_name}</div>
                       <div class="request-city">📍 ${req.user_city}</div>
                     </div>
                     ${req.compatibility_score ? `
@@ -712,10 +712,10 @@ function renderSuggestionCard(sugg, isExpired) {
               ${acceptedRequests.map(req => `
                 <div class="request-item" style="opacity: 0.7;">
                   <div class="request-avatar">
-                    ${req.user_name.substring(0, 2).toUpperCase()}
+                    ${req.anonymous_initiales || req.user_name.substring(0, 2).toUpperCase()}
                   </div>
                   <div class="request-info">
-                    <div class="request-name">${req.user_name}</div>
+                    <div class="request-name">${req.anonymous_display || req.user_name}</div>
                     <div class="request-city">📍 ${req.user_city}</div>
                   </div>
                 </div>
