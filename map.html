@@ -904,8 +904,8 @@ if (sessionToken && !token) {
         listContainer.innerHTML = suggestionsData.map(sugg => `
   <div class="suggestion-item" onclick="highlightSuggestion('${sugg.id}')">
     <div class="suggestion-item-title">${escapeHTML(sugg.title)}</div>
-    <div class="suggestion-item-meta">
-      <span>👤 ${escapeHTML(sugg.user_pseudo)}</span>
+        <div class="suggestion-item-meta">
+      <span>${escapeHTML(sugg.user_anonymous_display || sugg.user_pseudo)}</span>
       <span>📍 ${sugg.distance_km} km</span>
       <span>🏙️ ${escapeHTML(sugg.city || sugg.location_name || '?')}</span>  // 🔥 FIX
     </div>
@@ -1855,9 +1855,9 @@ function addMarkersWithClustering(users, zoom = 13) {
   const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
     content: `
       <div style="padding: 12px; font-family: Montserrat, sans-serif; min-width: 220px; max-width: 300px;">
-        <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #030E4F;">
-          ${escapeHTML(user.pseudo)}
-        </div>
+          <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #030E4F;">
+            ${escapeHTML(user.anonymous_display || user.pseudo)}
+          </div>
         
         ${user.suggestion_activity ? `
           <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #030E4F;">
@@ -2130,8 +2130,9 @@ const dataPoints = dataSource.map((item, index) => {
         card.className = 'user-card';
         card.dataset.index = index;
         
-        const initials = escapeHTML(user.pseudo.substring(0, 2).toUpperCase());
-        const pseudo = escapeHTML(user.pseudo);
+        const displayName = user.anonymous_display || user.pseudo;
+        const initials = user.anonymous_initiales || escapeHTML(user.pseudo.substring(0, 2).toUpperCase());
+        const pseudo = escapeHTML(displayName);
         const suggestion = escapeHTML(user.latest_suggestion);
         const city = escapeHTML(user.city);
         const distance = user.distance ? `${user.distance} km` : 'À proximité';
