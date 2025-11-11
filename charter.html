@@ -323,10 +323,10 @@
       const r = await response.json();
       
       if(response.ok && r.success){
-        state.classList.add('ok'); 
-        state.textContent = lang==='fr'?"✅ Charte acceptée.":"✅ Charter accepted.";
-        setTimeout(()=>location.href = returnUrl || GPT_URL_FALLBACK, 800);
-      } else {
+  state.classList.add('ok'); 
+  state.textContent = lang==='fr'?"✅ Charte acceptée ! Retourne à ton onglet GPT.":"✅ Charter accepted! Return to your GPT tab.";
+  setTimeout(()=>window.close(), 1500);
+} else {
         state.classList.add('err'); 
         state.textContent = lang==='fr'?`❌ Erreur: ${r.error || 'inconnue'}`:`❌ Error: ${r.error || 'unknown'}`;
         btn.disabled = false;
