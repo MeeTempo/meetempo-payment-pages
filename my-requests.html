@@ -701,8 +701,10 @@ function backToGPT() {
 // 🆕 Afficher message expiration élégant
 function showTokenExpiredMessage() {
   // Cacher contenu principal
-  document.getElementById('suggestions-list').style.display = 'none';
-  document.getElementById('loading').style.display = 'none';
+const contentDiv = document.getElementById('content');
+const loadingDiv = document.getElementById('loading');
+if (contentDiv) contentDiv.style.display = 'none';
+if (loadingDiv) loadingDiv.style.display = 'none';
   
   // Afficher message expiration
   const container = document.querySelector('.container');
