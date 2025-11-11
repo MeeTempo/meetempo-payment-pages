@@ -654,62 +654,82 @@
     }
     
     // Voir suggestion sur carte (avec centrage)
-    async function viewSuggestionOnMap(suggestionId, lat, lng) {
-      const session_token = sessionStorage.getItem('meetempo_token');
-      
-      try {
-        // Générer elevated token (15min)
-        const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
-        
-        if (!response.ok) {
-          alert('❌ Impossible de générer le lien carte. Session expirée ?');
-          return;
-        }
-        
-        const data = await response.json();
-        
-        // Ouvrir carte centrée sur suggestion
-        window.open(`map.html?token=${data.token}&lat=${lat}&lng=${lng}&zoom=15&highlight=${suggestionId}`, '_blank');
-        
-      } catch (err) {
-        console.error('Erreur génération token carte:', err);
-        alert('❌ Erreur lors de l\'ouverture de la carte');
-      }
-    }
-    
-    // Navigation
-    function goToMySuggestions() {
-      const token = sessionStorage.getItem('meetempo_token');
-      window.location.href = `my-suggestions.html?token=${token}`;
-    }
-    
-    async function goToMap() {
-      const session_token = sessionStorage.getItem('meetempo_token');
-      
-      try {
-        const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
-        
-        if (!response.ok) {
-          alert('❌ Impossible de générer le lien carte. Session expirée ?');
-          return;
-        }
-        
-        const data = await response.json();
-        window.location.href = `map.html?token=${data.token}`;
-        
-      } catch (err) {
-        console.error('Erreur génération token carte:', err);
-        alert('❌ Erreur lors de l\'ouverture de la carte');
-      }
-    }
-    
-    function backToGPT() {
-      if (window.opener) {
-        window.close();
-      } else {
-        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-      }
-    }
+async function viewSuggestionOnMap(suggestionId, lat, lng) {
+  const token = sessionStorage.getItem('meetempo_token');
+  
+  if (!token) {
+    showTokenExpiredMessage();
+    return;
+  }
+  
+  // Réutiliser token existant (déjà elevated 15min)
+  window.open(`map.html?token=${token}&lat=${lat}&lng=${lng}&zoom=15&highlight=${suggestionId}`, '_blank');
+}
+
+// Navigation
+function goToMySuggestions() {
+  const token = sessionStorage.getItem('meetempo_token');
+  
+  if (!token) {
+    showTokenExpiredMessage();
+    return;
+  }
+  
+  window.location.href = `my-suggestions.html?token=${token}`;
+}
+
+async function goToMap() {
+  const token = sessionStorage.getItem('meetempo_token');
+  
+  if (!token) {
+    showTokenExpiredMessage();
+    return;
+  }
+  
+  // Réutiliser token existant (déjà elevated 15min)
+  window.location.href = `map.html?token=${token}`;
+}
+
+function backToGPT() {
+  if (window.opener) {
+    window.close();
+  } else {
+    window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+  }
+}
+
+// 🆕 Afficher message expiration élégant
+function showTokenExpiredMessage() {
+  // Cacher contenu principal
+  document.getElementById('suggestions-list').style.display = 'none';
+  document.getElementById('loading').style.display = 'none';
+  
+  // Afficher message expiration
+  const container = document.querySelector('.container');
+  container.innerHTML = `
+    <div style="text-align: center; padding: 40px 20px;">
+      <div style="font-size: 48px; margin-bottom: 20px;">⏱️</div>
+      <h2 style="color: var(--mt-text); margin-bottom: 16px;">Session expirée</h2>
+      <p style="color: var(--mt-muted); margin-bottom: 24px;">
+        Ton lien a expiré (durée 15 minutes).<br>
+        Retourne au GPT MeeTempo pour obtenir un nouveau lien.
+      </p>
+      <button onclick="backToGPT()" style="
+        background: var(--mt-accent);
+        color: #111;
+        border: none;
+        padding: 14px 28px;
+        border-radius: 12px;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        font-family: 'Montserrat', sans-serif;
+      ">
+        🤖 Retour au GPT
+      </button>
+    </div>
+  `;
+}
     
     // Tabs
     function setupTabs() {
