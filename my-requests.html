@@ -655,39 +655,59 @@
     
     // Voir suggestion sur carte (avec centrage)
 async function viewSuggestionOnMap(suggestionId, lat, lng) {
-  const token = sessionStorage.getItem('meetempo_token');
+  const session_token = sessionStorage.getItem('meetempo_token');
   
-  if (!token) {
+  if (!session_token) {
     showTokenExpiredMessage();
     return;
   }
   
-  // Réutiliser token existant (déjà elevated 15min)
-  window.open(`map.html?token=${token}&lat=${lat}&lng=${lng}&zoom=15&highlight=${suggestionId}`, '_blank');
-}
-
-// Navigation
-function goToMySuggestions() {
-  const token = sessionStorage.getItem('meetempo_token');
-  
-  if (!token) {
-    showTokenExpiredMessage();
-    return;
+  try {
+    // 🔥 NOUVEAU : Toujours générer elevated token (15min)
+    const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
+    
+    if (!response.ok) {
+      alert('❌ Impossible de générer le lien carte. Session expirée ?');
+      return;
+    }
+    
+    const data = await response.json();
+    
+    // Ouvrir carte avec elevated token
+    window.open(`map.html?token=${data.token}&lat=${lat}&lng=${lng}&zoom=15&highlight=${suggestionId}`, '_blank');
+    
+  } catch (err) {
+    console.error('Erreur génération token carte:', err);
+    alert('❌ Erreur lors de l\'ouverture de la carte');
   }
-  
-  window.location.href = `my-suggestions.html?token=${token}`;
 }
 
 async function goToMap() {
-  const token = sessionStorage.getItem('meetempo_token');
+  const session_token = sessionStorage.getItem('meetempo_token');
   
-  if (!token) {
+  if (!session_token) {
     showTokenExpiredMessage();
     return;
   }
   
-  // Réutiliser token existant (déjà elevated 15min)
-  window.location.href = `map.html?token=${token}`;
+  try {
+    // 🔥 NOUVEAU : Toujours générer elevated token (15min)
+    const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
+    
+    if (!response.ok) {
+      alert('❌ Impossible de générer le lien carte. Session expirée ?');
+      return;
+    }
+    
+    const data = await response.json();
+    
+    // Ouvrir carte avec elevated token
+    window.location.href = `map.html?token=${data.token}`;
+    
+  } catch (err) {
+    console.error('Erreur génération token carte:', err);
+    alert('❌ Erreur lors de l\'ouverture de la carte');
+  }
 }
 
 function backToGPT() {
