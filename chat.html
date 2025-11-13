@@ -633,25 +633,28 @@
     }
     
     function displayParticipants() {
-      const container = document.getElementById('participantsList');
-      
-      container.innerHTML = conversationData.participants.map(p => {
-        const initials = p.name.substring(0, 2).toUpperCase();
-        const badge = p.is_creator ? '<span class="participant-badge">👑 Créateur</span>' : '';
-        const isMe = p.is_me ? ' (Moi)' : '';
-        
-        return `
-          <div class="participant-item">
-            <div class="participant-avatar">${escapeHTML(initials)}</div>
-            <div class="participant-info">
-              <div class="participant-name">${escapeHTML(p.name)}${isMe}</div>
-              <div class="participant-city">📍 ${escapeHTML(p.city)}</div>
-            </div>
-            ${badge}
-          </div>
-        `;
-      }).join('');
-    }
+  const container = document.getElementById('participantsList');
+  
+  container.innerHTML = conversationData.participants.map(p => {
+    // 🔥 FIX : Utiliser initials si name null (anonymat)
+    const displayName = eventHappened && p.name ? p.name : p.initials;
+    const initials = p.initials || 'XX';
+    const badge = p.is_creator ? '<span class="participant-badge">👑 Créateur</span>' : '';
+    const isMe = p.is_me ? ' (Moi)' : '';
+    const cityText = eventHappened && p.city ? p.city : '?';
+    
+    return `
+      <div class="participant-item">
+        <div class="participant-avatar">${escapeHTML(initials)}</div>
+        <div class="participant-info">
+          <div class="participant-name">${escapeHTML(displayName)}${isMe}</div>
+          <div class="participant-city">📍 ${escapeHTML(cityText)}</div>
+        </div>
+        ${badge}
+      </div>
+    `;
+  }).join('');
+}
     
     function displayMessages() {
   const container = document.getElementById('messagesList');
