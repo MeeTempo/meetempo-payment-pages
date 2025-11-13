@@ -727,6 +727,11 @@ function renderSuggestionCard(sugg, isExpired) {
             <button class="btn btn-secondary btn-small" onclick="viewOnMap('${sugg.id}')">
               🗺️ Voir sur carte
             </button>
+            ${acceptedRequests.length > 0 && !isExpired ? `
+              <button class="btn btn-primary btn-small" onclick="goToChat('${sugg.id}')">
+                💬 Chat groupe
+              </button>
+            ` : ''}
             ${!isExpired ? `
               <button class="btn btn-danger btn-small" onclick="deleteSuggestion('${sugg.id}')">
                 🗑️ Supprimer
@@ -916,6 +921,19 @@ function renderSuggestionCard(sugg, isExpired) {
       const token = sessionStorage.getItem('meetempo_token');
       window.location.href = `my-requests.html?token=${token}`;
     }
+
+    // 🔥 NOUVEAU : Accéder au chat groupe
+function goToChat(suggestionId) {
+  const session_token = sessionStorage.getItem('meetempo_token');
+  
+  if (!session_token) {
+    alert('❌ Session expirée. Veuillez vous reconnecter.');
+    window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+    return;
+  }
+  
+  window.location.href = `chat.html?suggestion_id=${suggestionId}&session_token=${session_token}`;
+}
     
     // Lancer au chargement
     window.addEventListener('DOMContentLoaded', init);
