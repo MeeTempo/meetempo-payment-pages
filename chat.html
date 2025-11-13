@@ -389,6 +389,62 @@
       font-weight: 600;
       color: var(--mt-accent);
     }
+
+    /* Messages GPT */
+.message-gpt .bubble {
+  background: rgba(244, 159, 28, 0.1);
+  border-left: 3px solid var(--mt-accent);
+}
+
+.message-gpt .name::before {
+  content: '🤖 ';
+}
+
+/* Banner révélation */
+.revelation-banner {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  margin: 24px 0;
+  background: linear-gradient(90deg, rgba(244,159,28,0.1) 0%, rgba(244,159,28,0.2) 50%, rgba(244,159,28,0.1) 100%);
+  border-radius: 12px;
+  border: 1px solid rgba(244,159,28,0.3);
+}
+
+.revelation-icon {
+  font-size: 24px;
+}
+
+.revelation-text {
+  text-align: center;
+  font-size: 14px;
+  color: var(--mt-text);
+}
+
+.revelation-text strong {
+  display: block;
+  font-size: 16px;
+  color: var(--mt-accent);
+  margin-bottom: 4px;
+}
+
+/* Input désactivé */
+.input-disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.archived-notice {
+  text-align: center;
+  padding: 12px;
+  background: rgba(148, 163, 184, 0.2);
+  border-radius: 8px;
+  margin-bottom: 16px;
+  color: var(--mt-muted);
+  font-size: 13px;
+}
     
     /* Responsive */
     @media (max-width: 640px) {
@@ -462,6 +518,9 @@
     let currentUserId = null;
     let conversationData = null;
     let pollInterval = null;
+    let eventHappened = false;
+    let isActive = true;
+    let revelationShown = false;
     
     if (!suggestion_id || !session_token) {
       showError('Paramètres manquants', 'suggestion_id et session_token requis');
@@ -525,6 +584,27 @@
         if (currentParticipant) {
           currentUserId = currentParticipant.id;
         }
+
+        // 🔥 NOUVEAU : Infos révélation
+        eventHappened = conversationData.event_happened || false;
+        isActive = conversationData.can_send_messages !== false;
+
+        // Désactiver input si archivé
+        if (!isActive) {
+          document.getElementById('messageInput').disabled = true;
+          document.getElementById('sendBtn').disabled = true;
+          
+          // Afficher notice
+          setTimeout(() => {
+            const inputContainer = document.getElementById('chatInputContainer');
+            if (inputContainer) {
+              const notice = document.createElement('div');
+              notice.className = 'archived-notice';
+              notice.innerHTML = '🔒 Chat archivé - Lecture seule (événement passé depuis plus de 10 jours)';
+              inputContainer.insertBefore(notice, inputContainer.firstChild);
+            }
+          }, 100);
+        }
         
         // Afficher UI
         document.getElementById('loading').style.display = 'none';
@@ -574,44 +654,98 @@
     }
     
     function displayMessages() {
-      const container = document.getElementById('messagesContainer');
+  const container = document.getElementById('messagesList');
+  
+  if (!messages || messages.length === 0) {
+    container.innerHTML = '<div class="empty-chat">Aucun message</div>';
+    return;
+  }
+  
+  let html = '';
+  let bannerAdded = false;
+  
+  conversationData.messages.forEach((msg, index) => {
+    // 🔥 NOUVEAU : Insérer banner révélation
+    if (eventHappened && !bannerAdded) {
+      // Chercher premier message APRÈS événement
+      const eventDate = suggestionData.date ? new Date(suggestionData.date).getTime() : 0;
       
-      if (!conversationData.messages || conversationData.messages.length === 0) {
-        container.innerHTML = `
-          <div class="empty-state">
-            <div class="empty-icon">💬</div>
-            <div style="font-weight: 600; margin-bottom: 8px;">Aucun message</div>
-            <div style="font-size: 14px;">Sois le premier à écrire !</div>
-          </div>
-        `;
-        return;
-      }
-      
-      container.innerHTML = conversationData.messages.map(msg => {
-        const participant = conversationData.participants.find(p => p.id === msg.from_user);
-        const isMe = msg.from_user === currentUserId;
-        const initials = participant ? participant.name.substring(0, 2).toUpperCase() : '??';
-        const authorName = participant ? participant.name : 'Utilisateur';
-        
-        return `
-          <div class="message ${isMe ? 'me' : ''}">
-            <div class="message-avatar">${escapeHTML(initials)}</div>
-            <div class="message-content">
-              <div class="message-header">
-                <span class="message-author">${escapeHTML(authorName)}</span>
-                <span class="message-time">${formatTime(msg.timestamp)}</span>
-              </div>
-              <div class="message-bubble">
-                ${escapeHTML(msg.message)}
-              </div>
+      if (msg.timestamp > eventDate) {
+        html += `
+          <div class="revelation-banner">
+            <div class="revelation-icon">🔓</div>
+            <div class="revelation-text">
+              <strong>Identités révélées</strong>
+              La rencontre a eu lieu le ${new Date(eventDate).toLocaleDateString('fr-FR')}
             </div>
           </div>
         `;
-      }).join('');
-      
-      // Scroll en bas
-      container.scrollTop = container.scrollHeight;
+        bannerAdded = true;
+      }
     }
+    
+    // Déterminer type message
+    const isGPT = msg.type === 'gpt' || msg.from_user === 'gpt_assistant';
+    const ownerId = isGPT ? msg.owner_user_id : msg.from_user;
+    const isMe = ownerId === currentUser?.id;
+    
+    // Trouver participant
+    const participant = participants.find(p => p.id === ownerId) || {};
+    
+    // Nom à afficher
+    let displayName;
+    if (isMe) {
+      displayName = 'Moi';
+    } else if (eventHappened && participant.name) {
+      displayName = participant.name;
+    } else {
+      displayName = participant.initials || 'XX';
+    }
+    
+    // Label GPT
+    let gptLabel = '';
+    if (isGPT) {
+      if (isMe) {
+        gptLabel = 'Moi via GPT';
+      } else if (eventHappened && participant.name) {
+        gptLabel = `${participant.name} via GPT`;
+      } else {
+        gptLabel = `${participant.initials || 'XX'} via GPT`;
+      }
+    }
+    
+    // Time
+    const time = new Date(msg.timestamp).toLocaleTimeString('fr-FR', { 
+      hour: '2-digit', 
+      minute: '2-digit' 
+    });
+    
+    // Classe alignement
+    const align = isMe ? 'message-right' : 'message-left';
+    const gptClass = isGPT ? 'message-gpt' : '';
+    
+    html += `
+      <div class="message ${align} ${gptClass}">
+        ${!isMe ? `<div class="avatar">${participant.avatar || '👤'}</div>` : ''}
+        <div class="bubble">
+          <div class="name">${isGPT ? gptLabel : displayName}</div>
+          <div class="text">${escapeHtml(msg.message)}</div>
+          <div class="time">${time}</div>
+        </div>
+        ${isMe ? `<div class="avatar">${currentUser?.avatar || '👤'}</div>` : ''}
+      </div>
+    `;
+  });
+  
+  container.innerHTML = html;
+  container.scrollTop = container.scrollHeight;
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
     
     async function sendMessage() {
       const input = document.getElementById('messageInput');
