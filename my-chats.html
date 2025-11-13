@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Conversations - MeeTempo</title>
+  <meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; 
+               img-src https: data:; 
+               script-src 'self' 'unsafe-inline'; 
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+               font-src https://fonts.gstatic.com; 
+               connect-src https://api.meetempo.com;">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --mt-dark: #030E4F;
+      --mt-accent: #F49F1C;
+      --mt-bg: #0a133f;
+      --mt-text: #ffffff;
+      --mt-muted: #c9d1ff;
+      --ok: #23c55e;
+      --archived: #94a3b8;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Montserrat, system-ui, sans-serif;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      color: var(--mt-text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .logo-badge {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-weight: 800;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      font-size: 16px;
+      color: var(--mt-muted);
+    }
+    
+    /* Chat Card */
+    .chat-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      cursor: pointer;
+      transition: all 0.3s;
+      position: relative;
+    }
+    
+    .chat-card:hover {
+      transform: translateY(-2px);
+      background: rgba(255,255,255,0.12);
+      box-shadow: 0 8px 32px rgba(244,159,28,0.2);
+    }
+    
+    .chat-card.archived {
+      opacity: 0.7;
+    }
+    
+    .chat-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 12px;
+    }
+    
+    .chat-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--mt-text);
+      margin-bottom: 6px;
+    }
+    
+    .chat-status {
+      font-size: 20px;
+    }
+    
+    .chat-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 13px;
+      color: var(--mt-muted);
+      margin-bottom: 12px;
+    }
+    
+    .chat-preview {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      color: var(--mt-muted);
+    }
+    
+    .chat-preview-name {
+      font-weight: 600;
+      color: var(--mt-accent);
+    }
+    
+    .chat-time {
+      margin-left: auto;
+      font-size: 12px;
+      color: var(--mt-muted);
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: var(--mt-accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .empty {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--mt-muted);
+    }
+    
+    .empty-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 14px;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      background: rgba(255,255,255,0.1);
+      color: var(--mt-text);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .btn:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    @media (max-width: 640px) {
+      .chat-meta {
+        flex-direction: column;
+        gap: 4px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <div class="logo-badge">MT</div>
+      <h1>💬 Mes Conversations</h1>
+      <p class="subtitle">Tous vos chats de groupe</p>
+    </div>
+    
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <div>Chargement...</div>
+    </div>
+    
+    <div id="content" style="display:none;">
+      <div id="chatsList"></div>
+      
+      <div id="emptyState" class="empty" style="display:none;">
+        <div class="empty-icon">💬</div>
+        <div style="font-weight: 600; margin-bottom: 8px;">Aucune conversation</div>
+        <div style="font-size: 14px;">Vos chats de groupe apparaîtront ici</div>
+      </div>
+    </div>
+    
+    <div class="actions">
+      <button class="btn" onclick="goToMySuggestions()">
+        📋 Mes suggestions
+      </button>
+      <button class="btn" onclick="goToMap()">
+        🗺️ Carte
+      </button>
+      <button class="btn" onclick="backToGPT()">
+        💬 GPT
+      </button>
+    </div>
+  </div>
+  
+  <script>
+    const API_BASE = 'https://api.meetempo.com';
+    
+    async function init() {
+      const urlParams = new URLSearchParams(window.location.search);
+      let token = urlParams.get('token');
+      
+      if (!token) {
+        token = sessionStorage.getItem('meetempo_token');
+      }
+      
+      if (!token) {
+        alert('Session expirée');
+        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        return;
+      }
+      
+      sessionStorage.setItem('meetempo_token', token);
+      
+      await loadChats(token);
+    }
+    
+    async function loadChats(token) {
+      try {
+        document.getElementById('loading').style.display = 'block';
+        document.getElementById('content').style.display = 'none';
+        
+        const response = await fetch(`${API_BASE}/user/chats?session_token=${token}`);
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Erreur chargement');
+        }
+        
+        renderChats(data.chats || []);
+        
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        
+      } catch (err) {
+        console.error('Erreur:', err);
+        alert('Erreur chargement conversations: ' + err.message);
+      }
+    }
+    
+    function renderChats(chats) {
+      const container = document.getElementById('chatsList');
+      const emptyState = document.getElementById('emptyState');
+      
+      if (chats.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+      
+      emptyState.style.display = 'none';
+      
+      container.innerHTML = chats.map(chat => {
+        const statusIcon = chat.status === 'active' ? '🟢' : '🔒';
+        const date = chat.date ? new Date(chat.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '';
+        const time = chat.time || '';
+        
+        let lastMsgText = '';
+        if (chat.last_message) {
+          const msgType = chat.last_message.type === 'gpt' ? '🤖 ' : '';
+          lastMsgText = msgType + (chat.last_message.text || '').substring(0, 50);
+          if (chat.last_message.text && chat.last_message.text.length > 50) {
+            lastMsgText += '...';
+          }
+        }
+        
+        const timeAgo = chat.last_message ? formatTimeAgo(chat.last_message.timestamp) : '';
+        
+        return `
+          <div class="chat-card ${chat.status === 'archived' ? 'archived' : ''}" onclick="openChat('${chat.suggestion_id}')">
+            <div class="chat-header">
+              <div>
+                <div class="chat-title">${chat.title}</div>
+                <div class="chat-meta">
+                  <span>👥 ${chat.participants_count} participants</span>
+                  ${chat.city ? `<span>📍 ${chat.city}</span>` : ''}
+                  ${date ? `<span>📅 ${date} ${time}</span>` : ''}
+                </div>
+              </div>
+              <div class="chat-status">${statusIcon}</div>
+            </div>
+            
+            ${lastMsgText ? `
+              <div class="chat-preview">
+                <span>${lastMsgText}</span>
+                <span class="chat-time">${timeAgo}</span>
+              </div>
+            ` : ''}
+          </div>
+        `;
+      }).join('');
+    }
+    
+    function formatTimeAgo(timestamp) {
+      const now = Date.now();
+      const diff = now - timestamp;
+      const minutes = Math.floor(diff / 60000);
+      const hours = Math.floor(diff / 3600000);
+      const days = Math.floor(diff / 86400000);
+      
+      if (minutes < 1) return "À l'instant";
+      if (minutes < 60) return `Il y a ${minutes} min`;
+      if (hours < 24) return `Il y a ${hours}h`;
+      if (days === 1) return "Hier";
+      if (days < 7) return `Il y a ${days}j`;
+      
+      return new Date(timestamp).toLocaleDateString('fr-FR');
+    }
+    
+    function openChat(suggestionId) {
+      const token = sessionStorage.getItem('meetempo_token');
+      window.location.href = `chat.html?suggestion_id=${suggestionId}&session_token=${token}`;
+    }
+    
+    function goToMySuggestions() {
+      const token = sessionStorage.getItem('meetempo_token');
+      window.location.href = `my-suggestions.html?token=${token}`;
+    }
+    
+    async function goToMap() {
+      const token = sessionStorage.getItem('meetempo_token');
+      try {
+        const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${token}`);
+        const data = await response.json();
+        window.location.href = `map.html?token=${data.token}`;
+      } catch (err) {
+        alert('Erreur ouverture carte');
+      }
+    }
+    
+    function backToGPT() {
+      window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+    }
+    
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
