@@ -657,9 +657,9 @@
 }
     
     function displayMessages() {
-  const container = document.getElementById('messagesList');
+  const container = document.getElementById('messagesContainer');
   
-  if (!messages || messages.length === 0) {
+  if (!conversationData.messages || conversationData.messages.length === 0) {
     container.innerHTML = '<div class="empty-chat">Aucun message</div>';
     return;
   }
@@ -670,8 +670,7 @@
   conversationData.messages.forEach((msg, index) => {
     // 🔥 NOUVEAU : Insérer banner révélation
     if (eventHappened && !bannerAdded) {
-      // Chercher premier message APRÈS événement
-      const eventDate = suggestionData.date ? new Date(suggestionData.date).getTime() : 0;
+      const eventDate = conversationData.suggestion.date ? new Date(conversationData.suggestion.date).getTime() : 0;
       
       if (msg.timestamp > eventDate) {
         html += `
@@ -690,10 +689,8 @@
     // Déterminer type message
     const isGPT = msg.type === 'gpt' || msg.from_user === 'gpt_assistant';
     const ownerId = isGPT ? msg.owner_user_id : msg.from_user;
-    const isMe = ownerId === currentUser?.id;
-    
-    // Trouver participant
-    const participant = participants.find(p => p.id === ownerId) || {};
+    const participant = conversationData.participants.find(p => p.id === ownerId) || {};
+    const isMe = ownerId === currentUserId;
     
     // Nom à afficher
     let displayName;
@@ -724,18 +721,24 @@
     });
     
     // Classe alignement
-    const align = isMe ? 'message-right' : 'message-left';
+    const align = isMe ? 'me' : '';
     const gptClass = isGPT ? 'message-gpt' : '';
+    
+    // Initiales
+    const initials = participant.initials || 'XX';
     
     html += `
       <div class="message ${align} ${gptClass}">
-        ${!isMe ? `<div class="avatar">${participant.avatar || '👤'}</div>` : ''}
-        <div class="bubble">
-          <div class="name">${isGPT ? gptLabel : displayName}</div>
-          <div class="text">${escapeHtml(msg.message)}</div>
-          <div class="time">${time}</div>
+        <div class="message-avatar">${escapeHTML(initials)}</div>
+        <div class="message-content">
+          <div class="message-header">
+            <span class="message-author">${escapeHTML(isGPT ? gptLabel : displayName)}</span>
+            <span class="message-time">${time}</span>
+          </div>
+          <div class="message-bubble">
+            ${escapeHTML(msg.message)}
+          </div>
         </div>
-        ${isMe ? `<div class="avatar">${currentUser?.avatar || '👤'}</div>` : ''}
       </div>
     `;
   });
