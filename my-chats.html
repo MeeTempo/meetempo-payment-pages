@@ -176,6 +176,101 @@
       gap: 12px;
       margin-top: 24px;
     }
+
+    /* 🔥 NOUVEAU : Badge unread */
+    .unread-badge {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--mt-accent);
+      color: #111;
+      font-size: 12px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 12px;
+      min-width: 24px;
+      text-align: center;
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+
+    /* 🔥 NOUVEAU : Badge feedback */
+    .feedback-badge {
+      background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+      color: white;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 6px 12px;
+      border-radius: 8px;
+      margin-top: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .feedback-badge:hover {
+      transform: translateX(4px);
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    }
+
+    /* 🔥 NOUVEAU : Filtres */
+    .filters {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+      justify-content: center;
+    }
+
+    .filter-btn {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+      color: var(--mt-text);
+    }
+
+    .filter-btn.active {
+      background: var(--mt-accent);
+      border-color: var(--mt-accent);
+      color: #111;
+    }
+
+    .filter-btn:hover:not(.active) {
+      background: rgba(255,255,255,0.12);
+    }
+
+    /* 🔥 NOUVEAU : Stats header */
+    .stats-header {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 24px;
+      font-size: 14px;
+      color: var(--mt-muted);
+    }
+
+    .stat-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .stat-value {
+      font-weight: 700;
+      font-size: 18px;
+      color: var(--mt-accent);
+    }
     
     .btn {
       flex: 1;
@@ -207,10 +302,42 @@
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo-badge">MT</div>
-      <h1>💬 Mes Conversations</h1>
-      <p class="subtitle">Tous vos chats de groupe</p>
+  <div class="logo-badge">MT</div>
+  <h1>💬 Mes Conversations</h1>
+  <p class="subtitle">Tous vos chats de groupe</p>
+  
+  <!-- 🔥 NOUVEAU : Stats -->
+  <div class="stats-header" id="statsHeader" style="display: none;">
+    <div class="stat-item">
+      <span>📊 Total</span>
+      <span class="stat-value" id="statTotal">0</span>
     </div>
+    <div class="stat-item">
+      <span>🟢 Actifs</span>
+      <span class="stat-value" id="statActive">0</span>
+    </div>
+    <div class="stat-item">
+      <span>🔔 Non lus</span>
+      <span class="stat-value" id="statUnread">0</span>
+    </div>
+  </div>
+  
+  <!-- 🔥 NOUVEAU : Filtres -->
+  <div class="filters" id="filters" style="display: none;">
+    <button class="filter-btn active" onclick="filterChats('all')">
+      📋 Tous
+    </button>
+    <button class="filter-btn" onclick="filterChats('active')">
+      🟢 Actifs
+    </button>
+    <button class="filter-btn" onclick="filterChats('unread')">
+      🔔 Non lus
+    </button>
+    <button class="filter-btn" onclick="filterChats('archived')">
+      🔒 Archivés
+    </button>
+  </div>
+</div>
     
     <div id="loading" class="loading">
       <div class="spinner"></div>
@@ -242,6 +369,11 @@
   
   <script>
     const API_BASE = 'https://api.meetempo.com';
+
+    // 🔥 NOUVEAU : Variables globales
+    let allChats = [];
+    let currentFilter = 'all';
+    let autoRefreshInterval = null;
     
     async function init() {
       const urlParams = new URLSearchParams(window.location.search);
@@ -260,6 +392,39 @@
       sessionStorage.setItem('meetempo_token', token);
       
       await loadChats(token);
+
+      sessionStorage.setItem('meetempo_token', token);
+
+await loadChats(token);
+
+// 🔥 NOUVEAU : Auto-refresh toutes les 30s
+if (autoRefreshInterval) {
+  clearInterval(autoRefreshInterval);
+}
+
+autoRefreshInterval = setInterval(async () => {
+  try {
+    const response = await fetch(`${API_BASE}/user/chats?session_token=${token}`);
+    const data = await response.json();
+    
+    if (response.ok) {
+      const oldUnreadCount = allChats.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+      const newUnreadCount = (data.chats || []).reduce((sum, c) => sum + (c.unread_count || 0), 0);
+      
+      // Si nouveaux messages non lus, mettre à jour
+      if (newUnreadCount > oldUnreadCount) {
+        allChats = data.chats || [];
+        filterChats(currentFilter); // Réappliquer filtre actif
+        updateStats();
+        console.log('🔔 Nouveaux messages détectés');
+      }
+    }
+  } catch (err) {
+    console.error('Erreur auto-refresh:', err);
+  }
+}, 30000); // 30 secondes
+
+}
     }
     
     async function loadChats(token) {
@@ -274,7 +439,10 @@
           throw new Error(data.error || 'Erreur chargement');
         }
         
-        renderChats(data.chats || []);
+        // 🔥 NOUVEAU : Stocker + afficher
+        allChats = data.chats || [];
+        renderChats(allChats);
+        updateStats();
         
         document.getElementById('loading').style.display = 'none';
         document.getElementById('content').style.display = 'block';
@@ -286,57 +454,125 @@
     }
     
     function renderChats(chats) {
-      const container = document.getElementById('chatsList');
-      const emptyState = document.getElementById('emptyState');
-      
-      if (chats.length === 0) {
-        container.innerHTML = '';
-        emptyState.style.display = 'block';
-        return;
+  const container = document.getElementById('chatsList');
+  const emptyState = document.getElementById('emptyState');
+  
+  if (chats.length === 0) {
+    container.innerHTML = '';
+    emptyState.style.display = 'block';
+    return;
+  }
+  
+  emptyState.style.display = 'none';
+  
+  container.innerHTML = chats.map(chat => {
+    const statusIcon = chat.status === 'active' ? '🟢' : '🔒';
+    const date = chat.date ? new Date(chat.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '';
+    const time = chat.time || '';
+    
+    let lastMsgText = '';
+    if (chat.last_message) {
+      const msgType = chat.last_message.type === 'gpt' ? '🤖 ' : '';
+      lastMsgText = msgType + (chat.last_message.text || '').substring(0, 50);
+      if (chat.last_message.text && chat.last_message.text.length > 50) {
+        lastMsgText += '...';
       }
-      
-      emptyState.style.display = 'none';
-      
-      container.innerHTML = chats.map(chat => {
-        const statusIcon = chat.status === 'active' ? '🟢' : '🔒';
-        const date = chat.date ? new Date(chat.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '';
-        const time = chat.time || '';
-        
-        let lastMsgText = '';
-        if (chat.last_message) {
-          const msgType = chat.last_message.type === 'gpt' ? '🤖 ' : '';
-          lastMsgText = msgType + (chat.last_message.text || '').substring(0, 50);
-          if (chat.last_message.text && chat.last_message.text.length > 50) {
-            lastMsgText += '...';
-          }
-        }
-        
-        const timeAgo = chat.last_message ? formatTimeAgo(chat.last_message.timestamp) : '';
-        
-        return `
-          <div class="chat-card ${chat.status === 'archived' ? 'archived' : ''}" onclick="openChat('${chat.suggestion_id}')">
-            <div class="chat-header">
-              <div>
-                <div class="chat-title">${chat.title}</div>
-                <div class="chat-meta">
-                  <span>👥 ${chat.participants_count} participants</span>
-                  ${chat.city ? `<span>📍 ${chat.city}</span>` : ''}
-                  ${date ? `<span>📅 ${date} ${time}</span>` : ''}
-                </div>
-              </div>
-              <div class="chat-status">${statusIcon}</div>
-            </div>
-            
-            ${lastMsgText ? `
-              <div class="chat-preview">
-                <span>${lastMsgText}</span>
-                <span class="chat-time">${timeAgo}</span>
-              </div>
-            ` : ''}
-          </div>
-        `;
-      }).join('');
     }
+    
+    const timeAgo = chat.last_message ? formatTimeAgo(chat.last_message.timestamp) : '';
+    
+    // 🔥 NOUVEAU : Badge unread
+    const unreadBadge = chat.unread_count > 0 ? 
+      `<span class="unread-badge">${chat.unread_count}</span>` : '';
+    
+    // 🔥 NOUVEAU : Badge feedback
+    const feedbackBadge = chat.can_give_feedback ? 
+      `<div class="feedback-badge" onclick="event.stopPropagation(); openFeedback('${chat.suggestion_id}')">
+        ⭐ Donner ton avis
+      </div>` : '';
+    
+    return `
+      <div class="chat-card ${chat.status === 'archived' ? 'archived' : ''}" onclick="openChat('${chat.suggestion_id}')" style="position: relative;">
+        ${unreadBadge}
+        <div class="chat-header">
+          <div>
+            <div class="chat-title">${escapeHtml(chat.title)}</div>
+            <div class="chat-meta">
+              <span>👥 ${chat.participants_count} participants</span>
+              ${chat.city ? `<span>📍 ${escapeHtml(chat.city)}</span>` : ''}
+              ${date ? `<span>📅 ${date} ${time}</span>` : ''}
+            </div>
+          </div>
+          <div class="chat-status">${statusIcon}</div>
+        </div>
+        
+        ${lastMsgText ? `
+          <div class="chat-preview">
+            <span>${escapeHtml(lastMsgText)}</span>
+            <span class="chat-time">${timeAgo}</span>
+          </div>
+        ` : ''}
+        
+        ${feedbackBadge}
+      </div>
+    `;
+  }).join('');
+}
+
+// 🔥 NOUVEAU : Mettre à jour statistiques
+function updateStats() {
+  const total = allChats.length;
+  const active = allChats.filter(c => c.status === 'active').length;
+  const unread = allChats.filter(c => c.unread_count > 0).length;
+  
+  document.getElementById('statTotal').textContent = total;
+  document.getElementById('statActive').textContent = active;
+  document.getElementById('statUnread').textContent = unread;
+  
+  // Afficher stats si chats existent
+  if (total > 0) {
+    document.getElementById('statsHeader').style.display = 'flex';
+    document.getElementById('filters').style.display = 'flex';
+  }
+}
+
+// 🔥 NOUVEAU : Filtrer conversations
+function filterChats(filter) {
+  currentFilter = filter;
+  
+  // Mettre à jour boutons actifs
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.classList.remove('active');
+  });
+  event.target.classList.add('active');
+  
+  // Filtrer
+  let filtered = allChats;
+  
+  switch(filter) {
+    case 'active':
+      filtered = allChats.filter(c => c.status === 'active');
+      break;
+    case 'unread':
+      filtered = allChats.filter(c => c.unread_count > 0);
+      break;
+    case 'archived':
+      filtered = allChats.filter(c => c.status === 'archived');
+      break;
+    case 'all':
+    default:
+      filtered = allChats;
+  }
+  
+  renderChats(filtered);
+}
+
+// 🔥 NOUVEAU : Fonction escape HTML
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
     
     function formatTimeAgo(timestamp) {
       const now = Date.now();
@@ -357,6 +593,12 @@
     function openChat(suggestionId) {
       const token = sessionStorage.getItem('meetempo_token');
       window.location.href = `chat.html?suggestion_id=${suggestionId}&session_token=${token}`;
+    }
+
+    // 🔥 NOUVEAU : Ouvrir feedback
+    function openFeedback(suggestionId) {
+      const token = sessionStorage.getItem('meetempo_token');
+      window.location.href = `feedback.html?suggestion_id=${suggestionId}&session_token=${token}`;
     }
     
     function goToMySuggestions() {
@@ -380,6 +622,15 @@
     }
     
     window.addEventListener('DOMContentLoaded', init);
+
+    window.addEventListener('DOMContentLoaded', init);
+
+// 🔥 NOUVEAU : Cleanup au unload
+window.addEventListener('beforeunload', () => {
+  if (autoRefreshInterval) {
+    clearInterval(autoRefreshInterval);
+  }
+});
   </script>
 </body>
 </html>
