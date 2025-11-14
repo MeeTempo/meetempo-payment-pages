@@ -586,6 +586,7 @@
     let lastMessageCount = 0;
     let isAtBottom = true;
     let userScrolled = false;
+    let pollingStarted = false;
     
     if (!suggestion_id || !session_token) {
       showError('Paramètres manquants', 'suggestion_id et session_token requis');
@@ -756,11 +757,14 @@ function updateNewMessagesBadge() {
         
         // Afficher messages
         displayMessages();
-        
-        // Démarrer polling (refresh toutes les 5s)
-        startPolling();
 
-        // 🔥 NOUVEAU : Marquer comme lu au chargement initial
+        // 🔥 Ne démarrer le polling qu'une seule fois
+        if (!pollingStarted) {
+          pollingStarted = true;
+          startPolling();
+        }
+
+        // Marquer comme lu au chargement initial
         await markAsRead();
 
         } catch (err) {
@@ -1019,10 +1023,10 @@ async function markAsRead() {
     
     // Cleanup au unload
     window.addEventListener('beforeunload', () => {
-      if (pollInterval) {
-        clearInterval(pollInterval);
-      }
-    });
+  if (pollInterval) {
+    clearTimeout(pollInterval); // ← Correct
+  }
+});
     
     // Init
     loadConversation();
