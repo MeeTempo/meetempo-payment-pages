@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Feedback - MeeTempo</title>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --mt-dark: #030E4F;
+      --mt-accent: #F49F1C;
+      --mt-bg: #0a133f;
+      --mt-text: #ffffff;
+      --mt-muted: #c9d1ff;
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Montserrat, sans-serif;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      color: var(--mt-text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    
+    .logo-badge {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-weight: 800;
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+    
+    h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      font-size: 16px;
+      color: var(--mt-muted);
+    }
+    
+    .card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 20px;
+    }
+    
+    .suggestion-info {
+      margin-bottom: 24px;
+    }
+    
+    .suggestion-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--mt-accent);
+    }
+    
+    .suggestion-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 14px;
+      color: var(--mt-muted);
+    }
+    
+    .private-notice {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .private-icon {
+      font-size: 24px;
+    }
+    
+    .private-text {
+      flex: 1;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    
+    .gpt-suggestion {
+      background: rgba(244, 159, 28, 0.15);
+      border: 1px solid rgba(244, 159, 28, 0.3);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+    
+    .gpt-suggestion-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+    }
+    
+    .gpt-suggestion-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--mt-text);
+    }
+    
+    .gpt-suggestion-text strong {
+      color: var(--mt-accent);
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--mt-text);
+    }
+    
+    .helper-text {
+      font-size: 13px;
+      color: var(--mt-muted);
+      margin-top: 8px;
+      font-style: italic;
+    }
+    
+    textarea {
+      width: 100%;
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 16px;
+      font-size: 15px;
+      font-family: inherit;
+      color: var(--mt-text);
+      outline: none;
+      transition: all 0.2s;
+      resize: vertical;
+      min-height: 150px;
+      line-height: 1.6;
+    }
+    
+    textarea:focus {
+      border-color: var(--mt-accent);
+      background: rgba(255,255,255,0.12);
+    }
+    
+    textarea::placeholder {
+      color: var(--mt-muted);
+    }
+    
+    .char-counter {
+      text-align: right;
+      font-size: 12px;
+      color: var(--mt-muted);
+      margin-top: 8px;
+    }
+    
+    .char-counter.warning {
+      color: #f59e0b;
+    }
+    
+    .char-counter.danger {
+      color: #ef4444;
+    }
+    
+    .actions {
+      display: flex;
+      gap: 12px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 16px;
+      border: none;
+      border-radius: 12px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-family: inherit;
+    }
+    
+    .btn-primary {
+      background: var(--mt-accent);
+      color: #111;
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(244,159,28,0.4);
+    }
+    
+    .btn-primary:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: var(--mt-text);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: var(--mt-accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .success {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .success-icon {
+      font-size: 80px;
+      margin-bottom: 24px;
+    }
+    
+    .success-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    .success-text {
+      font-size: 16px;
+      color: var(--mt-muted);
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Loading -->
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <div>Chargement...</div>
+    </div>
+    
+    <!-- Main Content -->
+    <div id="content" style="display: none;">
+      <div class="header">
+        <div class="logo-badge">MT</div>
+        <h1>💬 Ton Avis Compte</h1>
+        <p class="subtitle">Partage ton expérience de manière libre</p>
+      </div>
+      
+      <!-- Suggestion Info -->
+      <div class="card">
+        <div class="suggestion-info" id="suggestionInfo">
+          <!-- Dynamique -->
+        </div>
+        
+        <!-- Notice privée -->
+        <div class="private-notice">
+          <div class="private-icon">🔒</div>
+          <div class="private-text">
+            <strong>100% privé et confidentiel</strong><br>
+            Ton feedback n'est visible par personne d'autre. Il nous aide à améliorer MeeTempo.
+          </div>
+        </div>
+        
+        <!-- Suggestion GPT -->
+        <div class="gpt-suggestion">
+          <div class="gpt-suggestion-icon">💡</div>
+          <div class="gpt-suggestion-text">
+            <strong>Astuce :</strong> Tu peux aussi donner ton avis directement au <strong>GPT MeeTempo</strong> de manière conversationnelle !<br>
+            Exemple : <em>"La rencontre s'est bien passée, mais le lieu était bruyant. Note : 7/10"</em>
+          </div>
+        </div>
+        
+        <!-- Form -->
+        <div class="form-group">
+          <label for="feedbackText">Raconte-nous comment ça s'est passé</label>
+          <textarea 
+            id="feedbackText" 
+            placeholder="Exemple : J'ai apprécié la rencontre, même si elle a été longue. La personne parlait beaucoup mais c'était sympa. Le lieu aurait pu être mieux choisi. Je lui donnerais une note de 6/10. Je ne pense pas le revoir, mais c'était une personne sympathique."
+            maxlength="2000"
+            oninput="updateCharCounter()"
+          ></textarea>
+          <div class="char-counter" id="charCounter">0/2000</div>
+          <div class="helper-text">
+            💡 Écris librement : note /10, points positifs/négatifs, si tu reverrais la personne, etc.
+          </div>
+        </div>
+        
+        <!-- Actions -->
+        <div class="actions">
+          <button class="btn btn-secondary" onclick="goBack()">
+            ← Retour
+          </button>
+          <button class="btn btn-primary" id="submitBtn" onclick="submitFeedback()" disabled>
+            Envoyer 📝
+          </button>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Success State -->
+    <div id="success" style="display: none;">
+      <div class="success">
+        <div class="success-icon">✅</div>
+        <div class="success-title">Merci pour ton retour !</div>
+        <div class="success-text">
+          Ton feedback a bien été enregistré de manière confidentielle.<br>
+          Il nous aide à améliorer l'expérience MeeTempo pour tous.
+        </div>
+        <button class="btn btn-primary" onclick="goToChats()">
+          💬 Retour aux conversations
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    const API_BASE = 'https://api.meetempo.com';
+    const params = new URLSearchParams(location.search);
+    const suggestion_id = params.get('suggestion_id');
+    const session_token = params.get('session_token') || params.get('token');
+    
+    let suggestionData = null;
+    
+    if (!suggestion_id || !session_token) {
+      showError('Paramètres manquants', 'suggestion_id et session_token requis');
+    }
+    
+    function showError(title, message) {
+      document.getElementById('loading').innerHTML = `
+        <div style="text-align: center; padding: 40px;">
+          <div style="font-size: 64px; margin-bottom: 20px;">❌</div>
+          <h2 style="font-size: 24px; margin-bottom: 12px;">${title}</h2>
+          <p style="color: var(--mt-muted); margin-bottom: 24px;">${message}</p>
+          <button class="btn btn-primary" onclick="window.history.back()">
+            Retour
+          </button>
+        </div>
+      `;
+    }
+    
+    async function init() {
+      try {
+        // Charger infos suggestion
+        const response = await fetch(
+          `${API_BASE}/chat/messages?session_token=${session_token}&suggestion_id=${suggestion_id}`
+        );
+        
+        if (!response.ok) {
+          if (response.status === 401) {
+            showError('Session expirée', 'Reconnecte-toi à MeeTempo');
+          } else if (response.status === 403) {
+            showError('Accès refusé', 'Tu n\'es pas participant de cette suggestion');
+          } else {
+            showError('Erreur', 'Impossible de charger les informations');
+          }
+          return;
+        }
+        
+        suggestionData = await response.json();
+        
+        // Vérifier si feedback possible
+        if (!suggestionData.event_happened) {
+          showError('Trop tôt', 'Le feedback est disponible après l\'événement');
+          return;
+        }
+        
+        if (!suggestionData.can_give_feedback) {
+          showError('Délai dépassé', 'Le feedback n\'est plus disponible (+ de 10 jours)');
+          return;
+        }
+        
+        // Afficher UI
+        displaySuggestionInfo();
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        
+      } catch (err) {
+        console.error('Erreur:', err);
+        showError('Erreur réseau', 'Vérifie ta connexion internet');
+      }
+    }
+    
+    function displaySuggestionInfo() {
+      const info = suggestionData.suggestion;
+      const date = info.date ? new Date(info.date).toLocaleDateString('fr-FR', { 
+        day: 'numeric', 
+        month: 'long', 
+        year: 'numeric' 
+      }) : '';
+      
+      document.getElementById('suggestionInfo').innerHTML = `
+        <div class="suggestion-title">${escapeHtml(info.activity_type || info.title || 'Suggestion')}</div>
+        <div class="suggestion-meta">
+          <span>📍 ${escapeHtml(info.city || '?')}</span>
+          ${info.place ? `<span>🏠 ${escapeHtml(info.place)}</span>` : ''}
+          ${date ? `<span>📅 ${date}</span>` : ''}
+          ${info.time ? `<span>🕐 ${info.time}</span>` : ''}
+          <span>👥 ${suggestionData.participants.length} participants</span>
+        </div>
+      `;
+    }
+    
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+    
+    function updateCharCounter() {
+      const textarea = document.getElementById('feedbackText');
+      const counter = document.getElementById('charCounter');
+      const submitBtn = document.getElementById('submitBtn');
+      
+      const length = textarea.value.length;
+      counter.textContent = `${length}/2000`;
+      
+      // Couleur
+      counter.classList.remove('warning', 'danger');
+      if (length > 1800) {
+        counter.classList.add('danger');
+      } else if (length > 1500) {
+        counter.classList.add('warning');
+      }
+      
+      // Activer bouton si > 10 caractères
+      submitBtn.disabled = length < 10;
+    }
+    
+    async function submitFeedback() {
+      const textarea = document.getElementById('feedbackText');
+      const feedback_text = textarea.value.trim();
+      
+      if (feedback_text.length < 10) {
+        alert('Ton feedback est trop court (min 10 caractères)');
+        return;
+      }
+      
+      const submitBtn = document.getElementById('submitBtn');
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Envoi...';
+      
+      try {
+        const response = await fetch(
+          `${API_BASE}/feedback/parse-and-submit?` + 
+          `session_token=${encodeURIComponent(session_token)}&` +
+          `suggestion_id=${encodeURIComponent(suggestion_id)}&` +
+          `feedback_text=${encodeURIComponent(feedback_text)}`
+        );
+        
+        const data = await response.json();
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Erreur lors de l\'envoi');
+        }
+        
+        // Afficher succès
+        document.getElementById('content').style.display = 'none';
+        document.getElementById('success').style.display = 'block';
+        
+      } catch (err) {
+        console.error('Erreur:', err);
+        alert('❌ Erreur : ' + err.message);
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Envoyer 📝';
+      }
+    }
+    
+    function goBack() {
+      window.history.back();
+    }
+    
+    function goToChats() {
+      window.location.href = `my-chats.html?token=${session_token}`;
+    }
+    
+    // Init
+    init();
+  </script>
+</body>
+</html>
