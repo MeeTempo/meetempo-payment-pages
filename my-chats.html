@@ -393,38 +393,32 @@
       
       await loadChats(token);
 
-      sessionStorage.setItem('meetempo_token', token);
-
-await loadChats(token);
-
-// 🔥 NOUVEAU : Auto-refresh toutes les 30s
-if (autoRefreshInterval) {
-  clearInterval(autoRefreshInterval);
-}
-
-autoRefreshInterval = setInterval(async () => {
-  try {
-    const response = await fetch(`${API_BASE}/user/chats?session_token=${token}`);
-    const data = await response.json();
-    
-    if (response.ok) {
-      const oldUnreadCount = allChats.reduce((sum, c) => sum + (c.unread_count || 0), 0);
-      const newUnreadCount = (data.chats || []).reduce((sum, c) => sum + (c.unread_count || 0), 0);
-      
-      // Si nouveaux messages non lus, mettre à jour
-      if (newUnreadCount > oldUnreadCount) {
-        allChats = data.chats || [];
-        filterChats(currentFilter); // Réappliquer filtre actif
-        updateStats();
-        console.log('🔔 Nouveaux messages détectés');
+      // 🔥 NOUVEAU : Auto-refresh toutes les 30s
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
       }
-    }
-  } catch (err) {
-    console.error('Erreur auto-refresh:', err);
-  }
-}, 30000); // 30 secondes
 
-}
+      autoRefreshInterval = setInterval(async () => {
+        try {
+          const response = await fetch(`${API_BASE}/user/chats?session_token=${token}`);
+          const data = await response.json();
+          
+          if (response.ok) {
+            const oldUnreadCount = allChats.reduce((sum, c) => sum + (c.unread_count || 0), 0);
+            const newUnreadCount = (data.chats || []).reduce((sum, c) => sum + (c.unread_count || 0), 0);
+            
+            // Si nouveaux messages non lus, mettre à jour
+            if (newUnreadCount > oldUnreadCount) {
+              allChats = data.chats || [];
+              filterChats(currentFilter); // Réappliquer filtre actif
+              updateStats();
+              console.log('🔔 Nouveaux messages détectés');
+            }
+          }
+        } catch (err) {
+          console.error('Erreur auto-refresh:', err);
+        }
+      }, 30000); // 30 secondes
     }
     
     async function loadChats(token) {
