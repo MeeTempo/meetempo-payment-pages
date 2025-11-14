@@ -181,6 +181,64 @@
       padding: 16px 20px;
       border-top: 1px solid rgba(255,255,255,0.1);
     }
+
+          /* 🔥 NOUVEAU : Compteur caractères */
+      .char-counter {
+        position: absolute;
+        bottom: 24px;
+        right: 80px;
+        font-size: 11px;
+        color: var(--mt-muted);
+        font-weight: 600;
+        transition: color 0.2s;
+      }
+
+      .char-counter.warning {
+        color: #f59e0b;
+      }
+
+      .char-counter.danger {
+        color: #ef4444;
+      }
+
+      /* 🔥 NOUVEAU : Feedback envoi */
+      .send-btn.sending {
+        pointer-events: none;
+      }
+
+      .send-btn.sending::after {
+        content: '';
+        position: absolute;
+        width: 16px;
+        height: 16px;
+        border: 2px solid #111;
+        border-top-color: transparent;
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+
+      /* 🔥 NOUVEAU : Badge nouveaux messages */
+      .new-messages-badge {
+        position: fixed;
+        bottom: 100px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: var(--mt-accent);
+        color: #111;
+        padding: 12px 24px;
+        border-radius: 24px;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 4px 16px rgba(244,159,28,0.4);
+        animation: slideUp 0.3s ease;
+        z-index: 100;
+      }
+
+      @keyframes slideUp {
+        from { bottom: 80px; opacity: 0; }
+        to { bottom: 100px; opacity: 1; }
+      }
     
     .chat-input-wrapper {
       display: flex;
@@ -483,20 +541,22 @@
   </div>
   
   <!-- Chat Input -->
-  <div class="chat-input-container" style="display: none;" id="chatInputContainer">
-    <div class="chat-input-wrapper">
-      <input 
-        type="text" 
-        class="chat-input" 
-        id="messageInput" 
-        placeholder="Écris un message..."
-        maxlength="1000"
-      >
-      <button class="send-btn" id="sendBtn" onclick="sendMessage()">
-        ➤
-      </button>
-    </div>
+<div class="chat-input-container" style="display: none; position: relative;" id="chatInputContainer">
+  <div class="chat-input-wrapper">
+    <input 
+      type="text" 
+      class="chat-input" 
+      id="messageInput" 
+      placeholder="Écris un message..."
+      maxlength="1000"
+      oninput="updateCharCounter()"
+    >
+    <span class="char-counter" id="charCounter">0/1000</span>
+    <button class="send-btn" id="sendBtn" onclick="sendMessage()" disabled>
+      ➤
+    </button>
   </div>
+</div>
   
   <!-- Participants Panel -->
   <div class="participants-panel" id="participantsPanel">
@@ -521,6 +581,11 @@
     let eventHappened = false;
     let isActive = true;
     let revelationShown = false;
+    let pollDelay = 3000; // Polling adaptatif (3s par défaut)
+    let consecutiveEmptyPolls = 0;
+    let lastMessageCount = 0;
+    let isAtBottom = true;
+    let userScrolled = false;
     
     if (!suggestion_id || !session_token) {
       showError('Paramètres manquants', 'suggestion_id et session_token requis');
@@ -554,6 +619,75 @@
     function goBack() {
       window.history.back();
     }
+
+    // 🔥 NOUVEAU : Compteur caractères
+function updateCharCounter() {
+  const input = document.getElementById('messageInput');
+  const counter = document.getElementById('charCounter');
+  const sendBtn = document.getElementById('sendBtn');
+  
+  const length = input.value.length;
+  counter.textContent = `${length}/1000`;
+  
+  // Couleur selon longueur
+  counter.classList.remove('warning', 'danger');
+  if (length > 900) {
+    counter.classList.add('danger');
+  } else if (length > 800) {
+    counter.classList.add('warning');
+  }
+  
+  // Activer/désactiver bouton
+  sendBtn.disabled = length === 0 || !isActive;
+}
+
+// 🔥 NOUVEAU : Scroll intelligent
+function scrollToBottom(force = false) {
+  const container = document.getElementById('messagesContainer');
+  
+  if (!container) return;
+  
+  // Scroll auto seulement si déjà en bas OU force
+  if (isAtBottom || force) {
+    container.scrollTop = container.scrollHeight;
+  }
+}
+
+// Détecter si user a scroll
+function checkScrollPosition() {
+  const container = document.getElementById('messagesContainer');
+  if (!container) return;
+  
+  const threshold = 100; // pixels depuis le bas
+  const position = container.scrollHeight - container.scrollTop - container.clientHeight;
+  
+  isAtBottom = position < threshold;
+  userScrolled = !isAtBottom;
+  
+  // Afficher/cacher badge nouveaux messages
+  updateNewMessagesBadge();
+}
+
+function updateNewMessagesBadge() {
+  let badge = document.getElementById('newMessagesBadge');
+  
+  if (userScrolled && lastMessageCount < (conversationData?.messages?.length || 0)) {
+    // Nouveaux messages + user pas en bas → afficher badge
+    if (!badge) {
+      badge = document.createElement('div');
+      badge.id = 'newMessagesBadge';
+      badge.className = 'new-messages-badge';
+      badge.textContent = '↓ Nouveaux messages';
+      badge.onclick = () => {
+        scrollToBottom(true);
+        badge.remove();
+      };
+      document.body.appendChild(badge);
+    }
+  } else if (badge) {
+    badge.remove();
+  }
+}
     
     function toggleParticipantsPanel() {
       const panel = document.getElementById('participantsPanel');
@@ -625,11 +759,14 @@
         
         // Démarrer polling (refresh toutes les 5s)
         startPolling();
-        
-      } catch (err) {
-        console.error('Erreur:', err);
-        showError('Erreur réseau', 'Vérifie ta connexion internet');
-      }
+
+        // 🔥 NOUVEAU : Marquer comme lu au chargement initial
+        await markAsRead();
+
+        } catch (err) {
+          console.error('Erreur:', err);
+          showError('Erreur réseau', 'Vérifie ta connexion internet');
+        }
     }
     
     function displayParticipants() {
@@ -744,7 +881,16 @@
   });
   
   container.innerHTML = html;
-  container.scrollTop = container.scrollHeight;
+
+// 🔥 NOUVEAU : Scroll intelligent + listener
+scrollToBottom();
+
+// Ajouter listener scroll
+container.removeEventListener('scroll', checkScrollPosition); // Éviter doublons
+container.addEventListener('scroll', checkScrollPosition);
+
+// Mettre à jour compteur messages
+lastMessageCount = conversationData.messages.length;
 }
 
 function escapeHtml(text) {
@@ -779,10 +925,14 @@ function escapeHtml(text) {
         }
         
         // Vider input
-        input.value = '';
-        
-        // Recharger conversation
-        await loadConversation();
+input.value = '';
+updateCharCounter(); // 🔥 NOUVEAU : Reset compteur
+
+// Recharger conversation
+await loadConversation();
+
+// 🔥 NOUVEAU : Marquer comme lu après envoi
+await markAsRead();
         
       } catch (err) {
         console.error('Erreur envoi:', err);
@@ -795,27 +945,70 @@ function escapeHtml(text) {
     }
     
     function startPolling() {
-      // Refresh toutes les 5 secondes
-      pollInterval = setInterval(async () => {
-        try {
-          const response = await fetch(
-            `${API_BASE}/chat/messages?session_token=${session_token}&suggestion_id=${suggestion_id}`
-          );
+  async function poll() {
+    try {
+      const response = await fetch(
+        `${API_BASE}/chat/messages?session_token=${session_token}&suggestion_id=${suggestion_id}`
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        // Détecter nouveaux messages
+        const hasNewMessages = data.total > conversationData.messages.length;
+        
+        if (hasNewMessages) {
+          conversationData = data;
+          displayMessages();
           
-          if (response.ok) {
-            const data = await response.json();
-            
-            // Si nouveaux messages, mettre à jour
-            if (data.total > conversationData.messages.length) {
-              conversationData = data;
-              displayMessages();
-            }
+          // 🔥 NOUVEAU : Marquer comme lu si user en bas
+          if (isAtBottom) {
+            await markAsRead();
           }
-        } catch (err) {
-          console.error('Erreur polling:', err);
+          
+          // Reset polling rapide
+          consecutiveEmptyPolls = 0;
+          pollDelay = 3000;
+        } else {
+          // Pas de nouveaux messages → ralentir progressivement
+          consecutiveEmptyPolls++;
+          
+          if (consecutiveEmptyPolls >= 3) {
+            pollDelay = 10000; // 10s après 3 polls vides
+          }
         }
-      }, 5000);
+      }
+    } catch (err) {
+      console.error('Erreur polling:', err);
+      pollDelay = 10000; // Ralentir en cas d'erreur
     }
+    
+    // 🔥 Polling adaptatif
+    pollInterval = setTimeout(poll, pollDelay);
+  }
+  
+  // Démarrer le premier poll
+  poll();
+}
+
+// 🔥 NOUVEAU : Marquer conversation comme lue
+async function markAsRead() {
+  try {
+    await fetch(`${API_BASE}/chat/mark-read`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_token: session_token,
+        suggestion_id: suggestion_id
+      })
+    });
+    
+    console.log('✅ Chat marqué comme lu');
+  } catch (err) {
+    console.error('Erreur mark-read:', err);
+  }
+}
+
     
     // Event listeners
     document.getElementById('messageInput').addEventListener('keypress', (e) => {
