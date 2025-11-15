@@ -427,7 +427,7 @@ async function init() {
   
   // 🔥 PRIORISER le token de l'URL (toujours plus frais)
   const urlParams = new URLSearchParams(window.location.search);
-  let token = urlParams.get('token');
+  let token = urlParams.get('session_token') || urlParams.get('token');
   console.log('🔗 Token URL:', token ? token.substring(0,20) + '...' : 'null');
   
   // Si pas dans URL, essayer sessionStorage (fallback)
