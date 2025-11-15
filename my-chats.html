@@ -377,7 +377,7 @@
     
     async function init() {
       const urlParams = new URLSearchParams(window.location.search);
-      let token = urlParams.get('token');
+      let token = urlParams.get('session_token') || urlParams.get('token');
       
       if (!token) {
         token = sessionStorage.getItem('meetempo_token');
