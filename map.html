@@ -1747,65 +1747,63 @@ map.addEventListener('mapviewchangeend', async function() {
   }
 }
 
-    // 🔥 NOUVEAU : Générer badge participants selon règles
+    // 🔥 MODIFIÉ : Badge intelligent (Cycle de vie + Participants)
 function generateParticipantsBadge(user) {
-  // 🔥 DEBUG : Logger structure
-  console.log('📊 Participants data:', user.participants);
-  
-  // Si pas de structure participants, skip
+  // 1. Check "En cours" (Si l'événement a commencé il y a moins de 3h)
+  if (user.suggestion_date && user.suggestion_time) {
+    const now = new Date();
+    // Reconstruction date approximative pour affichage UX
+    const eventDate = new Date(`${user.suggestion_date}T${user.suggestion_time}:00`);
+    
+    // Si maintenant est entre "Début" et "Début + 3h"
+    if (now >= eventDate && now < new Date(eventDate.getTime() + 3 * 3600 * 1000)) {
+      return `
+        <div style="font-size: 12px; margin: 6px 0; padding: 6px 8px; background: #3B82F622; border-left: 3px solid #3B82F6; border-radius: 4px; white-space: nowrap;">
+          <span style="font-weight: 700; color: #3B82F6;">⏳ En cours (Dépêche-toi !)</span>
+        </div>
+      `;
+    }
+  }
+
+  // 2. Check Participants (Logique Standard)
+  // Si pas de données, on n'affiche rien
   if (!user.participants || !user.participants.min || !user.participants.max) {
-    console.log('⚠️ Pas de données participants pour', user.pseudo);
     return '';
   }
-  
+
   const min = user.participants.min;
   const max = user.participants.max;
   const current = user.participants.current?.length || 1;
-  
-  let badgeHTML = '';
+
   let color = '';
   let icon = '';
   let text = '';
-  
-  // CAS 1 : min = max (seuil obligatoire)
-  if (min === max) {
-    if (current >= min) {
-      color = '#10B981'; // Vert
-      icon = '✅';
-      text = `${current}/${max} confirmés`;
-    } else {
-      color = '#F97316'; // Orange
-      icon = '⚠️';
-      text = `${current}/${min} requis`;
-    }
+
+  // CAS 1 : COMPLET (Full) -> ROUGE
+  if (current >= max) {
+    color = '#EF4444'; 
+    icon = '⛔';
+    text = `Complet (${current}/${max})`;
   }
-  // CAS 2 : min < max ET min <= 2 (souple)
-  else if (min <= 2) {
-    color = '#10B981'; // Vert
+  // CAS 2 : CONFIRMÉ (Min atteint) -> VERT
+  else if (current >= min) {
+    color = '#10B981'; 
     icon = '✅';
-    text = `${current}/${max} participants`;
+    text = `${current}/${max} confirmés`;
   }
-  // CAS 3 : min < max ET min > 2 (seuil important)
+  // CAS 3 : EN RECHERCHE (Min pas encore atteint) -> ORANGE
   else {
-    if (current >= min) {
-      color = '#10B981'; // Vert
-      icon = '✅';
-      text = `${current}/${max} participants`;
-    } else {
-      color = '#FBBF24'; // Jaune
-      icon = '⚠️';
-      text = `${current}/${max} (min ${min})`;
-    }
+    color = '#F49F1C'; 
+    icon = '⚠️';
+    text = `${current}/${min} requis (Max ${max})`;
   }
-  
-  badgeHTML = `
-  <div style="font-size: 12px; margin: 6px 0; padding: 6px 8px; background: ${color}22; border-left: 3px solid ${color}; border-radius: 4px; white-space: nowrap;">
-    <span style="font-weight: 600;">👥 ${icon} ${text}</span>
-  </div>
-`;
-  
-  console.log('✅ Badge généré:', text);
-  return badgeHTML;
+
+  // Note comment on retourne directement le template string ici
+  return `
+    <div style="font-size: 12px; margin: 6px 0; padding: 6px 8px; background: ${color}22; border-left: 3px solid ${color}; border-radius: 4px; white-space: nowrap;">
+      <span style="font-weight: 600; color: ${color};">👥 ${icon} ${text}</span>
+    </div>
+  `;
 }
     
     // 🔥 NOUVEAU : Markers avec clustering
@@ -1843,72 +1841,78 @@ function addMarkersWithClustering(users, zoom = 13) {
       const marker = new H.map.Marker(user.location, { icon: markerIcon });
       
       marker.addEventListener('tap', function(evt) {
-  // 🔥 NOUVEAU : Formatter date
-  let dateFormatted = '';
-  if (user.suggestion_date) {
-    const d = new Date(user.suggestion_date);
-    const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-    const monthNames = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
-    dateFormatted = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
-  }
-  
-  const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
-    content: `
-      <div style="padding: 12px; font-family: Montserrat, sans-serif; min-width: 220px; max-width: 300px;">
-          <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #030E4F;">
-            ${escapeHTML(user.anonymous_display || user.pseudo)}
-          </div>
+        // 1. Formatter la date
+        let dateFormatted = '';
+        if (user.suggestion_date) {
+          const d = new Date(user.suggestion_date);
+          const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+          const monthNames = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+          dateFormatted = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
+        }
+
+        // 🔥 2. NOUVEAU : Calculer si c'est COMPLET
+        const currentP = user.participants?.current?.length || 1;
+        const maxP = user.participants?.max || 3;
+        const isFull = currentP >= maxP;
+
+        const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
+          content: `
+            <div style="padding: 12px; font-family: Montserrat, sans-serif; min-width: 220px; max-width: 300px;">
+                <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #030E4F;">
+                  ${escapeHTML(user.anonymous_display || user.pseudo)}
+                </div>
+              
+              ${user.suggestion_activity ? `
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #030E4F;">
+                  ${escapeHTML(user.suggestion_activity)}
+                </div>
+              ` : ''}
+              
+              <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
+                📍 ${escapeHTML(user.city)}
+              </div>
+              
+              ${user.suggestion_date && user.suggestion_time ? `
+                <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
+                  🕐 ${dateFormatted} à ${user.suggestion_time}
+                </div>
+              ` : ''}
+              
+              ${generateParticipantsBadge(user)}
+              
+              <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(affinityScore)}; margin-top: 8px;">
+                🎯 Affinité : ${affinityScore}%
+              </div>
+              
+              <button 
+                onclick="contactUser('${user.id || ''}', '${user.suggestion_id || ''}', ${isFull})" 
+                style="
+                  width: 100%;
+                  margin-top: 12px;
+                  padding: 10px;
+                  background: ${isFull ? '#ccc' : 'linear-gradient(135deg, #F49F1C 0%, #ffca63 100%)'};
+                  color: ${isFull ? '#666' : '#111'};
+                  border: none;
+                  border-radius: 10px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  cursor: ${isFull ? 'not-allowed' : 'pointer'};
+                  font-family: Montserrat, sans-serif;
+                  transition: transform 0.2s;
+                "
+                ${isFull ? 'disabled' : ''}
+                onmouseover="${isFull ? '' : "this.style.transform='scale(1.05)'"}"
+                onmouseout="${isFull ? '' : "this.style.transform='scale(1)'"}"
+              >
+                ${isFull ? '⛔ Complet' : '💬 Contacter'}
+              </button>
+            </div>
+          `
+        });
+        ui.addBubble(bubble);
         
-        ${user.suggestion_activity ? `
-          <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #030E4F;">
-            ${escapeHTML(user.suggestion_activity)}
-          </div>
-        ` : ''}
-        
-        <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
-          📍 ${escapeHTML(user.city)}
-        </div>
-        
-        ${user.suggestion_date && user.suggestion_time ? `
-          <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
-            🕐 ${dateFormatted} à ${user.suggestion_time}
-          </div>
-        ` : ''}
-        
-        ${generateParticipantsBadge(user)}
-        
-        <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(affinityScore)}; margin-top: 8px;">
-          🎯 Affinité : ${affinityScore}%
-        </div>
-        
-        <button 
-          onclick="contactUser('${user.id || ''}', '${user.suggestion_id || ''}')" 
-          style="
-            width: 100%;
-            margin-top: 12px;
-            padding: 10px;
-            background: linear-gradient(135deg, #F49F1C 0%, #ffca63 100%);
-            color: #111;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: Montserrat, sans-serif;
-            transition: transform 0.2s;
-          "
-          onmouseover="this.style.transform='scale(1.05)'"
-          onmouseout="this.style.transform='scale(1)'"
-        >
-          💬 Contacter
-        </button>
-      </div>
-    `
-  });
-  ui.addBubble(bubble);
-  
-  highlightUserCard(index);
-});
+        highlightUserCard(index);
+      });
       
       map.addObject(marker);
       markers.push(marker);
@@ -2028,76 +2032,87 @@ const dataPoints = dataSource.map((item, index) => {
         
         noiseMarker.setData(data);
         
+        // 👇 C'est ici que tu colles le nouveau bloc 👇
         noiseMarker.addEventListener('tap', function(evt) {
-  const markerData = evt.target.getData();
-  const user = markerData.user;
-  
-  // 🔥 NOUVEAU : Formatter date
-  let dateFormatted = '';
-  if (user.suggestion_date) {
-    const d = new Date(user.suggestion_date);
-    const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
-    const monthNames = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
-    dateFormatted = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
-  }
-  
-  const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
-    content: `
-      <div style="padding: 12px; font-family: Montserrat, sans-serif; min-width: 220px; max-width: 300px;">
-        <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #030E4F;">
-          ${escapeHTML(user.pseudo)}
-        </div>
-        
-        ${user.suggestion_activity ? `
-          <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #030E4F;">
-            ${escapeHTML(user.suggestion_activity)}
-          </div>
-        ` : ''}
-        
-        <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
-          📍 ${escapeHTML(user.city)}
-        </div>
-        
-        ${user.suggestion_date && user.suggestion_time ? `
-          <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
-            🕐 ${dateFormatted} à ${user.suggestion_time}
-          </div>
-        ` : ''}
-        
-        ${generateParticipantsBadge(user)}
-        
-        <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(markerData.affinityScore)}; margin-top: 8px;">
-          🎯 Affinité : ${markerData.affinityScore}%
-        </div>
-        
-        <button 
-          onclick="contactUser('${user.id || ''}', '${user.suggestion_id || ''}')" 
-          style="
-            width: 100%;
-            margin-top: 12px;
-            padding: 10px;
-            background: linear-gradient(135deg, #F49F1C 0%, #ffca63 100%);
-            color: #111;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            font-family: Montserrat, sans-serif;
-            transition: transform 0.2s;
-          "
-          onmouseover="this.style.transform='scale(1.05)'"
-          onmouseout="this.style.transform='scale(1)'"
-        >
-          💬 Contacter
-        </button>
-      </div>
-    `
-  });
-  ui.addBubble(bubble);
-  
-  highlightUserCard(markerData.index);
-});
+          const markerData = evt.target.getData();
+          const user = markerData.user;
+          
+          // Récupérer le score depuis les données (adapté pour noiseMarker)
+          const affinityScore = markerData.affinityScore || 50;
+          const index = markerData.index;
+
+          // 1. Formatter la date
+          let dateFormatted = '';
+          if (user.suggestion_date) {
+            const d = new Date(user.suggestion_date);
+            const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+            const monthNames = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+            dateFormatted = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
+          }
+
+          // 🔥 2. NOUVEAU : Calculer si c'est COMPLET
+          const currentP = user.participants?.current?.length || 1;
+          const maxP = user.participants?.max || 3;
+          const isFull = currentP >= maxP;
+
+          const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
+            content: `
+              <div style="padding: 12px; font-family: Montserrat, sans-serif; min-width: 220px; max-width: 300px;">
+                <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #030E4F;">
+                  ${escapeHTML(user.anonymous_display || user.pseudo)}
+                </div>
+                
+                ${user.suggestion_activity ? `
+                  <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #030E4F;">
+                    ${escapeHTML(user.suggestion_activity)}
+                  </div>
+                ` : ''}
+                
+                <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
+                  📍 ${escapeHTML(user.city)}
+                </div>
+                
+                ${user.suggestion_date && user.suggestion_time ? `
+                  <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
+                    🕐 ${dateFormatted} à ${user.suggestion_time}
+                  </div>
+                ` : ''}
+                
+                ${generateParticipantsBadge(user)}
+                
+                <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(affinityScore)}; margin-top: 8px;">
+                  🎯 Affinité : ${affinityScore}%
+                </div>
+                
+                <button 
+                  onclick="contactUser('${user.id || ''}', '${user.suggestion_id || ''}', ${isFull})" 
+                  style="
+                    width: 100%;
+                    margin-top: 12px;
+                    padding: 10px;
+                    background: ${isFull ? '#ccc' : 'linear-gradient(135deg, #F49F1C 0%, #ffca63 100%)'};
+                    color: ${isFull ? '#666' : '#111'};
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    cursor: ${isFull ? 'not-allowed' : 'pointer'};
+                    font-family: Montserrat, sans-serif;
+                    transition: transform 0.2s;
+                  "
+                  ${isFull ? 'disabled' : ''}
+                  onmouseover="${isFull ? '' : "this.style.transform='scale(1.05)'"}"
+                  onmouseout="${isFull ? '' : "this.style.transform='scale(1)'"}"
+                >
+                  ${isFull ? '⛔ Complet' : '💬 Contacter'}
+                </button>
+              </div>
+            `
+          });
+          ui.addBubble(bubble);
+          
+          highlightUserCard(index);
+        });
         
         return noiseMarker;
       }
@@ -2385,62 +2400,74 @@ async function updateLocationIndicator(lat, lng) {
   }
 }
 
-// 🔥 NOUVEAU : Contacter un utilisateur (envoyer demande de participation)
-async function contactUser(userId, suggestionId) {
-  console.log(`💬 Contact user ${userId}, suggestion ${suggestionId}`);
-  
-  if (!userId || !suggestionId) {
-    alert('❌ Informations manquantes pour contacter cet utilisateur');
-    return;
-  }
-  
-  // Vérifier session
-  if (!token) {  // ✅ CORRECT
-    alert('❌ Session expirée. Veuillez vous reconnecter.');
-    window.location.href = 'login.html';
-    return;
-  }
-  
-  // Demander message optionnel
-  const message = prompt('💬 Message pour le créateur (optionnel) :', '');
-  
-  if (message === null) {
-    // Utilisateur a cliqué "Annuler"
-    return;
-  }
-  
-  try {
-    // Envoyer demande
-    const url = `https://api.meetempo.com/match/request?session_token=${sessionToken}&suggestion_id=${suggestionId}${message ? '&message=' + encodeURIComponent(message) : ''}`;
-    
-    const response = await fetch(url);
-    const data = await response.json();
-    
-    if (!response.ok) {
-      throw new Error(data.error || 'Erreur inconnue');
+// 🔥 MODIFIÉ : Contacter un utilisateur (avec sécurité anti-complet)
+    async function contactUser(userId, suggestionId, isFull = false) {
+      console.log(`💬 Contact user ${userId}, suggestion ${suggestionId}, isFull=${isFull}`);
+
+      // 1. Bloquer si complet (Sécurité Client)
+      if (isFull) {
+        alert('⛔ Cette suggestion est complète (nombre max de participants atteint).\n\nEssayez-en une autre ou créez la vôtre !');
+        return;
+      }
+
+      if (!userId || !suggestionId) {
+        alert('❌ Informations manquantes pour contacter cet utilisateur');
+        return;
+      }
+
+      // 2. Vérifier session
+      if (!token) {
+        alert('❌ Session expirée. Veuillez vous reconnecter.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // 3. Demander message optionnel
+      const message = prompt('💬 Message pour le créateur (optionnel) :', '');
+
+      if (message === null) {
+        // Utilisateur a cliqué "Annuler"
+        return;
+      }
+
+      try {
+        // 4. Envoyer demande
+        // Note : On encode le message pour éviter les bugs d'URL
+        const url = `${API_BASE}/match/request?session_token=${sessionToken}&suggestion_id=${suggestionId}${message ? '&message=' + encodeURIComponent(message) : ''}`;
+        
+        const response = await fetch(url);
+        const data = await response.json();
+        
+        if (!response.ok) {
+          // Gestion fine des erreurs serveur (Code 403/409)
+          throw new Error(data.error || 'Erreur inconnue');
+        }
+        
+        // Succès
+        alert(`✅ ${data.message}\n\nLe créateur recevra votre demande.`);
+        console.log('✅ Demande envoyée:', data);
+        
+      } catch (error) {
+        console.error('❌ Erreur contact:', error);
+        
+        // Messages d'erreur conviviaux
+        if (error.message.includes('propre suggestion')) {
+          alert('❌ Vous ne pouvez pas contacter votre propre suggestion !');
+        } else if (error.message.includes('déjà une demande')) {
+          alert('⏳ Vous avez déjà envoyé une demande pour cette suggestion.');
+        } else if (error.message.includes('complète')) {
+          alert('❌ Oups, trop tard ! Quelqu\'un a pris la dernière place à l\'instant.');
+          // On pourrait recharger la carte ici pour mettre à jour le statut
+          loadNearbyUsers();
+        } else if (error.message.includes('participez déjà')) {
+          alert('✅ Vous participez déjà à cette suggestion !');
+        } else if (error.message.includes('Upgrade requis')) {
+          alert(`🔒 ${error.message}`);
+        } else {
+          alert(`❌ Erreur : ${error.message}`);
+        }
+      }
     }
-    
-    // Succès
-    alert(`✅ ${data.message}\n\nLe créateur recevra votre demande.`);
-    
-    console.log('✅ Demande envoyée:', data);
-    
-  } catch (error) {
-    console.error('❌ Erreur contact:', error);
-    
-    if (error.message.includes('propre suggestion')) {
-      alert('❌ Vous ne pouvez pas contacter votre propre suggestion !');
-    } else if (error.message.includes('déjà une demande')) {
-      alert('⏳ Vous avez déjà envoyé une demande pour cette suggestion.');
-    } else if (error.message.includes('complète')) {
-      alert('❌ Cette suggestion est complète (nombre max de participants atteint).');
-    } else if (error.message.includes('participez déjà')) {
-      alert('✅ Vous participez déjà à cette suggestion !');
-    } else {
-      alert(`❌ Erreur : ${error.message}`);
-    }
-  }
-}
 
     init();
   </script>
