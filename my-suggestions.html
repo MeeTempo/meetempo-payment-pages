@@ -554,60 +554,75 @@
       }
     }
     
-    // Afficher suggestions
+    // Afficher suggestions (CORRIGÉ & VERROUILLÉ)
     function renderSuggestions() {
       const now = Date.now();
       
-      // 🔥 NOUVEAU : Logique de tri basée sur les statuts du cycle de vie
-      const activeStatuses = ['active', 'full', 'ongoing', 'completed'];
-      const historyStatuses = ['expired', 'cancelled', 'deleted'];
+      // 1. Définition des camps
+      // Active = Futur ou En cours (mais PAS terminé)
+      const activeStatuses = ['active', 'full', 'ongoing'];
+      
+      // Historique = Fini (Succès ou Échec)
+      const historyStatuses = ['completed', 'expired', 'cancelled', 'deleted'];
 
-      // Filtrer pour l'onglet "Actives"
+      // --- FILTRE ONGLET ACTIVES ---
       const active = allSuggestions.filter(s => {
-        const status = s.statut || 'active'; // Fallback
+        const status = s.statut || 'active';
         
-        // Si le statut est dans la liste des actifs
-        if (activeStatuses.includes(status)) {
-             // Petite sécurité : si active mais date passée de +24h, on force l'exclusion (cas rare)
-             if (status === 'active' && new Date(s.expires_date) < now) return false;
-             return true;
-        }
-        return false;
+        // 🚫 Exclusion formelle : Si c'est terminé, ça dégage de l'actif !
+        if (status === 'completed') return false;
+        
+        // Sécurité date : si "active" mais date dépassée (et backend pas encore passé), on cache
+        if (status === 'active' && new Date(s.expires_date) < now) return false;
+        
+        return activeStatuses.includes(status);
       });
       
-      // Filtrer pour l'onglet "Historique"
-      const expired = allSuggestions.filter(s => {
+      // --- FILTRE ONGLET HISTORIQUE ---
+      const history = allSuggestions.filter(s => {
          const status = s.statut || 'active';
-         // Si statut historique OU date expiration passée depuis longtemps
-         return historyStatuses.includes(status) || (status === 'active' && new Date(s.expires_date) < now);
+         
+         // On prend tout ce qui est statut historique
+         if (historyStatuses.includes(status)) return true;
+         
+         // Ou ce qui est "active" mais périmé (filet de sécurité)
+         if (status === 'active' && new Date(s.expires_date) < now) return true;
+         
+         return false;
       });
       
-      // Afficher actives
+      // Rendu Active
       const activeContainer = document.getElementById('activeSuggestions');
       if (active.length === 0) {
         activeContainer.innerHTML = `
           <div class="empty">
             <div class="empty-icon">📭</div>
-            <div>Aucune suggestion active</div>
+            <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Aucune suggestion active</div>
+            <div style="font-size: 14px;">C'est calme pour le moment...</div>
           </div>
         `;
       } else {
-        // On passe false car ce n'est pas l'historique
+        // false = Pas grisé (pleine couleur)
         activeContainer.innerHTML = active.map(s => renderSuggestionCard(s, false)).join('');
       }
       
-      // Afficher historique
+      // Rendu Historique
       const historyContainer = document.getElementById('historySuggestions');
-      if (expired.length === 0) {
+      if (history.length === 0) {
         historyContainer.innerHTML = `
           <div class="empty">
             <div class="empty-icon">📜</div>
-            <div>Aucune suggestion expirée</div>
+            <div>Historique vide</div>
           </div>
         `;
       } else {
-        // On passe true pour appliquer le style "expired" (opacité réduite)
-        historyContainer.innerHTML = expired.map(s => renderSuggestionCard(s, true)).join('');
+        historyContainer.innerHTML = history.map(s => {
+            const status = s.statut || 'active';
+            // Astuce : On grise TOUT sauf 'completed' (car completed = chat encore actif)
+            const shouldBeGrey = status !== 'completed';
+            
+            return renderSuggestionCard(s, shouldBeGrey);
+        }).join('');
       }
     }
     
