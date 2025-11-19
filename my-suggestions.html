@@ -176,6 +176,19 @@
       background: rgba(244, 159, 28, 0.2);
       color: var(--mt-accent);
     }
+
+    .badge-full {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--err);
+    }
+    .badge-ongoing {
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+    }
+    .badge-completed {
+      background: rgba(16, 185, 129, 0.2);
+      color: #10b981;
+    }
     
     /* Requests Section */
     .requests-section {
@@ -543,29 +556,31 @@
     
     // Afficher suggestions
     function renderSuggestions() {
-      // Séparer actives / expirées
-    const now = new Date();
+      const now = Date.now();
+      
+      // 🔥 NOUVEAU : Logique de tri basée sur les statuts du cycle de vie
+      const activeStatuses = ['active', 'full', 'ongoing', 'completed'];
+      const historyStatuses = ['expired', 'cancelled', 'deleted'];
 
-    const active = allSuggestions.filter(s => {
-      if (s.statut !== 'active') return false;
-      
-      // Vérifier expires_date
-      if (new Date(s.expires_date) <= now) return false;
-      
-      // 🔥 NOUVEAU : Vérifier si événement passé
-      if (s.date) {
-        const eventDate = new Date(s.date);
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+      // Filtrer pour l'onglet "Actives"
+      const active = allSuggestions.filter(s => {
+        const status = s.statut || 'active'; // Fallback
         
-        if (eventDate < today) return false; // Événement passé
-      }
+        // Si le statut est dans la liste des actifs
+        if (activeStatuses.includes(status)) {
+             // Petite sécurité : si active mais date passée de +24h, on force l'exclusion (cas rare)
+             if (status === 'active' && new Date(s.expires_date) < now) return false;
+             return true;
+        }
+        return false;
+      });
       
-      return true;
-    });
-      const expired = allSuggestions.filter(s => 
-        s.statut !== 'active' || new Date(s.expires_date) <= now
-      );
+      // Filtrer pour l'onglet "Historique"
+      const expired = allSuggestions.filter(s => {
+         const status = s.statut || 'active';
+         // Si statut historique OU date expiration passée depuis longtemps
+         return historyStatuses.includes(status) || (status === 'active' && new Date(s.expires_date) < now);
+      });
       
       // Afficher actives
       const activeContainer = document.getElementById('activeSuggestions');
@@ -577,6 +592,7 @@
           </div>
         `;
       } else {
+        // On passe false car ce n'est pas l'historique
         activeContainer.innerHTML = active.map(s => renderSuggestionCard(s, false)).join('');
       }
       
@@ -590,6 +606,7 @@
           </div>
         `;
       } else {
+        // On passe true pour appliquer le style "expired" (opacité réduite)
         historyContainer.innerHTML = expired.map(s => renderSuggestionCard(s, true)).join('');
       }
     }
@@ -649,13 +666,39 @@ function renderParticipantsBadge(sugg) {
 }
 
 // Render une carte suggestion
-function renderSuggestionCard(sugg, isExpired) {
+    function renderSuggestionCard(sugg, isExpired) {
       const pendingRequests = (sugg.requests || []).filter(r => r.status === 'pending');
       const acceptedRequests = (sugg.requests || []).filter(r => r.status === 'accepted');
       
       const date = sugg.date ? new Date(sugg.date).toLocaleDateString('fr-FR') : '?';
       const time = sugg.time || '?';
       
+      // 🔥 NOUVEAU : Calcul du badge de statut (Cycle de vie)
+      let statusBadge = '';
+      const status = sugg.statut || 'active';
+      
+      if (isExpired) {
+          statusBadge = `<span class="badge badge-expired">⏰ Expirée</span>`;
+          if (status === 'cancelled') statusBadge = `<span class="badge badge-expired">🚫 Annulée</span>`;
+      } else {
+          switch(status) {
+              case 'full':
+                  statusBadge = `<span class="badge badge-full">⛔ Complète</span>`;
+                  break;
+              case 'ongoing':
+                  statusBadge = `<span class="badge badge-ongoing">⏳ En cours</span>`;
+                  break;
+              case 'completed':
+                  statusBadge = `<span class="badge badge-completed">✅ Terminée</span>`;
+                  break;
+              case 'active':
+              default:
+                  statusBadge = `<span class="badge badge-active">✨ Active</span>`;
+                  break;
+          }
+      }
+
+      // 👇 Note l'ajout de id="sugg_${sugg.id}" ici pour le highlight
       return `
         <div id="sugg_${sugg.id}" class="suggestion-card ${isExpired ? 'expired' : ''}">
           <div class="suggestion-header">
@@ -668,10 +711,10 @@ function renderSuggestionCard(sugg, isExpired) {
             </div>
 
             ${renderParticipantsBadge(sugg)}
+            
               <div>
-                <span class="badge ${isExpired ? 'badge-expired' : 'badge-active'}">
-                  ${isExpired ? '⏰ Expirée' : '✨ Active'}
-                </span>
+                ${statusBadge}
+                
                 ${pendingRequests.length > 0 ? `
                   <span class="badge badge-pending">
                     ${pendingRequests.length} demande${pendingRequests.length > 1 ? 's' : ''}
