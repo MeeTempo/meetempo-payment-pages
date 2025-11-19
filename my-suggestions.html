@@ -354,6 +354,19 @@
         width: 100%;
       }
     }
+
+    /* 🔥 NOUVEAU : Animation de mise en évidence */
+    @keyframes highlightPulse {
+      0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 159, 28, 0.7); border-color: rgba(244, 159, 28, 0); }
+      50% { transform: scale(1.02); box-shadow: 0 0 20px 10px rgba(244, 159, 28, 0.2); border-color: var(--mt-accent); }
+      100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 159, 28, 0); border-color: rgba(255,255,255,0.12); }
+    }
+    
+    .suggestion-card.highlight-target {
+      animation: highlightPulse 2s ease-in-out 3; /* Pulse 3 fois */
+      scroll-margin-top: 100px; /* Marge pour le scroll automatique */
+      border: 2px solid var(--mt-accent) !important; /* Garder une bordure après */
+    }
   </style>
 </head>
 <body>
@@ -422,35 +435,56 @@
     let currentTab = 'active';
     
     // Initialisation
-async function init() {
-  console.log('🔍 Initialisation my-suggestions...');
-  
-  // 🔥 PRIORISER le token de l'URL (toujours plus frais)
-  const urlParams = new URLSearchParams(window.location.search);
-  let token = urlParams.get('session_token') || urlParams.get('token');
-  console.log('🔗 Token URL:', token ? token.substring(0,20) + '...' : 'null');
-  
-  // Si pas dans URL, essayer sessionStorage (fallback)
-  if (!token) {
-    token = sessionStorage.getItem('meetempo_token');
-    console.log('📦 Token sessionStorage (fallback):', token ? token.substring(0,20) + '...' : 'null');
-  }
-  
-  // Si toujours pas de token → Erreur
-  if (!token) {
-    console.error('❌ Aucun token trouvé');
-    alert('Session expirée. Retour à MeeTempo GPT.');
-    window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-    return;
-  }
-  
-  // Sauvegarder le token frais dans sessionStorage
-  sessionStorage.setItem('meetempo_token', token);
-  console.log('💾 Token sauvegardé:', token.substring(0,20) + '...');
-  
-  await loadSuggestions(token);
-  setupTabs();
-}
+    async function init() {
+      console.log('🔍 Initialisation my-suggestions...');
+      
+      // 🔥 PRIORISER le token de l'URL (toujours plus frais)
+      const urlParams = new URLSearchParams(window.location.search);
+      let token = urlParams.get('session_token') || urlParams.get('token');
+      console.log('🔗 Token URL:', token ? token.substring(0,20) + '...' : 'null');
+      
+      // Si pas dans URL, essayer sessionStorage (fallback)
+      if (!token) {
+        token = sessionStorage.getItem('meetempo_token');
+        console.log('📦 Token sessionStorage (fallback):', token ? token.substring(0,20) + '...' : 'null');
+      }
+      
+      // Si toujours pas de token → Erreur
+      if (!token) {
+        console.error('❌ Aucun token trouvé');
+        alert('Session expirée. Retour à MeeTempo GPT.');
+        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        return;
+      }
+      
+      // Sauvegarder le token frais dans sessionStorage
+      sessionStorage.setItem('meetempo_token', token);
+      console.log('💾 Token sauvegardé:', token.substring(0,20) + '...');
+      
+      await loadSuggestions(token);
+      setupTabs();
+      
+      // 🔥 NOUVEAU : Vérifier si on doit mettre en avant une suggestion
+      const highlightId = urlParams.get('highlight');
+      if (highlightId) {
+          highlightSuggestion(highlightId);
+      }
+    }
+
+    // 🔥 NOUVEAU : Mettre en avant une suggestion
+    function highlightSuggestion(id) {
+        setTimeout(() => {
+            const card = document.getElementById(`sugg_${id}`);
+            
+            if (card) {
+                card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                card.classList.add('highlight-target');
+                console.log(`✨ Suggestion ${id} mise en avant`);
+            } else {
+                console.warn(`⚠️ Suggestion ${id} introuvable pour highlight`);
+            }
+        }, 500);
+    }
     
     // Charger suggestions
     async function loadSuggestions(token) {
@@ -623,7 +657,8 @@ function renderSuggestionCard(sugg, isExpired) {
       const time = sugg.time || '?';
       
       return `
-        <div class="suggestion-card ${isExpired ? 'expired' : ''}">
+        return `
+        <div id="sugg_${sugg.id}" class="suggestion-card ${isExpired ? 'expired' : ''}">
           <div class="suggestion-header">
             <div style="flex: 1;">
               <div class="suggestion-title">${sugg.ai_final_text || sugg.description}</div>
