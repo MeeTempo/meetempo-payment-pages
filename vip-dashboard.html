@@ -242,10 +242,76 @@
                         <div class="absolute top-0 right-0 bg-white text-black text-[10px] font-bold px-2 py-1 rounded-bl-lg">BOSS MODE</div>
                         <h3 class="font-bold text-white mb-1">Dirigeant ?</h3>
                         <p class="text-xs text-gray-400 mb-3">Connectez votre équipe : débloquez 4 mois offerts ou <span class="text-yellow-400 font-bold">-50% pendant 1 an</span>.</p>
-                        <button onclick="goToB2B()" class="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 py-2 rounded-lg text-xs font-bold transition">
+                        <button onclick="openB2BForm()" class="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 py-2 rounded-lg text-xs font-bold transition">
                             ACTIVER MODE ENTREPRISE
                         </button>
                     </div>
+                </div>
+            </div>
+                    <!-- Modal B2B Form -->
+            <div id="b2b-modal" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm z-[9999] flex items-center justify-center p-4">
+                <div class="bg-deep-card rounded-2xl p-6 max-w-md w-full border border-yellow-500/30 animate-slideUp">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h2 class="text-xl font-black text-white mb-1">Mode Entreprise</h2>
+                            <p class="text-xs text-gray-400">Remplissez ce formulaire, on vous recontacte sous 24h</p>
+                        </div>
+                        <button onclick="closeB2BForm()" class="text-gray-400 hover:text-white">
+                            <i class="fas fa-times text-xl"></i>
+                        </button>
+                    </div>
+
+                    <form id="b2b-form" class="space-y-4">
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">Nom de l'entreprise *</label>
+                            <input type="text" name="company" required 
+                                class="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700 focus:border-yellow-500 focus:outline-none text-sm">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">Votre fonction *</label>
+                            <select name="job_level" required 
+                                class="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700 focus:border-yellow-500 focus:outline-none text-sm">
+                                <option value="">-- Sélectionnez --</option>
+                                <option value="dirigeant">Dirigeant / CEO</option>
+                                <option value="cadre">Cadre supérieur</option>
+                                <option value="manager">Manager / Chef d'équipe</option>
+                                <option value="rh">RH / DRH</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">Taille de l'équipe *</label>
+                            <select name="team_size" required 
+                                class="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700 focus:border-yellow-500 focus:outline-none text-sm">
+                                <option value="">-- Sélectionnez --</option>
+                                <option value="1-10">1 à 10 salariés</option>
+                                <option value="11-30">11 à 30 salariés</option>
+                                <option value="31-100">31 à 100 salariés</option>
+                                <option value="100+">Plus de 100 salariés</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">Téléphone (optionnel)</label>
+                            <input type="tel" name="phone" 
+                                class="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700 focus:border-yellow-500 focus:outline-none text-sm">
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">Message / Besoins (optionnel)</label>
+                            <textarea name="message" rows="3" 
+                                class="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700 focus:border-yellow-500 focus:outline-none text-sm resize-none"></textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-bold py-3 rounded-lg hover:brightness-110 transition">
+                            ENVOYER MA DEMANDE
+                        </button>
+
+                        <p class="text-[10px] text-gray-500 text-center">
+                            Nous vous recontactons sous 24h pour activer votre offre B2B
+                        </p>
+                    </form>
                 </div>
             </div>
         </main>
@@ -420,8 +486,8 @@
             const referralUrl = `https://meetempo.github.io/meetempo-payment-pages/login.html?ref=${user.referral_code}`;
             document.getElementById('referral-link').value = referralUrl;
 
-            // B2B Section
-            if (user.job_level === 'dirigeant' || user.job_level === 'cadre') {
+            // B2B Section - Visible pour tous les VIP
+            if (user.plan === 'vip') {
                 document.getElementById('b2b-section').classList.remove('hidden');
             }
 
@@ -615,6 +681,84 @@
                 console.error(e);
             }
         }
+
+        // ========================================
+// B2B FORM MODAL
+// ========================================
+function openB2BForm() {
+    document.getElementById('b2b-modal').classList.remove('hidden');
+}
+
+function closeB2BForm() {
+    document.getElementById('b2b-modal').classList.add('hidden');
+}
+
+// Close modal on outside click
+document.addEventListener('click', (e) => {
+    const modal = document.getElementById('b2b-modal');
+    if (e.target === modal) {
+        closeB2BForm();
+    }
+});
+
+// ========================================
+// B2B FORM SUBMISSION
+// ========================================
+document.getElementById('b2b-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const data = Object.fromEntries(formData.entries());
+    
+    // Get user info
+    const token = getToken();
+    
+    try {
+        // Get user profile for email
+        const profileRes = await fetch(`${API_BASE}/profile?session_token=${token}`);
+        const profile = await profileRes.json();
+        
+        // Send email via backend
+        const emailBody = {
+            session_token: token,
+            to: 'support@meetempo.com',
+            subject: `🏢 Demande B2B - ${data.company}`,
+            html: `
+                <h2>Nouvelle demande B2B</h2>
+                <p><strong>De:</strong> ${profile.first_name} ${profile.last_name || ''} (${profile.email})</p>
+                <p><strong>Plan actuel:</strong> ${profile.plan?.toUpperCase()}</p>
+                <hr>
+                <p><strong>Entreprise:</strong> ${data.company}</p>
+                <p><strong>Fonction:</strong> ${data.job_level}</p>
+                <p><strong>Taille équipe:</strong> ${data.team_size}</p>
+                <p><strong>Téléphone:</strong> ${data.phone || 'Non renseigné'}</p>
+                <p><strong>Message:</strong><br>${data.message || 'Aucun message'}</p>
+                <hr>
+                <p><strong>Action:</strong> Contacter ce VIP sous 24h pour activer offre B2B</p>
+            `
+        };
+        
+        const res = await fetch(`${API_BASE}/admin/send-email`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(emailBody)
+        });
+        
+        if (!res.ok) throw new Error('Email send failed');
+        
+        // Success
+        closeB2BForm();
+        showSuccess('✅ Demande envoyée ! Nous vous recontactons sous 24h.');
+        
+        // Reset form
+        e.target.reset();
+        
+    } catch (err) {
+        console.error('B2B form error:', err);
+        showError('❌ Erreur lors de l\'envoi. Réessayez ou contactez support@meetempo.com');
+    }
+});
+
     </script>
 </body>
 </html>
