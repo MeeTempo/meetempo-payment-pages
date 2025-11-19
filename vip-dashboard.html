@@ -255,7 +255,7 @@
     <nav class="fixed bottom-4 left-4 right-4 bg-[#0f172a]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-50 h-16 flex items-center justify-around px-2">
         <button onclick="goToMap()" class="flex flex-col items-center justify-center w-12 text-gray-400 hover:text-white transition">
             <i class="fas fa-map text-lg mb-1"></i>
-            <span class="text-[9px]">Carte</span>
+            <span class="text-[9px]">Map</span>
         </button>
         
         <button onclick="goToRequests()" class="flex flex-col items-center justify-center w-12 text-gray-400 hover:text-white transition">
@@ -608,7 +608,7 @@
                 
                 const data = await res.json();
                 sessionStorage.setItem('meetempo_elevated_token', data.token);
-                window.location.href = 'carte.html'; // Pas de token dans URL
+                window.location.href = 'map.html'; // Pas de token dans URL
                 
             } catch(e) {
                 showError('Erreur de connexion à la carte');
