@@ -177,6 +177,9 @@
       background: rgba(239, 68, 68, 0.2);
       color: var(--err);
     }
+    .badge-full { background: rgba(239, 68, 68, 0.2); color: var(--err); }
+    .badge-ongoing { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
+    .badge-completed { background: rgba(16, 185, 129, 0.2); color: #10b981; }
     
     /* Creator Info */
     .creator-section {
@@ -462,50 +465,59 @@
     
     // Afficher demandes
     function renderRequests() {
+      const now = Date.now();
+
+      // 1. Pending (En attente)
       const pending = allRequests.filter(r => r.status === 'pending');
-      const accepted = allRequests.filter(r => r.status === 'accepted');
-      const declined = allRequests.filter(r => r.status === 'declined');
       
-      // Afficher pending
+      // 2. Accepted (Confirmées) : Inclut aussi les événements "Terminés" (completed) tant qu'ils sont pas archivés
+      const accepted = allRequests.filter(r => {
+          if (r.status !== 'accepted') return false;
+          
+          const suggStatus = r.suggestion?.status || 'active'; // Backend envoie status maintenant
+          // Si suggestion archivée/supprimée, ça va dans l'historique
+          if (['expired', 'cancelled', 'deleted'].includes(suggStatus)) return false;
+          
+          // Sécurité date (si > 10 jours après event)
+          if (r.suggestion?.date) {
+             const eventTime = new Date(`${r.suggestion.date}T${r.suggestion.time || '12:00'}`).getTime();
+             if (now > eventTime + (10 * 24 * 3600 * 1000)) return false;
+          }
+          
+          return true;
+      });
+      
+      // 3. History (Refusées ou Terminées depuis longtemps)
+      const history = allRequests.filter(r => {
+          if (r.status === 'declined') return true;
+          if (r.status === 'accepted') {
+              // Si c'est accepté mais que ce n'est PLUS dans la liste accepted ci-dessus
+              const isInAccepted = accepted.some(a => a.match_id === r.match_id);
+              return !isInAccepted;
+          }
+          return false; // Pending n'est jamais dans l'historique
+      });
+      
+      // Affichage (reste inchangé)
       const pendingContainer = document.getElementById('pendingRequests');
       if (pending.length === 0) {
-        pendingContainer.innerHTML = `
-          <div class="empty">
-            <div class="empty-icon">📭</div>
-            <div style="font-weight: 600; margin-bottom: 8px;">Aucune demande en attente</div>
-            <div style="font-size: 14px;">Explorez la carte pour découvrir des suggestions !</div>
-          </div>
-        `;
+        pendingContainer.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div style="font-weight: 600; margin-bottom: 8px;">Aucune demande en attente</div><div style="font-size: 14px;">Explorez la carte pour découvrir des suggestions !</div></div>`;
       } else {
         pendingContainer.innerHTML = pending.map(r => renderRequestCard(r, 'pending')).join('');
       }
       
-      // Afficher accepted
       const acceptedContainer = document.getElementById('acceptedRequests');
       if (accepted.length === 0) {
-        acceptedContainer.innerHTML = `
-          <div class="empty">
-            <div class="empty-icon">✅</div>
-            <div style="font-weight: 600; margin-bottom: 8px;">Aucune demande confirmée</div>
-            <div style="font-size: 14px;">Vos demandes acceptées apparaîtront ici.</div>
-          </div>
-        `;
+        acceptedContainer.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div style="font-weight: 600; margin-bottom: 8px;">Aucune demande confirmée</div><div style="font-size: 14px;">Vos demandes acceptées apparaîtront ici.</div></div>`;
       } else {
         acceptedContainer.innerHTML = accepted.map(r => renderRequestCard(r, 'accepted')).join('');
       }
       
-      // Afficher history (declined)
       const historyContainer = document.getElementById('historyRequests');
-      if (declined.length === 0) {
-        historyContainer.innerHTML = `
-          <div class="empty">
-            <div class="empty-icon">📜</div>
-            <div style="font-weight: 600; margin-bottom: 8px;">Aucun historique</div>
-            <div style="font-size: 14px;">Les demandes refusées apparaîtront ici.</div>
-          </div>
-        `;
+      if (history.length === 0) {
+        historyContainer.innerHTML = `<div class="empty"><div class="empty-icon">📜</div><div style="font-weight: 600; margin-bottom: 8px;">Aucun historique</div></div>`;
       } else {
-        historyContainer.innerHTML = declined.map(r => renderRequestCard(r, 'declined')).join('');
+        historyContainer.innerHTML = history.map(r => renderRequestCard(r, 'declined')).join('');
       }
     }
     
@@ -567,6 +579,7 @@
       const time = sugg.time || '?';
       const createdDate = new Date(req.created_at).toLocaleDateString('fr-FR');
       
+      // 1. Badge Statut Demande
       let badgeClass = 'badge-pending';
       let badgeText = '⏳ En attente';
       
@@ -577,6 +590,15 @@
         badgeClass = 'badge-declined';
         badgeText = '❌ Refusée';
       }
+
+      // 2. Badge Statut Suggestion (Cycle de vie)
+      // On devine le statut si le backend ne l'envoie pas explicitement
+      let eventBadge = '';
+      const suggStatus = sugg.status || 'active'; // Suppose que le backend renvoie status
+      
+      if (suggStatus === 'full') eventBadge = `<span class="badge badge-full">⛔ Complet</span>`;
+      else if (suggStatus === 'ongoing') eventBadge = `<span class="badge badge-ongoing">⏳ En cours</span>`;
+      else if (suggStatus === 'completed') eventBadge = `<span class="badge badge-completed">✅ Terminée</span>`;
       
       return `
         <div class="request-card ${statusType === 'declined' ? 'declined' : ''}">
@@ -592,9 +614,9 @@
               
               ${renderParticipantsBadge(sugg.participants)}
               
-              <div>
+              <div style="margin-top: 8px;">
                 <span class="badge ${badgeClass}">${badgeText}</span>
-                <span class="badge" style="background: rgba(255,255,255,0.1); color: var(--mt-muted);">
+                ${eventBadge} <span class="badge" style="background: rgba(255,255,255,0.1); color: var(--mt-muted);">
                   Envoyée le ${createdDate}
                 </span>
               </div>
@@ -618,9 +640,16 @@
           ` : ''}
           
           <div class="actions">
-            <button class="btn btn-secondary btn-small" onclick="viewSuggestionOnMap('${sugg.id}', ${sugg.location.lat}, ${sugg.location.lng})">
-              🗺️ Voir sur carte
+            <button class="btn btn-secondary btn-small" onclick="viewSuggestionOnMap('${sugg.id}', ${sugg.location?.lat}, ${sugg.location?.lng})">
+              🗺️ Carte
             </button>
+            
+            ${statusType === 'accepted' ? `
+                <button class="btn btn-primary btn-small" onclick="goToChat('${sugg.id}')">
+                  💬 Chat groupe
+                </button>
+            ` : ''}
+
             ${statusType === 'pending' ? `
               <button class="btn btn-danger btn-small" onclick="cancelRequest('${req.match_id}')">
                 🚫 Annuler
@@ -709,6 +738,19 @@ async function goToMap() {
     alert('❌ Erreur lors de l\'ouverture de la carte');
   }
 }
+
+// 🔥 NOUVEAU : Accéder au chat groupe
+  function goToChat(suggestionId) {
+    const session_token = sessionStorage.getItem('meetempo_token');
+    
+    if (!session_token) {
+      alert('❌ Session expirée. Veuillez vous reconnecter.');
+      window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+      return;
+    }
+    
+    window.location.href = `chat.html?suggestion_id=${suggestionId}&session_token=${session_token}`;
+  }
 
 function backToGPT() {
   if (window.opener) {
