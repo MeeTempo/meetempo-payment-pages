@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MeeTempo - Espace VIP</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        :root {
+            --vip-gold: #FFD700;
+            --vip-dark-gold: #DAA520;
+            --vip-bg-dark: #1a1a2e;
+            --vip-bg-card: #16213e;
+            --vip-text-muted: #a0a0b0;
+        }
+
+        body {
+            background-color: var(--vip-bg-dark);
+            color: white;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            padding-bottom: 80px; /* Espace pour la nav bar */
+        }
+
+        /* Gradients & Effets */
+        .vip-gradient-text {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .vip-card {
+            background: var(--vip-bg-card);
+            border: 1px solid rgba(255, 215, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .vip-border-gold {
+            border: 1px solid var(--vip-gold);
+        }
+
+        /* Bouton Réclamer / Copier */
+        .btn-gold {
+            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
+            color: #1a1a2e;
+            font-weight: 700;
+            transition: transform 0.2s;
+        }
+        .btn-gold:active {
+            transform: scale(0.95);
+        }
+
+        /* Animations */
+        @keyframes pulse-gold {
+            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
+        }
+        .animate-pulse-gold {
+            animation: pulse-gold 2s infinite;
+        }
+    </style>
+</head>
+<body>
+
+    <header class="relative overflow-hidden p-6 rounded-b-3xl bg-gradient-to-br from-[#1a1a2e] to-[#16213e] border-b border-yellow-500/20">
+        <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-500 opacity-5 rounded-full -mr-10 -mt-10 blur-xl"></div>
+
+        <div class="relative z-10">
+            <div class="flex justify-between items-start">
+                <div>
+                    <div class="text-4xl mb-2">👑</div>
+                    <h1 class="text-2xl font-bold text-white">Mon Espace VIP</h1>
+                    <p class="text-indigo-200 text-sm" id="user-name">Chargement...</p>
+                </div>
+                <div class="bg-yellow-500/10 border border-yellow-500/50 px-3 py-1 rounded-full backdrop-blur-sm">
+                    <span class="text-xs font-bold text-[#FFD700] tracking-wide" id="vip-level">GOLD MEMBER</span>
+                </div>
+            </div>
+
+            <div class="mt-6 bg-[#0f172a] rounded-lg p-3 border border-white/5">
+                <div class="flex justify-between text-xs mb-2 text-gray-400">
+                    <span>Score VIP</span>
+                    <span class="text-[#FFD700] font-bold" id="vip-score-text">0/100</span>
+                </div>
+                <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
+                    <div id="vip-score-bar" class="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="px-4 mt-6 space-y-6">
+
+        <div class="grid grid-cols-2 gap-3">
+            <div class="vip-card p-4 rounded-xl relative overflow-hidden group">
+                <div class="absolute top-0 right-0 p-2 opacity-10 text-4xl">🎮</div>
+                <div class="text-gray-400 text-xs mb-1">Points Fidélité</div>
+                <div class="text-2xl font-bold text-[#FFD700]" id="points-total">...</div>
+                <div class="text-[10px] text-green-400 mt-1">+50 = Cadeau !</div>
+            </div>
+            
+            <div class="vip-card p-4 rounded-xl relative overflow-hidden">
+                <div class="absolute top-0 right-0 p-2 opacity-10 text-4xl">👥</div>
+                <div class="text-gray-400 text-xs mb-1">Filleuls Actifs</div>
+                <div class="text-2xl font-bold text-white" id="referral-count">...</div>
+                <div class="text-[10px] text-[#FFD700] mt-1">240 pts gagnés</div>
+            </div>
+        </div>
+
+        <section>
+            <h2 class="text-lg font-bold mb-4 flex items-center">
+                <i class="fas fa-gift text-[#FFD700] mr-2"></i> Récompenses
+            </h2>
+            
+            <div class="space-y-3" id="rewards-list">
+                <div class="text-center text-gray-500 text-sm py-4">Chargement des récompenses...</div>
+            </div>
+        </section>
+
+        <section class="vip-card p-5 rounded-xl border border-yellow-500/30">
+            <h2 class="text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider">Mon lien unique</h2>
+            
+            <div class="flex gap-2 mb-3">
+                <input type="text" id="referral-link" readonly 
+                    class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-3 py-2 text-xs text-gray-300 font-mono focus:outline-none focus:border-[#FFD700]"
+                    value="Chargement...">
+                <button onclick="copyLink()" class="btn-gold px-4 py-2 rounded-lg text-xs whitespace-nowrap">
+                    <i class="fas fa-copy"></i>
+                </button>
+            </div>
+            
+            <p class="text-xs text-[#a0a0b0] bg-blue-500/10 p-2 rounded border-l-2 border-blue-500">
+                💡 Gagnez <strong>30 points</strong> pour chaque ami qui rejoint MeeTempo !
+            </p>
+        </section>
+
+        <section id="b2b-section" class="hidden">
+            <div class="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-xl p-5 border border-blue-500/30 shadow-lg">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="font-bold text-white">Espace Entreprise</h3>
+                    <span class="bg-blue-500 text-xs px-2 py-1 rounded text-white">Dirigeant</span>
+                </div>
+                <p class="text-xs text-blue-200 mb-4">
+                    Connectez vos collègues et obtenez le statut VIP gratuit à vie pour votre entreprise.
+                </p>
+                <a href="#" id="btn-b2b-dashboard" class="block w-full bg-white text-blue-900 text-center py-2 rounded-lg text-sm font-bold hover:bg-gray-100">
+                    Gérer mon équipe
+                </a>
+            </div>
+        </section>
+
+    </main>
+
+    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-safe z-50">
+        <div class="flex justify-around items-center p-2 h-16">
+            <a href="carte.html" class="nav-link flex flex-col items-center text-gray-400 w-16">
+                <i class="fas fa-map text-lg mb-1"></i>
+                <span class="text-[10px]">Carte</span>
+            </a>
+            <a href="my-chats.html" class="nav-link flex flex-col items-center text-gray-400 w-16">
+                <i class="fas fa-comments text-lg mb-1"></i>
+                <span class="text-[10px]">Chat</span>
+            </a>
+            <div class="relative -top-5">
+                <a href="create-suggestion.html" class="nav-link bg-[#6366f1] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-indigo-300 transform transition active:scale-95">
+                    <i class="fas fa-plus text-xl"></i>
+                </a>
+            </div>
+            <a href="my-suggestions.html" class="nav-link flex flex-col items-center text-gray-400 w-16">
+                <i class="fas fa-list text-lg mb-1"></i>
+                <span class="text-[10px]">Activités</span>
+            </a>
+            <a href="vip-dashboard.html" class="nav-link flex flex-col items-center text-[#6366f1] w-16">
+                <i class="fas fa-crown text-lg mb-1"></i>
+                <span class="text-[10px] font-medium">VIP</span>
+            </a>
+        </div>
+    </nav>
+
+    <script>
+        const API_BASE_URL = 'https://api.meetempo.com'; // Remplacer par ton URL API Cloudflare réelle
+        let currentToken = null;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            // 1. Récupération du Token (Supporte ?token= et ?session_token=)
+            const urlParams = new URLSearchParams(window.location.search);
+            currentToken = urlParams.get('token') || urlParams.get('session_token');
+
+            if (!currentToken) {
+                window.location.href = 'login.html'; // Sécurité basique
+                return;
+            }
+
+            console.log("🔑 Token actif:", currentToken);
+
+            // 2. Mise à jour des liens de navigation (Crucial pour la persistance)
+            updateNavLinks(currentToken);
+
+            // 3. Chargement des données
+            // Pour l'instant, j'utilise des données mockées pour que tu puisses tester le design
+            // Décommente fetchVipData() quand ton API est prête à recevoir l'appel
+            mockVipData(); 
+            // await fetchVipData(); 
+        });
+
+        function updateNavLinks(token) {
+            document.querySelectorAll('a.nav-link').forEach(link => {
+                const href = link.getAttribute('href');
+                if (href && !href.startsWith('#')) {
+                    const separator = href.includes('?') ? '&' : '?';
+                    // On utilise 'token' par défaut pour compatibilité
+                    link.setAttribute('href', `${href}${separator}token=${token}`);
+                }
+            });
+            
+            // Lien B2B spécifique
+            const b2bBtn = document.getElementById('btn-b2b-dashboard');
+            if(b2bBtn) b2bBtn.setAttribute('href', `b2b-dashboard.html?token=${token}`);
+        }
+
+        // --- MODE DÉMO (MOCK) ---
+        function mockVipData() {
+            const mock = {
+                user: { first_name: "Alexandre", vip_score: 85, job_level: "dirigeant" },
+                gamification: { points: 950 },
+                referral: { code: "VIP-ALX-2025", invited_count: 12 },
+                rewards: [
+                    { id: 1, title: "1 mois VIP offert", cost: 1000, unlocked: false, icon: "🎁" },
+                    { id: 2, title: "Badge Ambassadeur", cost: 500, unlocked: true, icon: "🏆" }
+                ]
+            };
+            renderDashboard(mock);
+        }
+
+        // --- MODE RÉEL (API) ---
+        async function fetchVipData() {
+            try {
+                // Exemple d'appel (à adapter selon tes endpoints réels index.js)
+                const headers = { 'Authorization': `Bearer ${currentToken}` };
+                
+                const [profileRes, pointsRes] = await Promise.all([
+                    fetch(`${API_BASE_URL}/profile?token=${currentToken}`),
+                    fetch(`${API_BASE_URL}/gamification/points?token=${currentToken}`)
+                ]);
+
+                const profile = await profileRes.json();
+                const points = await pointsRes.json();
+
+                renderDashboard({
+                    user: profile,
+                    gamification: points,
+                    // ... autres données
+                });
+
+            } catch (e) {
+                console.error("Erreur API", e);
+            }
+        }
+
+        function renderDashboard(data) {
+            // Header
+            document.getElementById('user-name').textContent = `Bonjour, ${data.user.first_name}`;
+            document.getElementById('vip-score-text').textContent = `${data.user.vip_score}/100`;
+            document.getElementById('vip-score-bar').style.width = `${data.user.vip_score}%`;
+
+            // Stats
+            document.getElementById('points-total').textContent = data.gamification.points;
+            document.getElementById('referral-count').textContent = data.referral.invited_count;
+
+            // Lien Parrainage
+            const link = `https://meetempo.com/?ref=${data.referral.code}`;
+            document.getElementById('referral-link').value = link;
+
+            // Liste Récompenses
+            const rewardsContainer = document.getElementById('rewards-list');
+            rewardsContainer.innerHTML = ''; // Reset
+
+            data.rewards.forEach(reward => {
+                const isUnlockable = data.gamification.points >= reward.cost;
+                // Style différent si débloqué ou non
+                const opacityClass = isUnlockable ? 'opacity-100 border-yellow-500/50' : 'opacity-50 grayscale border-gray-700';
+                const btnHtml = isUnlockable 
+                    ? `<button class="btn-gold text-[10px] px-3 py-1 rounded-full animate-pulse-gold">RÉCLAMER</button>`
+                    : `<span class="text-[10px] text-gray-500"><i class="fas fa-lock"></i> ${reward.cost} pts</span>`;
+
+                const html = `
+                <div class="vip-card p-3 rounded-lg flex items-center gap-3 ${opacityClass} transition-all">
+                    <div class="text-2xl bg-white/5 w-10 h-10 rounded-full flex items-center justify-center">${reward.icon}</div>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-bold text-white">${reward.title}</h3>
+                        <div class="w-full bg-gray-700 h-1.5 rounded-full mt-1">
+                            <div class="bg-yellow-500 h-1.5 rounded-full" style="width: ${(data.gamification.points / reward.cost) * 100}%"></div>
+                        </div>
+                    </div>
+                    ${btnHtml}
+                </div>`;
+                rewardsContainer.insertAdjacentHTML('beforeend', html);
+            });
+
+            // Section B2B (pour dirigeants uniquement)
+            if (data.user.job_level === 'dirigeant' || data.user.job_level === 'cadre') {
+                document.getElementById('b2b-section').classList.remove('hidden');
+            }
+        }
+
+        function copyLink() {
+            const input = document.getElementById('referral-link');
+            input.select();
+            input.setSelectionRange(0, 99999); // Mobile
+            navigator.clipboard.writeText(input.value);
+            
+            // Feedback visuel
+            const btn = document.querySelector('button[onclick="copyLink()"]');
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fas fa-check"></i>';
+            btn.classList.add('bg-green-500', 'text-white');
+            setTimeout(() => {
+                btn.innerHTML = originalHTML;
+                btn.classList.remove('bg-green-500', 'text-white');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
