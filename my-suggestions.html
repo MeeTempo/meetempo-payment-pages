@@ -673,48 +673,44 @@ function renderParticipantsBadge(sugg) {
       const date = sugg.date ? new Date(sugg.date).toLocaleDateString('fr-FR') : '?';
       const time = sugg.time || '?';
       
-      // 🔥 NOUVEAU : Calcul du badge de statut (Cycle de vie)
+      // 1. Calcul du badge
       let statusBadge = '';
       const status = sugg.statut || 'active';
       
-      if (isExpired) {
-          statusBadge = `<span class="badge badge-expired">⏰ Expirée</span>`;
-          if (status === 'cancelled') statusBadge = `<span class="badge badge-expired">🚫 Annulée</span>`;
+      // Si c'est l'onglet historique (isExpired = true) mais que c'est completed
+      if (status === 'completed') {
+           statusBadge = `<span class="badge badge-completed">✅ Terminée</span>`;
+      } else if (isExpired) {
+           statusBadge = `<span class="badge badge-expired">⏰ Expirée</span>`;
+           if (status === 'cancelled') statusBadge = `<span class="badge badge-expired">🚫 Annulée</span>`;
       } else {
+          // Onglet Actives
           switch(status) {
-              case 'full':
-                  statusBadge = `<span class="badge badge-full">⛔ Complète</span>`;
-                  break;
-              case 'ongoing':
-                  statusBadge = `<span class="badge badge-ongoing">⏳ En cours</span>`;
-                  break;
-              case 'completed':
-                  statusBadge = `<span class="badge badge-completed">✅ Terminée</span>`;
-                  break;
-              case 'active':
-              default:
-                  statusBadge = `<span class="badge badge-active">✨ Active</span>`;
-                  break;
+              case 'full': statusBadge = `<span class="badge badge-full">⛔ Complète</span>`; break;
+              case 'ongoing': statusBadge = `<span class="badge badge-ongoing">⏳ En cours</span>`; break;
+              default: statusBadge = `<span class="badge badge-active">✨ Active</span>`; break;
           }
       }
 
-      // 👇 Note l'ajout de id="sugg_${sugg.id}" ici pour le highlight
+      // 2. Définir si les boutons sont actifs
+      // Le chat et le feedback sont dispos si 'completed' ou si 'active/ongoing' avec participants
+      const canInteract = !isExpired || status === 'completed';
+
       return `
-        <div id="sugg_${sugg.id}" class="suggestion-card ${isExpired ? 'expired' : ''}">
+        <div id="sugg_${sugg.id}" class="suggestion-card ${isExpired && status !== 'completed' ? 'expired' : ''}">
           <div class="suggestion-header">
             <div style="flex: 1;">
               <div class="suggestion-title">${sugg.ai_final_text || sugg.description}</div>
               <div class="suggestion-meta">
-              <div class="meta-item">📍 ${sugg.city || sugg.location_name || '?'}</div>
-              <div class="meta-item">📅 ${date}</div>
-              <div class="meta-item">⏰ ${time}</div>
-            </div>
+                <div class="meta-item">📍 ${sugg.city || sugg.location_name || '?'}</div>
+                <div class="meta-item">📅 ${date}</div>
+                <div class="meta-item">⏰ ${time}</div>
+              </div>
 
-            ${renderParticipantsBadge(sugg)}
+              ${renderParticipantsBadge(sugg)}
             
               <div>
                 ${statusBadge}
-                
                 ${pendingRequests.length > 0 ? `
                   <span class="badge badge-pending">
                     ${pendingRequests.length} demande${pendingRequests.length > 1 ? 's' : ''}
@@ -727,74 +723,18 @@ function renderParticipantsBadge(sugg) {
           ${!isExpired && pendingRequests.length > 0 ? `
             <div class="requests-section">
               <div class="requests-header">
-                <div class="requests-title">
-                  🤝 Demandes de participation (${pendingRequests.length})
-                </div>
+                <div class="requests-title">🤝 Demandes (${pendingRequests.length})</div>
                 <div style="font-size: 12px; color: var(--mt-muted);">
-                  ${sugg.participants_current}/${sugg.participants_max} participants
+                  ${sugg.participants_current}/${sugg.participants_max}
                 </div>
               </div>
-              
               ${pendingRequests.map(req => `
                 <div class="request-item">
-                  <input 
-                    type="checkbox" 
-                    class="request-checkbox" 
-                    data-match-id="${req.match_id}"
-                    id="req_${req.match_id}"
-                  >
-                  <label for="req_${req.match_id}" style="display: flex; align-items: center; gap: 12px; flex: 1; cursor: pointer;">
-                    <div class="request-avatar">
-                      ${req.anonymous_initiales || req.user_name.substring(0, 2).toUpperCase()}
-                    </div>
-                    <div class="request-info">
+                   <div class="request-info">
                       <div class="request-name">${req.anonymous_display || req.user_name}</div>
                       <div class="request-city">📍 ${req.user_city}</div>
-                    </div>
-                    ${req.compatibility_score ? `
-                      <div class="request-score">
-                        ${req.compatibility_score}% match
-                      </div>
-                    ` : ''}
-                  </label>
-                </div>
-              `).join('')}
-              
-              <div class="actions" style="margin-top: 12px;">
-                <button 
-                  class="btn btn-primary btn-small" 
-                  onclick="acceptSelected('${sugg.id}')"
-                >
-                  ✅ Accepter sélectionnés
-                </button>
-                <button 
-                  class="btn btn-secondary btn-small" 
-                  onclick="selectAll('${sugg.id}')"
-                >
-                  ☑️ Tout sélectionner
-                </button>
-                <button 
-                  class="btn btn-danger btn-small" 
-                  onclick="declineAll('${sugg.id}')"
-                >
-                  ❌ Tout refuser
-                </button>
-              </div>
-            </div>
-          ` : ''}
-          
-          ${acceptedRequests.length > 0 ? `
-            <div class="requests-section">
-              <div class="requests-title">✅ Participants confirmés (${acceptedRequests.length})</div>
-              ${acceptedRequests.map(req => `
-                <div class="request-item" style="opacity: 0.7;">
-                  <div class="request-avatar">
-                    ${req.anonymous_initiales || req.user_name.substring(0, 2).toUpperCase()}
-                  </div>
-                  <div class="request-info">
-                    <div class="request-name">${req.anonymous_display || req.user_name}</div>
-                    <div class="request-city">📍 ${req.user_city}</div>
-                  </div>
+                   </div>
+                   <button class="btn btn-primary btn-small" onclick="acceptSelected('${sugg.id}')">Accepter</button>
                 </div>
               `).join('')}
             </div>
@@ -802,16 +742,24 @@ function renderParticipantsBadge(sugg) {
           
           <div class="actions">
             <button class="btn btn-secondary btn-small" onclick="viewOnMap('${sugg.id}')">
-              🗺️ Voir sur carte
+              🗺️ Carte
             </button>
-            ${acceptedRequests.length > 0 && !isExpired ? `
+
+            ${(acceptedRequests.length > 0 || status === 'completed') ? `
               <button class="btn btn-primary btn-small" onclick="goToChat('${sugg.id}')">
-                💬 Chat groupe
+                💬 Chat
               </button>
             ` : ''}
-            ${!isExpired ? `
+            
+            ${status === 'completed' ? `
+              <button class="btn btn-secondary btn-small" onclick="window.location.href='feedback.html?suggestion_id=${sugg.id}&session_token=${sessionStorage.getItem('meetempo_token')}'">
+                ⭐ Noter
+              </button>
+            ` : ''}
+
+            ${status !== 'completed' && status !== 'ongoing' ? `
               <button class="btn btn-danger btn-small" onclick="deleteSuggestion('${sugg.id}')">
-                🗑️ Supprimer
+                🗑️
               </button>
             ` : ''}
           </div>
