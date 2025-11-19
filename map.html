@@ -1850,17 +1850,41 @@ function addMarkersWithClustering(users, zoom = 13) {
           dateFormatted = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
         }
 
-        // 🔥 2. NOUVEAU : Calculer si c'est COMPLET
+        // 2. Calculer l'état
         const currentP = user.participants?.current?.length || 1;
         const maxP = user.participants?.max || 3;
         const isFull = currentP >= maxP;
+        
+        // Check "En cours" (Heure passée)
+        let isOngoing = false;
+        if (user.suggestion_date && user.suggestion_time) {
+            const now = new Date();
+            const eventDate = new Date(`${user.suggestion_date}T${user.suggestion_time}:00`);
+            if (now >= eventDate && now < new Date(eventDate.getTime() + 3 * 3600 * 1000)) {
+                isOngoing = true;
+            }
+        }
+
+        // 🔥 3. CRÉER LA PASTILLE DE STATUT (Status Pill)
+        let statusPill = '';
+        if (isOngoing) {
+            statusPill = '<span style="background:#3B82F6; color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">⏳ EN COURS</span>';
+        } else if (isFull) {
+            statusPill = '<span style="background:#EF4444; color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">⛔ COMPLET</span>';
+        } else {
+            // C'est ici qu'on met le "ACTIVE" que tu voulais !
+            statusPill = '<span style="background:#10B981; color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">🟢 ACTIVE</span>';
+        }
 
         const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
           content: `
             <div style="padding: 12px; font-family: Montserrat, sans-serif; min-width: 220px; max-width: 300px;">
-                <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #030E4F;">
-                  ${escapeHTML(user.anonymous_display || user.pseudo)}
-                </div>
+                
+                <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom: 12px;">
+                    <div style="font-weight: 700; font-size: 15px; color: #030E4F; padding-right:8px;">
+                      ${escapeHTML(user.anonymous_display || user.pseudo)}
+                    </div>
+                    ${statusPill} </div>
               
               ${user.suggestion_activity ? `
                 <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #030E4F;">
@@ -2032,16 +2056,16 @@ const dataPoints = dataSource.map((item, index) => {
         
         noiseMarker.setData(data);
         
-        // 👇 C'est ici que tu colles le nouveau bloc 👇
         noiseMarker.addEventListener('tap', function(evt) {
+          // 1. Récupérer les données spécifiques au cluster/noise
           const markerData = evt.target.getData();
           const user = markerData.user;
           
-          // Récupérer le score depuis les données (adapté pour noiseMarker)
+          // Récupérer le score et l'index
           const affinityScore = markerData.affinityScore || 50;
           const index = markerData.index;
 
-          // 1. Formatter la date
+          // 2. Formatter la date
           let dateFormatted = '';
           if (user.suggestion_date) {
             const d = new Date(user.suggestion_date);
@@ -2050,7 +2074,7 @@ const dataPoints = dataSource.map((item, index) => {
             dateFormatted = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
           }
 
-          // 🔥 2. NOUVEAU : Calculer si c'est COMPLET
+          // 🔥 3. NOUVEAU : Calculer si c'est COMPLET
           const currentP = user.participants?.current?.length || 1;
           const maxP = user.participants?.max || 3;
           const isFull = currentP >= maxP;
@@ -2111,7 +2135,10 @@ const dataPoints = dataSource.map((item, index) => {
           });
           ui.addBubble(bubble);
           
-          highlightUserCard(index);
+          // Highlight dans le bottom sheet si possible
+          if (typeof highlightUserCard === 'function') {
+             highlightUserCard(index);
+          }
         });
         
         return noiseMarker;
