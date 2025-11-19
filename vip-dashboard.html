@@ -3,325 +3,392 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>MeeTempo - Espace VIP</title>
+    <title>Espace VIP - MeeTempo</title>
+    
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Montserrat', 'sans-serif'],
+                    },
+                    colors: {
+                        mt: {
+                            dark: '#030E4F',    // Ton bleu nuit
+                            bg: '#0a133f',      // Ton fond
+                            accent: '#F49F1C',  // Ton orange/or
+                            muted: '#c9d1ff',   // Ton texte gris/bleu
+                            card: 'rgba(255, 255, 255, 0.08)',
+                            border: 'rgba(255, 255, 255, 0.12)'
+                        }
+                    },
+                    backgroundImage: {
+                        'vip-gradient': 'linear-gradient(160deg, #030E4F 0%, #0a133f 100%)',
+                        'gold-gradient': 'linear-gradient(135deg, #F49F1C 0%, #FFD700 100%)',
+                    }
+                }
+            }
+        }
+    </script>
+
     <style>
-        :root {
-            --vip-gold: #FFD700;
-            --vip-dark-gold: #DAA520;
-            --vip-bg-dark: #1a1a2e;
-            --vip-bg-card: #16213e;
-            --vip-text-muted: #a0a0b0;
-        }
-
+        /* Styles spécifiques pour l'ambiance VIP */
         body {
-            background-color: var(--vip-bg-dark);
+            background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
             color: white;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-            padding-bottom: 80px; /* Espace pour la nav bar */
+            /* Padding pour la bottom nav */
+            padding-bottom: 80px; 
         }
 
-        /* Gradients & Effets */
-        .vip-gradient-text {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-        
-        .vip-card {
-            background: var(--vip-bg-card);
-            border: 1px solid rgba(255, 215, 0, 0.1);
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
 
-        .vip-border-gold {
-            border: 1px solid var(--vip-gold);
+        /* Animation Pulse Gold */
+        @keyframes glow {
+            0%, 100% { box-shadow: 0 0 5px rgba(244, 159, 28, 0.2); }
+            50% { box-shadow: 0 0 20px rgba(244, 159, 28, 0.6); }
+        }
+        .animate-glow {
+            animation: glow 3s infinite;
         }
 
-        /* Bouton Réclamer / Copier */
-        .btn-gold {
-            background: linear-gradient(135deg, #FFD700 0%, #FFA500 100%);
-            color: #1a1a2e;
-            font-weight: 700;
-            transition: transform 0.2s;
+        /* Masquer scrollbar */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
         }
-        .btn-gold:active {
-            transform: scale(0.95);
-        }
-
-        /* Animations */
-        @keyframes pulse-gold {
-            0% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
-            70% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0); }
-        }
-        .animate-pulse-gold {
-            animation: pulse-gold 2s infinite;
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
     </style>
 </head>
-<body>
+<body class="min-h-screen font-sans">
 
-    <header class="relative overflow-hidden p-6 rounded-b-3xl bg-gradient-to-br from-[#1a1a2e] to-[#16213e] border-b border-yellow-500/20">
-        <div class="absolute top-0 right-0 w-40 h-40 bg-yellow-500 opacity-5 rounded-full -mr-10 -mt-10 blur-xl"></div>
+    <header class="relative p-6 pb-12 rounded-b-3xl bg-mt-dark overflow-hidden border-b border-mt-border">
+        <div class="absolute top-0 right-0 w-64 h-64 bg-mt-accent opacity-5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
 
         <div class="relative z-10">
-            <div class="flex justify-between items-start">
+            <div class="flex justify-between items-start mb-6">
                 <div>
-                    <div class="text-4xl mb-2">👑</div>
-                    <h1 class="text-2xl font-bold text-white">Mon Espace VIP</h1>
-                    <p class="text-indigo-200 text-sm" id="user-name">Chargement...</p>
+                    <div class="flex items-center gap-2 mb-1">
+                        <i class="fas fa-crown text-mt-accent text-xl"></i>
+                        <span class="text-xs font-bold tracking-widest text-mt-accent uppercase">Espace Membre</span>
+                    </div>
+                    <h1 class="text-2xl font-bold text-white">Mon Cockpit VIP</h1>
+                    <p class="text-mt-muted text-sm" id="user-name">Chargement...</p>
                 </div>
-                <div class="bg-yellow-500/10 border border-yellow-500/50 px-3 py-1 rounded-full backdrop-blur-sm">
-                    <span class="text-xs font-bold text-[#FFD700] tracking-wide" id="vip-level">GOLD MEMBER</span>
+                <div class="glass-panel px-3 py-1 rounded-full border-mt-accent/30">
+                    <span class="text-xs font-bold text-mt-accent" id="vip-level">GOLD</span>
                 </div>
             </div>
 
-            <div class="mt-6 bg-[#0f172a] rounded-lg p-3 border border-white/5">
-                <div class="flex justify-between text-xs mb-2 text-gray-400">
+            <div class="bg-black/20 rounded-xl p-4 border border-white/5">
+                <div class="flex justify-between text-xs mb-2 text-mt-muted">
                     <span>Score VIP</span>
-                    <span class="text-[#FFD700] font-bold" id="vip-score-text">0/100</span>
+                    <span class="text-mt-accent font-bold" id="vip-score-text">0/100</span>
                 </div>
-                <div class="w-full bg-gray-700 rounded-full h-2 overflow-hidden">
-                    <div id="vip-score-bar" class="bg-gradient-to-r from-yellow-400 to-yellow-600 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
+                <div class="w-full bg-white/10 rounded-full h-2 overflow-hidden">
+                    <div id="vip-score-bar" class="bg-gradient-to-r from-mt-accent to-yellow-300 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
                 </div>
+                <div class="mt-2 text-[10px] text-right text-gray-400">Prochain palier : Platinum (900 pts)</div>
             </div>
         </div>
     </header>
 
-    <main class="px-4 mt-6 space-y-6">
+    <main class="px-4 -mt-6 relative z-20 space-y-5">
 
         <div class="grid grid-cols-2 gap-3">
-            <div class="vip-card p-4 rounded-xl relative overflow-hidden group">
-                <div class="absolute top-0 right-0 p-2 opacity-10 text-4xl">🎮</div>
-                <div class="text-gray-400 text-xs mb-1">Points Fidélité</div>
-                <div class="text-2xl font-bold text-[#FFD700]" id="points-total">...</div>
-                <div class="text-[10px] text-green-400 mt-1">+50 = Cadeau !</div>
+            <div class="glass-panel p-4 rounded-2xl relative overflow-hidden group animate-glow border-mt-accent/20">
+                <div class="absolute -right-2 -top-2 text-4xl opacity-10 text-mt-accent">🎮</div>
+                <div class="text-mt-muted text-xs mb-1">Points Fidélité</div>
+                <div class="text-2xl font-bold text-white" id="points-total">...</div>
+                <div class="text-[10px] text-green-400 mt-1 font-bold">+50 = Cadeau !</div>
             </div>
             
-            <div class="vip-card p-4 rounded-xl relative overflow-hidden">
-                <div class="absolute top-0 right-0 p-2 opacity-10 text-4xl">👥</div>
-                <div class="text-gray-400 text-xs mb-1">Filleuls Actifs</div>
+            <div class="glass-panel p-4 rounded-2xl relative overflow-hidden">
+                <div class="absolute -right-2 -top-2 text-4xl opacity-10 text-white">👥</div>
+                <div class="text-mt-muted text-xs mb-1">Filleuls Actifs</div>
                 <div class="text-2xl font-bold text-white" id="referral-count">...</div>
-                <div class="text-[10px] text-[#FFD700] mt-1">240 pts gagnés</div>
+                <div class="text-[10px] text-mt-accent mt-1 font-bold" id="referral-gains">0 pts gagnés</div>
             </div>
         </div>
 
         <section>
-            <h2 class="text-lg font-bold mb-4 flex items-center">
-                <i class="fas fa-gift text-[#FFD700] mr-2"></i> Récompenses
+            <h2 class="text-sm font-bold text-mt-muted mb-3 uppercase tracking-wider flex items-center">
+                <i class="fas fa-gift mr-2"></i> Récompenses
             </h2>
-            
             <div class="space-y-3" id="rewards-list">
-                <div class="text-center text-gray-500 text-sm py-4">Chargement des récompenses...</div>
+                <div class="text-center py-4">
+                    <div class="inline-block w-6 h-6 border-2 border-mt-accent border-t-transparent rounded-full animate-spin"></div>
+                </div>
             </div>
         </section>
 
-        <section class="vip-card p-5 rounded-xl border border-yellow-500/30">
-            <h2 class="text-sm font-bold text-gray-300 mb-3 uppercase tracking-wider">Mon lien unique</h2>
+        <section class="glass-panel p-5 rounded-2xl border-mt-accent/20">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-sm font-bold text-white">Mon Lien Unique</h2>
+                <i class="fas fa-share-alt text-mt-accent"></i>
+            </div>
             
             <div class="flex gap-2 mb-3">
                 <input type="text" id="referral-link" readonly 
-                    class="w-full bg-[#0f172a] border border-gray-700 rounded-lg px-3 py-2 text-xs text-gray-300 font-mono focus:outline-none focus:border-[#FFD700]"
-                    value="Chargement...">
-                <button onclick="copyLink()" class="btn-gold px-4 py-2 rounded-lg text-xs whitespace-nowrap">
-                    <i class="fas fa-copy"></i>
+                    class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-3 text-xs text-gray-300 font-mono focus:outline-none focus:border-mt-accent"
+                    value="...">
+                <button onclick="copyLink()" class="bg-mt-accent text-black font-bold px-4 rounded-lg text-xs hover:bg-yellow-400 transition">
+                    COPIER
                 </button>
             </div>
             
-            <p class="text-xs text-[#a0a0b0] bg-blue-500/10 p-2 rounded border-l-2 border-blue-500">
-                💡 Gagnez <strong>30 points</strong> pour chaque ami qui rejoint MeeTempo !
-            </p>
+            <div class="bg-mt-accent/10 border border-mt-accent/20 p-3 rounded-lg">
+                <p class="text-xs text-mt-muted">
+                    💡 Gagnez <strong class="text-mt-accent">30 points</strong> pour chaque ami qui rejoint MeeTempo avec votre lien !
+                </p>
+            </div>
         </section>
 
         <section id="b2b-section" class="hidden">
-            <div class="bg-gradient-to-r from-blue-900 to-indigo-900 rounded-xl p-5 border border-blue-500/30 shadow-lg">
-                <div class="flex items-center justify-between mb-3">
-                    <h3 class="font-bold text-white">Espace Entreprise</h3>
-                    <span class="bg-blue-500 text-xs px-2 py-1 rounded text-white">Dirigeant</span>
+            <div class="bg-gradient-to-br from-indigo-900 to-blue-900 rounded-2xl p-5 border border-indigo-500/30 shadow-lg relative overflow-hidden">
+                <div class="relative z-10">
+                    <div class="flex items-center justify-between mb-3">
+                        <h3 class="font-bold text-white text-lg">Espace Entreprise</h3>
+                        <span class="bg-white text-indigo-900 text-[10px] font-bold px-2 py-1 rounded">DIRIGEANT</span>
+                    </div>
+                    <p class="text-xs text-indigo-100 mb-4 leading-relaxed">
+                        Connectez vos collègues. Si 5 personnes rejoignent, vous obtenez le <strong>VIP gratuit</strong> pour toute l'équipe.
+                    </p>
+                    <button onclick="goToB2B()" class="w-full bg-white text-indigo-900 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition shadow-lg">
+                        Gérer mon équipe
+                    </button>
                 </div>
-                <p class="text-xs text-blue-200 mb-4">
-                    Connectez vos collègues et obtenez le statut VIP gratuit à vie pour votre entreprise.
-                </p>
-                <a href="#" id="btn-b2b-dashboard" class="block w-full bg-white text-blue-900 text-center py-2 rounded-lg text-sm font-bold hover:bg-gray-100">
-                    Gérer mon équipe
-                </a>
             </div>
         </section>
 
+        <div class="h-8"></div>
+
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 pb-safe z-50">
-        <div class="flex justify-around items-center p-2 h-16">
-            <a href="carte.html" class="nav-link flex flex-col items-center text-gray-400 w-16">
+    <nav class="fixed bottom-0 left-0 right-0 bg-[#030E4F]/90 backdrop-blur-lg border-t border-white/10 pb-safe z-50 pb-2">
+        <div class="flex justify-around items-center h-16 px-2">
+            <button onclick="goToMap()" class="flex flex-col items-center justify-center w-16 h-full text-gray-400 hover:text-white transition">
                 <i class="fas fa-map text-lg mb-1"></i>
                 <span class="text-[10px]">Carte</span>
-            </a>
-            <a href="my-chats.html" class="nav-link flex flex-col items-center text-gray-400 w-16">
-                <i class="fas fa-comments text-lg mb-1"></i>
-                <span class="text-[10px]">Chat</span>
-            </a>
-            <div class="relative -top-5">
-                <a href="create-suggestion.html" class="nav-link bg-[#6366f1] text-white w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-indigo-300 transform transition active:scale-95">
-                    <i class="fas fa-plus text-xl"></i>
-                </a>
-            </div>
-            <a href="my-suggestions.html" class="nav-link flex flex-col items-center text-gray-400 w-16">
+            </button>
+            
+            <button onclick="goToRequests()" class="flex flex-col items-center justify-center w-16 h-full text-gray-400 hover:text-white transition">
+                <i class="fas fa-inbox text-lg mb-1"></i>
+                <span class="text-[10px]">Demandes</span>
+            </button>
+
+            <button onclick="createNew()" class="relative -top-6 bg-mt-accent text-mt-dark w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/20 border-4 border-[#030E4F] transform transition active:scale-95">
+                <i class="fas fa-plus text-xl"></i>
+            </button>
+
+            <button onclick="goToSuggestions()" class="flex flex-col items-center justify-center w-16 h-full text-gray-400 hover:text-white transition">
                 <i class="fas fa-list text-lg mb-1"></i>
                 <span class="text-[10px]">Activités</span>
-            </a>
-            <a href="vip-dashboard.html" class="nav-link flex flex-col items-center text-[#6366f1] w-16">
+            </button>
+
+            <button class="flex flex-col items-center justify-center w-16 h-full text-mt-accent">
                 <i class="fas fa-crown text-lg mb-1"></i>
-                <span class="text-[10px] font-medium">VIP</span>
-            </a>
+                <span class="text-[10px] font-bold">VIP</span>
+            </button>
         </div>
     </nav>
 
     <script>
-        const API_BASE_URL = 'https://api.meetempo.com'; // Remplacer par ton URL API Cloudflare réelle
-        let currentToken = null;
-
+        const API_BASE = 'https://api.meetempo.com';
+        
+        // --- 1. INITIALISATION ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // 1. Récupération du Token (Supporte ?token= et ?session_token=)
+            // Récupération Token (Priorité URL > SessionStorage)
             const urlParams = new URLSearchParams(window.location.search);
-            currentToken = urlParams.get('token') || urlParams.get('session_token');
+            let token = urlParams.get('session_token') || urlParams.get('token');
+            
+            if (!token) {
+                token = sessionStorage.getItem('meetempo_token');
+            }
 
-            if (!currentToken) {
-                window.location.href = 'login.html'; // Sécurité basique
+            if (!token) {
+                window.location.href = 'login.html'; // Fallback sécurité
                 return;
             }
 
-            console.log("🔑 Token actif:", currentToken);
+            // Sauvegarde fraîche
+            sessionStorage.setItem('meetempo_token', token);
+            console.log('🔑 VIP Dashboard initialized with token');
 
-            // 2. Mise à jour des liens de navigation (Crucial pour la persistance)
-            updateNavLinks(currentToken);
-
-            // 3. Chargement des données
-            // Pour l'instant, j'utilise des données mockées pour que tu puisses tester le design
-            // Décommente fetchVipData() quand ton API est prête à recevoir l'appel
-            mockVipData(); 
-            // await fetchVipData(); 
+            // Chargement Données
+            await loadVipData(token);
         });
 
-        function updateNavLinks(token) {
-            document.querySelectorAll('a.nav-link').forEach(link => {
-                const href = link.getAttribute('href');
-                if (href && !href.startsWith('#')) {
-                    const separator = href.includes('?') ? '&' : '?';
-                    // On utilise 'token' par défaut pour compatibilité
-                    link.setAttribute('href', `${href}${separator}token=${token}`);
-                }
-            });
-            
-            // Lien B2B spécifique
-            const b2bBtn = document.getElementById('btn-b2b-dashboard');
-            if(b2bBtn) b2bBtn.setAttribute('href', `b2b-dashboard.html?token=${token}`);
-        }
-
-        // --- MODE DÉMO (MOCK) ---
-        function mockVipData() {
-            const mock = {
-                user: { first_name: "Alexandre", vip_score: 85, job_level: "dirigeant" },
-                gamification: { points: 950 },
-                referral: { code: "VIP-ALX-2025", invited_count: 12 },
-                rewards: [
-                    { id: 1, title: "1 mois VIP offert", cost: 1000, unlocked: false, icon: "🎁" },
-                    { id: 2, title: "Badge Ambassadeur", cost: 500, unlocked: true, icon: "🏆" }
-                ]
-            };
-            renderDashboard(mock);
-        }
-
-        // --- MODE RÉEL (API) ---
-        async function fetchVipData() {
+        // --- 2. CHARGEMENT DONNÉES ---
+        async function loadVipData(token) {
             try {
-                // Exemple d'appel (à adapter selon tes endpoints réels index.js)
-                const headers = { 'Authorization': `Bearer ${currentToken}` };
+                // On utilise l'endpoint MAESTRO qui contient tout le contexte (Profile + Gamification + Status)
+                // Si Maestro n'est pas dispo, on fallback sur /profile + /gamification
                 
-                const [profileRes, pointsRes] = await Promise.all([
-                    fetch(`${API_BASE_URL}/profile?token=${currentToken}`),
-                    fetch(`${API_BASE_URL}/gamification/points?token=${currentToken}`)
-                ]);
-
+                // Pour l'instant, simulation des appels basiques existants
+                const profileRes = await fetch(`${API_BASE}/profile?session_token=${token}`);
+                
+                if (!profileRes.ok) throw new Error('Session expirée');
+                
                 const profile = await profileRes.json();
-                const points = await pointsRes.json();
+                
+                // TODO: Remplacer par vrai endpoint gamification quand dispo
+                // Mock des données gamification en attendant l'implémentation backend complète
+                const gamification = {
+                    points: profile.points || 0, // Supposant que le profil renvoie les points
+                    referral_code: profile.referral_code || `VIP-${profile.first_name}-${new Date().getFullYear()}`,
+                    referral_count: profile.referral_count || 0
+                };
 
-                renderDashboard({
-                    user: profile,
-                    gamification: points,
-                    // ... autres données
-                });
+                renderDashboard(profile, gamification);
 
-            } catch (e) {
-                console.error("Erreur API", e);
+            } catch (err) {
+                console.error('Erreur chargement:', err);
+                // Mode dégradé / Mock pour démo si API fail
+                renderDashboard(
+                    { first_name: 'Membre', vip_score: 0, job_level: 'user' },
+                    { points: 0, referral_code: '...', referral_count: 0 }
+                );
             }
         }
 
-        function renderDashboard(data) {
+        // --- 3. RENDU GRAPHIQUE ---
+        function renderDashboard(user, game) {
             // Header
-            document.getElementById('user-name').textContent = `Bonjour, ${data.user.first_name}`;
-            document.getElementById('vip-score-text').textContent = `${data.user.vip_score}/100`;
-            document.getElementById('vip-score-bar').style.width = `${data.user.vip_score}%`;
+            document.getElementById('user-name').textContent = `Bonjour, ${user.first_name}`;
+            
+            // Score (Simulation calcul score)
+            const score = user.vip_score || 50; 
+            document.getElementById('vip-score-text').textContent = `${score}/100`;
+            document.getElementById('vip-score-bar').style.width = `${score}%`;
 
             // Stats
-            document.getElementById('points-total').textContent = data.gamification.points;
-            document.getElementById('referral-count').textContent = data.referral.invited_count;
+            document.getElementById('points-total').textContent = game.points;
+            document.getElementById('referral-count').textContent = game.referral_count;
+            document.getElementById('referral-gains').textContent = `${game.referral_count * 30} pts gagnés`;
 
-            // Lien Parrainage
-            const link = `https://meetempo.com/?ref=${data.referral.code}`;
+            // Lien
+            const link = `https://meetempo.com/?ref=${game.referral_code}`;
             document.getElementById('referral-link').value = link;
 
-            // Liste Récompenses
-            const rewardsContainer = document.getElementById('rewards-list');
-            rewardsContainer.innerHTML = ''; // Reset
-
-            data.rewards.forEach(reward => {
-                const isUnlockable = data.gamification.points >= reward.cost;
-                // Style différent si débloqué ou non
-                const opacityClass = isUnlockable ? 'opacity-100 border-yellow-500/50' : 'opacity-50 grayscale border-gray-700';
-                const btnHtml = isUnlockable 
-                    ? `<button class="btn-gold text-[10px] px-3 py-1 rounded-full animate-pulse-gold">RÉCLAMER</button>`
-                    : `<span class="text-[10px] text-gray-500"><i class="fas fa-lock"></i> ${reward.cost} pts</span>`;
-
-                const html = `
-                <div class="vip-card p-3 rounded-lg flex items-center gap-3 ${opacityClass} transition-all">
-                    <div class="text-2xl bg-white/5 w-10 h-10 rounded-full flex items-center justify-center">${reward.icon}</div>
-                    <div class="flex-1">
-                        <h3 class="text-sm font-bold text-white">${reward.title}</h3>
-                        <div class="w-full bg-gray-700 h-1.5 rounded-full mt-1">
-                            <div class="bg-yellow-500 h-1.5 rounded-full" style="width: ${(data.gamification.points / reward.cost) * 100}%"></div>
-                        </div>
-                    </div>
-                    ${btnHtml}
-                </div>`;
-                rewardsContainer.insertAdjacentHTML('beforeend', html);
-            });
-
-            // Section B2B (pour dirigeants uniquement)
-            if (data.user.job_level === 'dirigeant' || data.user.job_level === 'cadre') {
+            // Section B2B
+            if (user.job_level === 'dirigeant' || user.job_level === 'cadre' || user.plan === 'b2b') {
                 document.getElementById('b2b-section').classList.remove('hidden');
             }
+
+            // Récompenses (Statique pour l'instant, dynamique bientôt)
+            renderRewards(game.points);
         }
 
+        function renderRewards(points) {
+            const rewards = [
+                { cost: 500, title: "Badge Ambassadeur", icon: "🏆" },
+                { cost: 1000, title: "1 mois VIP offert", icon: "🎁" },
+                { cost: 2000, title: "Accès VTC Prioritaire", icon: "🚗" }
+            ];
+
+            const container = document.getElementById('rewards-list');
+            container.innerHTML = rewards.map(r => {
+                const unlocked = points >= r.cost;
+                const btnClass = unlocked 
+                    ? 'bg-mt-accent text-black animate-pulse' 
+                    : 'bg-white/10 text-gray-500 cursor-not-allowed';
+                const btnText = unlocked ? 'RÉCLAMER' : `<i class="fas fa-lock"></i> ${r.cost}`;
+
+                return `
+                <div class="glass-panel p-3 rounded-xl flex items-center gap-3 ${!unlocked ? 'opacity-60' : 'border-mt-accent/50'}">
+                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-xl">
+                        ${r.icon}
+                    </div>
+                    <div class="flex-1">
+                        <h3 class="text-sm font-bold text-white">${r.title}</h3>
+                        <div class="w-full bg-gray-700 h-1 rounded-full mt-1 overflow-hidden">
+                            <div class="bg-mt-accent h-1 rounded-full" style="width: ${Math.min(100, (points/r.cost)*100)}%"></div>
+                        </div>
+                    </div>
+                    <button class="text-[10px] font-bold px-3 py-1.5 rounded-lg ${btnClass}" ${!unlocked ? 'disabled' : ''}>
+                        ${btnText}
+                    </button>
+                </div>`;
+            }).join('');
+        }
+
+        // --- 4. FONCTIONS NAVIGATION (Critique) ---
+        
+        // Copier lien
         function copyLink() {
             const input = document.getElementById('referral-link');
             input.select();
             input.setSelectionRange(0, 99999); // Mobile
             navigator.clipboard.writeText(input.value);
             
-            // Feedback visuel
             const btn = document.querySelector('button[onclick="copyLink()"]');
-            const originalHTML = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-check"></i>';
+            const original = btn.innerText;
+            btn.innerText = "OK !";
             btn.classList.add('bg-green-500', 'text-white');
             setTimeout(() => {
-                btn.innerHTML = originalHTML;
+                btn.innerText = original;
                 btn.classList.remove('bg-green-500', 'text-white');
             }, 2000);
+        }
+
+        function getToken() {
+            return sessionStorage.getItem('meetempo_token');
+        }
+
+        // Navigation Simple
+        function goToRequests() {
+            window.location.href = `my-requests.html?session_token=${getToken()}`;
+        }
+
+        function goToSuggestions() {
+            window.location.href = `my-suggestions.html?session_token=${getToken()}`;
+        }
+
+        function createNew() {
+            window.location.href = `create-suggestion.html?token=${getToken()}`;
+        }
+
+        function goToB2B() {
+            window.location.href = `b2b-dashboard.html?session_token=${getToken()}`;
+        }
+
+        // 🔥 NAVIGATION CARTE (ÉLÉVATION REQUISE)
+        async function goToMap() {
+            const token = getToken();
+            if (!token) return;
+
+            try {
+                // On change l'icône pour montrer le chargement
+                const btn = document.querySelector('button[onclick="goToMap()"] i');
+                const originalClass = btn.className;
+                btn.className = 'fas fa-circle-notch fa-spin text-lg mb-1';
+
+                const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${token}`);
+                
+                if (!response.ok) throw new Error('Session invalide');
+                
+                const data = await response.json();
+                
+                // Redirection avec token court
+                window.location.href = `map.html?token=${data.token}`;
+
+            } catch (err) {
+                console.error('Erreur map:', err);
+                alert('Impossible d\'ouvrir la carte. Veuillez revenir au GPT.');
+                window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+            }
         }
     </script>
 </body>
