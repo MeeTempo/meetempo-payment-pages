@@ -3,10 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Espace VIP - MeeTempo</title>
+    <title>MeeTempo VIP</title>
     
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800;900&display=swap" rel="stylesheet">
     
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -15,22 +15,31 @@
         tailwind.config = {
             theme: {
                 extend: {
-                    fontFamily: {
-                        sans: ['Montserrat', 'sans-serif'],
-                    },
+                    fontFamily: { sans: ['Montserrat', 'sans-serif'] },
                     colors: {
-                        mt: {
-                            dark: '#030E4F',    // Ton bleu nuit
-                            bg: '#0a133f',      // Ton fond
-                            accent: '#F49F1C',  // Ton orange/or
-                            muted: '#c9d1ff',   // Ton texte gris/bleu
-                            card: 'rgba(255, 255, 255, 0.08)',
-                            border: 'rgba(255, 255, 255, 0.12)'
+                        gold: {
+                            light: '#FDE047', // Jaune clair
+                            DEFAULT: '#F59E0B', // Or standard
+                            dark: '#B45309', // Or foncé
+                        },
+                        deep: {
+                            bg: '#0f172a', // Bleu gris très sombre (plus doux que le noir)
+                            card: '#1e293b'
                         }
                     },
-                    backgroundImage: {
-                        'vip-gradient': 'linear-gradient(160deg, #030E4F 0%, #0a133f 100%)',
-                        'gold-gradient': 'linear-gradient(135deg, #F49F1C 0%, #FFD700 100%)',
+                    animation: {
+                        'shine': 'shine 3s infinite linear',
+                        'float': 'float 6s ease-in-out infinite',
+                    },
+                    keyframes: {
+                        shine: {
+                            '0%': { backgroundPosition: '200% center' },
+                            '100%': { backgroundPosition: '-200% center' },
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-10px)' },
+                        }
                     }
                 }
             }
@@ -38,356 +47,302 @@
     </script>
 
     <style>
-        /* Styles spécifiques pour l'ambiance VIP */
         body {
-            background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+            /* Fond plus riche avec un "spotlight" doré au centre */
+            background: radial-gradient(circle at 50% 0%, #4a3812 0%, #0f172a 60%, #020617 100%);
             color: white;
-            /* Padding pour la bottom nav */
-            padding-bottom: 80px; 
+            padding-bottom: 90px;
         }
 
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
+        /* Texte Or Métallique */
+        .text-gradient-gold {
+            background: linear-gradient(to right, #FDE047, #F59E0B, #FDE047);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-size: 200% auto;
+            animation: shine 4s linear infinite;
         }
 
-        /* Animation Pulse Gold */
-        @keyframes glow {
-            0%, 100% { box-shadow: 0 0 5px rgba(244, 159, 28, 0.2); }
-            50% { box-shadow: 0 0 20px rgba(244, 159, 28, 0.6); }
-        }
-        .animate-glow {
-            animation: glow 3s infinite;
+        /* Carte "Glassmorphism" (Effet verre premium) */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 215, 0, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
 
-        /* Masquer scrollbar */
-        .no-scrollbar::-webkit-scrollbar {
-            display: none;
+        /* Carte VIP principale (Holographique) */
+        .vip-pass-card {
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+            border: 1px solid rgba(253, 224, 71, 0.3);
+            position: relative;
+            overflow: hidden;
         }
-        .no-scrollbar {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+        .vip-pass-card::before {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(253, 224, 71, 0.1) 0%, transparent 70%);
+            animation: rotate 10s linear infinite;
+        }
+
+        /* Barre de progression brillante */
+        .progress-glow {
+            box-shadow: 0 0 15px rgba(245, 158, 11, 0.6);
         }
     </style>
 </head>
-<body class="min-h-screen font-sans">
+<body class="min-h-screen">
 
-    <header class="relative p-6 pb-12 rounded-b-3xl bg-mt-dark overflow-hidden border-b border-mt-border">
-        <div class="absolute top-0 right-0 w-64 h-64 bg-mt-accent opacity-5 rounded-full -mr-20 -mt-20 blur-3xl"></div>
-
-        <div class="relative z-10">
-            <div class="flex justify-between items-start mb-6">
-                <div>
-                    <div class="flex items-center gap-2 mb-1">
-                        <i class="fas fa-crown text-mt-accent text-xl"></i>
-                        <span class="text-xs font-bold tracking-widest text-mt-accent uppercase">Espace Membre</span>
+    <div class="p-4 pt-6">
+        <div class="vip-pass-card rounded-2xl p-6 shadow-2xl animate-float relative">
+            <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-500 opacity-20 rounded-full blur-3xl -mr-10 -mt-10"></div>
+            
+            <div class="relative z-10">
+                <div class="flex justify-between items-start mb-8">
+                    <div class="bg-black/30 backdrop-blur-md px-3 py-1 rounded-full border border-yellow-500/30">
+                        <span class="text-xs font-bold text-yellow-400 tracking-widest uppercase">MeeTempo VIP</span>
                     </div>
-                    <h1 class="text-2xl font-bold text-white">Mon Cockpit VIP</h1>
-                    <p class="text-mt-muted text-sm" id="user-name">Chargement...</p>
+                    <i class="fas fa-crown text-3xl text-gradient-gold drop-shadow-lg"></i>
                 </div>
-                <div class="glass-panel px-3 py-1 rounded-full border-mt-accent/30">
-                    <span class="text-xs font-bold text-mt-accent" id="vip-level">GOLD</span>
-                </div>
-            </div>
 
-            <div class="bg-black/20 rounded-xl p-4 border border-white/5">
-                <div class="flex justify-between text-xs mb-2 text-mt-muted">
-                    <span>Score VIP</span>
-                    <span class="text-mt-accent font-bold" id="vip-score-text">0/100</span>
+                <div class="mb-1">
+                    <h1 class="text-2xl font-black tracking-wide text-white uppercase" id="user-name">ALEXANDRE</h1>
+                    <div class="text-xs text-yellow-200/70 font-mono tracking-widest">MEMBER SINCE 2025</div>
                 </div>
-                <div class="w-full bg-white/10 rounded-full h-2 overflow-hidden">
-                    <div id="vip-score-bar" class="bg-gradient-to-r from-mt-accent to-yellow-300 h-2 rounded-full transition-all duration-1000" style="width: 0%"></div>
-                </div>
-                <div class="mt-2 text-[10px] text-right text-gray-400">Prochain palier : Platinum (900 pts)</div>
             </div>
         </div>
-    </header>
+    </div>
 
-    <main class="px-4 -mt-6 relative z-20 space-y-5">
+    <main class="px-4 space-y-6">
 
-        <div class="grid grid-cols-2 gap-3">
-            <div class="glass-panel p-4 rounded-2xl relative overflow-hidden group animate-glow border-mt-accent/20">
-                <div class="absolute -right-2 -top-2 text-4xl opacity-10 text-mt-accent">🎮</div>
-                <div class="text-mt-muted text-xs mb-1">Points Fidélité</div>
-                <div class="text-2xl font-bold text-white" id="points-total">...</div>
-                <div class="text-[10px] text-green-400 mt-1 font-bold">+50 = Cadeau !</div>
+        <div class="text-center -mt-2">
+            <div class="inline-flex items-center gap-2 mb-2">
+                <span class="text-sm font-bold text-gray-400">Niveau Actuel</span>
+                <span class="text-xl font-black text-yellow-400" id="level-badge">GOLD</span>
             </div>
             
-            <div class="glass-panel p-4 rounded-2xl relative overflow-hidden">
-                <div class="absolute -right-2 -top-2 text-4xl opacity-10 text-white">👥</div>
-                <div class="text-mt-muted text-xs mb-1">Filleuls Actifs</div>
-                <div class="text-2xl font-bold text-white" id="referral-count">...</div>
-                <div class="text-[10px] text-mt-accent mt-1 font-bold" id="referral-gains">0 pts gagnés</div>
+            <div class="relative h-6 bg-gray-800 rounded-full border border-gray-700 shadow-inner overflow-hidden">
+                <div class="absolute inset-0 opacity-20" style="background-image: repeating-linear-gradient(45deg, transparent, transparent 10px, #000 10px, #000 20px);"></div>
+                <div id="xp-bar" class="absolute top-0 left-0 h-full bg-gradient-to-r from-yellow-600 via-yellow-400 to-yellow-200 progress-glow transition-all duration-1000" style="width: 0%"></div>
+                <div class="absolute inset-0 flex items-center justify-center text-[10px] font-bold text-black z-10">
+                    <span id="xp-text">0 / 1000 XP</span>
+                </div>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">Plus que <span class="text-white font-bold">150 XP</span> pour le niveau Platinum 💎</p>
+        </div>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div class="glass-card p-4 rounded-xl text-center relative overflow-hidden group cursor-pointer transition hover:scale-[1.02]">
+                <div class="absolute inset-0 bg-gradient-to-b from-yellow-500/10 to-transparent opacity-0 group-hover:opacity-100 transition"></div>
+                <div class="text-3xl mb-1">🪙</div>
+                <div class="text-2xl font-black text-white" id="points-total">...</div>
+                <div class="text-[10px] uppercase tracking-wider text-yellow-500 font-bold">MeeCoins</div>
+            </div>
+
+            <div class="glass-card p-4 rounded-xl text-center relative overflow-hidden group cursor-pointer transition hover:scale-[1.02]">
+                <div class="absolute inset-0 bg-gradient-to-b from-blue-500/10 to-transparent opacity-0 group-hover:opacity-100 transition"></div>
+                <div class="text-3xl mb-1">👥</div>
+                <div class="text-2xl font-black text-white" id="referral-count">...</div>
+                <div class="text-[10px] uppercase tracking-wider text-blue-400 font-bold">Filleuls</div>
             </div>
         </div>
 
-        <section>
-            <h2 class="text-sm font-bold text-mt-muted mb-3 uppercase tracking-wider flex items-center">
-                <i class="fas fa-gift mr-2"></i> Récompenses
+        <div class="glass-card p-1 rounded-2xl">
+            <div class="bg-black/20 rounded-xl p-5 border border-white/5">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-blue-600 flex items-center justify-center shadow-lg border border-white/20">
+                        <i class="fas fa-rocket text-white text-lg"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-sm">Mission Parrainage</h3>
+                        <p class="text-[10px] text-gray-400">Invitez des amis, gagnez du VIP.</p>
+                    </div>
+                </div>
+
+                <div class="relative mb-3 group">
+                    <div class="absolute -inset-0.5 bg-gradient-to-r from-yellow-600 to-purple-600 rounded-lg blur opacity-30 group-hover:opacity-75 transition duration-1000"></div>
+                    <div class="relative flex">
+                        <input type="text" id="referral-link" readonly 
+                            class="w-full bg-gray-900 text-gray-300 text-xs p-3 rounded-l-lg border border-gray-700 focus:outline-none font-mono"
+                            value="Chargement...">
+                        <button onclick="copyLink()" class="bg-gradient-to-r from-yellow-600 to-yellow-500 text-black font-bold px-4 rounded-r-lg text-xs hover:brightness-110 transition">
+                            COPIER
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="flex justify-between items-center text-[10px] text-gray-400 px-1">
+                    <span>Récompense :</span>
+                    <span class="text-yellow-400 font-bold">+30 XP par ami</span>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <h2 class="text-lg font-black text-white mb-4 flex items-center">
+                <i class="fas fa-gift text-purple-400 mr-2"></i> BUTIN
             </h2>
             <div class="space-y-3" id="rewards-list">
-                <div class="text-center py-4">
-                    <div class="inline-block w-6 h-6 border-2 border-mt-accent border-t-transparent rounded-full animate-spin"></div>
+                <div class="glass-card p-4 rounded-xl flex items-center justify-center">
+                    <i class="fas fa-circle-notch fa-spin text-yellow-500"></i>
                 </div>
             </div>
-        </section>
+        </div>
 
-        <section class="glass-panel p-5 rounded-2xl border-mt-accent/20">
-            <div class="flex justify-between items-center mb-4">
-                <h2 class="text-sm font-bold text-white">Mon Lien Unique</h2>
-                <i class="fas fa-share-alt text-mt-accent"></i>
-            </div>
-            
-            <div class="flex gap-2 mb-3">
-                <input type="text" id="referral-link" readonly 
-                    class="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-3 text-xs text-gray-300 font-mono focus:outline-none focus:border-mt-accent"
-                    value="...">
-                <button onclick="copyLink()" class="bg-mt-accent text-black font-bold px-4 rounded-lg text-xs hover:bg-yellow-400 transition">
-                    COPIER
-                </button>
-            </div>
-            
-            <div class="bg-mt-accent/10 border border-mt-accent/20 p-3 rounded-lg">
-                <p class="text-xs text-mt-muted">
-                    💡 Gagnez <strong class="text-mt-accent">30 points</strong> pour chaque ami qui rejoint MeeTempo avec votre lien !
-                </p>
-            </div>
-        </section>
-
-        <section id="b2b-section" class="hidden">
-            <div class="bg-gradient-to-br from-indigo-900 to-blue-900 rounded-2xl p-5 border border-indigo-500/30 shadow-lg relative overflow-hidden">
-                <div class="relative z-10">
-                    <div class="flex items-center justify-between mb-3">
-                        <h3 class="font-bold text-white text-lg">Espace Entreprise</h3>
-                        <span class="bg-white text-indigo-900 text-[10px] font-bold px-2 py-1 rounded">DIRIGEANT</span>
-                    </div>
-                    <p class="text-xs text-indigo-100 mb-4 leading-relaxed">
-                        Connectez vos collègues. Si 5 personnes rejoignent, vous obtenez le <strong>VIP gratuit</strong> pour toute l'équipe.
-                    </p>
-                    <button onclick="goToB2B()" class="w-full bg-white text-indigo-900 py-3 rounded-xl font-bold text-sm hover:bg-gray-50 transition shadow-lg">
-                        Gérer mon équipe
+        <div id="b2b-section" class="hidden mt-6">
+            <div class="relative rounded-2xl overflow-hidden p-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+                <div class="bg-gray-900 rounded-xl p-5 relative h-full">
+                    <div class="absolute top-0 right-0 bg-white text-black text-[10px] font-bold px-2 py-1 rounded-bl-lg">BOSS MODE</div>
+                    <h3 class="font-bold text-white mb-1">Dirigeant ?</h3>
+                    <p class="text-xs text-gray-400 mb-3">Passez votre équipe en VIP et ne payez plus jamais.</p>
+                    <button onclick="goToB2B()" class="w-full bg-white/10 hover:bg-white/20 text-white border border-white/20 py-2 rounded-lg text-xs font-bold transition">
+                        ACTIVER MODE ENTREPRISE
                     </button>
                 </div>
             </div>
-        </section>
-
-        <div class="h-8"></div>
+        </div>
 
     </main>
 
-    <nav class="fixed bottom-0 left-0 right-0 bg-[#030E4F]/90 backdrop-blur-lg border-t border-white/10 pb-safe z-50 pb-2">
-        <div class="flex justify-around items-center h-16 px-2">
-            <button onclick="goToMap()" class="flex flex-col items-center justify-center w-16 h-full text-gray-400 hover:text-white transition">
-                <i class="fas fa-map text-lg mb-1"></i>
-                <span class="text-[10px]">Carte</span>
-            </button>
-            
-            <button onclick="goToRequests()" class="flex flex-col items-center justify-center w-16 h-full text-gray-400 hover:text-white transition">
-                <i class="fas fa-inbox text-lg mb-1"></i>
-                <span class="text-[10px]">Demandes</span>
-            </button>
+    <nav class="fixed bottom-4 left-4 right-4 bg-[#0f172a]/80 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl z-50 h-16 flex items-center justify-around px-2">
+        <button onclick="goToMap()" class="flex flex-col items-center justify-center w-12 text-gray-400 hover:text-white transition">
+            <i class="fas fa-map text-lg mb-1"></i>
+            <span class="text-[9px]">Carte</span>
+        </button>
+        
+        <button onclick="goToRequests()" class="flex flex-col items-center justify-center w-12 text-gray-400 hover:text-white transition">
+            <i class="fas fa-inbox text-lg mb-1"></i>
+            <span class="text-[9px]">Inbox</span>
+        </button>
 
-            <button onclick="createNew()" class="relative -top-6 bg-mt-accent text-mt-dark w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-orange-500/20 border-4 border-[#030E4F] transform transition active:scale-95">
+        <button onclick="createNew()" class="relative -top-6">
+            <div class="absolute inset-0 bg-yellow-500 rounded-full blur opacity-40 animate-pulse"></div>
+            <div class="relative bg-gradient-to-br from-yellow-400 to-orange-500 w-14 h-14 rounded-full flex items-center justify-center shadow-lg border-4 border-[#0f172a] text-black transform transition active:scale-95">
                 <i class="fas fa-plus text-xl"></i>
-            </button>
+            </div>
+        </button>
 
-            <button onclick="goToSuggestions()" class="flex flex-col items-center justify-center w-16 h-full text-gray-400 hover:text-white transition">
-                <i class="fas fa-list text-lg mb-1"></i>
-                <span class="text-[10px]">Activités</span>
-            </button>
+        <button onclick="goToSuggestions()" class="flex flex-col items-center justify-center w-12 text-gray-400 hover:text-white transition">
+            <i class="fas fa-list text-lg mb-1"></i>
+            <span class="text-[9px]">Listes</span>
+        </button>
 
-            <button class="flex flex-col items-center justify-center w-16 h-full text-mt-accent">
-                <i class="fas fa-crown text-lg mb-1"></i>
-                <span class="text-[10px] font-bold">VIP</span>
-            </button>
-        </div>
+        <button class="flex flex-col items-center justify-center w-12">
+            <i class="fas fa-crown text-lg mb-1 text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]"></i>
+            <span class="text-[9px] font-bold text-yellow-400">VIP</span>
+        </button>
     </nav>
 
     <script>
         const API_BASE = 'https://api.meetempo.com';
         
-        // --- 1. INITIALISATION ---
         document.addEventListener('DOMContentLoaded', async () => {
-            // Récupération Token (Priorité URL > SessionStorage)
             const urlParams = new URLSearchParams(window.location.search);
-            let token = urlParams.get('session_token') || urlParams.get('token');
+            let token = urlParams.get('session_token') || urlParams.get('token') || sessionStorage.getItem('meetempo_token');
             
-            if (!token) {
-                token = sessionStorage.getItem('meetempo_token');
-            }
-
-            if (!token) {
-                window.location.href = 'login.html'; // Fallback sécurité
-                return;
-            }
-
-            // Sauvegarde fraîche
+            if (!token) { window.location.href = 'login.html'; return; }
+            
             sessionStorage.setItem('meetempo_token', token);
-            console.log('🔑 VIP Dashboard initialized with token');
-
-            // Chargement Données
             await loadVipData(token);
         });
 
-        // --- 2. CHARGEMENT DONNÉES ---
         async function loadVipData(token) {
             try {
-                // On utilise l'endpoint MAESTRO qui contient tout le contexte (Profile + Gamification + Status)
-                // Si Maestro n'est pas dispo, on fallback sur /profile + /gamification
+                // Simulation des données (Remplacer par fetch réel)
+                // const profile = await (await fetch(`${API_BASE}/profile?session_token=${token}`)).json();
                 
-                // Pour l'instant, simulation des appels basiques existants
-                const profileRes = await fetch(`${API_BASE}/profile?session_token=${token}`);
-                
-                if (!profileRes.ok) throw new Error('Session expirée');
-                
-                const profile = await profileRes.json();
-                
-                // TODO: Remplacer par vrai endpoint gamification quand dispo
-                // Mock des données gamification en attendant l'implémentation backend complète
-                const gamification = {
-                    points: profile.points || 0, // Supposant que le profil renvoie les points
-                    referral_code: profile.referral_code || `VIP-${profile.first_name}-${new Date().getFullYear()}`,
-                    referral_count: profile.referral_count || 0
+                // MOCK TEMPORAIRE POUR LE STYLE
+                const profile = { 
+                    first_name: "Alexandre", 
+                    vip_score: 75, 
+                    job_level: "dirigeant",
+                    referral_code: "VIP-ALEX-2025",
+                    points: 750,
+                    referral_count: 5
                 };
 
-                renderDashboard(profile, gamification);
-
-            } catch (err) {
-                console.error('Erreur chargement:', err);
-                // Mode dégradé / Mock pour démo si API fail
-                renderDashboard(
-                    { first_name: 'Membre', vip_score: 0, job_level: 'user' },
-                    { points: 0, referral_code: '...', referral_count: 0 }
-                );
-            }
+                renderDashboard(profile);
+            } catch (err) { console.error(err); }
         }
 
-        // --- 3. RENDU GRAPHIQUE ---
-        function renderDashboard(user, game) {
-            // Header
-            document.getElementById('user-name').textContent = `Bonjour, ${user.first_name}`;
+        function renderDashboard(user) {
+            document.getElementById('user-name').textContent = user.first_name;
             
-            // Score (Simulation calcul score)
-            const score = user.vip_score || 50; 
-            document.getElementById('vip-score-text').textContent = `${score}/100`;
-            document.getElementById('vip-score-bar').style.width = `${score}%`;
+            // Animation Barre XP
+            const score = user.vip_score || 0;
+            document.getElementById('xp-text').textContent = `${score * 10} / 1000 XP`;
+            setTimeout(() => {
+                document.getElementById('xp-bar').style.width = `${score}%`;
+            }, 500);
 
             // Stats
-            document.getElementById('points-total').textContent = game.points;
-            document.getElementById('referral-count').textContent = game.referral_count;
-            document.getElementById('referral-gains').textContent = `${game.referral_count * 30} pts gagnés`;
+            document.getElementById('points-total').textContent = user.points || 0;
+            document.getElementById('referral-count').textContent = user.referral_count || 0;
+            document.getElementById('referral-link').value = `https://meetempo.com/?ref=${user.referral_code}`;
 
-            // Lien
-            const link = `https://meetempo.com/?ref=${game.referral_code}`;
-            document.getElementById('referral-link').value = link;
-
-            // Section B2B
-            if (user.job_level === 'dirigeant' || user.job_level === 'cadre' || user.plan === 'b2b') {
+            // B2B
+            if (user.job_level === 'dirigeant') {
                 document.getElementById('b2b-section').classList.remove('hidden');
             }
 
-            // Récompenses (Statique pour l'instant, dynamique bientôt)
-            renderRewards(game.points);
-        }
-
-        function renderRewards(points) {
+            // Rewards Gamifiés
             const rewards = [
-                { cost: 500, title: "Badge Ambassadeur", icon: "🏆" },
-                { cost: 1000, title: "1 mois VIP offert", icon: "🎁" },
-                { cost: 2000, title: "Accès VTC Prioritaire", icon: "🚗" }
+                { xp: 500, title: "Badge Vétéran", icon: "🎖️", type: "badge" },
+                { xp: 1000, title: "1 Mois Gratuit", icon: "🎁", type: "item" },
+                { xp: 2000, title: "Statut Platinum", icon: "💎", type: "status" }
             ];
 
             const container = document.getElementById('rewards-list');
             container.innerHTML = rewards.map(r => {
-                const unlocked = points >= r.cost;
-                const btnClass = unlocked 
-                    ? 'bg-mt-accent text-black animate-pulse' 
-                    : 'bg-white/10 text-gray-500 cursor-not-allowed';
-                const btnText = unlocked ? 'RÉCLAMER' : `<i class="fas fa-lock"></i> ${r.cost}`;
-
+                const unlocked = (user.points || 750) >= r.xp;
+                // Style Loot Box
                 return `
-                <div class="glass-panel p-3 rounded-xl flex items-center gap-3 ${!unlocked ? 'opacity-60' : 'border-mt-accent/50'}">
-                    <div class="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-xl">
+                <div class="glass-card p-3 rounded-xl flex items-center gap-4 ${unlocked ? 'border-yellow-500/50 bg-yellow-500/5' : 'opacity-60 grayscale'} transition">
+                    <div class="w-12 h-12 rounded-lg bg-black/40 flex items-center justify-center text-2xl border border-white/10 shadow-inner">
                         ${r.icon}
                     </div>
                     <div class="flex-1">
-                        <h3 class="text-sm font-bold text-white">${r.title}</h3>
-                        <div class="w-full bg-gray-700 h-1 rounded-full mt-1 overflow-hidden">
-                            <div class="bg-mt-accent h-1 rounded-full" style="width: ${Math.min(100, (points/r.cost)*100)}%"></div>
+                        <div class="flex justify-between items-center mb-1">
+                            <h3 class="text-sm font-bold text-white">${r.title}</h3>
+                            <span class="text-[10px] font-mono text-gray-400">${r.xp} XP</span>
+                        </div>
+                        <div class="w-full bg-gray-800 h-1.5 rounded-full overflow-hidden">
+                            <div class="bg-${unlocked ? 'green-500' : 'gray-600'} h-full" style="width: ${Math.min(100, (user.points/r.xp)*100)}%"></div>
                         </div>
                     </div>
-                    <button class="text-[10px] font-bold px-3 py-1.5 rounded-lg ${btnClass}" ${!unlocked ? 'disabled' : ''}>
-                        ${btnText}
-                    </button>
+                    ${unlocked 
+                        ? `<button class="bg-yellow-500 text-black text-[10px] font-bold px-3 py-1 rounded shadow-lg animate-pulse">RÉCUP</button>` 
+                        : `<i class="fas fa-lock text-gray-500"></i>`}
                 </div>`;
             }).join('');
         }
 
-        // --- 4. FONCTIONS NAVIGATION (Critique) ---
-        
-        // Copier lien
         function copyLink() {
             const input = document.getElementById('referral-link');
             input.select();
-            input.setSelectionRange(0, 99999); // Mobile
             navigator.clipboard.writeText(input.value);
-            
-            const btn = document.querySelector('button[onclick="copyLink()"]');
-            const original = btn.innerText;
-            btn.innerText = "OK !";
-            btn.classList.add('bg-green-500', 'text-white');
-            setTimeout(() => {
-                btn.innerText = original;
-                btn.classList.remove('bg-green-500', 'text-white');
-            }, 2000);
+            alert('Lien copié ! 🚀');
         }
 
-        function getToken() {
-            return sessionStorage.getItem('meetempo_token');
-        }
-
-        // Navigation Simple
-        function goToRequests() {
-            window.location.href = `my-requests.html?session_token=${getToken()}`;
-        }
-
-        function goToSuggestions() {
-            window.location.href = `my-suggestions.html?session_token=${getToken()}`;
-        }
-
-        function createNew() {
-            window.location.href = `create-suggestion.html?token=${getToken()}`;
-        }
-
-        function goToB2B() {
-            window.location.href = `b2b-dashboard.html?session_token=${getToken()}`;
-        }
-
-        // 🔥 NAVIGATION CARTE (ÉLÉVATION REQUISE)
+        // Navigation functions
+        function getToken() { return sessionStorage.getItem('meetempo_token'); }
+        function goToRequests() { window.location.href = `my-requests.html?session_token=${getToken()}`; }
+        function goToSuggestions() { window.location.href = `my-suggestions.html?session_token=${getToken()}`; }
+        function createNew() { window.location.href = `create-suggestion.html?token=${getToken()}`; }
+        function goToB2B() { window.location.href = `b2b-dashboard.html?session_token=${getToken()}`; }
+        
         async function goToMap() {
             const token = getToken();
-            if (!token) return;
-
             try {
-                // On change l'icône pour montrer le chargement
-                const btn = document.querySelector('button[onclick="goToMap()"] i');
-                const originalClass = btn.className;
-                btn.className = 'fas fa-circle-notch fa-spin text-lg mb-1';
-
-                const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${token}`);
-                
-                if (!response.ok) throw new Error('Session invalide');
-                
-                const data = await response.json();
-                
-                // Redirection avec token court
+                const res = await fetch(`${API_BASE}/auth/elevate-session?session_token=${token}`);
+                if (!res.ok) throw new Error('Auth fail');
+                const data = await res.json();
                 window.location.href = `map.html?token=${data.token}`;
-
-            } catch (err) {
-                console.error('Erreur map:', err);
-                alert('Impossible d\'ouvrir la carte. Veuillez revenir au GPT.');
-                window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+            } catch(e) {
+                alert('Erreur de connexion');
+                window.location.href = 'login.html';
             }
         }
     </script>
