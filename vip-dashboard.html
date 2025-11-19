@@ -281,6 +281,13 @@
                         </div>
 
                         <div>
+                            <label class="block text-xs font-bold text-gray-400 mb-1">Email professionnel *</label>
+                            <input type="email" name="email" required 
+                                placeholder="vous@entreprise.com"
+                                class="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700 focus:border-yellow-500 focus:outline-none text-sm">
+                        </div>
+
+                        <div>
                             <label class="block text-xs font-bold text-gray-400 mb-1">Taille de l'équipe *</label>
                             <select name="team_size" required 
                                 class="w-full bg-gray-900 text-white p-3 rounded-lg border border-gray-700 focus:border-yellow-500 focus:outline-none text-sm">
@@ -730,14 +737,15 @@ document.getElementById('b2b-form').addEventListener('submit', async (e) => {
                 <hr>
                 <p><strong>Entreprise:</strong> ${data.company}</p>
                 <p><strong>Fonction:</strong> ${data.job_level}</p>
+                <p><strong>Email pro:</strong> ${data.email}</p>
                 <p><strong>Taille équipe:</strong> ${data.team_size}</p>
                 <p><strong>Téléphone:</strong> ${data.phone || 'Non renseigné'}</p>
                 <p><strong>Message:</strong><br>${data.message || 'Aucun message'}</p>
                 <hr>
-                <p><strong>Action:</strong> Contacter ce VIP sous 24h pour activer offre B2B</p>
+                <p><strong>Action:</strong> Contacter ce VIP à ${data.email} sous 24h</p>
             `
         };
-        
+
         const res = await fetch(`${API_BASE}/admin/send-email`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
