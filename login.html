@@ -376,7 +376,7 @@
         
         <div class="tabs">
             <button class="tab active" data-tab="login">Se connecter</button>
-            <button class="tab" data-tab="signup">Compte Personnel</button>
+            <button class="tab" data-tab="signup">Créer un compte</button>
             <button class="tab" data-tab="company">Compte Entreprise</button>
         </div>
                 
@@ -435,9 +435,14 @@
         <div id="companyForm" class="form-container">
             <form id="companySubmit">
                 <div class="form-group">
-                    <label for="companyAdminName">Votre nom complet *</label>
-                    <input type="text" id="companyAdminName" placeholder="Djamel Dikhlef" required>
-                </div>
+                <label for="companyAdminFirstName">Prénom *</label>
+                <input type="text" id="companyAdminFirstName" placeholder="Jean" required>
+            </div>
+
+            <div class="form-group">
+                <label for="companyAdminLastName">Nom *</label>
+                <input type="text" id="companyAdminLastName" placeholder="Dupont" required>
+            </div>
                 
                 <div class="form-group">
                     <label for="companyEmail">Email professionnel *</label>
@@ -449,7 +454,7 @@
                 
                 <div class="form-group">
                     <label for="companyName">Nom de l'entreprise *</label>
-                    <input type="text" id="companyName" placeholder="MeeTempo SAS" required>
+                    <input type="text" id="companyName" placeholder="Votre Entreprise-Company" required>
                 </div>
                 
                 <div class="form-group">
@@ -764,9 +769,12 @@
                     return;
                 }
                 
-                showMessage('signupMessage', data.message || 'Compte créé ! Vérifiez votre email pour l\'activer.', 'success');
-                document.getElementById('signupSubmit').style.display = 'none';
-                document.getElementById('signupInfo').style.display = 'none';
+                showMessage('signupMessage', `✅ Code envoyé à ${email}. Vérifiez votre boîte email (et spam).`, 'success');
+
+                // Changer bouton en "Renvoyer le code"
+                btn.textContent = 'Renvoyer le code';
+                btn.disabled = false;
+
                 loading.classList.remove('show');
                 
             } catch (err) {
@@ -781,7 +789,9 @@
         document.getElementById('companySubmit').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            const adminName = document.getElementById('companyAdminName').value.trim();
+            const firstName = document.getElementById('companyAdminFirstName').value.trim();
+            const lastName = document.getElementById('companyAdminLastName').value.trim();
+            const adminName = `${firstName} ${lastName}`;
             const email = document.getElementById('companyEmail').value.trim();
             const companyName = document.getElementById('companyName').value.trim();
             const jobLevel = document.getElementById('jobLevel').value;
@@ -835,22 +845,25 @@
                 }
                 
                 // Succès
-                if (data.requires_activation) {
-                    showMessage('companyMessage', 
-                        'Entreprise créée ! Vérifiez votre email pour activer votre compte admin.', 
-                        'success'
-                    );
-                    document.getElementById('companySubmit').style.display = 'none';
-                } else {
-                    // Conversion VIP → B2B directe
-                    showMessage('companyMessage', 
-                        'Entreprise créée ! Redirection...', 
-                        'success'
-                    );
-                    setTimeout(() => {
-                        window.location.href = 'b2b-dashboard.html';
-                    }, 2000);
-                }
+            if (data.requires_activation) {
+                showMessage('companyMessage', 
+                    `✅ Code envoyé à ${email}. Vérifiez votre boîte email (et spam).`, 
+                    'success'
+                );
+                
+                // Changer bouton en "Renvoyer le code"
+                btn.textContent = 'Renvoyer le code';
+                btn.disabled = false;
+            } else {
+                // Conversion VIP → B2B directe
+                showMessage('companyMessage', 
+                    'Entreprise créée ! Redirection...', 
+                    'success'
+                );
+                setTimeout(() => {
+                    window.location.href = 'b2b-dashboard.html';
+                }, 2000);
+            }
                 
                 loading.classList.remove('show');
                 
