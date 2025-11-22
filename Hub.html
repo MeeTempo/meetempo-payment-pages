@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MeeTempo Hub</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #1a1f3a 0%, #2d3561 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: white;
+    }
+    
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 40px;
+      animation: fadeInDown 0.6s ease;
+    }
+    
+    .header h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.5px;
+    }
+    
+    .header p {
+      font-size: 16px;
+      opacity: 0.8;
+      font-weight: 400;
+    }
+    
+    .back-btn {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: rgba(244, 159, 28, 0.9);
+      color: #111;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 14px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      z-index: 1000;
+    }
+    
+    .back-btn:hover {
+      background: rgba(244, 159, 28, 1);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+    }
+    
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+    }
+    
+    .card {
+      position: relative;
+      height: 220px;
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.6s ease;
+      animation-fill-mode: both;
+    }
+    
+    .card:nth-child(1) { animation-delay: 0.1s; }
+    .card:nth-child(2) { animation-delay: 0.2s; }
+    .card:nth-child(3) { animation-delay: 0.3s; }
+    .card:nth-child(4) { animation-delay: 0.4s; }
+    .card:nth-child(5) { animation-delay: 0.5s; }
+    .card:nth-child(6) { animation-delay: 0.6s; }
+    
+    .card:hover {
+      transform: translateY(-8px) scale(1.02);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    }
+    
+    .card-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      filter: blur(10px);
+      transform: scale(1.1);
+      opacity: 0.3;
+    }
+    
+    .card-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    
+    /* Gradients pour chaque card */
+    .card-1 .card-overlay {
+      background: linear-gradient(135deg, rgba(244,159,28,0.9) 0%, rgba(255,140,0,0.9) 100%);
+    }
+    
+    .card-2 .card-overlay {
+      background: linear-gradient(135deg, rgba(74,144,226,0.9) 0%, rgba(48,91,184,0.9) 100%);
+    }
+    
+    .card-3 .card-overlay {
+      background: linear-gradient(135deg, rgba(16,185,129,0.9) 0%, rgba(5,150,105,0.9) 100%);
+    }
+    
+    .card-4 .card-overlay {
+      background: linear-gradient(135deg, rgba(139,92,246,0.9) 0%, rgba(109,40,217,0.9) 100%);
+    }
+    
+    .card-5 .card-overlay {
+      background: linear-gradient(135deg, rgba(245,158,11,0.9) 0%, rgba(217,119,6,0.9) 100%);
+    }
+    
+    .card-6 .card-overlay {
+      background: linear-gradient(135deg, rgba(107,114,128,0.9) 0%, rgba(75,85,99,0.9) 100%);
+    }
+    
+    .card-content {
+      position: relative;
+      height: 100%;
+      padding: 30px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 2;
+    }
+    
+    .card-icon {
+      font-size: 48px;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.2));
+    }
+    
+    .card-text {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+    
+    .card-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin-bottom: 6px;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    
+    .card-subtitle {
+      font-size: 14px;
+      opacity: 0.95;
+      font-weight: 400;
+    }
+    
+    .badge {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #111;
+      min-width: 32px;
+      height: 32px;
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 14px;
+      padding: 0 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+      z-index: 3;
+    }
+    
+    .badge.hidden {
+      display: none;
+    }
+    
+    @keyframes fadeInDown {
+      from {
+        opacity: 0;
+        transform: translateY(-30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @media (max-width: 768px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .card {
+        height: 180px;
+      }
+      
+      .card-icon {
+        font-size: 40px;
+      }
+      
+      .card-title {
+        font-size: 20px;
+      }
+      
+      .back-btn {
+        top: 10px;
+        right: 10px;
+        padding: 10px 20px;
+        font-size: 13px;
+      }
+      
+      .header h1 {
+        font-size: 28px;
+      }
+    }
+    
+    /* Loading state */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      font-size: 16px;
+      opacity: 0.8;
+    }
+    
+    .loading::after {
+      content: '...';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+    
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Bouton retour GPT -->
+  <button class="back-btn" onclick="backToGPT()">
+    🤖 Retour au GPT
+  </button>
+  
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>MeeTempo Hub</h1>
+      <p>Bienvenue, <span id="userName">Chargement...</span></p>
+    </div>
+    
+    <!-- Grid cards -->
+    <div class="grid" id="cardsGrid">
+      <!-- Loading state -->
+      <div class="loading" style="grid-column: 1 / -1;">
+        Chargement de vos données
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'https://api.meetempo.com';
+    let session_token = null;
+    let userData = null;
+    
+    // ==========================================
+    // 🔒 RÉCUPÉRATION ET VALIDATION TOKEN
+    // ==========================================
+    
+    (function initToken() {
+      // Récupérer depuis URL OU localStorage
+      const params = new URLSearchParams(window.location.search);
+      session_token = params.get('session_token');
+      
+      if (!session_token) {
+        session_token = localStorage.getItem('session_token');
+      }
+      
+      // Si pas de token → Login
+      if (!session_token) {
+        console.warn('⚠️ Aucun token, redirection login');
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      // Sauvegarder pour usage futur
+      localStorage.setItem('session_token', session_token);
+      
+      console.log('✅ Token chargé:', session_token.substring(0, 8) + '...');
+    })();
+    
+    // ==========================================
+    // 📊 CHARGEMENT DONNÉES UTILISATEUR
+    // ==========================================
+    
+    async function loadUserData() {
+      try {
+        const response = await fetch(
+          `${API_BASE}/maestro/context?session_token=${session_token}`
+        );
+        
+        if (!response.ok) {
+          console.error('❌ Token invalide ou expiré');
+          localStorage.removeItem('session_token');
+          window.location.href = 'login.html';
+          return;
+        }
+        
+        const data = await response.json();
+        userData = data;
+        
+        console.log('✅ Données chargées:', data);
+        
+        // Mettre à jour UI
+        updateUI(data);
+        
+        // Charger compteur nearby (async)
+        loadNearbyCount();
+        
+      } catch (err) {
+        console.error('❌ Erreur chargement:', err);
+        document.getElementById('cardsGrid').innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 40px; color: rgba(255,255,255,0.6);">
+            ❌ Erreur de chargement<br>
+            <button onclick="location.reload()" style="margin-top: 20px; padding: 10px 20px; background: #F49F1C; border: none; border-radius: 8px; cursor: pointer; font-weight: 600;">
+              Réessayer
+            </button>
+          </div>
+        `;
+      }
+    }
+    
+    // ==========================================
+    // 🎨 MISE À JOUR UI
+    // ==========================================
+    
+    function updateUI(data) {
+      // Header
+      const displayName = data.user?.display_name || data.user?.pseudo || 'MeeTemper';
+      document.getElementById('userName').textContent = displayName;
+      
+      // Données badges
+      const requestsCount = data.pending?.requests || 0;
+      const messagesCount = data.pending?.chats_unread || 0;
+      const suggestionsCount = data.stats?.active_suggestions || 0;
+      
+      // Créer cards
+      const cardsHTML = `
+        <!-- Card 1 : Créer suggestion -->
+        <div class="card card-1" onclick="navigate('create')">
+          <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800');"></div>
+          <div class="card-overlay"></div>
+          <div class="card-content">
+            <div class="card-icon">➕</div>
+            <div class="card-text">
+              <div class="card-title">Créer une suggestion</div>
+              <div class="card-subtitle">Propose une sortie</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Card 2 : Map -->
+        <div class="card card-2" onclick="navigate('map')">
+          <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1569336415962-a4bd9f69cd83?w=800');"></div>
+          <div class="card-overlay"></div>
+          <div class="badge hidden" id="nearbyBadge">0</div>
+          <div class="card-content">
+            <div class="card-icon">🗺️</div>
+            <div class="card-text">
+              <div class="card-title">Découvrir autour de moi</div>
+              <div class="card-subtitle">Rejoins des MeeTempers</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Card 3 : Demandes -->
+        <div class="card card-3" onclick="navigate('requests')">
+          <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1521737711867-e3b97375f902?w=800');"></div>
+          <div class="card-overlay"></div>
+          <div class="badge ${requestsCount > 0 ? '' : 'hidden'}" id="requestsBadge">${requestsCount}</div>
+          <div class="card-content">
+            <div class="card-icon">👥</div>
+            <div class="card-text">
+              <div class="card-title">Mes demandes</div>
+              <div class="card-subtitle">${requestsCount} en attente de réponse</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Card 4 : Suggestions -->
+        <div class="card card-4" onclick="navigate('suggestions')">
+          <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1506784983877-45594efa4cbe?w=800');"></div>
+          <div class="card-overlay"></div>
+          <div class="badge ${suggestionsCount > 0 ? '' : 'hidden'}" id="suggestionsBadge">${suggestionsCount}</div>
+          <div class="card-content">
+            <div class="card-icon">📅</div>
+            <div class="card-text">
+              <div class="card-title">Mes suggestions actives</div>
+              <div class="card-subtitle">${suggestionsCount} suggestion${suggestionsCount > 1 ? 's' : ''} en cours</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Card 5 : Messages -->
+        <div class="card card-5" onclick="navigate('messages')">
+          <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1577563908411-5077b6dc7624?w=800');"></div>
+          <div class="card-overlay"></div>
+          <div class="badge ${messagesCount > 0 ? '' : 'hidden'}" id="messagesBadge">${messagesCount}</div>
+          <div class="card-content">
+            <div class="card-icon">💬</div>
+            <div class="card-text">
+              <div class="card-title">Messages</div>
+              <div class="card-subtitle">${messagesCount} conversation${messagesCount > 1 ? 's' : ''} active${messagesCount > 1 ? 's' : ''}</div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Card 6 : Profil -->
+        <div class="card card-6" onclick="navigate('profile')">
+          <div class="card-bg" style="background-image: url('https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=800');"></div>
+          <div class="card-overlay"></div>
+          <div class="card-content">
+            <div class="card-icon">⚙️</div>
+            <div class="card-text">
+              <div class="card-title">Mon profil</div>
+              <div class="card-subtitle">${displayName}</div>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      document.getElementById('cardsGrid').innerHTML = cardsHTML;
+    }
+    
+    // ==========================================
+    // 🗺️ CHARGEMENT COMPTEUR NEARBY (hors Free)
+    // ==========================================
+    
+    async function loadNearbyCount() {
+      try {
+        // Récupérer position utilisateur
+        const profileResponse = await fetch(
+          `${API_BASE}/profile?session_token=${session_token}`
+        );
+        
+        if (!profileResponse.ok) throw new Error('Erreur profil');
+        
+        const profile = await profileResponse.json();
+        
+        // Coordonnées (fallback Paris)
+        const lat = profile.city_coords?.lat || profile.profile?.city_coords?.lat || 48.8566;
+        const lng = profile.city_coords?.lng || profile.profile?.city_coords?.lng || 2.3522;
+        
+        console.log(`📍 Position: ${lat}, ${lng}`);
+        
+        // Appel nearby (COMME map.html)
+        const response = await fetch(
+          `${API_BASE}/suggestions/nearby?session_token=${session_token}&lat=${lat}&lng=${lng}&radius=10`
+        );
+        
+        if (!response.ok) throw new Error('Erreur nearby');
+        
+        const data = await response.json();
+        const allSuggestions = data.results || [];
+        
+        console.log(`📊 Suggestions trouvées: ${allSuggestions.length}`);
+        
+        // Filtrer hors Free
+        const nonFreeSuggestions = allSuggestions.filter(s => {
+          const creatorPlan = s.creator?.plan || 'free';
+          return creatorPlan !== 'free';
+        });
+        
+        console.log(`✅ Suggestions hors Free: ${nonFreeSuggestions.length}`);
+        
+        // Afficher badge
+        const badge = document.getElementById('nearbyBadge');
+        if (badge) {
+          if (nonFreeSuggestions.length > 0) {
+            badge.textContent = nonFreeSuggestions.length;
+            badge.classList.remove('hidden');
+          } else {
+            badge.classList.add('hidden');
+          }
+        }
+        
+      } catch (err) {
+        console.error('❌ Erreur nearby count:', err);
+        const badge = document.getElementById('nearbyBadge');
+        if (badge) badge.classList.add('hidden');
+      }
+    }
+    
+    // ==========================================
+    // 🧭 NAVIGATION AVEC TOKEN
+    // ==========================================
+    
+    function navigate(section) {
+      // 🔥 TOUJOURS passer le token
+      const tokenParam = `session_token=${session_token}`;
+      
+      switch(section) {
+        case 'create':
+          // Retour GPT avec token
+          const gptUrl = `https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19`;
+          const message = encodeURIComponent(`Mon token: ${session_token}. Je veux créer une suggestion.`);
+          window.location.href = `${gptUrl}?message=${message}`;
+          break;
+          
+        case 'map':
+          window.location.href = `map.html?${tokenParam}`;
+          break;
+          
+        case 'requests':
+          window.location.href = `requests.html?${tokenParam}`;
+          break;
+          
+        case 'suggestions':
+          window.location.href = `my-suggestions.html?${tokenParam}`;
+          break;
+          
+        case 'messages':
+          window.location.href = `messages.html?${tokenParam}`;
+          break;
+          
+        case 'profile':
+          window.location.href = `profile.html?${tokenParam}`;
+          break;
+      }
+    }
+    
+    // Bouton retour GPT
+    function backToGPT() {
+      const gptUrl = `https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19`;
+      const message = encodeURIComponent(`Mon token: ${session_token}`);
+      window.location.href = `${gptUrl}?message=${message}`;
+    }
+    
+    // ==========================================
+    // 🚀 DÉMARRAGE
+    // ==========================================
+    
+    // Charger données au démarrage
+    loadUserData();
+  </script>
+</body>
+</html>
