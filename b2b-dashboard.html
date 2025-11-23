@@ -1,0 +1,2349 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeeTempo B2B - Dashboard Administrateur</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-hover: #4f46e5;
+            --secondary: #8b5cf6;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --dark: #1f2937;
+            --gray: #6b7280;
+            --light-gray: #f3f4f6;
+            --white: #ffffff;
+            --border: #e5e7eb;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: #f9fafb;
+            color: var(--dark);
+            line-height: 1.6;
+        }
+
+        /* ============================================
+           BLOC 1 : HEADER & NAVIGATION
+        ============================================ */
+        .b2b-header {
+            background: var(--white);
+            border-bottom: 2px solid var(--border);
+            padding: 1.5rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .company-info h1 {
+            font-size: 1.5rem;
+            color: var(--dark);
+            margin-bottom: 0.25rem;
+        }
+
+        .company-info .subtitle {
+            color: var(--gray);
+            font-size: 0.875rem;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* ============================================
+           BUTTONS GLOBAL
+        ============================================ */
+        .btn-primary, .btn-secondary, .btn-tertiary, .btn-danger, .btn-info {
+            padding: 0.625rem 1.25rem;
+            border: none;
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background: var(--light-gray);
+            color: var(--dark);
+        }
+
+        .btn-secondary:hover {
+            background: #e5e7eb;
+        }
+
+        .btn-tertiary {
+            background: transparent;
+            color: var(--primary);
+            border: 1px solid var(--primary);
+        }
+
+        .btn-tertiary:hover {
+            background: var(--primary);
+            color: var(--white);
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: var(--white);
+        }
+
+        .btn-danger:hover {
+            background: #dc2626;
+        }
+
+        .btn-info {
+            background: var(--info);
+            color: var(--white);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ============================================
+           CONTAINER PRINCIPAL
+        ============================================ */
+        .container {
+            max-width: 1400px;
+            margin: 2rem auto;
+            padding: 0 2rem;
+        }
+
+        .section {
+            background: var(--white);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-header h2 {
+            font-size: 1.25rem;
+            color: var(--dark);
+        }
+
+        /* ============================================
+           BLOC 2 : KPIs (4 CARDS)
+        ============================================ */
+        .kpis-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .kpi-card {
+            background: var(--white);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border-left: 4px solid var(--primary);
+        }
+
+        .kpi-card.success {
+            border-left-color: var(--success);
+        }
+
+        .kpi-card.warning {
+            border-left-color: var(--warning);
+        }
+
+        .kpi-card.info {
+            border-left-color: var(--info);
+        }
+
+        .kpi-card h3 {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .kpi-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-label {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .kpi-subtext {
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+
+        .kpi-link {
+            color: var(--primary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            text-decoration: underline;
+            margin-top: 0.5rem;
+            display: inline-block;
+        }
+
+        /* ============================================
+           BLOC 3 : SIÈGES & GESTION
+        ============================================ */
+        .seats-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--light-gray);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .seats-stats {
+            display: flex;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .seats-stats span {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .seats-stats strong {
+            color: var(--dark);
+            font-size: 1.125rem;
+        }
+
+        .seats-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* ============================================
+           BLOC 4 : ÉQUIPE & INVITATIONS
+        ============================================ */
+        .team-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-legend {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .team-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .team-table thead {
+            background: var(--light-gray);
+        }
+
+        .team-table th {
+            padding: 1rem;
+            text-align: left;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .team-table td {
+            padding: 1rem;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .team-table tr.pending {
+            background: #fef3c7;
+        }
+
+        .employee-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--primary);
+            color: var(--white);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        .employee-info strong {
+            display: block;
+            color: var(--dark);
+        }
+
+        .employee-info small {
+            color: var(--gray);
+            font-size: 0.75rem;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .badge.active {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge.pending {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .badge.suspended {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge.paid {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .activity-stats span {
+            display: block;
+            font-size: 0.875rem;
+        }
+
+        .activity-stats small {
+            color: var(--gray);
+            font-size: 0.75rem;
+        }
+
+        .pending-info span {
+            display: block;
+            font-size: 0.875rem;
+        }
+
+        .pending-info small {
+            color: var(--gray);
+            font-size: 0.75rem;
+        }
+
+        .team-table select {
+            padding: 0.5rem;
+            border: 1px solid var(--border);
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            background: var(--white);
+            cursor: pointer;
+        }
+
+        .team-table select:disabled {
+            background: var(--light-gray);
+            cursor: not-allowed;
+        }
+
+        .team-table button {
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            font-size: 0.75rem;
+            margin-right: 0.5rem;
+        }
+
+        /* ============================================
+           BLOC 5 : FACTURATION STRIPE
+        ============================================ */
+        .billing-section {
+            margin-bottom: 2rem;
+        }
+
+        .subscription-summary {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .summary-card {
+            flex: 1;
+            background: var(--light-gray);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+        }
+
+        .summary-card h3 {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+        }
+
+        .summary-card .amount {
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-card .details {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .summary-card .renewal {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .summary-card .status {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 1rem;
+            font-size: 0.75rem;
+            font-weight: 500;
+        }
+
+        .invoices-list {
+            margin-top: 2rem;
+        }
+
+        .invoices-list h3 {
+            font-size: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .invoices-list table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .invoices-list thead {
+            background: var(--light-gray);
+        }
+
+        .invoices-list th {
+            padding: 0.75rem;
+            text-align: left;
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--gray);
+        }
+
+        .invoices-list td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--border);
+            font-size: 0.875rem;
+        }
+
+        .invoices-list a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        /* ============================================
+           BLOC 6 : PROFIL ENTREPRISE
+        ============================================ */
+        .profile-form {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .field-group {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .field-group label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .field-group input, .field-group select {
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .field-group input:disabled, .field-group select:disabled {
+            background: var(--light-gray);
+            cursor: not-allowed;
+        }
+
+        .domains-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .domain-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.5rem 1rem;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 1rem;
+            font-size: 0.875rem;
+        }
+
+        .domain-tag button {
+            background: transparent;
+            border: none;
+            color: var(--white);
+            cursor: pointer;
+            font-size: 1.25rem;
+            line-height: 1;
+        }
+
+        .domain-tag button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .logo-upload {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .logo-upload img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            border: 2px solid var(--border);
+        }
+
+        /* ============================================
+           BLOC 7 : FEEDBACK & IMPACT (PHASE 2)
+        ============================================ */
+        .impact-section {
+            margin-bottom: 2rem;
+        }
+
+        .impact-summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .impact-card {
+            background: var(--light-gray);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            text-align: center;
+        }
+
+        .impact-card .label {
+            display: block;
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin-bottom: 0.5rem;
+        }
+
+        .impact-card .value {
+            display: block;
+            font-size: 1.75rem;
+            font-weight: 700;
+            color: var(--dark);
+        }
+
+        .impact-card small {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+        }
+
+        /* ============================================
+           MODALS
+        ============================================ */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--white);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .modal-header h3 {
+            font-size: 1.25rem;
+            color: var(--dark);
+        }
+
+        .modal-close {
+            background: transparent;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--gray);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--dark);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .radio-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .radio-card {
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            padding: 1rem;
+            border: 2px solid var(--border);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .radio-card:hover {
+            border-color: var(--primary);
+        }
+
+        .radio-card input[type="radio"] {
+            margin-top: 0.25rem;
+        }
+
+        .radio-card input[type="radio"]:checked + div {
+            color: var(--primary);
+        }
+
+        .radio-card strong {
+            display: block;
+            margin-bottom: 0.25rem;
+        }
+
+        .radio-card p {
+            font-size: 0.875rem;
+            color: var(--gray);
+            margin: 0;
+        }
+
+        .seats-control {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            justify-content: center;
+            margin: 1.5rem 0;
+        }
+
+        .seats-control button {
+            width: 40px;
+            height: 40px;
+            border: none;
+            background: var(--primary);
+            color: var(--white);
+            border-radius: 0.5rem;
+            cursor: pointer;
+            font-size: 1.25rem;
+        }
+
+        .seats-control input {
+            width: 80px;
+            text-align: center;
+            font-size: 1.25rem;
+            font-weight: 700;
+        }
+
+        .preview {
+            background: var(--light-gray);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .preview p {
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .current-plan {
+            background: var(--light-gray);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .current-plan p {
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        .seats-warning {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .seats-warning a {
+            color: var(--primary);
+            text-decoration: underline;
+        }
+
+        /* ============================================
+           ALERTS
+        ============================================ */
+        .alerts {
+            margin-bottom: 2rem;
+        }
+
+        .alert {
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .alert.warning {
+            background: #fef3c7;
+            border-left: 4px solid var(--warning);
+            color: #92400e;
+        }
+
+        .alert.info {
+            background: #dbeafe;
+            border-left: 4px solid var(--info);
+            color: #1e40af;
+        }
+
+        .alert.critical {
+            background: #fee2e2;
+            border-left: 4px solid var(--danger);
+            color: #991b1b;
+        }
+
+        .alert a {
+            color: var(--primary);
+            text-decoration: underline;
+            margin-left: 0.5rem;
+        }
+
+        /* ============================================
+           FEEDBACK CARDS (PHASE 2)
+        ============================================ */
+        .feedback-card {
+            background: var(--light-gray);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-header .date {
+            font-size: 0.875rem;
+            color: var(--gray);
+        }
+
+        .feedback-header .rating {
+            font-size: 0.875rem;
+            color: var(--warning);
+        }
+
+        .feedback-card .comment {
+            font-size: 0.875rem;
+            color: var(--dark);
+            margin-bottom: 1rem;
+        }
+
+        .feedback-metrics {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .feedback-metrics .metric {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: var(--white);
+            border-radius: 1rem;
+            font-size: 0.75rem;
+        }
+
+        .feedback-summary {
+            background: var(--primary);
+            color: var(--white);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .feedback-summary h4 {
+            margin-bottom: 1rem;
+        }
+
+        .feedback-summary ul {
+            list-style: none;
+        }
+
+        .feedback-summary li {
+            margin-bottom: 0.5rem;
+            font-size: 0.875rem;
+        }
+
+        /* ============================================
+           TOOLTIP
+        ============================================ */
+        .tooltip {
+            display: none;
+            position: fixed;
+            background: var(--dark);
+            color: var(--white);
+            padding: 1rem;
+            border-radius: 0.5rem;
+            max-width: 300px;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            z-index: 1000;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        .tooltip.active {
+            display: block;
+        }
+
+        /* ============================================
+           RESPONSIVE
+        ============================================ */
+        @media (max-width: 768px) {
+            .b2b-header {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .header-actions {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .kpis-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .seats-summary {
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .team-table {
+                font-size: 0.75rem;
+            }
+
+            .team-table th, .team-table td {
+                padding: 0.5rem;
+            }
+
+            .subscription-summary {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ============================================
+         BLOC 1 : HEADER & NAVIGATION
+    ============================================ -->
+    <header class="b2b-header">
+        <div class="company-info">
+            <h1 id="company-name-header">🏢 Chargement...</h1>
+            <span class="subtitle">Espace administrateur</span>
+        </div>
+        
+        <div class="header-actions">
+            <a href="hub.html" class="btn-secondary">Retour au Hub</a>
+            <button onclick="scrollToProfile()" class="btn-tertiary">Profil entreprise</button>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- ============================================
+             ALERTS (affichées conditionnellement)
+        ============================================ -->
+        <div class="alerts" id="alerts-container" style="display: none;">
+            <!-- Les alertes seront injectées ici dynamiquement -->
+        </div>
+
+        <!-- ============================================
+             BLOC 2 : KPIs (4 CARDS)
+        ============================================ -->
+        <div class="kpis-grid">
+            <!-- CARD 1 : ÉQUIPE -->
+            <div class="kpi-card">
+                <h3>Équipe</h3>
+                <div class="kpi-value" id="kpi-employees">-/-</div>
+                <div class="kpi-label">employés actifs</div>
+                <div class="kpi-subtext" id="kpi-employees-sub">Chargement...</div>
+            </div>
+
+            <!-- CARD 2 : ABONNEMENT -->
+            <div class="kpi-card success">
+                <h3>Abonnement</h3>
+                <div class="kpi-value" id="kpi-subscription">-€ HT/mois</div>
+                <div class="kpi-subtext" id="kpi-subscription-sub">Chargement...</div>
+                <span class="kpi-link" onclick="showSeatsInfo()">Comprendre la tarification</span>
+            </div>
+
+            <!-- CARD 3 : ACTIVITÉ -->
+            <div class="kpi-card info">
+                <h3>Activité ce mois-ci</h3>
+                <div class="kpi-value" id="kpi-meetings">- rencontres</div>
+                <div class="kpi-subtext" id="kpi-suggestions">- suggestions créées</div>
+            </div>
+
+            <!-- CARD 4 : IMPACT BUSINESS (Phase 2) -->
+            <div class="kpi-card warning">
+                <h3>Impact business</h3>
+                <div class="kpi-value" id="kpi-revenue">0€ CA</div>
+                <div class="kpi-subtext">Basé sur les feedbacks déclarés (Phase 2)</div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             BLOC 3 : SIÈGES & GESTION
+        ============================================ -->
+        <div class="section">
+            <h2 style="margin-bottom: 1.5rem;">Gestion des sièges</h2>
+            
+            <div class="seats-summary">
+                <div class="seats-stats">
+                    <span>Sièges payés: <strong id="seats-paid">-</strong></span>
+                    <span>Employés actifs: <strong id="seats-active">-</strong></span>
+                    <span>Invitations en attente: <strong id="seats-pending">-</strong></span>
+                    <span>Places disponibles: <strong id="seats-available">-</strong></span>
+                </div>
+                
+                <div class="seats-actions">
+                    <button class="btn-primary" onclick="openBuySeatsModal()">+ Acheter des sièges</button>
+                    <button class="btn-info" onclick="showSeatsInfo()">?</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================
+             BLOC 4 : ÉQUIPE & INVITATIONS
+        ============================================ -->
+        <div class="section">
+            <div class="team-header">
+                <div>
+                    <h2>Équipe MeeTempo</h2>
+                    <div class="status-legend" style="margin-top: 0.5rem;">
+                        <span>🟢 Actif</span>
+                        <span>🟡 En attente</span>
+                        <span>🔴 Suspendu</span>
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="openInviteModal()">+ Inviter un membre</button>
+            </div>
+
+            <table class="team-table">
+                <thead>
+                    <tr>
+                        <th>Employé</th>
+                        <th>Statut</th>
+                        <th>Mode paiement</th>
+                        <th>Activité</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="team-list">
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray);">
+                            Chargement de l'équipe...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- ============================================
+             BLOC 5 : FACTURATION STRIPE
+        ============================================ -->
+        <div class="section billing-section">
+            <h2 style="margin-bottom: 1.5rem;">Facturation & Abonnement</h2>
+            
+            <div class="subscription-summary">
+                <div class="summary-card">
+                    <h3>Abonnement actuel</h3>
+                    <p class="amount" id="billing-amount">-€ HT / mois</p>
+                    <p class="details" id="billing-details">- sièges • Palier -</p>
+                    <p class="renewal">Prochain renouvellement : <strong id="billing-renewal">-</strong></p>
+                    <span class="status active badge" id="billing-status">✅ Actif</span>
+                </div>
+                
+                <div class="billing-actions">
+                    <button class="btn-primary" onclick="openStripePortal()">
+                        Gérer factures & moyens de paiement
+                    </button>
+                    <p style="font-size: 0.875rem; color: var(--gray); margin-top: 1rem;">
+                        Accédez à votre espace Stripe pour modifier votre carte bancaire, 
+                        télécharger vos factures et gérer vos informations de facturation.
+                    </p>
+                </div>
+            </div>
+
+            <div class="invoices-list">
+                <h3>Historique des factures</h3>
+                
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Période</th>
+                            <th>Montant</th>
+                            <th>Statut</th>
+                            <th>PDF</th>
+                        </tr>
+                    </thead>
+                    <tbody id="invoices-list">
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 1rem; color: var(--gray);">
+                                Chargement des factures...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- ============================================
+             BLOC 6 : PROFIL ENTREPRISE
+        ============================================ -->
+        <div class="section" id="profile-section">
+            <div class="section-header">
+                <h2>Profil Entreprise</h2>
+                <button class="btn-secondary" id="edit-btn" onclick="toggleEditMode()">Modifier</button>
+            </div>
+            
+            <div class="profile-form" id="profile-form">
+                <div class="field-group">
+                    <label>Nom de l'entreprise</label>
+                    <input type="text" id="company-name" value="" disabled>
+                </div>
+                
+                <div class="field-group">
+                    <label>Contact principal</label>
+                    <input type="email" id="contact-email" value="" disabled>
+                </div>
+                
+                <div class="field-group">
+                    <label>Téléphone</label>
+                    <input type="tel" id="phone" value="" disabled>
+                </div>
+                
+                <div class="field-group" style="grid-column: 1 / -1;">
+                    <label>Domaines email autorisés</label>
+                    <div class="domains-list" id="domains-list">
+                        <!-- Domaines injectés ici -->
+                    </div>
+                    <button class="btn-secondary" id="add-domain-btn" onclick="addDomain()" disabled>+ Ajouter domaine</button>
+                </div>
+            </div>
+
+            <button class="btn-primary" id="save-btn" onclick="saveProfile()" style="display:none; margin-top: 1.5rem;">
+                Enregistrer les modifications
+            </button>
+        </div>
+
+        <!-- ============================================
+             BLOC 7 : FEEDBACK & IMPACT (PHASE 2)
+        ============================================ -->
+        <div class="section impact-section" style="display: none;" id="impact-section">
+            <h2 style="margin-bottom: 1.5rem;">Impact des rencontres MeeTempo</h2>
+            
+            <div class="impact-summary">
+                <div class="impact-card">
+                    <span class="label">Feedbacks remplis ce mois</span>
+                    <span class="value" id="impact-feedbacks">0</span>
+                </div>
+                
+                <div class="impact-card">
+                    <span class="label">Note moyenne</span>
+                    <span class="value" id="impact-rating">-/5</span>
+                </div>
+                
+                <div class="impact-card">
+                    <span class="label">CA total déclaré</span>
+                    <span class="value" id="impact-ca">0€</span>
+                </div>
+                
+                <div class="impact-card">
+                    <span class="label">ROI</span>
+                    <span class="value" id="impact-roi">-x</span>
+                    <small id="impact-roi-detail">-</small>
+                </div>
+            </div>
+            
+            <button class="btn-secondary" onclick="viewDetailedFeedbacks()">
+                Voir le détail des feedbacks
+            </button>
+        </div>
+
+    </div>
+
+    <!-- ============================================
+         MODAL : ACHETER DES SIÈGES
+    ============================================ -->
+    <div class="modal" id="modal-buy-seats">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Modifier le nombre de sièges</h3>
+                <button class="modal-close" onclick="closeModal('modal-buy-seats')">×</button>
+            </div>
+
+            <div class="current-plan">
+                <p>Actuellement : <strong id="modal-current-seats">-</strong> sièges</p>
+                <p>Montant : <strong id="modal-current-amount">-€ HT/mois</strong></p>
+                <p>Palier : <strong id="modal-current-tier">-</strong></p>
+            </div>
+
+            <div class="seats-control">
+                <button onclick="decreaseSeats()">−</button>
+                <input type="number" id="new-seats-input" value="10" min="1" readonly>
+                <button onclick="increaseSeats()">+</button>
+            </div>
+
+            <div class="preview">
+                <p>Nouveau total : <strong id="modal-new-amount">-€ HT/mois</strong></p>
+                <p>Nouveau palier : <strong id="modal-new-tier">-</strong></p>
+                <p>Différence : <strong id="modal-diff">-€ HT/mois</strong></p>
+            </div>
+
+            <button class="btn-primary" onclick="updateSeats()" style="width: 100%;">
+                Valider et mettre à jour
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+         MODAL : INVITER UN MEMBRE
+    ============================================ -->
+    <div class="modal" id="modal-invite">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Inviter un membre</h3>
+                <button class="modal-close" onclick="closeModal('modal-invite')">×</button>
+            </div>
+
+            <div class="form-group">
+                <label>Email professionnel</label>
+                <input type="email" id="invite-email" placeholder="prenom@entreprise.com">
+            </div>
+
+            <div class="form-group">
+                <label>Mode de paiement</label>
+                <div class="radio-group">
+                    <label class="radio-card">
+                        <input type="radio" name="payment-mode" value="centralized" checked>
+                        <div>
+                            <strong>Centralisé</strong>
+                            <p>L'entreprise paie (décompté de vos sièges)</p>
+                        </div>
+                    </label>
+                    
+                    <label class="radio-card">
+                        <input type="radio" name="payment-mode" value="delegated">
+                        <div>
+                            <strong>Délégué</strong>
+                            <p>L'employé paie 15€/mois personnellement</p>
+                        </div>
+                    </label>
+                </div>
+            </div>
+
+            <div class="seats-warning" id="seats-warning-modal" style="display:none;">
+                ⚠️ Plus de sièges disponibles (<span id="warning-seats">-/-</span> utilisés)
+                <a href="#" onclick="closeModal('modal-invite'); openBuySeatsModal();">Acheter des sièges</a>
+            </div>
+
+            <button class="btn-primary" onclick="sendInvite()" style="width: 100%;">
+                Envoyer l'invitation
+            </button>
+        </div>
+    </div>
+
+    <!-- ============================================
+         MODAL : DÉTAIL EMPLOYÉ (PHASE 2)
+    ============================================ -->
+    <div class="modal" id="modal-employee-detail">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="employee-detail-name">Détails employé</h3>
+                <button class="modal-close" onclick="closeModal('modal-employee-detail')">×</button>
+            </div>
+
+            <div id="employee-feedbacks-list">
+                <!-- Feedbacks injectés ici -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================
+         TOOLTIP INFO SIÈGES
+    ============================================ -->
+    <div class="tooltip" id="tooltip-seats">
+        <p><strong>💡 Système de sièges MeeTempo</strong></p>
+        <p style="margin: 1rem 0;">1 siège = 1 employé actif dans votre équipe</p>
+        <p style="margin: 1rem 0;"><strong>📊 Tarifs dégressifs :</strong></p>
+        <ul style="margin-left: 1rem; margin-bottom: 1rem;">
+            <li>• 1-10 sièges : 15€ HT/siège/mois</li>
+            <li>• 11-30 sièges : 13,99€ HT/siège/mois</li>
+            <li>• 31+ sièges : 12,90€ HT/siège/mois</li>
+        </ul>
+        <p style="margin-bottom: 1rem;"><strong>💡 Modes de paiement :</strong></p>
+        <ul style="margin-left: 1rem;">
+            <li>• <strong>Centralisé</strong> : L'entreprise paie tous les sièges</li>
+            <li>• <strong>Délégué</strong> : Chaque employé paie 15€/mois</li>
+        </ul>
+        <p style="margin-top: 1rem; font-style: italic; font-size: 0.75rem;">
+            Vous payez uniquement les sièges réservés, pas forcément tous utilisés.
+        </p>
+    </div>
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const API_BASE = 'https://meetempo.epizy.com';
+        
+        // Pricing tiers
+        const PRICING_TIERS = [
+            { min: 1, max: 10, price: 15 },
+            { min: 11, max: 30, price: 13.99 },
+            { min: 31, max: 999, price: 12.90 }
+        ];
+
+        // ============================================
+        // AUTH & INIT
+        // ============================================
+        function getToken() {
+            return localStorage.getItem('session_token') || localStorage.getItem('elevated_token');
+        }
+
+        function checkAuth() {
+            const token = getToken();
+            if (!token) {
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+
+        // ============================================
+        // UTILS - PRICING
+        // ============================================
+        function calculatePrice(seats) {
+            const tier = PRICING_TIERS.find(t => seats >= t.min && seats <= t.max);
+            return tier ? tier.price * seats : 0;
+        }
+
+        function getTierLabel(seats) {
+            const tier = PRICING_TIERS.find(t => seats >= t.min && seats <= t.max);
+            if (!tier) return '-';
+            return tier.max === 999 ? `${tier.min}+` : `${tier.min}-${tier.max}`;
+        }
+
+        function formatDate(timestamp) {
+            if (!timestamp) return '-';
+            const date = new Date(timestamp);
+            return date.toLocaleDateString('fr-FR');
+        }
+
+        // ============================================
+        // BLOC 1 : HEADER
+        // ============================================
+        function scrollToProfile() {
+            document.getElementById('profile-section').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        // ============================================
+        // BLOC 2 : LOAD KPIs
+        // ============================================
+        async function loadKPIs() {
+            const token = getToken();
+            
+            try {
+                //BACKEND: Créer endpoint GET /company/kpis
+                // Retour attendu: {
+                //   employees_active: 3,
+                //   employees_total: 10,
+                //   seats_billed: 10,
+                //   invites_pending: 2,
+                //   subscription_amount: 150,
+                //   subscription_tier: "1-10",
+                //   meetings_count: 47,
+                //   suggestions_count: 89,
+                //   revenue_declared: 0,  // Phase 2
+                //   satisfaction_avg: 0   // Phase 2
+                // }
+                const response = await fetch(`${API_BASE}/company/kpis?session_token=${token}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Card 1: Équipe
+                    document.getElementById('kpi-employees').textContent = `${data.employees_active}/${data.seats_billed}`;
+                    document.getElementById('kpi-employees-sub').textContent = 
+                        `Sièges payés: ${data.seats_billed} • Invités en attente: ${data.invites_pending}`;
+
+                    // Card 2: Abonnement
+                    document.getElementById('kpi-subscription').textContent = `${data.subscription_amount}€ HT/mois`;
+                    document.getElementById('kpi-subscription-sub').textContent = 
+                        `${data.seats_billed} sièges • Palier ${data.subscription_tier}`;
+
+                    // Card 3: Activité
+                    document.getElementById('kpi-meetings').textContent = `${data.meetings_count} rencontres`;
+                    document.getElementById('kpi-suggestions').textContent = `${data.suggestions_count} suggestions créées`;
+
+                    // Card 4: Impact (Phase 2)
+                    if (data.revenue_declared > 0) {
+                        document.getElementById('kpi-revenue').textContent = `${data.revenue_declared}€ CA`;
+                        document.getElementById('impact-section').style.display = 'block';
+                    }
+
+                    // Update seats summary
+                    updateSeatsDisplay(data);
+
+                    // Check for alerts
+                    checkAlerts(data);
+                } else {
+                    console.error('Erreur chargement KPIs:', data);
+                }
+            } catch (error) {
+                console.error('Erreur réseau KPIs:', error);
+            }
+        }
+
+        function updateSeatsDisplay(data) {
+            document.getElementById('seats-paid').textContent = data.seats_billed;
+            document.getElementById('seats-active').textContent = data.employees_active;
+            document.getElementById('seats-pending').textContent = data.invites_pending;
+            document.getElementById('seats-available').textContent = 
+                data.seats_billed - data.employees_active;
+        }
+
+        function checkAlerts(data) {
+            const alertsContainer = document.getElementById('alerts-container');
+            let alertsHTML = '';
+
+            // Alert: Sièges non utilisés
+            const unusedSeats = data.seats_billed - data.employees_active;
+            if (unusedSeats >= 3) {
+                alertsHTML += `
+                    <div class="alert warning">
+                        <span>⚠️ Vous payez ${data.seats_billed} sièges, seulement ${data.employees_active} utilisés</span>
+                        <a href="#" onclick="openBuySeatsModal()">Réduire les sièges</a>
+                    </div>
+                `;
+            }
+
+            // Alert: Invitations en attente (mode délégué)
+            if (data.invites_pending > 0) {
+                alertsHTML += `
+                    <div class="alert info">
+                        <span>💡 ${data.invites_pending} employé(s) en mode délégué n'ont pas finalisé leur paiement</span>
+                        <a href="#team">Voir la liste</a>
+                    </div>
+                `;
+            }
+
+            if (alertsHTML) {
+                alertsContainer.innerHTML = alertsHTML;
+                alertsContainer.style.display = 'block';
+            } else {
+                alertsContainer.style.display = 'none';
+            }
+        }
+
+        // ============================================
+        // BLOC 3 : SIÈGES - MODAL ACHETER
+        // ============================================
+        let currentSeatsData = null;
+
+        function openBuySeatsModal() {
+            //BACKEND: Les données viennent de loadKPIs() déjà chargées
+            // On utilise les valeurs affichées dans les KPIs
+            const currentSeats = parseInt(document.getElementById('seats-paid').textContent || '10');
+            const currentAmount = calculatePrice(currentSeats);
+            const currentTier = getTierLabel(currentSeats);
+
+            currentSeatsData = {
+                seats: currentSeats,
+                amount: currentAmount,
+                tier: currentTier
+            };
+
+            document.getElementById('modal-current-seats').textContent = currentSeats;
+            document.getElementById('modal-current-amount').textContent = `${currentAmount}€`;
+            document.getElementById('modal-current-tier').textContent = currentTier;
+            document.getElementById('new-seats-input').value = currentSeats;
+
+            updateSeatsPreview(currentSeats);
+            openModal('modal-buy-seats');
+        }
+
+        function increaseSeats() {
+            const input = document.getElementById('new-seats-input');
+            const newValue = parseInt(input.value) + 1;
+            input.value = newValue;
+            updateSeatsPreview(newValue);
+        }
+
+        function decreaseSeats() {
+            const input = document.getElementById('new-seats-input');
+            const currentValue = parseInt(input.value);
+            if (currentValue > 1) {
+                const newValue = currentValue - 1;
+                input.value = newValue;
+                updateSeatsPreview(newValue);
+            }
+        }
+
+        function updateSeatsPreview(newSeats) {
+            const newAmount = calculatePrice(newSeats);
+            const newTier = getTierLabel(newSeats);
+            const diff = newAmount - currentSeatsData.amount;
+
+            document.getElementById('modal-new-amount').textContent = `${newAmount}€`;
+            document.getElementById('modal-new-tier').textContent = newTier;
+            document.getElementById('modal-diff').textContent = 
+                diff >= 0 ? `+${diff}€` : `${diff}€`;
+        }
+
+        async function updateSeats() {
+            const token = getToken();
+            const newSeats = parseInt(document.getElementById('new-seats-input').value);
+
+            if (!confirm(`Confirmer la modification à ${newSeats} sièges ?`)) return;
+
+            try {
+                //BACKEND: Créer endpoint POST /company/update-seats
+                // Body: { session_token, new_seats }
+                // Logique:
+                //   1. Calculer nouveau montant selon palier
+                //   2. Appeler Stripe API pour update subscription quantity
+                //   3. Mettre à jour KV company.seats_billed
+                //   4. Retourner nouveau montant + prochaine facturation
+                const response = await fetch(`${API_BASE}/company/update-seats`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_token: token,
+                        new_seats: newSeats
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Nombre de sièges mis à jour avec succès !');
+                    closeModal('modal-buy-seats');
+                    loadKPIs(); // Refresh
+                    loadBilling(); // Refresh billing
+                } else {
+                    alert(`❌ Erreur: ${data.error || 'Impossible de mettre à jour'}`);
+                }
+            } catch (error) {
+                console.error('Erreur update seats:', error);
+                alert('❌ Erreur réseau');
+            }
+        }
+
+        function showSeatsInfo() {
+            const tooltip = document.getElementById('tooltip-seats');
+            tooltip.classList.add('active');
+            
+            // Position tooltip
+            tooltip.style.top = '50%';
+            tooltip.style.left = '50%';
+            tooltip.style.transform = 'translate(-50%, -50%)';
+
+            // Close on click outside
+            setTimeout(() => {
+                document.addEventListener('click', function closeTooltip(e) {
+                    if (!tooltip.contains(e.target) && !e.target.classList.contains('btn-info')) {
+                        tooltip.classList.remove('active');
+                        document.removeEventListener('click', closeTooltip);
+                    }
+                });
+            }, 100);
+        }
+
+        // ============================================
+        // BLOC 4 : ÉQUIPE - LOAD EMPLOYEES
+        // ============================================
+        async function loadEmployees() {
+            const token = getToken();
+
+            try {
+                //BACKEND: Créer endpoint GET /company/employees?session_token=xxx
+                // Retour attendu: {
+                //   employees: [
+                //     {
+                //       user_id: "...",
+                //       email: "...",
+                //       name: "Sophie Martin" ou null,
+                //       status: "active" | "pending" | "suspended",
+                //       payment_mode: "centralized" | "delegated",
+                //       meetings_count: 12,
+                //       last_meeting: "2025-11-20",
+                //       joined_at: "2025-09-01"
+                //     }
+                //   ],
+                //   invites_pending: [
+                //     {
+                //       invite_id: "...",
+                //       email: "...",
+                //       payment_mode: "delegated",
+                //       sent_at: timestamp,
+                //       expires_at: timestamp,
+                //       status: "pending"
+                //     }
+                //   ]
+                // }
+                const response = await fetch(`${API_BASE}/company/employees?session_token=${token}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayEmployees(data.employees, data.invites_pending);
+                } else {
+                    console.error('Erreur chargement équipe:', data);
+                    document.getElementById('team-list').innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 2rem; color: var(--danger);">
+                                Erreur chargement de l'équipe
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Erreur réseau équipe:', error);
+            }
+        }
+
+        function displayEmployees(employees, invites) {
+            const tbody = document.getElementById('team-list');
+            
+            if (employees.length === 0 && invites.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 2rem; color: var(--gray);">
+                            Aucun employé pour le moment. Commencez par inviter des membres !
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+
+            // Active employees
+            employees.forEach(emp => {
+                const initials = emp.name ? emp.name.split(' ').map(n => n[0]).join('').toUpperCase() : 'XX';
+                const statusBadge = emp.status === 'active' ? 
+                    '<span class="badge active">🟢 Actif</span>' :
+                    '<span class="badge suspended">🔴 Suspendu</span>';
+
+                html += `
+                    <tr>
+                        <td>
+                            <div class="employee-info">
+                                <div class="avatar">${initials}</div>
+                                <div>
+                                    <strong>${emp.name || 'Utilisateur'}</strong><br>
+                                    <small>${emp.email}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <select onchange="changePaymentMode('${emp.user_id}', this.value)">
+                                <option value="centralized" ${emp.payment_mode === 'centralized' ? 'selected' : ''}>Centralisé</option>
+                                <option value="delegated" ${emp.payment_mode === 'delegated' ? 'selected' : ''}>Délégué</option>
+                            </select>
+                        </td>
+                        <td>
+                            <div class="activity-stats">
+                                <span>${emp.meetings_count} rencontres</span>
+                                <small>Dernière: ${formatDate(emp.last_meeting)}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <button onclick="viewEmployeeDetail('${emp.user_id}')" class="btn-secondary">Détails</button>
+                            <button onclick="removeEmployee('${emp.user_id}')" class="btn-danger">Retirer</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            // Pending invites
+            invites.forEach(inv => {
+                const initials = inv.email.substring(0, 2).toUpperCase();
+                const timeAgo = getTimeAgo(inv.sent_at);
+                const expiresIn = getTimeUntil(inv.expires_at);
+
+                html += `
+                    <tr class="pending">
+                        <td>
+                            <div class="employee-info">
+                                <div class="avatar">${initials}</div>
+                                <div>
+                                    <strong>Invitation en attente</strong><br>
+                                    <small>${inv.email}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge pending">🟡 En attente ${inv.payment_mode === 'delegated' ? 'paiement' : ''}</span></td>
+                        <td>
+                            <select disabled>
+                                <option value="${inv.payment_mode}" selected>${inv.payment_mode === 'centralized' ? 'Centralisé' : 'Délégué'}</option>
+                            </select>
+                            <small style="display: block; color: var(--gray);">Mode bloqué (invitation envoyée)</small>
+                        </td>
+                        <td>
+                            <div class="pending-info">
+                                <span>Invitation: ${timeAgo}</span>
+                                <small>Expire dans: ${expiresIn}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <button onclick="resendInvite('${inv.invite_id}')" class="btn-secondary">Relancer</button>
+                            <button onclick="cancelInvite('${inv.invite_id}')" class="btn-danger">Annuler</button>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function getTimeAgo(timestamp) {
+            const now = Date.now();
+            const diff = now - timestamp;
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            if (hours < 1) return 'il y a quelques minutes';
+            if (hours === 1) return 'il y a 1 heure';
+            if (hours < 24) return `il y a ${hours}h`;
+            const days = Math.floor(hours / 24);
+            return `il y a ${days} jour${days > 1 ? 's' : ''}`;
+        }
+
+        function getTimeUntil(timestamp) {
+            const now = Date.now();
+            const diff = timestamp - now;
+            if (diff < 0) return 'expirée';
+            const hours = Math.floor(diff / (1000 * 60 * 60));
+            if (hours < 1) return 'moins d\'1h';
+            if (hours < 24) return `${hours}h`;
+            const days = Math.floor(hours / 24);
+            return `${days} jour${days > 1 ? 's' : ''}`;
+        }
+
+        // ============================================
+        // BLOC 4 : ÉQUIPE - ACTIONS
+        // ============================================
+        function openInviteModal() {
+            // Check seats availability
+            const seatsAvailable = parseInt(document.getElementById('seats-available').textContent || '0');
+            const warningModal = document.getElementById('seats-warning-modal');
+            const warningSeats = document.getElementById('warning-seats');
+
+            if (seatsAvailable <= 0) {
+                warningModal.style.display = 'block';
+                warningSeats.textContent = `${document.getElementById('seats-active').textContent}/${document.getElementById('seats-paid').textContent}`;
+            } else {
+                warningModal.style.display = 'none';
+            }
+
+            document.getElementById('invite-email').value = '';
+            document.querySelector('input[name="payment-mode"][value="centralized"]').checked = true;
+            openModal('modal-invite');
+        }
+
+        async function sendInvite() {
+            const token = getToken();
+            const email = document.getElementById('invite-email').value.trim();
+            const mode = document.querySelector('input[name="payment-mode"]:checked').value;
+
+            if (!email) {
+                alert('Veuillez saisir un email');
+                return;
+            }
+
+            if (!email.match(/^[^\s@]+@[^\s@]+\.[^\s@]+$/)) {
+                alert('Email invalide');
+                return;
+            }
+
+            try {
+                //BACKEND: Endpoint POST /company/invite EXISTE DÉJÀ
+                // Mais vérifier qu'il supporte bien le paramètre payment_mode
+                const response = await fetch(`${API_BASE}/company/invite`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_token: token,
+                        emails: [email],
+                        payment_mode: mode // Ajouter ce param si pas déjà présent
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert(`✅ Invitation envoyée à ${email} !`);
+                    closeModal('modal-invite');
+                    loadEmployees();
+                    loadKPIs();
+                } else {
+                    alert(`❌ Erreur: ${data.error || 'Impossible d\'envoyer l\'invitation'}`);
+                }
+            } catch (error) {
+                console.error('Erreur send invite:', error);
+                alert('❌ Erreur réseau');
+            }
+        }
+
+        async function changePaymentMode(userId, newMode) {
+            const token = getToken();
+
+            if (!confirm(`Changer le mode de paiement en "${newMode === 'centralized' ? 'Centralisé' : 'Délégué'}" ?`)) {
+                // Reset select
+                loadEmployees();
+                return;
+            }
+
+            try {
+                //BACKEND: Créer endpoint POST /company/employee/change-mode
+                // Body: { session_token, user_id, new_mode }
+                // Logique:
+                //   Si centralized → delegated:
+                //     - Créer Stripe checkout 15€ pour employé
+                //     - Réduire active_employees company
+                //     - Marquer user "pending_payment_delegated"
+                //   Si delegated → centralized:
+                //     - Annuler subscription Stripe employé
+                //     - Incrémenter active_employees company
+                //     - Vérifier seats_billed >= active_employees
+                const response = await fetch(`${API_BASE}/company/employee/change-mode`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_token: token,
+                        user_id: userId,
+                        new_mode: newMode
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Mode de paiement modifié !');
+                    loadEmployees();
+                    loadKPIs();
+                } else {
+                    alert(`❌ Erreur: ${data.error || 'Impossible de changer le mode'}`);
+                    loadEmployees(); // Reset display
+                }
+            } catch (error) {
+                console.error('Erreur change mode:', error);
+                alert('❌ Erreur réseau');
+                loadEmployees();
+            }
+        }
+
+        async function removeEmployee(userId) {
+            const token = getToken();
+
+            if (!confirm('Confirmer le retrait de cet employé ? Il perdra l\'accès à MeeTempo.')) {
+                return;
+            }
+
+            try {
+                //BACKEND: Endpoint POST /company/employee/remove EXISTE DÉJÀ
+                const response = await fetch(`${API_BASE}/company/employee/remove`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_token: token,
+                        user_id: userId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Employé retiré avec succès');
+                    loadEmployees();
+                    loadKPIs();
+                } else {
+                    alert(`❌ Erreur: ${data.error || 'Impossible de retirer l\'employé'}`);
+                }
+            } catch (error) {
+                console.error('Erreur remove employee:', error);
+                alert('❌ Erreur réseau');
+            }
+        }
+
+        async function resendInvite(inviteId) {
+            const token = getToken();
+
+            try {
+                //BACKEND: Créer endpoint POST /company/invite/resend
+                // Body: { session_token, invite_id }
+                const response = await fetch(`${API_BASE}/company/invite/resend`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_token: token,
+                        invite_id: inviteId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Invitation renvoyée !');
+                    loadEmployees();
+                } else {
+                    alert(`❌ Erreur: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Erreur resend invite:', error);
+                alert('❌ Erreur réseau');
+            }
+        }
+
+        async function cancelInvite(inviteId) {
+            const token = getToken();
+
+            if (!confirm('Confirmer l\'annulation de cette invitation ?')) {
+                return;
+            }
+
+            try {
+                //BACKEND: Créer endpoint DELETE /company/invite/cancel
+                // Body: { session_token, invite_id }
+                const response = await fetch(`${API_BASE}/company/invite/cancel`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_token: token,
+                        invite_id: inviteId
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Invitation annulée');
+                    loadEmployees();
+                    loadKPIs();
+                } else {
+                    alert(`❌ Erreur: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Erreur cancel invite:', error);
+                alert('❌ Erreur réseau');
+            }
+        }
+
+        async function viewEmployeeDetail(userId) {
+            const token = getToken();
+
+            try {
+                //BACKEND: Créer endpoint GET /company/employee/:user_id/feedbacks (PHASE 2)
+                // Retour: {
+                //   feedbacks: [
+                //     {
+                //       feedback_id, note, comment,
+                //       ca_genere, valeur_ajoutee, recommande,
+                //       created_at
+                //     }
+                //   ],
+                //   summary: {
+                //     total_meetings: 12,
+                //     avg_rating: 4.5,
+                //     total_revenue: 2500,
+                //     recommendation_rate: 100
+                //   }
+                // }
+                const response = await fetch(`${API_BASE}/company/employee/${userId}/feedbacks?session_token=${token}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    displayEmployeeFeedbacks(data);
+                } else {
+                    alert('Fonctionnalité disponible en Phase 2');
+                }
+            } catch (error) {
+                console.error('Erreur detail employee:', error);
+                alert('Fonctionnalité disponible en Phase 2');
+            }
+        }
+
+        function displayEmployeeFeedbacks(data) {
+            // Phase 2 implementation
+            alert('Fonctionnalité feedbacks détaillés - Phase 2');
+        }
+
+        // ============================================
+        // BLOC 5 : FACTURATION - LOAD DATA
+        // ============================================
+        async function loadBilling() {
+            const token = getToken();
+
+            try {
+                // Load subscription summary (already in KPIs)
+                const kpiResponse = await fetch(`${API_BASE}/company/kpis?session_token=${token}`);
+                const kpiData = await kpiResponse.json();
+
+                if (kpiResponse.ok) {
+                    document.getElementById('billing-amount').textContent = `${kpiData.subscription_amount}€ HT`;
+                    document.getElementById('billing-details').textContent = 
+                        `${kpiData.seats_billed} sièges • Palier ${kpiData.subscription_tier}`;
+                    
+                    //BACKEND: Ajouter dans /company/kpis le champ subscription_renewal (timestamp)
+                    // Pour l'instant, on affiche un placeholder
+                    document.getElementById('billing-renewal').textContent = '-';
+                }
+
+                // Load invoices
+                //BACKEND: Créer endpoint GET /company/invoices?session_token=xxx
+                // Retour: {
+                //   invoices: [
+                //     {
+                //       invoice_id: "in_xxx",
+                //       date: "2025-11-01",
+                //       period_start: "2025-11-01",
+                //       period_end: "2025-11-30",
+                //       amount_ht: 150,
+                //       amount_ttc: 180,
+                //       status: "paid" | "open" | "uncollectible",
+                //       pdf_url: "https://..."
+                //     }
+                //   ]
+                // }
+                const invoicesResponse = await fetch(`${API_BASE}/company/invoices?session_token=${token}`);
+                const invoicesData = await invoicesResponse.json();
+
+                if (invoicesResponse.ok) {
+                    displayInvoices(invoicesData.invoices);
+                } else {
+                    document.getElementById('invoices-list').innerHTML = `
+                        <tr>
+                            <td colspan="5" style="text-align: center; padding: 1rem; color: var(--gray);">
+                                Aucune facture disponible
+                            </td>
+                        </tr>
+                    `;
+                }
+            } catch (error) {
+                console.error('Erreur load billing:', error);
+            }
+        }
+
+        function displayInvoices(invoices) {
+            const tbody = document.getElementById('invoices-list');
+
+            if (invoices.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" style="text-align: center; padding: 1rem; color: var(--gray);">
+                            Aucune facture disponible
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            let html = '';
+            invoices.forEach(inv => {
+                const statusBadge = inv.status === 'paid' ? 
+                    '<span class="badge paid">✅ Payée</span>' :
+                    '<span class="badge pending">🟡 En attente</span>';
+
+                html += `
+                    <tr>
+                        <td>${formatDate(inv.date)}</td>
+                        <td>${formatDate(inv.period_start)} - ${formatDate(inv.period_end)}</td>
+                        <td>${inv.amount_ht}€ HT</td>
+                        <td>${statusBadge}</td>
+                        <td><a href="${inv.pdf_url}" target="_blank">📄 Télécharger</a></td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        async function openStripePortal() {
+            const token = getToken();
+
+            try {
+                //BACKEND: Créer endpoint POST /company/create-portal-session
+                // Body: { session_token }
+                // Logique:
+                //   1. Récupérer company.stripe_customer_id
+                //   2. Créer Stripe Billing Portal Session
+                //   3. Retourner URL portail (valide 30min)
+                // Response: { portal_url: "https://billing.stripe.com/session/xxx" }
+                const response = await fetch(`${API_BASE}/company/create-portal-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_token: token })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.portal_url) {
+                    window.open(data.portal_url, '_blank');
+                } else {
+                    alert('❌ Impossible d\'ouvrir le portail Stripe');
+                }
+            } catch (error) {
+                console.error('Erreur Stripe portal:', error);
+                alert('❌ Erreur réseau');
+            }
+        }
+
+        // ============================================
+        // BLOC 6 : PROFIL ENTREPRISE - LOAD & EDIT
+        // ============================================
+        async function loadCompanyProfile() {
+            const token = getToken();
+
+            try {
+                //BACKEND: Utiliser endpoint GET /company/admin-dashboard EXISTANT
+                // Il contient déjà company_name, admin_domains, etc.
+                const response = await fetch(`${API_BASE}/company/admin-dashboard?session_token=${token}`);
+                const data = await response.json();
+
+                if (response.ok) {
+                    document.getElementById('company-name-header').textContent = `🏢 ${data.company_name}`;
+                    document.getElementById('company-name').value = data.company_name;
+                    
+                    // Contact email = admin email pour l'instant
+                    //BACKEND: Ajouter dans KV company les champs: contact_email, phone
+                    document.getElementById('contact-email').value = data.admin_email || '';
+                    document.getElementById('phone').value = ''; // À compléter en Phase 2
+
+                    // Display domains
+                    displayDomains(data.admin_domains || []);
+                } else {
+                    console.error('Erreur load profile:', data);
+                }
+            } catch (error) {
+                console.error('Erreur réseau profile:', error);
+            }
+        }
+
+        function displayDomains(domains) {
+            const container = document.getElementById('domains-list');
+            
+            if (domains.length === 0) {
+                container.innerHTML = '<span style="color: var(--gray);">Aucun domaine configuré</span>';
+                return;
+            }
+
+            let html = '';
+            domains.forEach(domain => {
+                html += `
+                    <span class="domain-tag">
+                        ${domain}
+                        <button onclick="removeDomain('${domain}')" disabled>×</button>
+                    </span>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function toggleEditMode() {
+            const inputs = document.querySelectorAll('#profile-form input, #profile-form select, #profile-form button');
+            const editBtn = document.getElementById('edit-btn');
+            const saveBtn = document.getElementById('save-btn');
+            const isEditing = editBtn.textContent === 'Modifier';
+
+            inputs.forEach(input => {
+                if (!input.id.includes('domain')) {
+                    input.disabled = !isEditing;
+                }
+            });
+
+            // Enable domain buttons
+            document.querySelectorAll('.domain-tag button').forEach(btn => {
+                btn.disabled = !isEditing;
+            });
+            document.getElementById('add-domain-btn').disabled = !isEditing;
+
+            editBtn.textContent = isEditing ? 'Annuler' : 'Modifier';
+            saveBtn.style.display = isEditing ? 'block' : 'none';
+
+            if (!isEditing) {
+                // Cancel = reload
+                loadCompanyProfile();
+            }
+        }
+
+        async function saveProfile() {
+            const token = getToken();
+            
+            const updates = {
+                company_name: document.getElementById('company-name').value,
+                contact_email: document.getElementById('contact-email').value,
+                phone: document.getElementById('phone').value
+            };
+
+            try {
+                //BACKEND: Créer endpoint PUT /company/update
+                // Body: { session_token, company_name, contact_email, phone }
+                const response = await fetch(`${API_BASE}/company/update`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_token: token,
+                        ...updates
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Profil mis à jour avec succès !');
+                    toggleEditMode();
+                    loadCompanyProfile();
+                } else {
+                    alert(`❌ Erreur: ${data.error || 'Impossible de mettre à jour'}`);
+                }
+            } catch (error) {
+                console.error('Erreur save profile:', error);
+                alert('❌ Erreur réseau');
+            }
+        }
+
+        async function addDomain() {
+            const token = getToken();
+            const domain = prompt('Ajouter un domaine email autorisé (ex: entreprise.com):');
+
+            if (!domain) return;
+
+            if (!domain.match(/^[a-zA-Z0-9][a-zA-Z0-9-]{0,61}[a-zA-Z0-9]?\.[a-zA-Z]{2,}$/)) {
+                alert('Domaine invalide');
+                return;
+            }
+
+            try {
+                //BACKEND: Créer endpoint POST /company/domain/add
+                // Body: { session_token, domain }
+                const response = await fetch(`${API_BASE}/company/domain/add`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_token: token,
+                        domain: domain
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Domaine ajouté !');
+                    loadCompanyProfile();
+                } else {
+                    alert(`❌ Erreur: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Erreur add domain:', error);
+                alert('❌ Erreur réseau');
+            }
+        }
+
+        async function removeDomain(domain) {
+            const token = getToken();
+
+            if (!confirm(`Supprimer le domaine "${domain}" ?`)) return;
+
+            try {
+                //BACKEND: Créer endpoint DELETE /company/domain/remove
+                // Body: { session_token, domain }
+                const response = await fetch(`${API_BASE}/company/domain/remove`, {
+                    method: 'DELETE',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_token: token,
+                        domain: domain
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    alert('✅ Domaine supprimé');
+                    loadCompanyProfile();
+                } else {
+                    alert(`❌ Erreur: ${data.error}`);
+                }
+            } catch (error) {
+                console.error('Erreur remove domain:', error);
+                alert('❌ Erreur réseau');
+            }
+        }
+
+        // ============================================
+        // BLOC 7 : FEEDBACK & IMPACT (PHASE 2)
+        // ============================================
+        function viewDetailedFeedbacks() {
+            alert('Fonctionnalité détail feedbacks - Phase 2');
+        }
+
+        // ============================================
+        // MODAL UTILS
+        // ============================================
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Close modals on outside click
+        document.querySelectorAll('.modal').forEach(modal => {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    modal.classList.remove('active');
+                }
+            });
+        });
+
+        // ============================================
+        // INIT ON LOAD
+        // ============================================
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!checkAuth()) return;
+
+            // Load all data
+            loadKPIs();
+            loadEmployees();
+            loadBilling();
+            loadCompanyProfile();
+        });
+    </script>
+
+</body>
+</html>
