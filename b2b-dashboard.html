@@ -1224,6 +1224,42 @@
                 <p>Différence : <strong id="modal-diff">-€ HT/mois</strong></p>
             </div>
 
+            <!-- 🔥 NOUVEAU : Tableau tarifs dégressifs -->
+            <div class="pricing-tiers-table" style="background: #f8f9fa; border-radius: 0.5rem; padding: 1rem; margin: 1.5rem 0;">
+                <p style="font-size: 0.875rem; font-weight: 600; color: var(--dark); margin-bottom: 1rem; text-align: center;">
+                    💰 Tarifs dégressifs par palier
+                </p>
+                <table style="width: 100%; font-size: 0.875rem;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid #e5e7eb;">
+                            <th style="padding: 0.5rem; text-align: left; color: var(--gray);">Sièges</th>
+                            <th style="padding: 0.5rem; text-align: right; color: var(--gray);">Prix unitaire</th>
+                            <th style="padding: 0.5rem; text-align: right; color: var(--gray);">Économie</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr id="tier-1-10" style="background: transparent;">
+                            <td style="padding: 0.75rem 0.5rem;">1 à 10</td>
+                            <td style="padding: 0.75rem 0.5rem; text-align: right; font-weight: 600;">15,00€</td>
+                            <td style="padding: 0.75rem 0.5rem; text-align: right; color: var(--gray);">-</td>
+                        </tr>
+                        <tr id="tier-11-30" style="background: transparent;">
+                            <td style="padding: 0.75rem 0.5rem;">11 à 30</td>
+                            <td style="padding: 0.75rem 0.5rem; text-align: right; font-weight: 600; color: var(--success);">13,99€</td>
+                            <td style="padding: 0.75rem 0.5rem; text-align: right; color: var(--success); font-weight: 600;">-7%</td>
+                        </tr>
+                        <tr id="tier-31-plus" style="background: transparent;">
+                            <td style="padding: 0.75rem 0.5rem;">31+</td>
+                            <td style="padding: 0.75rem 0.5rem; text-align: right; font-weight: 600; color: var(--success);">12,90€</td>
+                            <td style="padding: 0.75rem 0.5rem; text-align: right; color: var(--success); font-weight: 600;">-14%</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <p style="font-size: 0.75rem; color: var(--gray); margin-top: 1rem; text-align: center; font-style: italic;">
+                    Plus vous commandez de sièges, moins le coût par employé est élevé !
+                </p>
+            </div>
+
             <button class="btn-primary" onclick="updateSeats()" style="width: 100%;">
                 Valider et mettre à jour
             </button>
@@ -1499,9 +1535,12 @@
                     tier: '-'
                 };
                 
-                document.getElementById('modal-new-amount').textContent = `${newAmount}€`;
+                document.getElementById('modal-new-amount').textContent = `${newAmount.toFixed(2)}€`;
                 document.getElementById('modal-new-tier').textContent = newTier;
-                document.getElementById('modal-diff').textContent = `+${newAmount}€`;
+                document.getElementById('modal-diff').textContent = `+${newAmount.toFixed(2)}€`;
+                
+                // 🔥 NOUVEAU : Highlight palier initial
+                updateSeatsPreview(10);
                 
                 // Changer texte bouton
                 document.querySelector('#modal-buy-seats button[onclick="updateSeats()"]').textContent = 
@@ -1561,6 +1600,19 @@
             document.getElementById('modal-new-tier').textContent = newTier;
             document.getElementById('modal-diff').textContent = 
                 diff >= 0 ? `+${diff.toFixed(2)}€` : `${diff.toFixed(2)}€`;
+            
+            // 🔥 NOUVEAU : Highlight le palier actuel
+            document.querySelectorAll('.pricing-tiers-table tbody tr').forEach(row => {
+                row.style.background = 'transparent';
+            });
+            
+            if (newSeats >= 1 && newSeats <= 10) {
+                document.getElementById('tier-1-10').style.background = '#dbeafe';
+            } else if (newSeats >= 11 && newSeats <= 30) {
+                document.getElementById('tier-11-30').style.background = '#d1fae5';
+            } else if (newSeats >= 31) {
+                document.getElementById('tier-31-plus').style.background = '#d1fae5';
+            }
         }
 
         async function updateSeats() {
