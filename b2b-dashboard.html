@@ -1349,7 +1349,8 @@
         // ============================================
         function calculatePrice(seats) {
             const tier = PRICING_TIERS.find(t => seats >= t.min && seats <= t.max);
-            return tier ? tier.price * seats : 0;
+            const total = tier ? tier.price * seats : 0;
+            return Math.round(total * 100) / 100; // Arrondi 2 décimales
         }
 
         function getTierLabel(seats) {
@@ -1473,26 +1474,64 @@
         // BLOC 3 : SIÈGES - MODAL ACHETER
         // ============================================
         let currentSeatsData = null;
+        let hasSubscription = false; // Track si abonnement existe
 
         function openBuySeatsModal() {
             //BACKEND: Les données viennent de loadKPIs() déjà chargées
             // On utilise les valeurs affichées dans les KPIs
-            const currentSeats = parseInt(document.getElementById('seats-paid').textContent || '10');
-            const currentAmount = calculatePrice(currentSeats);
-            const currentTier = getTierLabel(currentSeats);
+            const currentSeats = parseInt(document.getElementById('seats-paid').textContent || '0');
+            
+            // 🔥 DÉTECTION : Premier abonnement ou modification ?
+            hasSubscription = currentSeats > 0;
+            
+            if (!hasSubscription) {
+                // PREMIER ABONNEMENT - Changer texte modal
+                document.querySelector('#modal-buy-seats .modal-header h3').textContent = 'Créer mon abonnement';
+                document.querySelector('#modal-buy-seats .current-plan').style.display = 'none';
+                document.getElementById('new-seats-input').value = 10; // Default 10 sièges
+                
+                const newAmount = calculatePrice(10);
+                const newTier = getTierLabel(10);
+                
+                currentSeatsData = {
+                    seats: 0,
+                    amount: 0,
+                    tier: '-'
+                };
+                
+                document.getElementById('modal-new-amount').textContent = `${newAmount}€`;
+                document.getElementById('modal-new-tier').textContent = newTier;
+                document.getElementById('modal-diff').textContent = `+${newAmount}€`;
+                
+                // Changer texte bouton
+                document.querySelector('#modal-buy-seats button[onclick="updateSeats()"]').textContent = 
+                    'Créer mon abonnement';
+            } else {
+                // MODIFICATION ABONNEMENT EXISTANT
+                document.querySelector('#modal-buy-seats .modal-header h3').textContent = 'Modifier le nombre de sièges';
+                document.querySelector('#modal-buy-seats .current-plan').style.display = 'block';
+                
+                const currentAmount = calculatePrice(currentSeats);
+                const currentTier = getTierLabel(currentSeats);
 
-            currentSeatsData = {
-                seats: currentSeats,
-                amount: currentAmount,
-                tier: currentTier
-            };
+                currentSeatsData = {
+                    seats: currentSeats,
+                    amount: currentAmount,
+                    tier: currentTier
+                };
 
-            document.getElementById('modal-current-seats').textContent = currentSeats;
-            document.getElementById('modal-current-amount').textContent = `${currentAmount}€`;
-            document.getElementById('modal-current-tier').textContent = currentTier;
-            document.getElementById('new-seats-input').value = currentSeats;
+                document.getElementById('modal-current-seats').textContent = currentSeats;
+                document.getElementById('modal-current-amount').textContent = `${currentAmount}€`;
+                document.getElementById('modal-current-tier').textContent = currentTier;
+                document.getElementById('new-seats-input').value = currentSeats;
 
-            updateSeatsPreview(currentSeats);
+                updateSeatsPreview(currentSeats);
+                
+                // Changer texte bouton
+                document.querySelector('#modal-buy-seats button[onclick="updateSeats()"]').textContent = 
+                    'Valider et mettre à jour';
+            }
+
             openModal('modal-buy-seats');
         }
 
@@ -1516,50 +1555,76 @@
         function updateSeatsPreview(newSeats) {
             const newAmount = calculatePrice(newSeats);
             const newTier = getTierLabel(newSeats);
-            const diff = newAmount - currentSeatsData.amount;
+            const diff = Math.round((newAmount - currentSeatsData.amount) * 100) / 100;
 
-            document.getElementById('modal-new-amount').textContent = `${newAmount}€`;
+            document.getElementById('modal-new-amount').textContent = `${newAmount.toFixed(2)}€`;
             document.getElementById('modal-new-tier').textContent = newTier;
             document.getElementById('modal-diff').textContent = 
-                diff >= 0 ? `+${diff}€` : `${diff}€`;
+                diff >= 0 ? `+${diff.toFixed(2)}€` : `${diff.toFixed(2)}€`;
         }
 
         async function updateSeats() {
             const token = getToken();
             const newSeats = parseInt(document.getElementById('new-seats-input').value);
 
-            if (!confirm(`Confirmer la modification à ${newSeats} sièges ?`)) return;
+            if (!hasSubscription) {
+                // 🔥 CAS 1 : PREMIER ABONNEMENT → Créer checkout Stripe
+                if (!confirm(`Créer un abonnement pour ${newSeats} sièges (${calculatePrice(newSeats)}€ HT/mois) ?`)) return;
 
-            try {
-                //BACKEND: Créer endpoint POST /company/update-seats
-                // Body: { session_token, new_seats }
-                // Logique:
-                //   1. Calculer nouveau montant selon palier
-                //   2. Appeler Stripe API pour update subscription quantity
-                //   3. Mettre à jour KV company.seats_billed
-                //   4. Retourner nouveau montant + prochaine facturation
-                const response = await fetch(`${API_BASE}/company/update-seats`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        session_token: token,
-                        new_seats: newSeats
-                    })
-                });
+                try {
+                    const response = await fetch(`${API_BASE}/company/create-checkout`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            session_token: token,
+                            seats: newSeats,
+                            mode: 'centralized'
+                        })
+                    });
 
-                const data = await response.json();
+                    const data = await response.json();
 
-                if (response.ok) {
-                    alert('✅ Nombre de sièges mis à jour avec succès !');
-                    closeModal('modal-buy-seats');
-                    loadKPIs(); // Refresh
-                    loadBilling(); // Refresh billing
-                } else {
-                    alert(`❌ Erreur: ${data.error || 'Impossible de mettre à jour'}`);
+                    if (response.ok && data.checkout_url) {
+                        closeModal('modal-buy-seats');
+                        alert('Redirection vers le paiement Stripe...');
+                        // Ouvrir Stripe checkout
+                        window.location.href = data.checkout_url;
+                    } else {
+                        alert(`❌ Erreur: ${data.error || 'Impossible de créer le checkout'}`);
+                    }
+                } catch (error) {
+                    console.error('Erreur create checkout:', error);
+                    alert('❌ Erreur réseau');
                 }
-            } catch (error) {
-                console.error('Erreur update seats:', error);
-                alert('❌ Erreur réseau');
+
+            } else {
+                // 🔥 CAS 2 : MODIFICATION ABONNEMENT EXISTANT
+                if (!confirm(`Confirmer la modification à ${newSeats} sièges ?`)) return;
+
+                try {
+                    const response = await fetch(`${API_BASE}/company/update-seats`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            session_token: token,
+                            new_seats: newSeats
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (response.ok) {
+                        alert('✅ Nombre de sièges mis à jour avec succès !');
+                        closeModal('modal-buy-seats');
+                        loadKPIs(); // Refresh
+                        loadBilling(); // Refresh billing
+                    } else {
+                        alert(`❌ Erreur: ${data.error || 'Impossible de mettre à jour'}`);
+                    }
+                } catch (error) {
+                    console.error('Erreur update seats:', error);
+                    alert('❌ Erreur réseau');
+                }
             }
         }
 
