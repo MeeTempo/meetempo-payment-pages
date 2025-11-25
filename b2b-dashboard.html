@@ -1610,11 +1610,11 @@
                 row.style.background = 'transparent';
             });
             
-            if (newSeats >= 1 && newSeats <= 10) {
+            if (totalSeats >= 1 && totalSeats <= 10) {
                 document.getElementById('tier-1-10').style.background = '#dbeafe';
-            } else if (newSeats >= 11 && newSeats <= 30) {
+            } else if (totalSeats >= 11 && totalSeats <= 30) {
                 document.getElementById('tier-11-30').style.background = '#d1fae5';
-            } else if (newSeats >= 31) {
+            } else if (totalSeats >= 31) {
                 document.getElementById('tier-31-plus').style.background = '#d1fae5';
             }
         }
