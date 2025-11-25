@@ -119,12 +119,30 @@
             </ul>
           </div>
           <div class="section">
-            <h2>7. Limites</h2>
-            <p>Les rencontres ont lieu sous votre responsabilité. MeeTempo décline toute responsabilité pour les interactions privées et leurs conséquences.</p>
+            <h2>7. Limites & Responsabilité</h2>
+            <p>Les rencontres ont lieu sous votre entière responsabilité. MeeTempo agit en tant que facilitateur et décline toute responsabilité pour :</p>
+            <ul>
+              <li>Les interactions privées et leurs conséquences (personnelles, professionnelles, financières).</li>
+              <li>Les comportements des autres utilisateurs, y compris les employés d'entreprises partenaires.</li>
+              <li>Les informations inexactes fournies par les membres.</li>
+              <li>Toute perte, dommage ou préjudice résultant de l'utilisation de la plateforme.</li>
+            </ul>
+            <p>En utilisant MeeTempo, vous reconnaissez que vous êtes seul responsable de vos choix et actions.</p>
           </div>
           <div class="section">
             <h2>8. Évolution de la charte</h2>
             <p>Cette charte peut évoluer. Toute modification significative sera notifiée. L’usage continu vaut acceptation.</p>
+          </div>
+          <div class="section">
+            <h2>9. Utilisation B2B / Entreprise</h2>
+            <p>MeeTempo propose des offres destinées aux entreprises et à leurs collaborateurs.</p>
+            <ul>
+              <li><strong>Responsabilité employeur :</strong> L'entreprise souscriptrice est responsable de l'information et de la sensibilisation de ses collaborateurs aux présentes règles.</li>
+              <li><strong>Responsabilité individuelle :</strong> Chaque utilisateur (employé ou non) reste personnellement responsable de son comportement et de ses interactions sur la plateforme.</li>
+              <li><strong>Limitation de responsabilité :</strong> MeeTempo ne saurait être tenu responsable de l'utilisation faite par les membres employés, ni des conséquences professionnelles ou personnelles résultant des rencontres facilitées par la plateforme.</li>
+              <li><strong>Données entreprise :</strong> Les administrateurs B2B ont accès à des statistiques agrégées uniquement. Aucune donnée personnelle de conversation ou de rencontre n'est partagée avec l'employeur.</li>
+              <li><strong>Séparation pro/perso :</strong> Les suggestions créées dans un cadre B2B restent soumises aux mêmes règles éthiques que les comptes individuels.</li>
+            </ul>
           </div>
         </div>
 
@@ -194,12 +212,30 @@
             </ul>
           </div>
           <div class="section">
-            <h2>7. Limits</h2>
-            <p>In-person meetups happen under your sole responsibility. MeeTempo is not liable for private interactions and consequences.</p>
+            <h2>7. Limits & Liability</h2>
+            <p>In-person meetups happen under your sole responsibility. MeeTempo acts as a facilitator and disclaims all liability for:</p>
+            <ul>
+              <li>Private interactions and their consequences (personal, professional, financial).</li>
+              <li>The behavior of other users, including employees of partner companies.</li>
+              <li>Inaccurate information provided by members.</li>
+              <li>Any loss, damage or harm resulting from use of the platform.</li>
+            </ul>
+            <p>By using MeeTempo, you acknowledge that you are solely responsible for your choices and actions.</p>
           </div>
           <div class="section">
             <h2>8. Changes</h2>
             <p>This charter may evolve. Significant changes will be notified. Continued use means acceptance.</p>
+          </div>
+          <div class="section">
+            <h2>9. B2B / Enterprise Usage</h2>
+            <p>MeeTempo offers plans for companies and their employees.</p>
+            <ul>
+              <li><strong>Employer responsibility:</strong> The subscribing company is responsible for informing and educating its employees about these rules.</li>
+              <li><strong>Individual responsibility:</strong> Each user (employee or not) remains personally responsible for their behavior and interactions on the platform.</li>
+              <li><strong>Limitation of liability:</strong> MeeTempo cannot be held liable for the use made by employee members, nor for any professional or personal consequences resulting from meetings facilitated by the platform.</li>
+              <li><strong>Company data:</strong> B2B administrators only have access to aggregated statistics. No personal conversation or meeting data is shared with the employer.</li>
+              <li><strong>Work/personal separation:</strong> Suggestions created in a B2B context remain subject to the same ethical rules as individual accounts.</li>
+            </ul>
           </div>
         </div>
 
@@ -226,7 +262,7 @@
   const API_BASE = 'https://api.meetempo.com';
   const params = new URLSearchParams(location.search);
   const token = params.get('session_token') || params.get('token') || '';
-  const returnUrl = params.get('return_url') || 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+  const returnUrl = params.get('return') || params.get('return_url') || 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
   const langParam = (params.get('lang') || 'fr').toLowerCase();
   const GPT_URL_FALLBACK = returnUrl;
 
@@ -271,13 +307,40 @@
   async function verifySession(){
     if(!token){ showDenied("❌ Token manquant.","❌ Missing token."); return false; }
     try{
-      const r = await fetch(`${API_BASE}/auth/check-session?session_token=${encodeURIComponent(token)}`);
-      if(!r.ok){ showDenied("❌ Session expirée.","❌ Session expired."); return false; }
-      const d = await r.json();
-      if(!d.valid){ showDenied("❌ Session invalide.","❌ Invalid session."); return false; }
+      // 🔥 NOUVEAU : Validation multi-source (comme les autres pages)
+      let isValid = false;
+      
+      // Essayer /profile d'abord (session_token 24h)
+      const profileRes = await fetch(`${API_BASE}/profile?session_token=${encodeURIComponent(token)}`);
+      if(profileRes.ok){
+        const profileData = await profileRes.json();
+        if(profileData.user_id || profileData.email){
+          isValid = true;
+          console.log('✅ Token validé via /profile (24h)');
+        }
+      }
+      
+      // Fallback /auth/session (elevated_token 15min)
+      if(!isValid){
+        const sessionRes = await fetch(`${API_BASE}/auth/session?token=${encodeURIComponent(token)}`);
+        if(sessionRes.ok){
+          const sessionData = await sessionRes.json();
+          if(sessionData.user_id){
+            isValid = true;
+            console.log('✅ Token validé via /auth/session (15min)');
+          }
+        }
+      }
+      
+      if(!isValid){ 
+        showDenied("❌ Session expirée.","❌ Session expired."); 
+        return false; 
+      }
+      
       sessionStorage.setItem('meetempo_token', token);
       return true;
-    }catch{
+    }catch(err){
+      console.error('Verify session error:', err);
       showDenied("❌ Erreur réseau.","❌ Network error."); 
       return false;
     }
@@ -324,8 +387,23 @@
       
       if(response.ok && r.success){
   state.classList.add('ok'); 
-  state.textContent = lang==='fr'?"✅ Charte acceptée ! Retourne à ton onglet GPT.":"✅ Charter accepted! Return to your GPT tab.";
-  setTimeout(()=>window.close(), 1500);
+  
+  // 🔥 NOUVEAU : Rediriger vers return URL ou fermer
+  if(returnUrl && !returnUrl.includes('chatgpt.com')){
+    // Redirection interne (hub.html, map.html, etc.)
+    state.textContent = lang==='fr'?"✅ Charte acceptée ! Redirection...":"✅ Charter accepted! Redirecting...";
+    setTimeout(()=>{
+      // Construire URL avec token
+      const redirectTarget = returnUrl.includes('?') 
+        ? `${returnUrl}&session_token=${token}` 
+        : `${returnUrl}?session_token=${token}`;
+      window.location.href = redirectTarget;
+    }, 1500);
+  } else {
+    // Retour GPT (fermer fenêtre)
+    state.textContent = lang==='fr'?"✅ Charte acceptée ! Retourne à ton onglet GPT.":"✅ Charter accepted! Return to your GPT tab.";
+    setTimeout(()=>window.close(), 1500);
+  }
 } else {
         state.classList.add('err'); 
         state.textContent = lang==='fr'?`❌ Erreur: ${r.error || 'inconnue'}`:`❌ Error: ${r.error || 'unknown'}`;
