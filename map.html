@@ -846,11 +846,7 @@ if (!token) {
   showError('Token manquant', 'Veuillez accéder depuis MeeTempo GPT', 'missing');
 }
 
-// Si session_token fourni, on l'utilise en priorité
-if (sessionToken && !token) {
-  token = sessionToken;
-}
-    
+  
     let HERE_API_KEY = null;
     let map;
     let ui;
