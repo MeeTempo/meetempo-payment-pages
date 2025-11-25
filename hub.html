@@ -305,6 +305,7 @@
     .card-messages .card-overlay { background: linear-gradient(135deg, rgba(245,158,11,0.9) 0%, rgba(217,119,6,0.9) 100%); }
     .card-profile .card-overlay { background: linear-gradient(135deg, rgba(107,114,128,0.9) 0%, rgba(75,85,99,0.9) 100%); }
     .card-vip .card-overlay { background: linear-gradient(135deg, rgba(251,191,36,0.9) 0%, rgba(245,158,11,0.9) 100%); }
+    .card-pricing .card-overlay { background: linear-gradient(135deg, rgba(139,92,246,0.9) 0%, rgba(244,159,28,0.9) 100%); }
     
     .card-content {
       position: relative;
@@ -840,7 +841,24 @@
         onClick: "navigate('messages')"
       });
       
-      // Card 6 : Profil
+      // Card 6 : Nos offres
+      const pricingSubtitle = userPlan === 'free' ? 'Découvrez Premium & VIP' :
+                              userPlan === 'meeting' ? 'Passez à Premium' :
+                              userPlan === 'premium' ? 'Devenez VIP' :
+                              userPlan === 'vip' ? 'Votre plan actuel' :
+                              'Plans entreprise & VIP';
+      
+      cardsHTML += createCard({
+        id: 'pricing',
+        icon: '💎',
+        title: 'Nos offres',
+        subtitle: pricingSubtitle,
+        cssClass: 'card-pricing',
+        disabled: false,
+        onClick: "navigate('pricing')"
+      });
+      
+      // Card 7 : Profil
       cardsHTML += createCard({
         id: 'profile',
         icon: '⚙️',
@@ -851,7 +869,7 @@
         onClick: "navigate('profile')"
       });
       
-      // Card 7 : Dashboard VIP (visible uniquement pour VIP)
+      // Card 8 : Dashboard VIP (visible uniquement pour VIP)
       if (userPlan === 'vip') {
         cardsHTML += createCard({
           id: 'vip',
@@ -1092,6 +1110,10 @@ async function loadNextMeeting() {
           
         case 'vip':
           window.location.href = `vip-dashboard.html?${tokenParam}`;
+          break;
+          
+        case 'pricing':
+          window.location.href = `pricing.html?${tokenParam}`;
           break;
       }
     }
