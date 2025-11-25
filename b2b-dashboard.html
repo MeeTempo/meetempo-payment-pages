@@ -1331,6 +1331,41 @@
     </div>
 
     <!-- ============================================
+     MODAL : GÉRER EMPLOYÉ
+============================================ -->
+<div class="modal" id="modal-manage-employee">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Gérer l'employé</h3>
+            <button class="modal-close" onclick="closeModal('modal-manage-employee')">×</button>
+        </div>
+        
+        <div class="form-group">
+            <label>Email</label>
+            <input type="text" id="manage-employee-email" disabled style="background: var(--light-gray);">
+        </div>
+        
+        <div class="form-group">
+            <label>Statut actuel</label>
+            <div id="manage-employee-status"></div>
+        </div>
+        
+        <div class="form-group">
+            <label>Code d'accès</label>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <input type="text" id="manage-employee-code" disabled style="background: var(--light-gray); font-family: monospace; letter-spacing: 2px;">
+                <button class="btn-secondary" onclick="toggleCodeVisibility()">👁️</button>
+            </div>
+            <small style="color: var(--gray); margin-top: 5px; display: block;">Code à communiquer à l'employé si besoin</small>
+        </div>
+        
+        <div id="manage-employee-actions" style="margin-top: 20px; display: flex; flex-direction: column; gap: 10px;">
+            <!-- Boutons injectés dynamiquement -->
+        </div>
+    </div>
+</div>
+
+    <!-- ============================================
          TOOLTIP INFO SIÈGES
     ============================================ -->
     <div class="tooltip" id="tooltip-seats">
@@ -1484,7 +1519,7 @@
                 alertsHTML += `
                     <div class="alert warning">
                         <span>⚠️ Vous payez ${data.seats_billed} sièges, seulement ${data.employees_active} utilisés</span>
-                        <a href="#" onclick="openBuySeatsModal()">Réduire les sièges</a>
+                        <a href="#" onclick="document.querySelector('.team-header').scrollIntoView({behavior: 'smooth'})">Gérer l'équipe</a>
                     </div>
                 `;
             }
@@ -1805,8 +1840,12 @@
                             </div>
                         </td>
                         <td>
-                            <button onclick="viewEmployeeDetail('${emp.user_id}')" class="btn-secondary">Détails</button>
-                            <button onclick="removeEmployee('${emp.user_id}')" class="btn-danger">Retirer</button>
+                            <select onchange="handleEmployeeAction(this.value, '${emp.user_id}', '${emp.email}', '${emp.status}')" style="padding: 8px; border-radius: 6px; cursor: pointer;">
+                                <option value="">Actions...</option>
+                                <option value="manage">👁️ Gérer</option>
+                                ${emp.status === 'active' ? '<option value="suspend">🔴 Désactiver</option>' : '<option value="reactivate">🟢 Réactiver</option>'}
+                                <option value="remove">🗑️ Supprimer</option>
+                            </select>
                         </td>
                     </tr>
                 `;
@@ -1987,6 +2026,206 @@
                 loadEmployees();
             }
         }
+
+        async function handleEmployeeAction(action, userId, email, status) {
+    if (!action) return;
+    
+    switch(action) {
+        case 'manage':
+            openManageEmployeeModal(userId, email, status);
+            break;
+        case 'suspend':
+            await suspendEmployee(userId);
+            break;
+        case 'reactivate':
+            await reactivateEmployee(userId);
+            break;
+        case 'remove':
+            await removeEmployee(userId);
+            break;
+    }
+    
+    // Reset dropdown
+    event.target.value = '';
+}
+
+async function suspendEmployee(userId) {
+    const token = getToken();
+    
+    if (!confirm('Désactiver cet employé ? Il perdra temporairement l\'accès à MeeTempo.')) return;
+    
+    try {
+        const response = await fetch(`${API_BASE}/company/employee/suspend`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_token: token, user_id: userId })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('✅ Employé désactivé');
+            loadEmployees();
+            loadKPIs();
+        } else {
+            alert(`❌ Erreur: ${data.error || 'Impossible de désactiver'}`);
+        }
+    } catch (error) {
+        console.error('Erreur suspend:', error);
+        alert('❌ Erreur réseau');
+    }
+}
+
+async function reactivateEmployee(userId) {
+    const token = getToken();
+    
+    if (!confirm('Réactiver cet employé ?')) return;
+    
+    try {
+        const response = await fetch(`${API_BASE}/company/employee/reactivate`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_token: token, user_id: userId })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('✅ Employé réactivé');
+            loadEmployees();
+            loadKPIs();
+        } else {
+            alert(`❌ Erreur: ${data.error || 'Impossible de réactiver'}`);
+        }
+    } catch (error) {
+        console.error('Erreur reactivate:', error);
+        alert('❌ Erreur réseau');
+    }
+}
+
+async function openManageEmployeeModal(userId, email, status) {
+    const token = getToken();
+    
+    // Remplir les infos de base
+    document.getElementById('manage-employee-email').value = email;
+    
+    // Statut avec badge
+    const statusBadges = {
+        'active': '<span class="badge active">🟢 Actif</span>',
+        'suspended': '<span class="badge suspended">🔴 Suspendu</span>',
+        'pending': '<span class="badge pending">🟡 En attente</span>'
+    };
+    document.getElementById('manage-employee-status').innerHTML = statusBadges[status] || status;
+    
+    // Code masqué par défaut
+    document.getElementById('manage-employee-code').value = '••••••';
+    document.getElementById('manage-employee-code').dataset.userId = userId;
+    document.getElementById('manage-employee-code').dataset.revealed = 'false';
+    
+    // Boutons d'action selon statut
+    let actionsHTML = '';
+    
+    if (status === 'active') {
+        actionsHTML = `
+            <button class="btn-secondary" onclick="suspendEmployee('${userId}'); closeModal('modal-manage-employee');">🔴 Désactiver l'employé</button>
+            <button class="btn-danger" onclick="removeEmployee('${userId}'); closeModal('modal-manage-employee');">🗑️ Supprimer définitivement</button>
+        `;
+    } else if (status === 'suspended') {
+        actionsHTML = `
+            <button class="btn-primary" onclick="reactivateEmployee('${userId}'); closeModal('modal-manage-employee');">🟢 Réactiver l'employé</button>
+            <button class="btn-danger" onclick="removeEmployee('${userId}'); closeModal('modal-manage-employee');">🗑️ Supprimer définitivement</button>
+        `;
+    } else if (status === 'pending') {
+        actionsHTML = `
+            <button class="btn-primary" onclick="activateEmployeeManually('${userId}'); closeModal('modal-manage-employee');">✅ Activer manuellement</button>
+            <button class="btn-secondary" onclick="resendInviteByUserId('${userId}');">📧 Renvoyer l'invitation</button>
+            <button class="btn-danger" onclick="removeEmployee('${userId}'); closeModal('modal-manage-employee');">🗑️ Supprimer</button>
+        `;
+    }
+    
+    document.getElementById('manage-employee-actions').innerHTML = actionsHTML;
+    
+    openModal('modal-manage-employee');
+}
+
+async function toggleCodeVisibility() {
+    const codeInput = document.getElementById('manage-employee-code');
+    const userId = codeInput.dataset.userId;
+    const revealed = codeInput.dataset.revealed === 'true';
+    
+    if (revealed) {
+        codeInput.value = '••••••';
+        codeInput.dataset.revealed = 'false';
+    } else {
+        // Récupérer le code depuis le backend
+        const token = getToken();
+        
+        try {
+            const response = await fetch(`${API_BASE}/company/employee/code?session_token=${token}&user_id=${userId}`);
+            const data = await response.json();
+            
+            if (response.ok && data.code) {
+                codeInput.value = data.code;
+                codeInput.dataset.revealed = 'true';
+            } else {
+                codeInput.value = 'N/A';
+            }
+        } catch (error) {
+            console.error('Erreur récupération code:', error);
+            codeInput.value = 'Erreur';
+        }
+    }
+}
+
+async function activateEmployeeManually(userId) {
+    const token = getToken();
+    
+    if (!confirm('Activer manuellement cet employé sans qu\'il ait saisi son code ?')) return;
+    
+    try {
+        const response = await fetch(`${API_BASE}/company/employee/activate-manual`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_token: token, user_id: userId })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('✅ Employé activé manuellement');
+            loadEmployees();
+            loadKPIs();
+        } else {
+            alert(`❌ Erreur: ${data.error || 'Impossible d\'activer'}`);
+        }
+    } catch (error) {
+        console.error('Erreur activate-manual:', error);
+        alert('❌ Erreur réseau');
+    }
+}
+
+async function resendInviteByUserId(userId) {
+    const token = getToken();
+    
+    try {
+        const response = await fetch(`${API_BASE}/company/invite/resend-by-user`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ session_token: token, user_id: userId })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            alert('✅ Invitation renvoyée !');
+        } else {
+            alert(`❌ Erreur: ${data.error}`);
+        }
+    } catch (error) {
+        console.error('Erreur resend invite:', error);
+        alert('❌ Erreur réseau');
+    }
+}
 
         async function removeEmployee(userId) {
             const token = getToken();
