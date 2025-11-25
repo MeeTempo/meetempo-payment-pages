@@ -235,6 +235,59 @@
                 </div>
             </div>
 
+            <!-- Profils Retenus Section (Pense-bêtes VIP) -->
+            <div class="fade-in" style="animation-delay: 0.45s" id="saved-profiles-section">
+                <h2 class="text-lg font-black text-white mb-4 flex items-center">
+                    <i class="fas fa-star text-yellow-400 mr-2"></i> PROFILS RETENUS
+                </h2>
+                
+                <!-- Stats rapides -->
+                <div class="glass-card p-4 rounded-xl mb-4">
+                    <div class="flex justify-between items-center">
+                        <div class="text-center flex-1">
+                            <div class="text-2xl font-black text-white" id="profiles-total">0</div>
+                            <div class="text-[10px] text-gray-400 uppercase">Total</div>
+                        </div>
+                        <div class="w-px h-10 bg-white/10"></div>
+                        <div class="text-center flex-1">
+                            <div class="text-2xl font-black text-yellow-400" id="profiles-pending">0</div>
+                            <div class="text-[10px] text-gray-400 uppercase">À suivre</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Liste des profils -->
+                <div class="space-y-3" id="saved-profiles-list">
+                    <!-- Skeleton ou contenu -->
+                    <div class="skeleton glass-card p-4 rounded-xl h-24"></div>
+                </div>
+
+                <!-- Message si vide -->
+                <div id="profiles-empty" class="glass-card p-6 rounded-xl text-center" style="display: none;">
+                    <div class="text-4xl mb-3">⭐</div>
+                    <h3 class="font-bold text-white mb-2">Aucun profil retenu</h3>
+                    <p class="text-xs text-gray-400">
+                        Après vos rencontres MeeTempo, marquez les profils intéressants pour les retrouver ici.
+                    </p>
+                </div>
+
+                <!-- Tip upsell B2B -->
+                <div class="glass-card p-4 rounded-xl mt-4 border border-purple-500/30" id="b2b-upsell-tip">
+                    <div class="flex items-start gap-3">
+                        <div class="text-2xl">💡</div>
+                        <div class="flex-1">
+                            <p class="text-xs text-gray-300 mb-2">
+                                <strong class="text-white">Vous recrutez régulièrement ?</strong><br>
+                                Créez votre compte Entreprise pour partager automatiquement vos recommandations avec vos RH.
+                            </p>
+                            <button onclick="openB2BForm()" class="text-xs bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 px-3 py-1.5 rounded-lg transition">
+                                En savoir plus →
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <!-- B2B Section (Hidden by default) -->
             <div id="b2b-section" class="hidden fade-in" style="animation-delay: 0.5s">
                 <div class="relative rounded-2xl overflow-hidden p-1 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
@@ -434,6 +487,9 @@
                 // Render dashboard
                 renderDashboard(userData, token);
 
+                // Load saved profiles (pense-bêtes VIP)
+                loadSavedProfiles(token);
+
                 // Hide loading, show content
                 hideLoading();
 
@@ -587,6 +643,100 @@
         }
 
         // ========================================
+        // SAVED PROFILES (PENSE-BÊTES VIP)
+        // ========================================
+        async function loadSavedProfiles(token) {
+            try {
+                const res = await fetch(`${API_BASE}/recommendation/list?session_token=${token}`);
+                
+                if (!res.ok) {
+                    console.warn('Recommandations non disponibles');
+                    document.getElementById('saved-profiles-section').style.display = 'none';
+                    return;
+                }
+
+                const data = await res.json();
+
+                if (data.success && data.list_type === 'vip') {
+                    displaySavedProfiles(data.recommendations, data.stats);
+                } else {
+                    // Pas VIP ou pas de recommandations
+                    document.getElementById('saved-profiles-section').style.display = 'none';
+                }
+            } catch (err) {
+                console.error('Erreur chargement profils:', err);
+                document.getElementById('saved-profiles-section').style.display = 'none';
+            }
+        }
+
+        function displaySavedProfiles(profiles, stats) {
+            const container = document.getElementById('saved-profiles-list');
+            const emptyState = document.getElementById('profiles-empty');
+            const section = document.getElementById('saved-profiles-section');
+
+            // Update stats
+            document.getElementById('profiles-total').textContent = stats?.total || 0;
+            document.getElementById('profiles-pending').textContent = stats?.pending || 0;
+
+            if (!profiles || profiles.length === 0) {
+                container.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            let html = '';
+            profiles.forEach(profile => {
+                const date = profile.meeting_date 
+                    ? new Date(profile.meeting_date).toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' })
+                    : '-';
+
+                const notePreview = profile.personal_note && profile.personal_note.length > 50
+                    ? profile.personal_note.substring(0, 50) + '...'
+                    : (profile.personal_note || 'Aucune note');
+
+                html += `
+                    <div class="glass-card p-4 rounded-xl">
+                        <div class="flex items-start gap-3">
+                            <div class="w-10 h-10 rounded-full bg-gradient-to-br from-yellow-500 to-orange-500 flex items-center justify-center text-lg shadow-lg">
+                                ⭐
+                            </div>
+                            <div class="flex-1 min-w-0">
+                                <div class="flex justify-between items-start mb-1">
+                                    <h3 class="font-bold text-white text-sm truncate">${profile.recommended_pseudonym || 'Profil anonyme'}</h3>
+                                    <span class="text-[10px] text-gray-400 whitespace-nowrap ml-2">${date}</span>
+                                </div>
+                                <p class="text-xs text-gray-400 mb-2">${profile.meeting_context || 'Rencontre MeeTempo'} • ${profile.meeting_city || '-'}</p>
+                                <p class="text-xs text-gray-300 italic">"${notePreview}"</p>
+                            </div>
+                        </div>
+                        <div class="flex gap-2 mt-3 pt-3 border-t border-white/10">
+                            <button onclick="viewProfileDetail('${profile.recommendation_id}')" class="flex-1 text-[10px] bg-white/5 hover:bg-white/10 text-gray-300 py-2 rounded-lg transition">
+                                👁️ Détails
+                            </button>
+                            <button onclick="exportProfile('${profile.recommendation_id}')" class="flex-1 text-[10px] bg-white/5 hover:bg-white/10 text-gray-300 py-2 rounded-lg transition">
+                                📧 Exporter
+                            </button>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function viewProfileDetail(recommendationId) {
+            // Chercher dans le cache ou refetch
+            showSuccess('Fonctionnalité détails - Bientôt disponible !');
+        }
+
+        function exportProfile(recommendationId) {
+            // Export par email ou copie
+            showSuccess('📋 Fonctionnalité export - Bientôt disponible !');
+        }
+
+        // ========================================
         // UTILITY FUNCTIONS
         // ========================================
         function copyLink() {
@@ -674,20 +824,28 @@
         }
         
         async function goToMap() {
-            const token = getToken();
+        const token = getToken();
+        try {
+            const res = await fetch(`${API_BASE}/auth/elevate-session?session_token=${token}`);
+            if (!res.ok) throw new Error('Auth fail');
+            
+            const data = await res.json();
+            
+            // ✅ HYBRIDE : SessionStorage + URL
             try {
-                const res = await fetch(`${API_BASE}/auth/elevate-session?session_token=${token}`);
-                if (!res.ok) throw new Error('Auth fail');
-                
-                const data = await res.json();
                 sessionStorage.setItem('meetempo_elevated_token', data.token);
-                window.location.href = 'map.html'; // Pas de token dans URL
-                
-            } catch(e) {
-                showError('Erreur de connexion à la carte');
-                console.error(e);
+            } catch (e) {
+                console.warn('SessionStorage failed:', e);
             }
+            
+            // ✅ Token TOUJOURS dans URL (pour compatibilité)
+            window.location.href = `map.html?token=${data.token}`;
+            
+        } catch(e) {
+            showError('Erreur de connexion à la carte');
+            console.error(e);
         }
+    }
 
         // ========================================
 // B2B FORM MODAL
