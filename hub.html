@@ -641,6 +641,25 @@
     
     async function loadUserData() {
       try {
+        // 🔥 NOUVEAU : Vérifier si charte acceptée
+        try {
+          const charterRes = await fetch(`${API_BASE}/consent/status?session_token=${session_token}`);
+          
+          if (charterRes.ok) {
+            const charterData = await charterRes.json();
+            
+            if (!charterData.accepted) {
+              console.log('📋 Charte non acceptée → redirection');
+              window.location.href = `charter.html?token=${session_token}&return=hub.html`;
+              return;
+            }
+            console.log('✅ Charte acceptée');
+          }
+        } catch (charterErr) {
+          console.warn('⚠️ Erreur check charte:', charterErr);
+          // Continuer quand même (fail-open)
+        }
+        
         const response = await fetch(
           `${API_BASE}/maestro/context?session_token=${session_token}`
         );
