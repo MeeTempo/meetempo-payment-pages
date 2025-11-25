@@ -421,18 +421,63 @@
       <h1>💫 Choisissez votre offre</h1>
       <p>Connectez-vous avec les bonnes personnes, au bon moment</p>
     </div>
-    
-    <!-- Info pour entreprises -->
-    <div class="info-banner">
-      🏢 Vous êtes une entreprise ? <a href="mailto:business@meetempo.com">Contactez-nous</a> pour découvrir nos offres B2B.
-    </div>
+        
     
     <!-- Plans Grid -->
     <div class="plans-grid" id="plansGrid">
       <!-- Cards générées par JS -->
     </div>
+    
+    <!-- Offre Entreprise B2B -->
+    <div style="background: linear-gradient(135deg, rgba(99,102,241,0.15) 0%, rgba(168,85,247,0.15) 100%); 
+                border: 2px solid rgba(99,102,241,0.3); 
+                border-radius: 16px; 
+                padding: 32px; 
+                margin-top: 40px; 
+                text-align: center;">
+      <div style="font-size: 40px; margin-bottom: 16px;">🏢</div>
+      <h2 style="font-size: 24px; font-weight: 700; margin-bottom: 12px; color: #fff;">
+        Offres Entreprises B2B
+      </h2>
+      <p style="color: var(--mt-muted); margin-bottom: 24px; font-size: 15px; line-height: 1.6;">
+        Équipez vos équipes avec MeeTempo : gestion centralisée, tarifs dégressifs, 
+        dashboard admin, statistiques équipe et support dédié.
+      </p>
+      
+      <div style="display: flex; gap: 24px; justify-content: center; align-items: center; flex-wrap: wrap; margin-bottom: 24px;">
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--ok);">
+          <span style="font-size: 20px;">✓</span>
+          <span style="font-size: 13px;">De 12,90€ à 15€ HT/mois selon volume</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--ok);">
+          <span style="font-size: 20px;">✓</span>
+          <span style="font-size: 13px;">Dashboard admin & gestion équipe</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; color: var(--ok);">
+          <span style="font-size: 20px;">✓</span>
+          <span style="font-size: 13px;">Support prioritaire</span>
+        </div>
+      </div>
+      
+      <a href="login.html" 
+         style="display: inline-block; 
+                padding: 14px 32px; 
+                background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); 
+                color: #fff; 
+                text-decoration: none; 
+                border-radius: 12px; 
+                font-weight: 700; 
+                font-size: 15px;
+                transition: all 0.3s;
+                box-shadow: 0 4px 15px rgba(99,102,241,0.4);"
+         onmouseover="this.style.transform='scale(1.05)'; this.style.boxShadow='0 8px 25px rgba(99,102,241,0.6)';"
+         onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 4px 15px rgba(99,102,241,0.4)';">
+        🚀 Créer mon entreprise
+      </a>
+    </div>
+    
   </div>
-
+  
   <script>
     const API_BASE = 'https://api.meetempo.com';
     const params = new URLSearchParams(location.search);
