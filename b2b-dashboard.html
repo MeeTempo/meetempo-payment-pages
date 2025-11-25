@@ -1072,6 +1072,81 @@
         </div>
 
         <!-- ============================================
+             BLOC 4B : VIVIER DE TALENTS (Recommandations RH)
+        ============================================ -->
+        <div class="section" id="talent-pool-section">
+            <div class="section-header">
+                <div>
+                    <h2>🎯 Vivier de talents</h2>
+                    <p style="color: var(--gray); font-size: 0.875rem; margin-top: 0.25rem;">
+                        Profils recommandés par vos employés après leurs rencontres MeeTempo
+                    </p>
+                </div>
+                <div style="display: flex; gap: 0.5rem;">
+                    <select id="talent-filter" onchange="filterRecommendations(this.value)" style="padding: 0.5rem; border-radius: 0.375rem; border: 1px solid var(--border);">
+                        <option value="all">Tous les profils</option>
+                        <option value="urgent">🔥 Urgents</option>
+                        <option value="high">⭐ Très intéressants</option>
+                        <option value="pending">En attente</option>
+                        <option value="contacted">Contactés</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Stats rapides -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="background: var(--light-gray); padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: var(--dark);" id="talent-total">0</div>
+                    <div style="font-size: 0.75rem; color: var(--gray);">Total profils</div>
+                </div>
+                <div style="background: #fef3c7; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #92400e;" id="talent-urgent">0</div>
+                    <div style="font-size: 0.75rem; color: #92400e;">🔥 Urgents</div>
+                </div>
+                <div style="background: #dbeafe; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #1e40af;" id="talent-contacted">0</div>
+                    <div style="font-size: 0.75rem; color: #1e40af;">Contactés</div>
+                </div>
+                <div style="background: #d1fae5; padding: 1rem; border-radius: 0.5rem; text-align: center;">
+                    <div style="font-size: 1.5rem; font-weight: 700; color: #065f46;" id="talent-hired">0</div>
+                    <div style="font-size: 0.75rem; color: #065f46;">✅ Embauchés</div>
+                </div>
+            </div>
+
+            <!-- Tableau des recommandations -->
+            <table class="team-table">
+                <thead>
+                    <tr>
+                        <th>Profil</th>
+                        <th>Recommandé par</th>
+                        <th>Contexte</th>
+                        <th>Points forts</th>
+                        <th>Intérêt</th>
+                        <th>Statut</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody id="talent-list">
+                    <tr>
+                        <td colspan="7" style="text-align: center; padding: 2rem; color: var(--gray);">
+                            Chargement des recommandations...
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- Message si vide -->
+            <div id="talent-empty" style="display: none; text-align: center; padding: 3rem; color: var(--gray);">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+                <h3 style="margin-bottom: 0.5rem;">Aucune recommandation pour le moment</h3>
+                <p style="font-size: 0.875rem;">
+                    Vos employés peuvent recommander des profils intéressants après leurs rencontres MeeTempo.<br>
+                    Les recommandations apparaîtront ici automatiquement.
+                </p>
+            </div>
+        </div>
+
+        <!-- ============================================
              BLOC 5 : FACTURATION STRIPE
         ============================================ -->
         <div class="section billing-section">
@@ -2673,6 +2748,206 @@ async function resendInviteByUserId(userId) {
         }
 
         // ============================================
+        // BLOC 4B : VIVIER DE TALENTS (Recommandations)
+        // ============================================
+        let allRecommendations = []; // Cache pour filtrage
+
+        async function loadRecommendations() {
+            const token = getToken();
+
+            try {
+                const response = await fetch(`${API_BASE}/recommendation/list?session_token=${token}`);
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    allRecommendations = data.recommendations || [];
+                    
+                    // Update stats
+                    document.getElementById('talent-total').textContent = data.stats.total;
+                    document.getElementById('talent-urgent').textContent = data.stats.by_interest?.urgent || 0;
+                    document.getElementById('talent-contacted').textContent = data.stats.contacted;
+                    document.getElementById('talent-hired').textContent = data.stats.hired;
+
+                    displayRecommendations(allRecommendations);
+                } else {
+                    console.error('Erreur chargement recommandations:', data);
+                    displayRecommendations([]);
+                }
+            } catch (error) {
+                console.error('Erreur réseau recommandations:', error);
+                displayRecommendations([]);
+            }
+        }
+
+        function displayRecommendations(recommendations) {
+            const tbody = document.getElementById('talent-list');
+            const emptyState = document.getElementById('talent-empty');
+
+            if (recommendations.length === 0) {
+                tbody.innerHTML = '';
+                emptyState.style.display = 'block';
+                return;
+            }
+
+            emptyState.style.display = 'none';
+
+            let html = '';
+            recommendations.forEach(rec => {
+                // Badge intérêt
+                const interestBadges = {
+                    'urgent': '<span class="badge" style="background: #fef3c7; color: #92400e;">🔥 Urgent</span>',
+                    'high': '<span class="badge" style="background: #dbeafe; color: #1e40af;">⭐ Très intéressant</span>',
+                    'medium': '<span class="badge" style="background: var(--light-gray); color: var(--gray);">Intéressant</span>'
+                };
+                const interestBadge = interestBadges[rec.interest_level] || interestBadges['medium'];
+
+                // Badge statut
+                const statusBadges = {
+                    'pending': '<span class="badge pending">🟡 En attente</span>',
+                    'viewed': '<span class="badge" style="background: #e0e7ff; color: #3730a3;">👁️ Vu</span>',
+                    'contacted': '<span class="badge" style="background: #dbeafe; color: #1e40af;">📧 Contacté</span>',
+                    'hired': '<span class="badge active">✅ Embauché</span>',
+                    'dismissed': '<span class="badge" style="background: #f3f4f6; color: #6b7280;">❌ Écarté</span>'
+                };
+                const statusBadge = statusBadges[rec.status] || statusBadges['pending'];
+
+                // Date formatée
+                const date = rec.meeting_date ? new Date(rec.meeting_date).toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'short'
+                }) : '-';
+
+                // Tronquer points forts
+                const strengthsShort = rec.strengths && rec.strengths.length > 60 
+                    ? rec.strengths.substring(0, 60) + '...' 
+                    : (rec.strengths || '-');
+
+                html += `
+                    <tr data-interest="${rec.interest_level}" data-status="${rec.status}">
+                        <td>
+                            <div class="employee-info">
+                                <div class="avatar" style="background: var(--secondary);">🎯</div>
+                                <div>
+                                    <strong>${rec.recommended_pseudonym || 'Profil anonyme'}</strong><br>
+                                    <small>${rec.suggested_role || 'Poste non spécifié'}</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span style="font-size: 0.875rem;">${rec.recommender_name || 'Employé'}</span>
+                        </td>
+                        <td>
+                            <div style="font-size: 0.875rem;">
+                                ${rec.meeting_context || 'Rencontre MeeTempo'}<br>
+                                <small style="color: var(--gray);">${date} • ${rec.meeting_city || '-'}</small>
+                            </div>
+                        </td>
+                        <td>
+                            <span style="font-size: 0.875rem;" title="${rec.strengths || ''}">${strengthsShort}</span>
+                        </td>
+                        <td>${interestBadge}</td>
+                        <td>${statusBadge}</td>
+                        <td>
+                            <select onchange="handleTalentAction(this.value, '${rec.recommendation_id}')" style="padding: 0.5rem; border-radius: 0.375rem; cursor: pointer;">
+                                <option value="">Actions...</option>
+                                <option value="view">👁️ Voir détails</option>
+                                ${rec.status === 'pending' ? '<option value="contacted">📧 Marquer contacté</option>' : ''}
+                                ${rec.status === 'contacted' ? '<option value="hired">✅ Marquer embauché</option>' : ''}
+                                ${rec.status !== 'dismissed' && rec.status !== 'hired' ? '<option value="dismissed">❌ Écarter</option>' : ''}
+                            </select>
+                        </td>
+                    </tr>
+                `;
+            });
+
+            tbody.innerHTML = html;
+        }
+
+        function filterRecommendations(filter) {
+            let filtered = allRecommendations;
+
+            if (filter === 'urgent') {
+                filtered = allRecommendations.filter(r => r.interest_level === 'urgent');
+            } else if (filter === 'high') {
+                filtered = allRecommendations.filter(r => r.interest_level === 'high');
+            } else if (filter === 'pending') {
+                filtered = allRecommendations.filter(r => r.status === 'pending');
+            } else if (filter === 'contacted') {
+                filtered = allRecommendations.filter(r => r.status === 'contacted');
+            }
+
+            displayRecommendations(filtered);
+        }
+
+        async function handleTalentAction(action, recommendationId) {
+            if (!action) return;
+
+            const token = getToken();
+
+            if (action === 'view') {
+                // Trouver la recommandation
+                const rec = allRecommendations.find(r => r.recommendation_id === recommendationId);
+                if (rec) {
+                    alert(`📋 Détails du profil\n\n` +
+                        `Pseudonyme: ${rec.recommended_pseudonym}\n` +
+                        `Poste suggéré: ${rec.suggested_role || 'Non spécifié'}\n` +
+                        `Points forts: ${rec.strengths || 'Non spécifiés'}\n` +
+                        `Recommandé par: ${rec.recommender_name}\n` +
+                        `Contexte: ${rec.meeting_context}\n` +
+                        `Date: ${rec.meeting_date ? new Date(rec.meeting_date).toLocaleDateString('fr-FR') : '-'}\n` +
+                        `Ville: ${rec.meeting_city || '-'}`
+                    );
+                }
+                // Reset dropdown
+                event.target.value = '';
+                return;
+            }
+
+            // Actions de changement de statut
+            const statusLabels = {
+                'contacted': 'marquer comme contacté',
+                'hired': 'marquer comme embauché',
+                'dismissed': 'écarter ce profil'
+            };
+
+            if (!confirm(`Confirmer : ${statusLabels[action]} ?`)) {
+                event.target.value = '';
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE}/recommendation/update-status`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_token: token,
+                        recommendation_id: recommendationId,
+                        status: action
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    if (action === 'hired') {
+                        alert('✅ Profil marqué comme embauché !\n🎁 +200 XP attribués à l\'employé qui a recommandé ce profil !');
+                    } else {
+                        alert('✅ Statut mis à jour');
+                    }
+                    loadRecommendations(); // Refresh
+                } else {
+                    alert(`❌ Erreur: ${data.error || 'Impossible de mettre à jour'}`);
+                }
+            } catch (error) {
+                console.error('Erreur update recommendation:', error);
+                alert('❌ Erreur réseau');
+            }
+
+            // Reset dropdown
+            event.target.value = '';
+        }
+
+        // ============================================
         // MODAL UTILS
         // ============================================
         function openModal(modalId) {
@@ -2700,6 +2975,7 @@ async function resendInviteByUserId(userId) {
 
             // Load all data
             loadKPIs();
+            loadRecommendations();
             loadEmployees();
             loadBilling();
             loadCompanyProfile();
