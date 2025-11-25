@@ -1599,6 +1599,7 @@
             const newTier = getTierLabel(totalSeats);
             const diff = Math.round((newAmount - currentSeatsData.amount) * 100) / 100;
 
+            document.getElementById('modal-new-seats-total').textContent = 10;
             document.getElementById('modal-new-amount').textContent = `${newAmount.toFixed(2)}€`;
             document.getElementById('modal-new-tier').textContent = newTier;
             document.getElementById('modal-diff').textContent = 
