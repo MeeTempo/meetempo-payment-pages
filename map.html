@@ -929,7 +929,7 @@ if (!token) {
         listContainer.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mt-muted);">Chargement...</div>';
         
         const response = await fetch(
-          `${API_BASE}/suggestions/nearby?token=${activeToken}&lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${radius}`
+          `${API_BASE}/suggestions/nearby?session_token=${activeToken}&lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${radius}`
         );
         
         if (!response.ok) throw new Error('Erreur chargement');
@@ -1195,7 +1195,7 @@ if (!token) {
     
     console.log(`🔐 Session validée (source: ${validation.source})`);        
                 
-        const charterResponse = await fetch(`${API_BASE}/consent/status?token=${activeToken}`);
+        const charterResponse = await fetch(`${API_BASE}/consent/status?session_token=${activeToken}`);
         if (charterResponse.ok) {
           const charterData = await charterResponse.json();
           if (!charterData.accepted) {
@@ -1205,7 +1205,7 @@ if (!token) {
           }
         }
         
-        const keyResponse = await fetch(`${API_BASE}/config/here-key?token=${activeToken}`);
+        const keyResponse = await fetch(`${API_BASE}/config/here-key?session_token=${activeToken}`);
         if (!keyResponse.ok) {
           showError('Erreur configuration', 'Impossible de charger la carte', 'config');
           return;
@@ -1686,7 +1686,7 @@ map.addEventListener('mapviewchangeend', async function() {
     // 🔥 NOUVEAU : Charger TOUTES les suggestions pour clustering global
     console.log('🌍 Chargement suggestions monde entier...');
     try {
-      const allSuggestionsResponse = await fetch(`${API_BASE}/suggestions/all?token=${activeToken}`);
+      const allSuggestionsResponse = await fetch(`${API_BASE}/suggestions/all?session_token=${activeToken}`);
       
       if (allSuggestionsResponse.ok) {
         const allSuggestionsJson = await allSuggestionsResponse.json();
@@ -2348,7 +2348,7 @@ card.innerHTML = `
       }
       
       try {
-        await fetch(`${API_BASE}/profile/update?token=${activeToken}&visibility=${currentVisibility}`);
+        await fetch(`${API_BASE}/profile/update?session_token=${activeToken}&visibility=${currentVisibility}`);
         console.log(`✅ Mode ${currentVisibility}`);
       } catch (err) {
         console.error('❌ Erreur:', err);
