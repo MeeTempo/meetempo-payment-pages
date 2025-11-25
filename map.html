@@ -836,18 +836,14 @@
   <script>
     const API_BASE = 'https://api.meetempo.com';
     const params = new URLSearchParams(location.search);
-// 🔥 NOUVEAU : Support dual token (15min OU 24h)
-let token = params.get('token'); // Token 15min (elevated)
-let sessionToken = params.get('session_token'); // Token 24h
 
-// Si aucun des deux, erreur
-if (!token && !sessionToken) {
+// 🔥 NOUVEAU : Accepter TOUS les formats de token
+let token = params.get('token') || params.get('session_token') || params.get('t');
+let activeToken = null; // Token validé utilisé pour tous les appels
+
+// Si aucun token trouvé
+if (!token) {
   showError('Token manquant', 'Veuillez accéder depuis MeeTempo GPT', 'missing');
-}
-
-// Pour rétrocompatibilité, si token 15min fourni, on l'utilise aussi comme session
-if (!sessionToken && token) {
-  sessionToken = token;
 }
 
 // Si session_token fourni, on l'utilise en priorité
@@ -937,7 +933,7 @@ if (sessionToken && !token) {
         listContainer.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mt-muted);">Chargement...</div>';
         
         const response = await fetch(
-          `${API_BASE}/suggestions/nearby?token=${token}&lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${radius}`
+          `${API_BASE}/suggestions/nearby?token=${activeToken}&lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${radius}`
         );
         
         if (!response.ok) throw new Error('Erreur chargement');
@@ -1141,6 +1137,45 @@ if (sessionToken && !token) {
       }
     }
     
+    // 🔥 NOUVEAU : Validation intelligente multi-source
+    async function validateSession() {
+      if (!token) return { valid: false, reason: 'missing' };
+      
+      // 1. Essayer /profile (accepte session_token 24h)
+      try {
+        const profileRes = await fetch(`${API_BASE}/profile?session_token=${token}`);
+        if (profileRes.ok) {
+          const profile = await profileRes.json();
+          if (profile.user_id || profile.id || profile.email) {
+            activeToken = token;
+            console.log('✅ Token validé via /profile (24h)');
+            return { valid: true, source: 'profile', data: profile };
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ /profile check failed:', e.message);
+      }
+      
+      // 2. Fallback /auth/session (accepte elevated_token 15min)
+      try {
+        const sessionRes = await fetch(`${API_BASE}/auth/session?token=${token}`);
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.user_id) {
+            activeToken = token;
+            console.log('✅ Token validé via /auth/session (15min)');
+            return { valid: true, source: 'session', data: sessionData };
+          }
+        } else if (sessionRes.status === 401) {
+          return { valid: false, reason: 'expired' };
+        }
+      } catch (e) {
+        console.warn('⚠️ /auth/session check failed:', e.message);
+      }
+      
+      return { valid: false, reason: 'invalid' };
+    }
+    
     async function init() {
       if (!token) {
         showError('Token manquant', 'Veuillez accéder depuis MeeTempo GPT', 'missing');
@@ -1148,33 +1183,38 @@ if (sessionToken && !token) {
       }
       
       try {
-        const sessionResponse = await fetch(`${API_BASE}/auth/session?token=${token}`);
-        if (!sessionResponse.ok) {
-          if (sessionResponse.status === 401) {
-            showError('Session expirée', 'Redirection vers MeeTempo GPT...', 'expired');
-          } else {
-            showError('Erreur serveur', 'Service temporairement indisponible', 'server');
-          }
-          return;
-        }
-        
+    // 🔥 NOUVEAU : Validation multi-source
+    const validation = await validateSession();
+    
+    if (!validation.valid) {
+      if (validation.reason === 'expired') {
+        showError('Session expirée', 'Redirection vers MeeTempo GPT...', 'expired');
+      } else if (validation.reason === 'missing') {
+        showError('Token manquant', 'Veuillez accéder depuis MeeTempo GPT', 'missing');
+      } else {
+        showError('Session invalide', 'Impossible de valider votre session', 'invalid');
+      }
+      return;
+    }
+    
+    console.log(`🔐 Session validée (source: ${validation.source})`);        
         const sessionData = await sessionResponse.json();
         if (!sessionData.user_id) {
           showError('Session invalide', 'Impossible de valider votre session', 'invalid');
           return;
         }
         
-        const charterResponse = await fetch(`${API_BASE}/consent/status?token=${token}`);
+        const charterResponse = await fetch(`${API_BASE}/consent/status?token=${activeToken}`);
         if (charterResponse.ok) {
           const charterData = await charterResponse.json();
           if (!charterData.accepted) {
             const returnUrl = encodeURIComponent(window.location.href);
-            window.location.href = `charter.html?token=${token}&return=${returnUrl}`;
+            window.location.href = `charter.html?token=${activeToken}&return=${returnUrl}`;
             return;
           }
         }
         
-        const keyResponse = await fetch(`${API_BASE}/config/here-key?token=${token}`);
+        const keyResponse = await fetch(`${API_BASE}/config/here-key?token=${activeToken}`);
         if (!keyResponse.ok) {
           showError('Erreur configuration', 'Impossible de charger la carte', 'config');
           return;
@@ -1655,7 +1695,7 @@ map.addEventListener('mapviewchangeend', async function() {
     // 🔥 NOUVEAU : Charger TOUTES les suggestions pour clustering global
     console.log('🌍 Chargement suggestions monde entier...');
     try {
-      const allSuggestionsResponse = await fetch(`${API_BASE}/suggestions/all?token=${token}`);
+      const allSuggestionsResponse = await fetch(`${API_BASE}/suggestions/all?token=${activeToken}`);
       
       if (allSuggestionsResponse.ok) {
         const allSuggestionsJson = await allSuggestionsResponse.json();
@@ -2317,7 +2357,7 @@ card.innerHTML = `
       }
       
       try {
-        await fetch(`${API_BASE}/profile/update?token=${token}&visibility=${currentVisibility}`);
+        await fetch(`${API_BASE}/profile/update?token=${activeToken}&visibility=${currentVisibility}`);
         console.log(`✅ Mode ${currentVisibility}`);
       } catch (err) {
         console.error('❌ Erreur:', err);
