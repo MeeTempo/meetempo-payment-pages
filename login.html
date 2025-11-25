@@ -483,15 +483,37 @@
                     return;
                 }
                 
-                // !! MODIFICATION ICI : AFFICHER LE TOKEN AU LIEU DE REDIRIGER !!
+                // !! MODIFICATION ICI : CHECK CHARTE PUIS AFFICHER TOKEN !!
                 loading.classList.remove('show');
+                
+                // 🔥 NOUVEAU : Vérifier si charte acceptée
+                try {
+                    const charterRes = await fetch(`${API_BASE}/consent/status?session_token=${data.session_token}`);
+                    
+                    if (charterRes.ok) {
+                        const charterData = await charterRes.json();
+                        
+                        if (!charterData.accepted) {
+                            // Charte non acceptée → rediriger vers charter.html
+                            console.log('📋 Charte non acceptée → redirection');
+                            localStorage.setItem('session_token', data.session_token);
+                            window.location.href = `charter.html?token=${data.session_token}&return=hub.html`;
+                            return;
+                        }
+                    }
+                } catch (charterErr) {
+                    console.warn('⚠️ Erreur check charte:', charterErr);
+                    // Continuer quand même (fail-open pour ne pas bloquer)
+                }
+                
+                console.log('✅ Charte acceptée → affichage token');
+                
                 document.getElementById('loginSubmit').style.display = 'none'; // Cacher le formulaire
                 document.getElementById('loginInfoBox').style.display = 'none'; // Cacher l'info box
                 
                 // Afficher le bloc de succès
                 document.getElementById('sessionTokenCode').textContent = data.session_token;
                 document.getElementById('tokenSuccessDisplay').style.display = 'block';
-
                 // Lancer le countdown de redirection
                 startRedirectCountdown(data.session_token);
 
