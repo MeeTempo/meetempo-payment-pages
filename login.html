@@ -244,13 +244,41 @@
         <!-- Login Form -->
         <div id="loginForm" class="form-container active">
             
-            <!-- NOUVEAU: Conteneur pour le token -->
+            <!-- Conteneur pour le token après connexion -->
             <div id="tokenSuccessDisplay" style="display: none;">
                 <div class="token-display">
                     <strong>✅ Connexion réussie !</strong>
-                    <p id="tokenMessage" style="font-size: 14px; color: var(--mt-text); margin-bottom: 15px;">Copiez ce token de session (valide 24h) et collez-le dans le chat GPT :</p>
-                    <code id="sessionTokenCode" title="Cliquez pour copier">...</code>
-                    <small>Vous pouvez maintenant retourner au GPT.</small>
+                    
+                    <p style="font-size: 13px; color: var(--mt-muted); margin: 15px 0 10px;">
+                        Votre token de session (valide 24h) :
+                    </p>
+                    
+                    <div style="display: flex; gap: 8px; align-items: center; margin-bottom: 15px;">
+                        <code id="sessionTokenCode" style="flex: 1; font-size: 11px; padding: 10px; cursor: pointer;" title="Cliquez pour copier">...</code>
+                        <button id="copyTokenBtn" onclick="copyTokenToClipboard()" style="background: var(--mt-accent); color: #111; border: none; padding: 10px 16px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 13px; white-space: nowrap;">
+                            📋 Copier
+                        </button>
+                    </div>
+                    
+                    <div style="background: rgba(244,159,28,0.15); border: 1px solid rgba(244,159,28,0.3); border-radius: 8px; padding: 12px; margin-bottom: 15px;">
+                        <p style="font-size: 13px; color: var(--mt-accent); margin: 0; text-align: center;">
+                            ⏱️ Redirection vers Hub dans <strong id="countdown">10</strong> secondes...
+                        </p>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px;">
+                        <button onclick="goToHubNow()" style="flex: 1; background: var(--ok); color: #111; border: none; padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                            🚀 Aller au Hub maintenant
+                        </button>
+                        <button onclick="cancelRedirect()" style="flex: 1; background: rgba(255,255,255,0.1); color: var(--mt-text); border: 1px solid rgba(255,255,255,0.2); padding: 12px; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 14px;">
+                            ❌ Annuler
+                        </button>
+                    </div>
+                    
+                    <p style="font-size: 11px; color: var(--mt-muted); margin-top: 15px; text-align: center; line-height: 1.5;">
+                        💡 <strong>Astuce :</strong> Copiez le token puis fermez cette fenêtre pour revenir à GPT.<br>
+                        ⚠️ MeeTempo GPT n'a pas de mémoire des conversations.
+                    </p>
                 </div>
             </div>
             
@@ -464,6 +492,9 @@
                 document.getElementById('sessionTokenCode').textContent = data.session_token;
                 document.getElementById('tokenSuccessDisplay').style.display = 'block';
 
+                // Lancer le countdown de redirection
+                startRedirectCountdown(data.session_token);
+
             } catch (err) {
                 console.error('Login error:', err);
                 showMessage('loginMessage', 'Erreur réseau. Vérifiez votre connexion', 'error');
@@ -615,6 +646,68 @@
                 loading.classList.remove('show');
             }
         });
+
+        // ==========================================
+        // TOKEN DISPLAY & REDIRECT FUNCTIONS
+        // ==========================================
+
+        let redirectTimer = null;
+        let countdownInterval = null;
+        let currentToken = null;
+
+        function copyTokenToClipboard() {
+            const token = document.getElementById('sessionTokenCode').textContent;
+            navigator.clipboard.writeText(token).then(() => {
+                const btn = document.getElementById('copyTokenBtn');
+                btn.textContent = '✅ Copié !';
+                btn.style.background = 'var(--ok)';
+                
+                setTimeout(() => {
+                    btn.textContent = '📋 Copier';
+                    btn.style.background = 'var(--mt-accent)';
+                }, 2000);
+            }).catch(err => {
+                console.warn('Erreur copie:', err);
+                alert('Erreur de copie. Sélectionnez et copiez manuellement.');
+            });
+        }
+
+        function startRedirectCountdown(token) {
+            currentToken = token;
+            let seconds = 10;
+            
+            const countdownEl = document.getElementById('countdown');
+            countdownEl.textContent = seconds;
+            
+            countdownInterval = setInterval(() => {
+                seconds--;
+                countdownEl.textContent = seconds;
+                
+                if (seconds <= 0) {
+                    clearInterval(countdownInterval);
+                    goToHubNow();
+                }
+            }, 1000);
+        }
+
+        function goToHubNow() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            if (currentToken) {
+                localStorage.setItem('session_token', currentToken);
+                window.location.href = `hub.html?session_token=${currentToken}`;
+            }
+        }
+
+        function cancelRedirect() {
+            if (countdownInterval) clearInterval(countdownInterval);
+            
+            const countdownContainer = document.getElementById('countdown').parentElement.parentElement;
+            countdownContainer.innerHTML = `
+                <p style="font-size: 13px; color: var(--mt-muted); margin: 0; text-align: center;">
+                    ✅ Redirection annulée. Fermez cette fenêtre pour revenir à GPT.
+                </p>
+            `;
+        }
     </script>
 </body>
 </html>
