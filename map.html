@@ -2500,7 +2500,7 @@ async function updateLocationIndicator(lat, lng) {
       try {
         // 4. Envoyer demande
         // Note : On encode le message pour éviter les bugs d'URL
-        const url = `${API_BASE}/match/request?session_token=${sessionToken}&suggestion_id=${suggestionId}${message ? '&message=' + encodeURIComponent(message) : ''}`;
+        const url = `${API_BASE}/match/request?session_token=${activeToken}&suggestion_id=${suggestionId}${message ? '&message=' + encodeURIComponent(message) : ''}`;
         
         const response = await fetch(url);
         const data = await response.json();
