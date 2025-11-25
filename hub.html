@@ -701,7 +701,7 @@
         const profile = await profileRes.json();
         
         // Vérifier si admin B2B
-        if (profile.company_id && profile.company_role === 'admin') {
+        if (profile.company_id && (profile.code_admin || profile.company_role === 'admin' || profile.is_admin === true)) {
           isB2BAdmin = true;
           console.log('🏢 Admin B2B détecté → Redirection dashboard');
           
@@ -891,7 +891,11 @@
         }
       };
       
-      return accessMatrix[plan] || accessMatrix['free'];
+      // Normaliser les plans B2B
+if (plan && plan.startsWith('b2b')) {
+  return accessMatrix['b2b'];
+}
+return accessMatrix[plan] || accessMatrix['free'];
     }
     
     // ==========================================
@@ -960,65 +964,27 @@
     }
     
     // ==========================================
-    // 📅 PROCHAINE INTERACTION
-    // ==========================================
+// 📅 PROCHAINE INTERACTION
+// ==========================================
+
+async function loadNextMeeting() {
+  try {
+    // Utiliser les données déjà chargées dans userData (maestro/context)
+    if (!userData) return;
     
-    async function loadNextMeeting() {
-      try {
-        // Récupérer les suggestions où l'user participe
-        const response = await fetch(
-          `${API_BASE}/suggestions/mine?session_token=${session_token}&status=accepted`
-        );
-        
-        if (!response.ok) return;
-        
-        const data = await response.json();
-        const suggestions = data.suggestions || [];
-        
-        // Filtrer les futures et trier par date
-        const now = new Date();
-        const futureMeetings = suggestions
-          .filter(s => {
-            if (!s.date) return false;
-            const meetingDate = new Date(s.date);
-            return meetingDate > now;
-          })
-          .sort((a, b) => new Date(a.date) - new Date(b.date));
-        
-        if (futureMeetings.length === 0) return;
-        
-        const nextMeeting = futureMeetings[0];
-        const meetingDate = new Date(nextMeeting.date);
-        
-        // Calculer temps restant
-        const diffMs = meetingDate - now;
-        const diffHours = Math.floor(diffMs / (1000 * 60 * 60));
-        const diffDays = Math.floor(diffHours / 24);
-        
-        let countdownValue, countdownLabel;
-        if (diffDays > 0) {
-          countdownValue = diffDays;
-          countdownLabel = diffDays > 1 ? 'jours' : 'jour';
-        } else {
-          countdownValue = diffHours;
-          countdownLabel = diffHours > 1 ? 'heures' : 'heure';
-        }
-        
-        // Afficher le bandeau
-        const banner = document.getElementById('nextMeetingBanner');
-        document.getElementById('nextMeetingTitle').textContent = 
-          nextMeeting.ai_final_text || nextMeeting.activity_type || 'Rencontre MeeTempo';
-        document.getElementById('nextMeetingDetails').textContent = 
-          `${nextMeeting.city || '-'} • ${nextMeeting.time || '-'}`;
-        document.getElementById('countdownValue').textContent = countdownValue;
-        document.getElementById('countdownLabel').textContent = countdownLabel;
-        
-        banner.classList.remove('hidden');
-        
-      } catch (err) {
-        console.error('Erreur next meeting:', err);
-      }
-    }
+    // Chercher dans feedbacks_list (suggestions récentes avec date)
+    const feedbacksList = userData.pending?.feedbacks_list || [];
+    
+    // Pour l'instant, pas de données fiables sur les rencontres futures
+    // Le bandeau reste caché par défaut
+    // TODO: Créer endpoint /suggestions/upcoming pour cette feature
+    
+    console.log('📅 Prochaine rencontre: feature en attente');
+    
+  } catch (err) {
+    console.error('Erreur next meeting:', err);
+  }
+}
     
     // ==========================================
     // 🗺️ COMPTEUR NEARBY
