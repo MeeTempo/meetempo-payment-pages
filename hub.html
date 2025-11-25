@@ -527,7 +527,7 @@
     <div class="token-actions">
       <button class="action-btn secondary" id="backBtn" onclick="handleBackAction()">
         <span id="backBtnIcon">🤖</span>
-        <span id="backBtnText">Retour GPT</span>
+        <span id="backBtnText">Revenir à GPT</span>
       </button>
       <button class="action-btn" onclick="logout()">
         🚪 Déconnexion
@@ -944,8 +944,8 @@ return accessMatrix[plan] || accessMatrix['free'];
         btnIcon.textContent = '🏢';
         btnText.textContent = 'Dashboard B2B';
       } else {
-        btnIcon.textContent = '🤖';
-        btnText.textContent = 'Retour GPT';
+        btnIcon.textContent = '❌';
+        btnText.textContent = 'Fermer (retour GPT)';
       }
     }
     
@@ -958,10 +958,8 @@ return accessMatrix[plan] || accessMatrix['free'];
     }
     
     function backToGPT() {
-      const gptUrl = `https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19`;
-      // Ouvrir GPT sans le token dans l'URL pour sécurité
-      window.location.href = gptUrl;
-    }
+  alert('💡 Fermez cette fenêtre pour revenir à votre conversation GPT.\n\n⚠️ Note : MeeTempo GPT n\'a pas de mémoire des conversations. Pensez à redonner votre token si besoin.');
+}
     
     // ==========================================
 // 📅 PROCHAINE INTERACTION
