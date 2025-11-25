@@ -1219,7 +1219,8 @@
             </div>
 
             <div class="preview">
-                <p>Nouveau total : <strong id="modal-new-amount">-€ HT/mois</strong></p>
+                <p>Nouveau total : <strong id="modal-new-seats-total">-</strong> sièges</p>
+                <p>Montant : <strong id="modal-new-amount">-€ HT/mois</strong></p>
                 <p>Nouveau palier : <strong id="modal-new-tier">-</strong></p>
                 <p>Différence : <strong id="modal-diff">-€ HT/mois</strong></p>
             </div>
@@ -1535,6 +1536,7 @@
                     tier: '-'
                 };
                 
+                document.getElementById('modal-new-seats-total').textContent = totalSeats;
                 document.getElementById('modal-new-amount').textContent = `${newAmount.toFixed(2)}€`;
                 document.getElementById('modal-new-tier').textContent = newTier;
                 document.getElementById('modal-diff').textContent = `+${newAmount.toFixed(2)}€`;
@@ -1547,7 +1549,7 @@
                     'Créer mon abonnement';
             } else {
                 // MODIFICATION ABONNEMENT EXISTANT
-                document.querySelector('#modal-buy-seats .modal-header h3').textContent = 'Modifier le nombre de sièges';
+                document.querySelector('#modal-buy-seats .modal-header h3').textContent = 'Acheter des sièges';
                 document.querySelector('#modal-buy-seats .current-plan').style.display = 'block';
                 
                 const currentAmount = calculatePrice(currentSeats);
@@ -1562,9 +1564,9 @@
                 document.getElementById('modal-current-seats').textContent = currentSeats;
                 document.getElementById('modal-current-amount').textContent = `${currentAmount}€`;
                 document.getElementById('modal-current-tier').textContent = currentTier;
-                document.getElementById('new-seats-input').value = currentSeats;
+                document.getElementById('new-seats-input').value = 1;
 
-                updateSeatsPreview(currentSeats);
+                updateSeatsPreview(1);
                 
                 // Changer texte bouton
                 document.querySelector('#modal-buy-seats button[onclick="updateSeats()"]').textContent = 
@@ -1591,9 +1593,10 @@
             }
         }
 
-        function updateSeatsPreview(newSeats) {
-            const newAmount = calculatePrice(newSeats);
-            const newTier = getTierLabel(newSeats);
+        function updateSeatsPreview(seatsToAdd) {
+            const totalSeats = currentSeatsData.seats + seatsToAdd;
+            const newAmount = calculatePrice(totalSeats);
+            const newTier = getTierLabel(totalSeats);
             const diff = Math.round((newAmount - currentSeatsData.amount) * 100) / 100;
 
             document.getElementById('modal-new-amount').textContent = `${newAmount.toFixed(2)}€`;
@@ -1617,7 +1620,8 @@
 
         async function updateSeats() {
             const token = getToken();
-            const newSeats = parseInt(document.getElementById('new-seats-input').value);
+            const seatsToAdd = parseInt(document.getElementById('new-seats-input').value);
+            const newSeats = currentSeatsData.seats + seatsToAdd;
 
             if (!hasSubscription) {
                 // 🔥 CAS 1 : PREMIER ABONNEMENT → Créer checkout Stripe
