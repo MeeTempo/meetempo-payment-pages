@@ -1703,7 +1703,7 @@ map.addEventListener('mapviewchangeend', async function() {
     
     // 🔥 Charger utilisateurs PROCHES (pour cartes bottom sheet)
     const response = await fetch(
-      `${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${currentRadius}&token=${token}`
+      `${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${currentRadius}&session_token=${activeToken}`
     );
     
     if (!response.ok) {
