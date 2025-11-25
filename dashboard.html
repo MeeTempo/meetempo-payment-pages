@@ -1,0 +1,1764 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>MeeTempo - Mon Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #1a1a2e;
+            --bg-secondary: #16213e;
+            --bg-card: rgba(255, 255, 255, 0.05);
+            --bg-card-hover: rgba(255, 255, 255, 0.08);
+            --accent: #F49F1C;
+            --accent-light: #FFB84D;
+            --accent-glow: rgba(244, 159, 28, 0.3);
+            --gold: #FFD700;
+            --text-primary: #ffffff;
+            --text-secondary: #a0a0b0;
+            --text-muted: #6b6b7b;
+            --border: rgba(255, 255, 255, 0.1);
+            --border-accent: rgba(244, 159, 28, 0.3);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --premium-gradient: linear-gradient(135deg, #F49F1C 0%, #FFD700 50%, #F49F1C 100%);
+            --b2b-gradient: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: var(--bg-primary);
+            background-image: 
+                radial-gradient(ellipse at 50% 0%, rgba(244, 159, 28, 0.08) 0%, transparent 50%),
+                radial-gradient(ellipse at 100% 100%, rgba(99, 102, 241, 0.05) 0%, transparent 40%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding-bottom: 100px;
+        }
+
+        /* ============================================
+           LOADING OVERLAY
+        ============================================ */
+        .loading-overlay {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-primary);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.3s ease;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-content {
+            text-align: center;
+        }
+
+        .loading-icon {
+            font-size: 3rem;
+            color: var(--accent);
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        .loading-dots {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-top: 1rem;
+        }
+
+        .loading-dots span {
+            width: 8px;
+            height: 8px;
+            background: var(--accent);
+            border-radius: 50%;
+            animation: bounce 1.4s ease-in-out infinite;
+        }
+
+        .loading-dots span:nth-child(2) { animation-delay: 0.16s; }
+        .loading-dots span:nth-child(3) { animation-delay: 0.32s; }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+
+        @keyframes bounce {
+            0%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease-out forwards;
+        }
+
+        /* ============================================
+           HEADER
+        ============================================ */
+        .dashboard-header {
+            background: var(--bg-secondary);
+            border-bottom: 1px solid var(--border);
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .dashboard-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--premium-gradient);
+        }
+
+        .header-content {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .user-avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--bg-card);
+            border: 2px solid var(--border-accent);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.75rem;
+            box-shadow: 0 0 20px var(--accent-glow);
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-greeting {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .user-pseudo {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        .plan-badge {
+            padding: 0.5rem 1rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .plan-badge.premium {
+            background: linear-gradient(135deg, rgba(244, 159, 28, 0.2), rgba(255, 215, 0, 0.2));
+            border: 1px solid var(--accent);
+            color: var(--accent-light);
+        }
+
+        .plan-badge.b2b {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+            border: 1px solid #8b5cf6;
+            color: #a78bfa;
+        }
+
+        /* ============================================
+           CONTAINER & SECTIONS
+        ============================================ */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        .section {
+            margin-bottom: 1.5rem;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: var(--accent);
+        }
+
+        /* ============================================
+           CARDS
+        ============================================ */
+        .card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1.25rem;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-accent);
+            transform: translateY(-2px);
+        }
+
+        .card-accent {
+            border-color: var(--border-accent);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        /* ============================================
+           KPIs GRID
+        ============================================ */
+        .kpis-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.75rem;
+        }
+
+        @media (max-width: 600px) {
+            .kpis-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .kpi-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 1rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .kpi-card:hover {
+            background: var(--bg-card-hover);
+            transform: scale(1.02);
+        }
+
+        .kpi-icon {
+            font-size: 1.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .kpi-value {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .kpi-label {
+            font-size: 0.65rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.25rem;
+        }
+
+        /* ============================================
+           QUICK ACTIONS
+        ============================================ */
+        .quick-actions {
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .action-btn {
+            flex: 1;
+            min-width: 120px;
+            padding: 1rem;
+            border: none;
+            border-radius: 0.75rem;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            text-decoration: none;
+        }
+
+        .action-btn-primary {
+            background: var(--premium-gradient);
+            color: #000;
+        }
+
+        .action-btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 20px var(--accent-glow);
+        }
+
+        .action-btn-secondary {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .action-btn-secondary:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-accent);
+        }
+
+        /* ============================================
+           UPCOMING MEETINGS
+        ============================================ */
+        .meeting-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+
+        .meeting-card:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-accent);
+        }
+
+        .meeting-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 0.5rem;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.25rem;
+        }
+
+        .meeting-info {
+            flex: 1;
+        }
+
+        .meeting-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .meeting-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .meeting-participants {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+        }
+
+        /* ============================================
+           FEEDBACK PENDING
+        ============================================ */
+        .feedback-card {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 1rem;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .feedback-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--warning);
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+        }
+
+        .feedback-info {
+            flex: 1;
+        }
+
+        .feedback-title {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.85rem;
+        }
+
+        .feedback-meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .feedback-btn {
+            padding: 0.5rem 1rem;
+            background: var(--warning);
+            color: #000;
+            border: none;
+            border-radius: 0.5rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .feedback-btn:hover {
+            transform: scale(1.05);
+        }
+
+        /* ============================================
+           REFERRAL SECTION
+        ============================================ */
+        .referral-card {
+            background: linear-gradient(135deg, rgba(244, 159, 28, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid var(--border-accent);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .referral-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .referral-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--premium-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .referral-title {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .referral-subtitle {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .referral-link-container {
+            display: flex;
+            gap: 0;
+            margin: 1rem 0;
+        }
+
+        .referral-link-input {
+            flex: 1;
+            padding: 0.75rem 1rem;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-right: none;
+            border-radius: 0.5rem 0 0 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            font-family: monospace;
+        }
+
+        .referral-copy-btn {
+            padding: 0.75rem 1.25rem;
+            background: var(--accent);
+            border: none;
+            border-radius: 0 0.5rem 0.5rem 0;
+            color: #000;
+            font-weight: 700;
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .referral-copy-btn:hover {
+            background: var(--accent-light);
+        }
+
+        .referral-stats {
+            display: flex;
+            justify-content: space-between;
+            padding-top: 1rem;
+            border-top: 1px solid var(--border);
+            font-size: 0.75rem;
+        }
+
+        .referral-stats span {
+            color: var(--text-muted);
+        }
+
+        .referral-stats strong {
+            color: var(--accent);
+        }
+
+        /* ============================================
+           COMPANY SECTION (B2B ONLY)
+        ============================================ */
+        .company-section {
+            display: none;
+        }
+
+        .company-section.visible {
+            display: block;
+        }
+
+        .company-card {
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 1rem;
+            padding: 1.5rem;
+        }
+
+        .company-header {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+
+        .company-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 0.75rem;
+            background: var(--b2b-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+        }
+
+        .company-name {
+            font-weight: 700;
+            color: var(--text-primary);
+            font-size: 1rem;
+        }
+
+        .company-meta {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        .company-tip {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            padding: 1rem;
+            background: rgba(139, 92, 246, 0.1);
+            border-radius: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .company-tip-icon {
+            font-size: 1.25rem;
+        }
+
+        .company-tip-text {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* ============================================
+           SUBSCRIPTION SECTION
+        ============================================ */
+        .subscription-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            overflow: hidden;
+        }
+
+        .subscription-header {
+            padding: 1.25rem;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .subscription-info h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 0.25rem;
+        }
+
+        .subscription-info p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        .subscription-status {
+            padding: 0.375rem 0.75rem;
+            border-radius: 2rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .subscription-status.active {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .subscription-status.inactive {
+            background: rgba(239, 68, 68, 0.2);
+            color: var(--danger);
+        }
+
+        .subscription-actions {
+            padding: 1.25rem;
+            display: flex;
+            gap: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .stripe-btn {
+            flex: 1;
+            min-width: 180px;
+            padding: 0.875rem 1.25rem;
+            border: none;
+            border-radius: 0.5rem;
+            font-family: inherit;
+            font-size: 0.8rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .stripe-btn-primary {
+            background: #635bff;
+            color: white;
+        }
+
+        .stripe-btn-primary:hover {
+            background: #4f46e5;
+            transform: translateY(-1px);
+        }
+
+        .stripe-btn-secondary {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .stripe-btn-secondary:hover {
+            border-color: var(--border-accent);
+        }
+
+        /* ============================================
+           INVOICES TABLE
+        ============================================ */
+        .invoices-section {
+            padding: 1.25rem;
+            border-top: 1px solid var(--border);
+        }
+
+        .invoices-title {
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .invoices-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .invoices-table th {
+            text-align: left;
+            padding: 0.75rem;
+            font-size: 0.7rem;
+            font-weight: 600;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .invoices-table td {
+            padding: 0.75rem;
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            border-bottom: 1px solid var(--border);
+        }
+
+        .invoices-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .invoice-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.25rem;
+            font-size: 0.7rem;
+            font-weight: 500;
+        }
+
+        .invoice-status.paid {
+            background: rgba(16, 185, 129, 0.2);
+            color: var(--success);
+        }
+
+        .invoice-status.pending {
+            background: rgba(245, 158, 11, 0.2);
+            color: var(--warning);
+        }
+
+        .invoice-download {
+            color: var(--accent);
+            text-decoration: none;
+            font-size: 0.75rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .invoice-download:hover {
+            text-decoration: underline;
+        }
+
+        .invoices-empty {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* ============================================
+           HISTORY
+        ============================================ */
+        .history-item {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .history-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: var(--bg-secondary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.9rem;
+        }
+
+        .history-info {
+            flex: 1;
+        }
+
+        .history-title {
+            font-size: 0.85rem;
+            color: var(--text-primary);
+        }
+
+        .history-meta {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+
+        .history-status {
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            gap: 0.25rem;
+        }
+
+        .history-status.done {
+            color: var(--success);
+        }
+
+        .history-status.pending {
+            color: var(--warning);
+        }
+
+        /* ============================================
+           SETTINGS FOOTER
+        ============================================ */
+        .settings-footer {
+            display: flex;
+            gap: 0.5rem;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 1rem;
+        }
+
+        .settings-btn {
+            padding: 0.625rem 1rem;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            border-radius: 0.5rem;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .settings-btn:hover {
+            background: var(--bg-card-hover);
+            border-color: var(--border-accent);
+            color: var(--text-primary);
+        }
+
+        /* ============================================
+           BOTTOM NAVIGATION
+        ============================================ */
+        .bottom-nav {
+            position: fixed;
+            bottom: 1rem;
+            left: 1rem;
+            right: 1rem;
+            background: rgba(22, 33, 62, 0.95);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 1rem;
+            padding: 0.5rem;
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 1000;
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.25rem;
+            padding: 0.5rem;
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .nav-btn i {
+            font-size: 1.1rem;
+        }
+
+        .nav-btn:hover, .nav-btn.active {
+            color: var(--accent);
+        }
+
+        .nav-btn-create {
+            position: relative;
+            top: -1rem;
+        }
+
+        .nav-btn-create .create-circle {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--premium-gradient);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 15px var(--accent-glow);
+            transition: all 0.2s ease;
+        }
+
+        .nav-btn-create:hover .create-circle {
+            transform: scale(1.1);
+        }
+
+        /* ============================================
+           TOAST NOTIFICATIONS
+        ============================================ */
+        .toast {
+            position: fixed;
+            top: 1rem;
+            left: 1rem;
+            right: 1rem;
+            padding: 1rem;
+            border-radius: 0.75rem;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .toast.success {
+            background: var(--success);
+            color: white;
+        }
+
+        .toast.error {
+            background: var(--danger);
+            color: white;
+        }
+
+        .toast i {
+            font-size: 1.25rem;
+        }
+
+        /* ============================================
+           EMPTY STATES
+        ============================================ */
+        .empty-state {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+        }
+
+        .empty-state-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.75rem;
+            opacity: 0.5;
+        }
+
+        .empty-state-text {
+            font-size: 0.85rem;
+        }
+
+        /* ============================================
+           RESPONSIVE
+        ============================================ */
+        @media (max-width: 480px) {
+            .header-content {
+                flex-wrap: wrap;
+            }
+
+            .plan-badge {
+                order: -1;
+                width: 100%;
+                justify-content: center;
+                margin-bottom: 0.5rem;
+            }
+
+            .quick-actions {
+                flex-direction: column;
+            }
+
+            .action-btn {
+                min-width: 100%;
+            }
+
+            .subscription-actions {
+                flex-direction: column;
+            }
+
+            .stripe-btn {
+                width: 100%;
+            }
+
+            .invoices-table th:nth-child(2),
+            .invoices-table td:nth-child(2) {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Loading Overlay -->
+    <div class="loading-overlay" id="loading-overlay">
+        <div class="loading-content">
+            <i class="fas fa-gem loading-icon"></i>
+            <p style="margin-top: 1rem; font-weight: 600;">Chargement...</p>
+            <div class="loading-dots">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header class="dashboard-header">
+        <div class="header-content">
+            <div class="user-avatar" id="user-avatar">💎</div>
+            <div class="user-info">
+                <h1 class="user-greeting" id="user-greeting">Bonjour !</h1>
+                <div class="user-pseudo" id="user-pseudo">MeeTempers-XX00000</div>
+            </div>
+            <div class="plan-badge premium" id="plan-badge">
+                <i class="fas fa-gem"></i>
+                <span id="plan-label">Premium</span>
+            </div>
+        </div>
+    </header>
+
+    <div class="container">
+
+        <!-- KPIs -->
+        <div class="section fade-in" style="animation-delay: 0.1s">
+            <div class="kpis-grid">
+                <div class="kpi-card">
+                    <div class="kpi-icon">📊</div>
+                    <div class="kpi-value" id="kpi-suggestions">-</div>
+                    <div class="kpi-label">Suggestions</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🤝</div>
+                    <div class="kpi-value" id="kpi-participations">-</div>
+                    <div class="kpi-label">Participations</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">⭐</div>
+                    <div class="kpi-value" id="kpi-xp">-</div>
+                    <div class="kpi-label">XP</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="kpi-icon">🏆</div>
+                    <div class="kpi-value" id="kpi-badges">-</div>
+                    <div class="kpi-label">Badges</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="section fade-in" style="animation-delay: 0.15s">
+            <h2 class="section-title"><i class="fas fa-bolt"></i> Actions rapides</h2>
+            <div class="quick-actions">
+                <button class="action-btn action-btn-primary" onclick="createSuggestion()">
+                    <i class="fas fa-plus"></i> Créer une suggestion
+                </button>
+                <button class="action-btn action-btn-secondary" onclick="goToMap()">
+                    <i class="fas fa-map"></i> Carte
+                </button>
+                <button class="action-btn action-btn-secondary" onclick="goToChats()">
+                    <i class="fas fa-comments"></i> Mes chats
+                </button>
+            </div>
+        </div>
+
+        <!-- Upcoming Meetings -->
+        <div class="section fade-in" style="animation-delay: 0.2s">
+            <h2 class="section-title"><i class="fas fa-calendar"></i> Prochaines rencontres</h2>
+            <div id="upcoming-meetings">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📅</div>
+                    <div class="empty-state-text">Chargement...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback Pending -->
+        <div class="section fade-in" style="animation-delay: 0.25s" id="feedback-section" style="display: none;">
+            <h2 class="section-title"><i class="fas fa-star"></i> Feedback en attente</h2>
+            <div id="pending-feedbacks">
+                <!-- Feedbacks dynamiques -->
+            </div>
+        </div>
+
+        <!-- Referral Section -->
+        <div class="section fade-in" style="animation-delay: 0.3s">
+            <h2 class="section-title"><i class="fas fa-gift"></i> Proposer MeeTempo</h2>
+            <div class="referral-card">
+                <div class="referral-header">
+                    <div class="referral-icon">🎁</div>
+                    <div>
+                        <div class="referral-title">Parrainez vos contacts</div>
+                        <div class="referral-subtitle">Gagnez des points à chaque inscription !</div>
+                    </div>
+                </div>
+                <div class="referral-link-container">
+                    <input type="text" class="referral-link-input" id="referral-link" readonly value="Chargement...">
+                    <button class="referral-copy-btn" onclick="copyReferralLink()">COPIER</button>
+                </div>
+                <div class="referral-stats">
+                    <span>Récompense : <strong>+100 XP</strong> par filleul</span>
+                    <span>Code : <strong id="referral-code">---</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Company Section (B2B Only) -->
+        <div class="section company-section fade-in" style="animation-delay: 0.35s" id="company-section">
+            <h2 class="section-title"><i class="fas fa-building"></i> Mon entreprise</h2>
+            <div class="company-card">
+                <div class="company-header">
+                    <div class="company-icon">🏢</div>
+                    <div>
+                        <div class="company-name" id="company-name">-</div>
+                        <div class="company-meta"><span id="company-colleagues">-</span> collègues actifs • Code : <strong id="company-code">----</strong></div>
+                    </div>
+                </div>
+                <div class="company-tip">
+                    <div class="company-tip-icon">💡</div>
+                    <div class="company-tip-text">
+                        <strong>Repéré un talent ?</strong> Signalez-le via le feedback après vos rencontres. 
+                        Vos recommandations alimentent le vivier RH de votre entreprise.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Subscription Section -->
+        <div class="section fade-in" style="animation-delay: 0.4s" id="subscription-section">
+            <h2 class="section-title"><i class="fas fa-credit-card"></i> Mon abonnement</h2>
+            <div class="subscription-card">
+                <div class="subscription-header">
+                    <div class="subscription-info">
+                        <h3 id="sub-plan-name">Plan Premium</h3>
+                        <p id="sub-details">9,99€/mois • Renouvellement : -</p>
+                    </div>
+                    <span class="subscription-status active" id="sub-status">✅ Actif</span>
+                </div>
+                <div class="subscription-actions">
+                    <button class="stripe-btn stripe-btn-primary" onclick="openStripePortal()">
+                        <i class="fab fa-stripe-s"></i> Gérer mon abonnement
+                    </button>
+                    <button class="stripe-btn stripe-btn-secondary" onclick="toggleInvoices()">
+                        <i class="fas fa-file-invoice"></i> Voir les factures
+                    </button>
+                </div>
+                <div class="invoices-section" id="invoices-section" style="display: none;">
+                    <div class="invoices-title">📄 Historique des factures</div>
+                    <table class="invoices-table" id="invoices-table">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Période</th>
+                                <th>Montant</th>
+                                <th>Statut</th>
+                                <th>PDF</th>
+                            </tr>
+                        </thead>
+                        <tbody id="invoices-body">
+                            <tr>
+                                <td colspan="5" class="invoices-empty">Chargement...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- History -->
+        <div class="section fade-in" style="animation-delay: 0.45s">
+            <h2 class="section-title"><i class="fas fa-history"></i> Historique récent</h2>
+            <div class="card" id="history-container">
+                <div class="empty-state">
+                    <div class="empty-state-icon">📋</div>
+                    <div class="empty-state-text">Chargement...</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Settings Footer -->
+        <div class="settings-footer fade-in" style="animation-delay: 0.5s">
+            <a href="notifications.html" class="settings-btn">
+                <i class="fas fa-bell"></i> Notifications
+            </a>
+            <a href="privacy.html" class="settings-btn">
+                <i class="fas fa-shield-alt"></i> Confidentialité
+            </a>
+            <a href="profile.html" class="settings-btn">
+                <i class="fas fa-user-edit"></i> Modifier profil
+            </a>
+            <a href="hub.html" class="settings-btn">
+                <i class="fas fa-th-large"></i> Retour Hub
+            </a>
+        </div>
+
+    </div>
+
+    <!-- Bottom Navigation -->
+    <nav class="bottom-nav">
+        <button class="nav-btn" onclick="goToMap()">
+            <i class="fas fa-map"></i>
+            <span>Carte</span>
+        </button>
+        <button class="nav-btn" onclick="goToRequests()">
+            <i class="fas fa-inbox"></i>
+            <span>Demandes</span>
+        </button>
+        <button class="nav-btn nav-btn-create" onclick="createSuggestion()">
+            <div class="create-circle">
+                <i class="fas fa-plus"></i>
+            </div>
+        </button>
+        <button class="nav-btn" onclick="goToSuggestions()">
+            <i class="fas fa-list"></i>
+            <span>Listes</span>
+        </button>
+        <button class="nav-btn active">
+            <i class="fas fa-gem"></i>
+            <span>Dashboard</span>
+        </button>
+    </nav>
+
+    <script>
+        // ============================================
+        // CONFIGURATION
+        // ============================================
+        const API_BASE = 'https://api.meetempo.com';
+        
+        // Plan config
+        const PLAN_CONFIG = {
+            premium: {
+                icon: '💎',
+                label: 'Premium',
+                price: '9,99€/mois',
+                badgeClass: 'premium'
+            },
+            b2b: {
+                icon: '🏢',
+                label: 'Entreprise',
+                price: '15€/mois',
+                badgeClass: 'b2b'
+            }
+        };
+
+        // ============================================
+        // AUTH & TOKEN
+        // ============================================
+        function getToken() {
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('session_token') || 
+                   urlParams.get('token') || 
+                   sessionStorage.getItem('meetempo_token') ||
+                   localStorage.getItem('session_token');
+        }
+
+        function saveToken(token) {
+            sessionStorage.setItem('meetempo_token', token);
+        }
+
+        // ============================================
+        // INITIALIZATION
+        // ============================================
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = getToken();
+            
+            if (!token) {
+                window.location.href = 'login.html?error=no_session';
+                return;
+            }
+            
+            saveToken(token);
+            
+            try {
+                await loadDashboardData(token);
+                hideLoading();
+            } catch (error) {
+                console.error('Init error:', error);
+                showToast('Erreur de chargement', 'error');
+                hideLoading();
+            }
+        });
+
+        // ============================================
+        // MAIN DATA LOADING
+        // ============================================
+        async function loadDashboardData(token) {
+            try {
+                // Parallel fetch for speed
+                const [profileRes, contextRes, referralRes] = await Promise.all([
+                    fetch(`${API_BASE}/profile?session_token=${token}`),
+                    fetch(`${API_BASE}/maestro/context?session_token=${token}`),
+                    fetch(`${API_BASE}/referral/status?session_token=${token}`)
+                ]);
+
+                const profile = profileRes.ok ? await profileRes.json() : {};
+                const context = contextRes.ok ? await contextRes.json() : {};
+                const referral = referralRes.ok ? await referralRes.json() : {};
+
+                // Render all sections
+                renderHeader(profile);
+                renderKPIs(context);
+                renderUpcomingMeetings(context);
+                renderPendingFeedbacks(context);
+                renderReferral(referral);
+                renderCompanySection(profile);
+                renderSubscription(profile, token);
+                renderHistory(context);
+
+            } catch (error) {
+                console.error('Load dashboard error:', error);
+                throw error;
+            }
+        }
+
+        // ============================================
+        // RENDER FUNCTIONS
+        // ============================================
+        function renderHeader(profile) {
+            const plan = profile.plan || 'premium';
+            const config = PLAN_CONFIG[plan] || PLAN_CONFIG.premium;
+            
+            // Avatar
+            document.getElementById('user-avatar').textContent = profile.avatar || config.icon;
+            
+            // Greeting
+            const hour = new Date().getHours();
+            let greeting = 'Bonjour';
+            if (hour < 6) greeting = 'Bonne nuit';
+            else if (hour < 12) greeting = 'Bonjour';
+            else if (hour < 18) greeting = 'Bon après-midi';
+            else greeting = 'Bonsoir';
+            
+            document.getElementById('user-greeting').textContent = 
+                `${greeting} ${profile.first_name || ''} !`.trim();
+            
+            // Pseudo
+            document.getElementById('user-pseudo').textContent = 
+                profile.pseudo || profile.anonymous_display || 'MeeTempers-XX00000';
+            
+            // Plan badge
+            const badge = document.getElementById('plan-badge');
+            badge.className = `plan-badge ${config.badgeClass}`;
+            badge.querySelector('i').className = plan === 'b2b' ? 'fas fa-building' : 'fas fa-gem';
+            document.getElementById('plan-label').textContent = 
+                plan === 'b2b' && profile.company_name ? profile.company_name : config.label;
+        }
+
+        function renderKPIs(context) {
+            const stats = context.stats || {};
+            const gamif = context.gamification || {};
+            
+            document.getElementById('kpi-suggestions').textContent = stats.active_suggestions || 0;
+            document.getElementById('kpi-participations').textContent = stats.total_participants || 0;
+            document.getElementById('kpi-xp').textContent = gamif.points || 0;
+            document.getElementById('kpi-badges').textContent = (gamif.achievements || []).length;
+        }
+
+        function renderUpcomingMeetings(context) {
+            const container = document.getElementById('upcoming-meetings');
+            
+            // Use pending data to simulate upcoming (in real app, fetch from dedicated endpoint)
+            const meetings = []; // Would come from API
+            
+            if (meetings.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📅</div>
+                        <div class="empty-state-text">Aucune rencontre prévue.<br>
+                            <a href="#" onclick="createSuggestion(); return false;" style="color: var(--accent);">Créer une suggestion</a>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = meetings.map(m => `
+                <div class="meeting-card" onclick="viewMeeting('${m.suggestion_id}')">
+                    <div class="meeting-icon">${m.icon || '🍽️'}</div>
+                    <div class="meeting-info">
+                        <div class="meeting-title">${m.title}</div>
+                        <div class="meeting-meta">${m.date} à ${m.time} • ${m.city}</div>
+                    </div>
+                    <div class="meeting-participants">
+                        <i class="fas fa-users"></i> ${m.participants}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function renderPendingFeedbacks(context) {
+            const pending = context.pending || {};
+            const feedbacks = pending.feedbacks_list || [];
+            
+            const section = document.getElementById('feedback-section');
+            const container = document.getElementById('pending-feedbacks');
+            
+            if (feedbacks.length === 0) {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            
+            container.innerHTML = feedbacks.map(f => `
+                <div class="feedback-card">
+                    <div class="feedback-icon"><i class="fas fa-star"></i></div>
+                    <div class="feedback-info">
+                        <div class="feedback-title">${f.title || 'Rencontre'}</div>
+                        <div class="feedback-meta">${f.city || ''} • Il y a ${f.days_ago || '?'} jours</div>
+                    </div>
+                    <button class="feedback-btn" onclick="goToFeedback('${f.suggestion_id}')">
+                        Donner mon avis
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function renderReferral(referral) {
+            const stats = referral.stats || {};
+            const code = referral.referrals?.[0]?.code || 'MEETEMPO';
+            
+            const referralUrl = `https://meetempo.github.io/meetempo-payment-pages/login.html?ref=${code}`;
+            
+            document.getElementById('referral-link').value = referralUrl;
+            document.getElementById('referral-code').textContent = code;
+        }
+
+        function renderCompanySection(profile) {
+            const section = document.getElementById('company-section');
+            
+            if (profile.plan !== 'b2b' || !profile.company_id) {
+                section.classList.remove('visible');
+                return;
+            }
+            
+            section.classList.add('visible');
+            
+            document.getElementById('company-name').textContent = profile.company_name || 'Mon entreprise';
+            document.getElementById('company-colleagues').textContent = profile.active_employees || '?';
+            document.getElementById('company-code').textContent = profile.team_code || '----';
+        }
+
+        function renderSubscription(profile, token) {
+            const section = document.getElementById('subscription-section');
+            
+            // Hide for B2B centralized (company pays)
+            if (profile.plan === 'b2b' && profile.payment_mode === 'centralized') {
+                section.style.display = 'none';
+                return;
+            }
+            
+            section.style.display = 'block';
+            
+            const plan = profile.plan || 'premium';
+            const config = PLAN_CONFIG[plan] || PLAN_CONFIG.premium;
+            
+            document.getElementById('sub-plan-name').textContent = `Plan ${config.label}`;
+            
+            // Format renewal date
+            let renewalText = '-';
+            if (profile.subscription_renewal) {
+                renewalText = new Date(profile.subscription_renewal).toLocaleDateString('fr-FR', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                });
+            }
+            
+            document.getElementById('sub-details').textContent = `${config.price} • Renouvellement : ${renewalText}`;
+            
+            // Status
+            const statusEl = document.getElementById('sub-status');
+            if (profile.payment_status === 'active' || profile.status === 'active') {
+                statusEl.className = 'subscription-status active';
+                statusEl.textContent = '✅ Actif';
+            } else {
+                statusEl.className = 'subscription-status inactive';
+                statusEl.textContent = '❌ Inactif';
+            }
+            
+            // Load invoices
+            loadInvoices(token);
+        }
+
+        function renderHistory(context) {
+            const container = document.getElementById('history-container');
+            
+            // Mock history - in real app, would come from API
+            const history = [];
+            
+            if (history.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-state-icon">📋</div>
+                        <div class="empty-state-text">Aucun historique récent</div>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = history.map(h => `
+                <div class="history-item">
+                    <div class="history-icon">${h.icon}</div>
+                    <div class="history-info">
+                        <div class="history-title">${h.title}</div>
+                        <div class="history-meta">${h.date}</div>
+                    </div>
+                    <div class="history-status ${h.status}">${h.statusLabel}</div>
+                </div>
+            `).join('');
+        }
+
+        // ============================================
+        // INVOICES
+        // ============================================
+        let invoicesLoaded = false;
+
+        function toggleInvoices() {
+            const section = document.getElementById('invoices-section');
+            const isVisible = section.style.display !== 'none';
+            
+            section.style.display = isVisible ? 'none' : 'block';
+            
+            if (!isVisible && !invoicesLoaded) {
+                loadInvoices(getToken());
+            }
+        }
+
+        async function loadInvoices(token) {
+            try {
+                const response = await fetch(`${API_BASE}/company/invoices?session_token=${token}`);
+                
+                if (!response.ok) {
+                    throw new Error('Failed to load invoices');
+                }
+                
+                const data = await response.json();
+                displayInvoices(data.invoices || []);
+                invoicesLoaded = true;
+                
+            } catch (error) {
+                console.error('Load invoices error:', error);
+                document.getElementById('invoices-body').innerHTML = `
+                    <tr>
+                        <td colspan="5" class="invoices-empty">Aucune facture disponible</td>
+                    </tr>
+                `;
+            }
+        }
+
+        function displayInvoices(invoices) {
+            const tbody = document.getElementById('invoices-body');
+            
+            if (invoices.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="5" class="invoices-empty">Aucune facture disponible</td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = invoices.map(inv => {
+                const date = new Date(inv.date).toLocaleDateString('fr-FR');
+                const periodStart = inv.period_start ? new Date(inv.period_start).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '-';
+                const periodEnd = inv.period_end ? new Date(inv.period_end).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '-';
+                const statusClass = inv.status === 'paid' ? 'paid' : 'pending';
+                const statusLabel = inv.status === 'paid' ? '✅ Payée' : '🟡 En attente';
+                
+                return `
+                    <tr>
+                        <td>${date}</td>
+                        <td>${periodStart} - ${periodEnd}</td>
+                        <td>${inv.amount_ht || inv.amount}€</td>
+                        <td><span class="invoice-status ${statusClass}">${statusLabel}</span></td>
+                        <td>
+                            ${inv.pdf_url ? 
+                                `<a href="${inv.pdf_url}" target="_blank" class="invoice-download">
+                                    <i class="fas fa-download"></i> PDF
+                                </a>` : 
+                                '-'
+                            }
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // ============================================
+        // STRIPE PORTAL
+        // ============================================
+        async function openStripePortal() {
+            const token = getToken();
+            
+            try {
+                const response = await fetch(`${API_BASE}/company/create-portal-session`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ session_token: token })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.portal_url) {
+                    window.open(data.portal_url, '_blank');
+                } else {
+                    throw new Error(data.error || 'Portal creation failed');
+                }
+            } catch (error) {
+                console.error('Stripe portal error:', error);
+                showToast('Impossible d\'ouvrir le portail Stripe', 'error');
+            }
+        }
+
+        // ============================================
+        // REFERRAL
+        // ============================================
+        function copyReferralLink() {
+            const input = document.getElementById('referral-link');
+            input.select();
+            
+            navigator.clipboard.writeText(input.value)
+                .then(() => showToast('Lien copié !', 'success'))
+                .catch(() => showToast('Erreur de copie', 'error'));
+        }
+
+        // ============================================
+        // NAVIGATION
+        // ============================================
+        async function goToMap() {
+            const token = getToken();
+            try {
+                const res = await fetch(`${API_BASE}/auth/elevate-session?session_token=${token}`);
+                if (!res.ok) throw new Error('Auth fail');
+                const data = await res.json();
+                sessionStorage.setItem('meetempo_elevated_token', data.token);
+                window.location.href = `map.html?token=${data.token}`;
+            } catch (e) {
+                showToast('Erreur de connexion', 'error');
+            }
+        }
+
+        function goToChats() {
+            window.location.href = `chats.html?session_token=${getToken()}`;
+        }
+
+        function goToRequests() {
+            window.location.href = `my-requests.html?session_token=${getToken()}`;
+        }
+
+        function goToSuggestions() {
+            window.location.href = `my-suggestions.html?session_token=${getToken()}`;
+        }
+
+        function createSuggestion() {
+            window.location.href = `create-suggestion.html?token=${getToken()}`;
+        }
+
+        function goToFeedback(suggestionId) {
+            window.location.href = `feedback.html?suggestion_id=${suggestionId}&session_token=${getToken()}`;
+        }
+
+        function viewMeeting(suggestionId) {
+            window.location.href = `suggestion-detail.html?id=${suggestionId}&session_token=${getToken()}`;
+        }
+
+        // ============================================
+        // UI HELPERS
+        // ============================================
+        function hideLoading() {
+            const overlay = document.getElementById('loading-overlay');
+            overlay.classList.add('hidden');
+            setTimeout(() => overlay.remove(), 300);
+        }
+
+        function showToast(message, type = 'success') {
+            // Remove existing toast
+            const existing = document.querySelector('.toast');
+            if (existing) existing.remove();
+            
+            const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle';
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `
+                <i class="fas ${icon}"></i>
+                <span>${message}</span>
+            `;
+            
+            document.body.appendChild(toast);
+            
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        // ============================================
+        // FORMAT HELPERS
+        // ============================================
+        function formatDate(timestamp) {
+            if (!timestamp) return '-';
+            return new Date(timestamp).toLocaleDateString('fr-FR');
+        }
+
+        function formatTimeAgo(timestamp) {
+            if (!timestamp) return '-';
+            const now = Date.now();
+            const diff = now - timestamp;
+            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+            
+            if (days === 0) return "Aujourd'hui";
+            if (days === 1) return 'Hier';
+            return `Il y a ${days}j`;
+        }
+    </script>
+
+</body>
+</html>
