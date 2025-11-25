@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Profil - MeeTempo</title>
+    <meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; 
+               img-src https: data:; 
+               script-src 'self' 'unsafe-inline'; 
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+               font-src https://fonts.gstatic.com; 
+               connect-src https://api.meetempo.com;">
     <style>
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -213,42 +220,60 @@
         
         // Initialisation
         async function init() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const token = urlParams.get('token');
-            
-            // Token requis obligatoire
-            if (!token) {
-                document.getElementById('loading').innerHTML = 
-                    '❌ Accès non autorisé.<br><br>' +
-                    'Utilisez le lien sécurisé depuis MeeTempo GPT.<br><br>' +
-                    '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea;">← Retour à MeeTempo</a>';
-                return;
+    const urlParams = new URLSearchParams(window.location.search);
+    // 🔥 NOUVEAU : Accepter token OU session_token
+    const token = urlParams.get('token') || urlParams.get('session_token');
+    
+    // Token requis obligatoire
+    if (!token) {
+        document.getElementById('loading').innerHTML = 
+            '❌ Accès non autorisé.<br><br>' +
+            'Utilisez le lien sécurisé depuis MeeTempo GPT.<br><br>' +
+            '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea;">← Retour à MeeTempo</a>';
+        return;
+    }
+    
+    // 🔥 NOUVEAU : Valider via /profile (accepte session_token 24h) puis fallback /auth/session
+    try {
+        let isValid = false;
+        
+        // Essayer /profile d'abord (session_token 24h)
+        const profileRes = await fetch(`${API_BASE}/profile?session_token=${token}`);
+        if (profileRes.ok) {
+            const profileData = await profileRes.json();
+            if (profileData.user_id || profileData.email) {
+                isValid = true;
+                console.log('✅ Token validé via /profile (24h)');
             }
-            
-            // Valider token via /auth/session
-            try {
-                const response = await fetch(`${API_BASE}/auth/session?token=${token}`);
-                
-                if (!response.ok) {
-                    throw new Error('Token invalide');
+        }
+        
+        // Fallback /auth/session (elevated_token 15min)
+        if (!isValid) {
+            const sessionRes = await fetch(`${API_BASE}/auth/session?token=${token}`);
+            if (sessionRes.ok) {
+                const sessionData = await sessionRes.json();
+                if (sessionData.user_id) {
+                    isValid = true;
+                    console.log('✅ Token validé via /auth/session (15min)');
                 }
-                
-                const data = await response.json();
-                
-                if (data.user_id) {
-                    // ✅ CORRECTION : Stocker seulement le token, pas le user_id
-                    sessionStorage.setItem('meetempo_token', token);
-                } else {
-                    throw new Error('Token invalide');
-                }
-            } catch (err) {
-                document.getElementById('loading').innerHTML = 
-                    '❌ Session expirée ou token invalide.<br><br>' +
-                    'Veuillez obtenir un nouveau lien depuis MeeTempo GPT.<br><br>' +
-                    '<small>Les liens sont valables 15 minutes pour votre sécurité.</small><br><br>' +
-                    '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea;">← Retour à MeeTempo</a>';
-                return;
             }
+        }
+        
+        if (!isValid) {
+            throw new Error('Token invalide');
+        }
+        
+        // Stocker le token validé
+        sessionStorage.setItem('meetempo_token', token);
+        
+    } catch (err) {
+        document.getElementById('loading').innerHTML = 
+            '❌ Session expirée ou token invalide.<br><br>' +
+            'Veuillez obtenir un nouveau lien depuis MeeTempo GPT.<br><br>' +
+            '<small>Les liens sont valables 15 minutes pour votre sécurité.</small><br><br>' +
+            '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea;">← Retour à MeeTempo</a>';
+        return;
+    }
             
             // Charger profil
             await loadProfile();
@@ -262,7 +287,7 @@
 async function loadProfile() {
     try {
         const token = sessionStorage.getItem('meetempo_token');
-        const response = await fetch(`${API_BASE}/profile?token=${token}`);
+        const response = await fetch(`${API_BASE}/profile?session_token=${token}`);
         const data = await response.json();
         
         console.log('Profil chargé:', data); // 🔥 Debug
