@@ -642,7 +642,7 @@
                 Retour à MeeTempo →
             </button>
             <button class="btn-secondary" 
-        onclick="window.location.href='profile.html?token=' + sessionStorage.getItem('meetempo_token')"
+        onclick="window.location.href='profile.html?session_token=' + sessionStorage.getItem('meetempo_token')"
         style="margin-top: 16px;">
     ← Retour au profil
 </button>
@@ -658,7 +658,8 @@
         // Initialisation
         async function init() {
     const urlParams = new URLSearchParams(window.location.search);
-    const token = urlParams.get('token');
+    // 🔥 NOUVEAU : Accepter token OU session_token
+    const token = urlParams.get('token') || urlParams.get('session_token');
     
     if (!token) {
         document.getElementById('loading').innerHTML = 
@@ -668,19 +669,41 @@
         return;
     }
     
+    // 🔥 NOUVEAU : Validation multi-source (session_token 24h puis elevated_token 15min)
     try {
-        const response = await fetch(`${API_BASE}/auth/session?token=${token}`);
+        let isValid = false;
         
-        if (!response.ok) throw new Error('Token invalide');
+        // Essayer /profile d'abord (session_token 24h)
+        const profileRes = await fetch(`${API_BASE}/profile?session_token=${token}`);
+        if (profileRes.ok) {
+            const profileData = await profileRes.json();
+            if (profileData.user_id || profileData.email) {
+                userId = profileData.user_id;
+                isValid = true;
+                console.log('✅ Token validé via /profile (24h)');
+            }
+        }
         
-        const data = await response.json();
+        // Fallback /auth/session (elevated_token 15min)
+        if (!isValid) {
+            const sessionRes = await fetch(`${API_BASE}/auth/session?token=${token}`);
+            if (sessionRes.ok) {
+                const sessionData = await sessionRes.json();
+                if (sessionData.user_id) {
+                    userId = sessionData.user_id;
+                    isValid = true;
+                    console.log('✅ Token validé via /auth/session (15min)');
+                }
+            }
+        }
         
-        if (data.user_id) {
-            userId = data.user_id;
-            sessionStorage.setItem('meetempo_token', token);
-        } else {
+        if (!isValid) {
             throw new Error('Token invalide');
         }
+        
+        // Stocker le token validé
+        sessionStorage.setItem('meetempo_token', token);
+        
     } catch (err) {
         document.getElementById('loading').innerHTML = 
             '<p style="color: #e53e3e;">❌ Session expirée</p>' +
@@ -700,7 +723,7 @@
 // 🔥 NOUVELLE FONCTION : Pré-remplir onboarding
 async function loadExistingProfile(token) {
     try {
-        const response = await fetch(`${API_BASE}/profile?token=${token}`);
+        const response = await fetch(`${API_BASE}/profile?session_token=${token}`);
         if (!response.ok) return; // Pas grave si erreur
         
         const data = await response.json();
