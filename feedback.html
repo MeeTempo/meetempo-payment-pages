@@ -335,6 +335,85 @@
             💡 Écris librement : note /10, points positifs/négatifs, si tu reverrais la personne, etc.
           </div>
         </div>
+
+        <!-- Section Recommandation B2B (cachée par défaut) -->
+      <div id="recommendation-b2b" class="form-group" style="display: none;">
+        <div style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.3); border-radius: 12px; padding: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
+              <input type="checkbox" id="recommend-b2b-checkbox" onchange="toggleB2BFields()" style="width: 18px; height: 18px; accent-color: var(--mt-accent);">
+              <span style="font-weight: 700;">🏢 Recommander ce profil aux RH</span>
+            </label>
+            <span style="background: var(--mt-accent); color: #111; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 20px;">+50 XP</span>
+          </div>
+          
+          <div id="b2b-fields" style="display: none; margin-top: 16px;">
+            <div style="margin-bottom: 12px;">
+              <label style="font-size: 13px; margin-bottom: 6px; display: block;">Points forts observés *</label>
+              <textarea id="b2b-strengths" placeholder="Ex: Excellente communication, expertise data, leadership naturel..." style="width: 100%; min-height: 80px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 12px; font-size: 14px; color: var(--mt-text); font-family: inherit; resize: vertical;"></textarea>
+            </div>
+            
+            <div style="margin-bottom: 12px;">
+              <label style="font-size: 13px; margin-bottom: 6px; display: block;">Poste/domaine suggéré</label>
+              <input type="text" id="b2b-role" placeholder="Ex: Chef de projet, Data Analyst, Commercial..." style="width: 100%; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 12px; font-size: 14px; color: var(--mt-text); font-family: inherit;">
+            </div>
+            
+            <div style="margin-bottom: 12px;">
+              <label style="font-size: 13px; margin-bottom: 8px; display: block;">Niveau d'intérêt</label>
+              <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px;">
+                  <input type="radio" name="b2b-interest" value="medium" checked style="accent-color: var(--mt-accent);"> Intéressant
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px;">
+                  <input type="radio" name="b2b-interest" value="high" style="accent-color: var(--mt-accent);"> Très intéressant
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 13px;">
+                  <input type="radio" name="b2b-interest" value="urgent" style="accent-color: var(--mt-accent);"> 🔥 Urgent
+                </label>
+              </div>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; font-size: 12px; color: var(--mt-muted);">
+              ℹ️ Cette recommandation sera visible dans <strong>Dashboard B2B → Vivier de talents</strong>.<br>
+              L'identité du profil reste anonyme jusqu'au contact RH.
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Section Pense-bête VIP (cachée par défaut) -->
+      <div id="recommendation-vip" class="form-group" style="display: none;">
+        <div style="background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); border-radius: 12px; padding: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin: 0;">
+              <input type="checkbox" id="recommend-vip-checkbox" onchange="toggleVIPFields()" style="width: 18px; height: 18px; accent-color: var(--mt-accent);">
+              <span style="font-weight: 700;">⭐ Profil intéressant à retenir</span>
+            </label>
+            <span style="background: var(--mt-accent); color: #111; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 20px;">+30 XP</span>
+          </div>
+          
+          <div id="vip-fields" style="display: none; margin-top: 16px;">
+            <div style="margin-bottom: 12px;">
+              <label style="font-size: 13px; margin-bottom: 6px; display: block;">Note personnelle (optionnel)</label>
+              <textarea id="vip-note" placeholder="Ex: Potentiel pour mon équipe data, profil senior intéressant, à recontacter en janvier..." style="width: 100%; min-height: 80px; background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.12); border-radius: 8px; padding: 12px; font-size: 14px; color: var(--mt-text); font-family: inherit; resize: vertical;"></textarea>
+            </div>
+            
+            <div style="background: rgba(255,255,255,0.05); border-radius: 8px; padding: 10px; font-size: 12px; color: var(--mt-muted); margin-bottom: 12px;">
+              ℹ️ Retrouvez vos pense-bêtes dans <strong>Dashboard VIP → Profils retenus</strong>
+            </div>
+            
+            <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 12px;">
+              <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px;">💡 Vous recrutez régulièrement ?</div>
+              <div style="font-size: 12px; color: var(--mt-muted); margin-bottom: 10px;">
+                Créez votre compte Entreprise pour centraliser les recommandations et les partager avec vos RH automatiquement.
+              </div>
+              <a href="b2b-onboarding.html" style="display: inline-block; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: var(--mt-text); font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 6px; text-decoration: none;">
+                En savoir plus →
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
         
         <!-- Actions -->
         <div class="actions">
@@ -353,9 +432,15 @@
       <div class="success">
         <div class="success-icon">✅</div>
         <div class="success-title">Merci pour ton retour !</div>
-        <div class="success-text">
+        <div class="success-text" id="success-message">
           Ton feedback a bien été enregistré de manière confidentielle.<br>
           Il nous aide à améliorer l'expérience MeeTempo pour tous.
+        </div>
+        <div id="success-xp" style="display: none; margin-bottom: 24px;">
+          <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(245, 158, 11, 0.2); border: 1px solid rgba(245, 158, 11, 0.4); padding: 12px 20px; border-radius: 30px;">
+            <span style="font-size: 24px;">🎉</span>
+            <span style="font-weight: 700; color: #F59E0B;" id="xp-earned">+50 XP</span>
+          </div>
         </div>
         <button class="btn btn-primary" onclick="goToChats()">
           💬 Retour aux conversations
@@ -371,6 +456,7 @@
     const session_token = params.get('session_token') || params.get('token');
     
     let suggestionData = null;
+    let userProfile = null; // Pour stocker plan + company_id
     
     if (!suggestion_id || !session_token) {
       showError('Paramètres manquants', 'suggestion_id et session_token requis');
@@ -408,6 +494,16 @@
         }
         
         suggestionData = await response.json();
+
+        // Charger profil utilisateur pour section recommandation
+try {
+  const profileRes = await fetch(`${API_BASE}/profile?session_token=${session_token}`);
+  if (profileRes.ok) {
+    userProfile = await profileRes.json();
+  }
+} catch (profileErr) {
+  console.warn('Profil non chargé:', profileErr);
+}
         
         // Vérifier si feedback possible
         if (!suggestionData.event_happened) {
@@ -422,6 +518,7 @@
         
         // Afficher UI
         displaySuggestionInfo();
+        displayRecommendationSection(); // Nouvelle fonction
         document.getElementById('loading').style.display = 'none';
         document.getElementById('content').style.display = 'block';
         
@@ -477,6 +574,77 @@
       submitBtn.disabled = length < 10;
     }
     
+    // ========================================
+    // RECOMMENDATION SECTION (VIP / B2B)
+    // ========================================
+    function displayRecommendationSection() {
+      if (!userProfile) return;
+      
+      const plan = userProfile.plan || '';
+      const companyId = userProfile.company_id || null;
+      
+      // Cacher les deux sections par défaut
+      document.getElementById('recommendation-b2b').style.display = 'none';
+      document.getElementById('recommendation-vip').style.display = 'none';
+      
+      // B2B : si company_id existe (peu importe le plan)
+      if (companyId) {
+        document.getElementById('recommendation-b2b').style.display = 'block';
+        return;
+      }
+      
+      // VIP solo : plan vip sans company_id
+      if (plan === 'vip') {
+        document.getElementById('recommendation-vip').style.display = 'block';
+        return;
+      }
+      
+      // Free, Meeting, Premium sans company → rien affiché
+    }
+    
+    function toggleB2BFields() {
+      const checkbox = document.getElementById('recommend-b2b-checkbox');
+      const fields = document.getElementById('b2b-fields');
+      fields.style.display = checkbox.checked ? 'block' : 'none';
+    }
+    
+    function toggleVIPFields() {
+      const checkbox = document.getElementById('recommend-vip-checkbox');
+      const fields = document.getElementById('vip-fields');
+      fields.style.display = checkbox.checked ? 'block' : 'none';
+    }
+    
+    function getRecommendationData() {
+      // B2B
+      const b2bCheckbox = document.getElementById('recommend-b2b-checkbox');
+      if (b2bCheckbox && b2bCheckbox.checked) {
+        const strengths = document.getElementById('b2b-strengths').value.trim();
+        if (!strengths) {
+          alert('Veuillez renseigner les points forts observés');
+          return null;
+        }
+        return {
+          type: 'b2b',
+          enabled: true,
+          strengths: strengths,
+          suggested_role: document.getElementById('b2b-role').value.trim(),
+          interest_level: document.querySelector('input[name="b2b-interest"]:checked')?.value || 'medium'
+        };
+      }
+      
+      // VIP
+      const vipCheckbox = document.getElementById('recommend-vip-checkbox');
+      if (vipCheckbox && vipCheckbox.checked) {
+        return {
+          type: 'vip',
+          enabled: true,
+          personal_note: document.getElementById('vip-note').value.trim()
+        };
+      }
+      
+      return null;
+    }
+    
     async function submitFeedback() {
       const textarea = document.getElementById('feedbackText');
       const feedback_text = textarea.value.trim();
@@ -486,17 +654,32 @@
         return;
       }
       
+      // Vérifier recommandation si cochée
+      const recommendation = getRecommendationData();
+      if (recommendation === null && (
+        document.getElementById('recommend-b2b-checkbox')?.checked ||
+        document.getElementById('recommend-vip-checkbox')?.checked
+      )) {
+        return; // Validation échouée, message déjà affiché
+      }
+      
       const submitBtn = document.getElementById('submitBtn');
       submitBtn.disabled = true;
       submitBtn.textContent = 'Envoi...';
       
       try {
-        const response = await fetch(
-          `${API_BASE}/feedback/parse-and-submit?` + 
+        // Construire URL avec paramètres
+        let url = `${API_BASE}/feedback/parse-and-submit?` + 
           `session_token=${encodeURIComponent(session_token)}&` +
           `suggestion_id=${encodeURIComponent(suggestion_id)}&` +
-          `feedback_text=${encodeURIComponent(feedback_text)}`
-        );
+          `feedback_text=${encodeURIComponent(feedback_text)}`;
+        
+        // Ajouter recommandation si présente
+        if (recommendation) {
+          url += `&recommendation=${encodeURIComponent(JSON.stringify(recommendation))}`;
+        }
+        
+        const response = await fetch(url);
         
         const data = await response.json();
         
