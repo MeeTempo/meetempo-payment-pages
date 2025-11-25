@@ -306,6 +306,7 @@
     .card-profile .card-overlay { background: linear-gradient(135deg, rgba(107,114,128,0.9) 0%, rgba(75,85,99,0.9) 100%); }
     .card-vip .card-overlay { background: linear-gradient(135deg, rgba(251,191,36,0.9) 0%, rgba(245,158,11,0.9) 100%); }
     .card-pricing .card-overlay { background: linear-gradient(135deg, rgba(139,92,246,0.9) 0%, rgba(244,159,28,0.9) 100%); }
+    .card-dashboard .card-overlay { background: linear-gradient(135deg, rgba(244,159,28,0.9) 0%, rgba(139,92,246,0.9) 100%); }
     
     .card-content {
       position: relative;
@@ -868,6 +869,19 @@
         disabled: false,
         onClick: "navigate('profile')"
       });
+
+      // Card 8 : Dashboard (visible pour Premium et B2B employee)
+      if (userPlan === 'premium' || userPlan === 'b2b') {
+        cardsHTML += createCard({
+          id: 'dashboard',
+          icon: '💎',
+          title: 'Mon Dashboard',
+          subtitle: 'Stats, abonnement, parrainage',
+          cssClass: 'card-dashboard',
+          disabled: false,
+          onClick: "navigate('dashboard')"
+        });
+      }
       
       // Card 8 : Dashboard VIP (visible uniquement pour VIP)
       if (userPlan === 'vip') {
@@ -1114,6 +1128,10 @@ async function loadNextMeeting() {
           
         case 'pricing':
           window.location.href = `pricing.html?${tokenParam}`;
+          break;
+
+        case 'dashboard':
+          window.location.href = `dashboard.html?${tokenParam}`;
           break;
       }
     }
