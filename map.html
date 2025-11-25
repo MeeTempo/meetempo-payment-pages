@@ -1194,12 +1194,7 @@ if (!token) {
     }
     
     console.log(`🔐 Session validée (source: ${validation.source})`);        
-        const sessionData = await sessionResponse.json();
-        if (!sessionData.user_id) {
-          showError('Session invalide', 'Impossible de valider votre session', 'invalid');
-          return;
-        }
-        
+                
         const charterResponse = await fetch(`${API_BASE}/consent/status?token=${activeToken}`);
         if (charterResponse.ok) {
           const charterData = await charterResponse.json();
