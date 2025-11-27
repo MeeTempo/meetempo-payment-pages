@@ -437,6 +437,9 @@
       <button class="btn btn-secondary" onclick="goToMap()">
         🗺️ Voir la carte
       </button>
+      <button class="btn btn-secondary" onclick="goToHub()">
+        🏠 Retour Hub
+      </button>
       <button class="btn btn-secondary" onclick="backToGPT()">
         💬 Retour GPT
       </button>
@@ -921,6 +924,15 @@ function renderParticipantsBadge(sugg) {
     alert('❌ Erreur lors de l\'ouverture de la carte');
   }
 }
+
+function goToHub() {
+  const token = sessionStorage.getItem('meetempo_token');
+  if (!token) {
+    alert('Session expirée.');
+    return;
+  }
+  window.location.href = `hub.html?session_token=${token}`;
+}
     
     function backToGPT() {
   // Essayer de fermer l'onglet (fonctionne si ouvert depuis GPT)
@@ -958,9 +970,9 @@ function renderParticipantsBadge(sugg) {
 
     // Navigation vers my-requests
     function goToMyRequests() {
-      const token = sessionStorage.getItem('meetempo_token');
-      window.location.href = `my-requests.html?token=${token}`;
-    }
+  const token = sessionStorage.getItem('meetempo_token');
+  window.location.href = `my-requests.html?session_token=${token}`;
+}
 
     // 🔥 NOUVEAU : Accéder au chat groupe
 function goToChat(suggestionId) {
