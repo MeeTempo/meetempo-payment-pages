@@ -316,7 +316,10 @@
             <div class="loading" id="signupLoading">Création du compte...</div>
             <div class="message" id="signupMessage"></div>
             <div class="info-box" id="signupInfo">
-                <strong>🆓 Compte gratuit & Sécurisé</strong><br>
+            <div id="referralBanner" style="display: none; background: rgba(35,197,94,0.15); border: 1px solid var(--ok); border-radius: 8px; padding: 12px; margin-bottom: 12px; text-align: center;">
+                <span style="color: var(--ok); font-weight: 600;">🎁 Vous avez été invité !</span>
+            </div>
+            <strong>🆓 Compte gratuit & Sécurisé</strong><br>
                 Créez votre compte gratuitement. Vous devrez confirmer votre email avant de pouvoir vous connecter.
             </div>
         </div>
@@ -393,6 +396,18 @@
     <script>
         const API_BASE = 'https://api.meetempo.com';
         // const GPT_URL = '...'; // Plus besoin de rediriger
+
+        // 🔥 NOUVEAU : Capturer code parrainage depuis URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const referralCode = urlParams.get('ref') || null;
+
+        // Afficher badge si parrainage
+        if (referralCode) {
+            console.log('🎁 Code parrainage détecté:', referralCode);
+            // Afficher le banner quand la page est chargée
+            const banner = document.getElementById('referralBanner');
+            if (banner) banner.style.display = 'block';
+        }
         
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', function() {
@@ -543,7 +558,14 @@
             
             try {
                 const body = { email };
-                const response = await fetch(`${API_BASE}/user/create`, {
+
+            // 🔥 NOUVEAU : Ajouter referral_code si présent
+            if (referralCode) {
+                body.referral_code = referralCode;
+                console.log('🎁 Inscription avec parrainage:', referralCode);
+            }
+
+            const response = await fetch(`${API_BASE}/user/create`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(body)
