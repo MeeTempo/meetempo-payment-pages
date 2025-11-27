@@ -965,7 +965,7 @@
         </div>
         
         <div class="header-actions">
-            <a href="hub.html" class="btn-secondary">Retour au Hub</a>
+            <a href="#" onclick="goToHub(); return false;" class="btn-secondary">Retour au Hub</a>
             <button onclick="scrollToProfile()" class="btn-tertiary">Profil entreprise</button>
         </div>
     </header>
@@ -1479,15 +1479,22 @@
         // AUTH & INIT
         // ============================================
         function getToken() {
-            return localStorage.getItem('session_token') || localStorage.getItem('elevated_token');
+            const urlParams = new URLSearchParams(window.location.search);
+            return urlParams.get('session_token') || sessionStorage.getItem('meetempo_token');
+        }
+
+        function goToHub() {
+            window.location.href = `hub.html?session_token=${getToken()}`;
         }
 
         function checkAuth() {
             const token = getToken();
             if (!token) {
-                window.location.href = 'login.html';
+                window.location.href = 'login.html?error=no_session';
                 return false;
             }
+            // Stocker pour navigation future
+            sessionStorage.setItem('meetempo_token', token);
             return true;
         }
 
@@ -1637,8 +1644,9 @@
                 document.querySelector('#modal-buy-seats .current-plan').style.display = 'none';
                 document.getElementById('new-seats-input').value = 10; // Default 10 sièges
                 
-                const newAmount = calculatePrice(10);
-                const newTier = getTierLabel(10);
+                const initialSeats = 10;
+                const newAmount = calculatePrice(initialSeats);
+                const newTier = getTierLabel(initialSeats);
                 
                 currentSeatsData = {
                     seats: 0,
@@ -1646,7 +1654,7 @@
                     tier: '-'
                 };
                 
-                document.getElementById('modal-new-seats-total').textContent = totalSeats;
+                document.getElementById('modal-new-seats-total').textContent = initialSeats;
                 document.getElementById('modal-new-amount').textContent = `${newAmount.toFixed(2)}€`;
                 document.getElementById('modal-new-tier').textContent = newTier;
                 document.getElementById('modal-diff').textContent = `+${newAmount.toFixed(2)}€`;
@@ -1709,7 +1717,7 @@
             const newTier = getTierLabel(totalSeats);
             const diff = Math.round((newAmount - currentSeatsData.amount) * 100) / 100;
 
-            document.getElementById('modal-new-seats-total').textContent = 10;
+            document.getElementById('modal-new-seats-total').textContent = totalSeats;
             document.getElementById('modal-new-amount').textContent = `${newAmount.toFixed(2)}€`;
             document.getElementById('modal-new-tier').textContent = newTier;
             document.getElementById('modal-diff').textContent = 
