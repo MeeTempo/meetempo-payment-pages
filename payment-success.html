@@ -1,50 +1,221 @@
-<script>
-    // Récupérer session_id depuis URL
-    const urlParams = new URLSearchParams(window.location.search);
-    const sessionId = urlParams.get('session_id');
-    
-    // Afficher session_id (debug)
-    const sessionInfo = document.getElementById('sessionInfo');
-    const returnBtn = document.getElementById('returnButton');
-    
-    if (sessionId) {
-        sessionInfo.textContent = `Session: ${sessionId.substring(0, 20)}...`;
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement réussi | MeeTempo</title>
+    <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'self'; 
+                 img-src https: data:; 
+                 script-src 'self' 'unsafe-inline'; 
+                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+                 font-src https://fonts.gstatic.com; 
+                 connect-src https://api.meetempo.com;">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .success-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #2d3748;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        #message {
+            color: #4a5568;
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        #sessionInfo {
+            color: #a0aec0;
+            font-size: 12px;
+            margin-bottom: 20px;
+            font-family: monospace;
+        }
+        .redirect-info {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        #countdown {
+            font-weight: 700;
+            color: #667eea;
+        }
+        #returnButton {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        #returnButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="success-icon">✅</div>
+        <h1>Paiement réussi !</h1>
+        <p id="message">Votre abonnement est maintenant actif.</p>
+        <p id="sessionInfo"></p>
+        <div class="loader" id="loader"></div>
+        <p class="redirect-info">Redirection automatique dans <span id="countdown">5</span> secondes...</p>
+        <a href="#" id="returnButton">Accéder à MeeTempo</a>
+    </div>
+
+    <script>
+        // Récupérer session_id et token depuis URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionId = urlParams.get('session_id');
+        const sessionToken = urlParams.get('session_token') || urlParams.get('token') || localStorage.getItem('session_token');
         
-        // Appeler endpoint confirmation
-        fetch(`https://api.meetempo.com/stripe/confirm?session_id=${sessionId}`)
-            .then(r => r.json())
-            .then(data => {
-                console.log('Confirmation data:', data);
-                
-                // 🔥 DÉTECTER B2B
-                if (data.plan && data.plan.startsWith('b2b')) {
-                    // Mode B2B → Redirection Dashboard
-                    document.getElementById('message').textContent = 
-                        `Votre abonnement entreprise est maintenant actif!`;
-                    returnBtn.textContent = 'Accéder au Dashboard B2B';
-                    returnBtn.href = 'https://meetempo.github.io/meetempo-payment-pages/b2b-dashboard.html';
-                } else if (data.plan) {
-                    // Mode B2C (Premium, VIP, Meeting)
-                    const plans = {
-                        premium: 'Premium',
-                        vip: 'VIP',
-                        meeting: 'Meeting'
-                    };
-                    document.getElementById('message').textContent = 
-                        `Votre abonnement ${plans[data.plan]} est maintenant actif!`;
-                    returnBtn.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-                } else {
-                    // Fallback GPT
-                    returnBtn.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        // Éléments DOM
+        const sessionInfo = document.getElementById('sessionInfo');
+        const returnBtn = document.getElementById('returnButton');
+        const messageEl = document.getElementById('message');
+        const countdownEl = document.getElementById('countdown');
+        const loaderEl = document.getElementById('loader');
+        
+        // Base URL
+        const baseUrl = 'https://meetempo.github.io/meetempo-payment-pages';
+        
+        // URL de redirection par défaut
+        let redirectUrl = `${baseUrl}/hub.html`;
+        if (sessionToken) {
+            redirectUrl += `?session_token=${sessionToken}`;
+        }
+        
+        // Countdown et redirection auto
+        let countdown = 5;
+        function startCountdown() {
+            const interval = setInterval(() => {
+                countdown--;
+                if (countdownEl) countdownEl.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    window.location.href = redirectUrl;
                 }
-            })
-            .catch(err => {
-                console.log('Confirmation:', err);
-                // En cas d'erreur, on garde le lien GPT par défaut
-                returnBtn.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-            });
-    } else {
-        // Pas de session_id → GPT par défaut
-        returnBtn.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-    }
-</script>
+            }, 1000);
+        }
+        
+        if (sessionId) {
+            if (sessionInfo) {
+                sessionInfo.textContent = `Session: ${sessionId.substring(0, 20)}...`;
+            }
+            
+            // Appeler endpoint confirmation
+            fetch(`https://api.meetempo.com/stripe/confirm?session_id=${sessionId}`)
+                .then(r => r.json())
+                .then(data => {
+                    console.log('Confirmation data:', data);
+                    
+                    // Masquer loader
+                    if (loaderEl) loaderEl.style.display = 'none';
+                    
+                    // Construire URL avec token
+                    const tokenParam = sessionToken ? `?session_token=${sessionToken}` : '';
+                    
+                    if (data.plan && data.plan.startsWith('b2b')) {
+                        // Mode B2B → Dashboard B2B
+                        if (messageEl) {
+                            messageEl.textContent = `Votre abonnement entreprise est maintenant actif!`;
+                        }
+                        redirectUrl = `${baseUrl}/b2b-dashboard.html${tokenParam}`;
+                        if (returnBtn) {
+                            returnBtn.textContent = 'Accéder au Dashboard B2B';
+                            returnBtn.href = redirectUrl;
+                        }
+                    } else if (data.plan) {
+                        // Mode B2C (Premium, VIP, Meeting)
+                        const plans = {
+                            premium: 'Premium',
+                            vip: 'VIP',
+                            meeting: 'Meeting'
+                        };
+                        if (messageEl) {
+                            messageEl.textContent = `Votre abonnement ${plans[data.plan] || data.plan} est maintenant actif!`;
+                        }
+                        redirectUrl = `${baseUrl}/hub.html${tokenParam}`;
+                        if (returnBtn) {
+                            returnBtn.textContent = 'Accéder à MeeTempo';
+                            returnBtn.href = redirectUrl;
+                        }
+                    } else {
+                        // Fallback Hub
+                        redirectUrl = `${baseUrl}/hub.html${tokenParam}`;
+                        if (returnBtn) {
+                            returnBtn.href = redirectUrl;
+                        }
+                    }
+                    
+                    // Démarrer countdown après confirmation
+                    startCountdown();
+                })
+                .catch(err => {
+                    console.error('Confirmation error:', err);
+                    // Masquer loader
+                    if (loaderEl) loaderEl.style.display = 'none';
+                    // En cas d'erreur, redirection Hub quand même
+                    const tokenParam = sessionToken ? `?session_token=${sessionToken}` : '';
+                    redirectUrl = `${baseUrl}/hub.html${tokenParam}`;
+                    if (returnBtn) {
+                        returnBtn.href = redirectUrl;
+                    }
+                    startCountdown();
+                });
+        } else {
+            // Pas de session_id → Hub par défaut
+            if (loaderEl) loaderEl.style.display = 'none';
+            const tokenParam = sessionToken ? `?session_token=${sessionToken}` : '';
+            redirectUrl = `${baseUrl}/hub.html${tokenParam}`;
+            if (returnBtn) {
+                returnBtn.href = redirectUrl;
+            }
+            startCountdown();
+        }
+    </script>
+</body>
+</html>
