@@ -110,8 +110,103 @@
         }
 
         .fade-in {
-            animation: slideUp 0.5s ease-out forwards;
-        }
+    animation: slideUp 0.5s ease-out forwards;
+}
+
+/* Modal Parrainage Email */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+    z-index: 10000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modal-overlay.show {
+    display: flex;
+}
+
+.modal-content {
+    background: #1e293b;
+    border: 1px solid rgba(253, 224, 71, 0.3);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    max-width: 400px;
+    width: 100%;
+    animation: slideUp 0.3s ease;
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.modal-icon {
+    font-size: 1.5rem;
+}
+
+.modal-title {
+    font-size: 1rem;
+    font-weight: 700;
+    color: white;
+}
+
+.modal-input {
+    width: 100%;
+    background: #0f172a;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    color: white;
+    font-size: 0.875rem;
+    margin-bottom: 1rem;
+}
+
+.modal-input:focus {
+    outline: none;
+    border-color: #F59E0B;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+.modal-btn {
+    flex: 1;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.modal-btn-cancel {
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: white;
+}
+
+.modal-btn-cancel:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.modal-btn-submit {
+    background: linear-gradient(135deg, #F59E0B, #D97706);
+    border: none;
+    color: black;
+}
+
+.modal-btn-submit:hover {
+    filter: brightness(1.1);
+}
     </style>
 </head>
 <body class="min-h-screen">
@@ -215,10 +310,14 @@
                         </div>
                     </div>
                     
-                    <div class="flex justify-between items-center text-[10px] text-gray-400 px-1">
+                    <div class="flex justify-between items-center text-[10px] text-gray-400 px-1 mb-3">
                         <span>Récompense :</span>
-                        <span class="text-yellow-400 font-bold">+30 XP par ami</span>
+                        <span class="text-yellow-400 font-bold">+100 XP par ami</span>
                     </div>
+
+                    <button onclick="openReferralModal()" class="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:brightness-110 text-white text-xs font-bold py-2.5 rounded-lg transition flex items-center justify-center gap-2">
+                        <i class="fas fa-envelope"></i> Envoyer par email
+                    </button>
                 </div>
             </div>
 
@@ -401,9 +500,9 @@
             <span class="text-[9px]">Listes</span>
         </button>
 
-        <button class="flex flex-col items-center justify-center w-12">
-            <i class="fas fa-crown text-lg mb-1 text-yellow-400 drop-shadow-[0_0_5px_rgba(250,204,21,0.8)]"></i>
-            <span class="text-[9px] font-bold text-yellow-400">VIP</span>
+        <button onclick="goToHub()" class="flex flex-col items-center justify-center w-12 text-gray-400 hover:text-white transition">
+            <i class="fas fa-th-large text-lg mb-1"></i>
+            <span class="text-[9px]">Hub</span>
         </button>
     </nav>
 
@@ -548,6 +647,9 @@
             // Referral Link
             const referralUrl = `https://meetempo.github.io/meetempo-payment-pages/login.html?ref=${user.referral_code}`;
             document.getElementById('referral-link').value = referralUrl;
+
+            // 🔥 Stocker pour modal email
+            currentReferralCode = user.referral_code;
 
             // B2B Section - Visible pour tous les VIP
             if (user.plan === 'vip') {
@@ -807,6 +909,68 @@
             return sessionStorage.getItem('meetempo_token'); 
         }
 
+        // ========================================
+        // MODAL PARRAINAGE EMAIL
+        // ========================================
+        let currentReferralCode = '';
+
+        function openReferralModal() {
+            document.getElementById('referral-modal').classList.add('show');
+            document.getElementById('referral-email-input').value = '';
+            document.getElementById('referral-email-input').focus();
+        }
+
+        function closeReferralModal() {
+            document.getElementById('referral-modal').classList.remove('show');
+        }
+
+        // Fermer modal si clic extérieur
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('referral-modal');
+            if (e.target === modal) {
+                closeReferralModal();
+            }
+        });
+
+        async function sendReferralEmail() {
+            const email = document.getElementById('referral-email-input').value.trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            
+            if (!email) {
+                showError('Veuillez entrer un email');
+                return;
+            }
+            
+            if (!emailRegex.test(email)) {
+                showError('Format email invalide');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/referral/send-invite`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_token: getToken(),
+                        recipient_email: email,
+                        referral_code: currentReferralCode
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    closeReferralModal();
+                    showSuccess(`🎉 Invitation envoyée à ${email} !`);
+                } else {
+                    throw new Error(data.error || 'Erreur envoi');
+                }
+            } catch (err) {
+                console.error('Referral email error:', err);
+                showError('❌ Erreur lors de l\'envoi. Réessayez.');
+            }
+        }
+
         function goToRequests() { 
             window.location.href = `my-requests.html?session_token=${getToken()}`; 
         }
@@ -816,11 +980,19 @@
         }
 
         function createNew() { 
-            window.location.href = `create-suggestion.html?token=${getToken()}`; 
+            window.location.href = `create-suggestion.html?session_token=${getToken()}`; 
         }
 
         function goToB2B() { 
             window.location.href = `b2b-dashboard.html?session_token=${getToken()}`; 
+        }
+
+        function goToHub() {
+            window.location.href = `hub.html?session_token=${getToken()}`;
+        }
+
+        function goToChats() {
+            window.location.href = `my-chats.html?session_token=${getToken()}`;
         }
         
         async function goToMap() {
@@ -926,5 +1098,23 @@ document.getElementById('b2b-form').addEventListener('submit', async (e) => {
 });
 
     </script>
+
+    <!-- Modal Parrainage Email -->
+    <div class="modal-overlay" id="referral-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">📧</div>
+                <div class="modal-title">Inviter un contact</div>
+            </div>
+            <p style="font-size: 0.75rem; color: #9ca3af; margin-bottom: 1rem;">
+                Envoyez une invitation personnalisée par email. Vous gagnez <strong style="color: #F59E0B;">+100 XP</strong> si votre filleul passe Premium !
+            </p>
+            <input type="email" class="modal-input" id="referral-email-input" placeholder="email@exemple.com">
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeReferralModal()">Annuler</button>
+                <button class="modal-btn modal-btn-submit" onclick="sendReferralEmail()">Envoyer</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
