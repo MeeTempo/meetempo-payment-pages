@@ -402,21 +402,15 @@
               ℹ️ Retrouvez vos pense-bêtes dans <strong>Dashboard VIP → Profils retenus</strong>
             </div>
             
-            <div style="background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(168, 85, 247, 0.2)); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 8px; padding: 12px;">
-              <div style="font-size: 13px; font-weight: 600; margin-bottom: 6px;">💡 Vous recrutez régulièrement ?</div>
-              <div style="font-size: 12px; color: var(--mt-muted); margin-bottom: 10px;">
-                Créez votre compte Entreprise pour centraliser les recommandations et les partager avec vos RH automatiquement.
-              </div>
-              <a href="b2b-onboarding.html" style="display: inline-block; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); color: var(--mt-text); font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 6px; text-decoration: none;">
-                En savoir plus →
-              </a>
-            </div>
           </div>
         </div>
       </div>
         
         <!-- Actions -->
         <div class="actions">
+          <button class="btn btn-secondary" onclick="goToHub()">
+            🏠 Hub
+          </button>
           <button class="btn btn-secondary" onclick="goBack()">
             ← Retour
           </button>
@@ -453,7 +447,17 @@
     const API_BASE = 'https://api.meetempo.com';
     const params = new URLSearchParams(location.search);
     const suggestion_id = params.get('suggestion_id');
-    const session_token = params.get('session_token') || params.get('token');
+    let session_token = params.get('session_token') || params.get('token');
+
+    // Récupérer depuis sessionStorage si absent de l'URL
+    if (!session_token) {
+      session_token = sessionStorage.getItem('meetempo_token');
+    }
+
+    // Stocker pour les autres pages
+    if (session_token) {
+      sessionStorage.setItem('meetempo_token', session_token);
+    }
     
     let suggestionData = null;
     let userProfile = null; // Pour stocker plan + company_id
@@ -690,6 +694,31 @@ try {
         // Afficher succès
         document.getElementById('content').style.display = 'none';
         document.getElementById('success').style.display = 'block';
+
+        // Calculer et afficher XP gagnés
+        let totalXP = 20; // Base feedback
+        if (recommendation) {
+          if (recommendation.type === 'b2b') totalXP += 50;
+          else if (recommendation.type === 'vip') totalXP += 30;
+        }
+
+        // Utiliser XP de l'API si disponible
+        if (data.xp_earned) {
+          totalXP = data.xp_earned;
+        }
+
+        document.getElementById('xp-earned').textContent = `+${totalXP} XP`;
+        document.getElementById('success-xp').style.display = 'block';
+
+        // Message personnalisé si recommandation
+        if (recommendation && recommendation.enabled) {
+          const recType = recommendation.type === 'b2b' ? 'Dashboard B2B → Vivier de talents' : 'Dashboard VIP → Profils retenus';
+          document.getElementById('success-message').innerHTML = `
+            Ton feedback a bien été enregistré de manière confidentielle.<br>
+            <br>✅ <strong>Recommandation enregistrée</strong><br>
+            <span style="font-size: 14px;">Retrouve-la dans <em>${recType}</em></span>
+          `;
+        }
         
       } catch (err) {
         console.error('Erreur:', err);
@@ -700,11 +729,19 @@ try {
     }
     
     function goBack() {
-      window.history.back();
+      if (window.history.length > 1) {
+        window.history.back();
+      } else {
+        goToChats();
+      }
     }
-    
+
+    function goToHub() {
+      window.location.href = `hub.html?session_token=${session_token}`;
+    }
+
     function goToChats() {
-      window.location.href = `my-chats.html?token=${session_token}`;
+      window.location.href = `my-chats.html?session_token=${session_token}`;
     }
     
     // Init
