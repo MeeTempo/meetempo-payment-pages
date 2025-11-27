@@ -387,6 +387,9 @@
       <button class="btn btn-secondary" onclick="goToMap()">
         🗺️ Voir la carte
       </button>
+      <button class="btn btn-secondary" onclick="goToHub()">
+        🏠 Retour Hub
+      </button>
       <button class="btn btn-secondary" onclick="backToGPT()">
         💬 Retour GPT
       </button>
@@ -751,6 +754,24 @@ async function goToMap() {
     
     window.location.href = `chat.html?suggestion_id=${suggestionId}&session_token=${session_token}`;
   }
+
+  function goToMySuggestions() {
+  const token = sessionStorage.getItem('meetempo_token');
+  if (!token) {
+    showTokenExpiredMessage();
+    return;
+  }
+  window.location.href = `my-suggestions.html?session_token=${token}`;
+}
+
+function goToHub() {
+  const token = sessionStorage.getItem('meetempo_token');
+  if (!token) {
+    showTokenExpiredMessage();
+    return;
+  }
+  window.location.href = `hub.html?session_token=${token}`;
+}
 
 function backToGPT() {
   if (window.opener) {
