@@ -18,10 +18,10 @@
         }
 
         :root {
-            --bg-primary: #2d3748;
-            --bg-secondary: #1f2937;
-            --bg-card: rgba(255, 255, 255, 0.08);
-            --bg-card-hover: rgba(255, 255, 255, 0.08);
+            --bg-primary: #1e3a5f;
+            --bg-secondary: #2d4a6f;
+            --bg-card: rgba(255, 255, 255, 0.1);
+            --bg-card-hover: rgba(255, 255, 255, 0.15);
             --accent: #F49F1C;
             --accent-light: #FFB84D;
             --accent-glow: rgba(244, 159, 28, 0.3);
@@ -41,10 +41,8 @@
 
         body {
             font-family: 'Montserrat', sans-serif;
-            background: var(--bg-primary);
-            background-image: 
-                radial-gradient(ellipse at 50% 0%, rgba(244, 159, 28, 0.08) 0%, transparent 50%),
-                radial-gradient(ellipse at 100% 100%, rgba(99, 102, 241, 0.05) 0%, transparent 40%);
+            background: linear-gradient(160deg, #1e3a5f 0%, #2d5a7f 50%, #1e3a5f 100%);
+            background-attachment: fixed;
             color: var(--text-primary);
             min-height: 100vh;
             padding-bottom: 100px;
@@ -234,17 +232,19 @@
         ============================================ */
         .card {
             background: var(--bg-card);
-            border: 1px solid var(--border);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 1rem;
             padding: 1.25rem;
             transition: all 0.3s ease;
             backdrop-filter: blur(10px);
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.05);
         }
 
         .card:hover {
             background: var(--bg-card-hover);
-            border-color: var(--border-accent);
+            border-color: rgba(255, 255, 255, 0.25);
             transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(255, 255, 255, 0.08);
         }
 
         .card-accent {
@@ -269,16 +269,19 @@
 
         .kpi-card {
             background: var(--bg-card);
-            border: 1px solid var(--border);
+            border: 1px solid rgba(255, 255, 255, 0.12);
             border-radius: 1rem;
             padding: 1rem;
             text-align: center;
             transition: all 0.3s ease;
+            box-shadow: 0 2px 12px rgba(255, 255, 255, 0.03);
         }
 
         .kpi-card:hover {
             background: var(--bg-card-hover);
             transform: scale(1.02);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 20px rgba(255, 255, 255, 0.06);
         }
 
         .kpi-icon {
@@ -887,16 +890,16 @@
             bottom: 1rem;
             left: 1rem;
             right: 1rem;
-            background: rgba(22, 33, 62, 0.95);
+            background: rgba(30, 58, 95, 0.95);
             backdrop-filter: blur(20px);
-            border: 1px solid var(--border);
+            border: 1px solid rgba(255, 255, 255, 0.15);
             border-radius: 1rem;
             padding: 0.5rem;
             display: flex;
             justify-content: space-around;
             align-items: center;
             z-index: 1000;
-            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2), 0 0 30px rgba(255, 255, 255, 0.05);
         }
 
         .nav-btn {
@@ -908,7 +911,7 @@
             padding: 0.5rem;
             background: transparent;
             border: none;
-            color: var(--text-muted);
+            color: rgba(255, 255, 255, 0.6);
             font-size: 0.6rem;
             cursor: pointer;
             transition: all 0.2s ease;
@@ -919,7 +922,11 @@
             font-size: 1.1rem;
         }
 
-        .nav-btn:hover, .nav-btn.active {
+        .nav-btn:hover {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .nav-btn.active {
             color: var(--accent);
         }
 
@@ -1032,6 +1039,135 @@
                 display: none;
             }
         }
+
+    /* ============================================
+       MODAL PARRAINAGE
+    ============================================ */
+    .modal-overlay {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.7);
+        backdrop-filter: blur(4px);
+        z-index: 10000;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+
+    .modal-overlay.show {
+        display: flex;
+    }
+
+    .modal-content {
+        background: var(--bg-secondary);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 1rem;
+        padding: 2rem;
+        max-width: 400px;
+        width: 100%;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        animation: modalSlideIn 0.3s ease;
+    }
+
+    @keyframes modalSlideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .modal-header {
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .modal-icon {
+        font-size: 3rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .modal-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        margin-bottom: 0.5rem;
+    }
+
+    .modal-subtitle {
+        font-size: 0.85rem;
+        color: var(--text-muted);
+    }
+
+    .modal-input {
+        width: 100%;
+        padding: 0.875rem 1rem;
+        background: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 0.5rem;
+        color: var(--text-primary);
+        font-size: 1rem;
+        font-family: inherit;
+        margin-bottom: 1rem;
+        transition: all 0.2s ease;
+    }
+
+    .modal-input:focus {
+        outline: none;
+        border-color: var(--accent);
+        box-shadow: 0 0 0 3px rgba(244, 159, 28, 0.2);
+    }
+
+    .modal-input::placeholder {
+        color: var(--text-muted);
+    }
+
+    .modal-actions {
+        display: flex;
+        gap: 0.75rem;
+    }
+
+    .modal-btn {
+        flex: 1;
+        padding: 0.875rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-family: inherit;
+        font-size: 0.9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+    }
+
+    .modal-btn-cancel {
+        background: var(--bg-card);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        color: var(--text-secondary);
+    }
+
+    .modal-btn-cancel:hover {
+        background: var(--bg-card-hover);
+    }
+
+    .modal-btn-submit {
+        background: var(--accent);
+        color: #000;
+    }
+
+    .modal-btn-submit:hover:not(:disabled) {
+        background: var(--accent-light);
+        transform: translateY(-1px);
+    }
+
+    .modal-btn-submit:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
     </style>
 </head>
 <body>
@@ -1142,6 +1278,9 @@
                     <input type="text" class="referral-link-input" id="referral-link" readonly value="Chargement...">
                     <button class="referral-copy-btn" onclick="copyReferralLink()">COPIER</button>
                 </div>
+                <button class="action-btn action-btn-secondary" onclick="openReferralModal()" style="width: 100%; margin-top: 0.75rem;">
+                    <i class="fas fa-envelope"></i> Envoyer par email
+                </button>
                 <div class="referral-stats">
                     <span>Récompense : <strong>+100 XP</strong> par filleul</span>
                     <span>Code : <strong id="referral-code">---</strong></span>
@@ -1224,16 +1363,13 @@
 
         <!-- Settings Footer -->
         <div class="settings-footer fade-in" style="animation-delay: 0.5s">
-            <a href="notifications.html" class="settings-btn">
-                <i class="fas fa-bell"></i> Notifications
-            </a>
-            <a href="privacy.html" class="settings-btn">
+            <a href="#" onclick="goToPrivacy(); return false;" class="settings-btn">
                 <i class="fas fa-shield-alt"></i> Confidentialité
             </a>
-            <a href="profile.html" class="settings-btn">
+            <a href="#" onclick="goToProfile(); return false;" class="settings-btn">
                 <i class="fas fa-user-edit"></i> Modifier profil
             </a>
-            <a href="hub.html" class="settings-btn">
+            <a href="#" onclick="goToHub(); return false;" class="settings-btn">
                 <i class="fas fa-th-large"></i> Retour Hub
             </a>
         </div>
@@ -1264,6 +1400,32 @@
             <span>Dashboard</span>
         </button>
     </nav>
+
+    <!-- Modal Parrainage Email -->
+    <div class="modal-overlay" id="referral-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-icon">📧</div>
+                <div class="modal-title">Inviter un contact</div>
+                <div class="modal-subtitle">Envoyez votre lien de parrainage par email</div>
+            </div>
+            <input 
+                type="email" 
+                class="modal-input" 
+                id="referral-email-input" 
+                placeholder="email@exemple.com"
+                autocomplete="email"
+            >
+            <div class="modal-actions">
+                <button class="modal-btn modal-btn-cancel" onclick="closeReferralModal()">
+                    Annuler
+                </button>
+                <button class="modal-btn modal-btn-submit" id="send-referral-btn" onclick="sendReferralEmail()">
+                    Envoyer
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script>
         // ============================================
@@ -1463,6 +1625,9 @@
         function renderReferral(referral) {
             const stats = referral.stats || {};
             const code = referral.referrals?.[0]?.code || 'MEETEMPO';
+            
+            // Stocker le code pour le modal
+            currentReferralCode = code;
             
             const referralUrl = `https://meetempo.github.io/meetempo-payment-pages/login.html?ref=${code}`;
             
@@ -1686,7 +1851,7 @@
         }
 
         function goToChats() {
-            window.location.href = `chats.html?session_token=${getToken()}`;
+            window.location.href = `my-chats.html?session_token=${getToken()}`;
         }
 
         function goToRequests() {
@@ -1698,7 +1863,7 @@
         }
 
         function createSuggestion() {
-            window.location.href = `create-suggestion.html?token=${getToken()}`;
+            window.location.href = `create-suggestion.html?session_token=${getToken()}`;
         }
 
         function goToFeedback(suggestionId) {
@@ -1746,6 +1911,98 @@
         function formatDate(timestamp) {
             if (!timestamp) return '-';
             return new Date(timestamp).toLocaleDateString('fr-FR');
+        }
+
+        // ============================================
+        // NAVIGATION FOOTER
+        // ============================================
+        function goToPrivacy() {
+            window.location.href = `privacy.html?session_token=${getToken()}`;
+        }
+
+        function goToProfile() {
+            window.location.href = `profile.html?session_token=${getToken()}`;
+        }
+
+        function goToHub() {
+            window.location.href = `hub.html?session_token=${getToken()}`;
+        }
+
+        // ============================================
+        // MODAL PARRAINAGE EMAIL
+        // ============================================
+        let currentReferralCode = '';
+
+        function openReferralModal() {
+            document.getElementById('referral-modal').classList.add('show');
+            document.getElementById('referral-email-input').value = '';
+            document.getElementById('referral-email-input').focus();
+        }
+
+        function closeReferralModal() {
+            document.getElementById('referral-modal').classList.remove('show');
+        }
+
+        // Fermer modal si clic extérieur
+        document.addEventListener('click', (e) => {
+            const modal = document.getElementById('referral-modal');
+            if (e.target === modal) {
+                closeReferralModal();
+            }
+        });
+
+        // Fermer modal avec Escape
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeReferralModal();
+            }
+        });
+
+        async function sendReferralEmail() {
+            const emailInput = document.getElementById('referral-email-input');
+            const submitBtn = document.getElementById('send-referral-btn');
+            const email = emailInput.value.trim();
+            
+            // Validation email basique
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailRegex.test(email)) {
+                showToast('Veuillez entrer un email valide', 'error');
+                emailInput.focus();
+                return;
+            }
+            
+            // Disable button
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Envoi...';
+            
+            try {
+                const response = await fetch(`${API_BASE}/referral/send-invite`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        session_token: getToken(),
+                        recipient_email: email,
+                        referral_code: currentReferralCode
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    throw new Error(data.error || 'Erreur lors de l\'envoi');
+                }
+                
+                // Succès
+                closeReferralModal();
+                showToast(`Invitation envoyée à ${email} !`, 'success');
+                
+            } catch (error) {
+                console.error('Send referral error:', error);
+                showToast(error.message || 'Erreur lors de l\'envoi', 'error');
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Envoyer';
+            }
         }
 
         function formatTimeAgo(timestamp) {
