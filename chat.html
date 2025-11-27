@@ -533,8 +533,11 @@
       <div class="chat-subtitle" id="chatSubtitle">Chargement...</div>
     </div>
     <div class="participants-badge" id="participantsBadge" onclick="toggleParticipantsPanel()">
-      👥 0
+  👥 0
     </div>
+    <button class="back-btn" onclick="goToHub()" title="Retour Hub" style="margin-left: 8px;">
+      🏠
+    </button>
   </div>
   
   <!-- Messages Container -->
@@ -618,10 +621,20 @@
       const date = new Date(timestamp);
       return date.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
     }
+
+    function goToHub() {
+    window.location.href = `hub.html?session_token=${session_token}`;
+  }
     
     function goBack() {
-      window.history.back();
-    }
+  // Si historique disponible, retour arrière
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    // Sinon, retour au Hub
+    window.location.href = `hub.html?session_token=${session_token}`;
+  }
+}
 
     // 🔥 NOUVEAU : Compteur caractères
 function updateCharCounter() {
