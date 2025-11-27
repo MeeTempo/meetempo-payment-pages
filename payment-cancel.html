@@ -1,25 +1,277 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Paiement annulé | MeeTempo</title>
-  <meta http-equiv="Content-Security-Policy" 
-      content="default-src 'self'; 
-               img-src https: data:; 
-               script-src 'self' 'unsafe-inline'; 
-               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
-               font-src https://fonts.gstatic.com; 
-               connect-src https://api.meetempo.com;">
-  <style>
-    body { font-family: Montserrat, sans-serif; background:#030E4F; color:white; text-align:center; padding-top:10%; }
-    h1 { color:#F49F1C; font-size:2em; }
-    a { background:#F49F1C; color:#030E4F; padding:12px 24px; border-radius:8px; text-decoration:none; font-weight:bold; }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paiement annulé | MeeTempo</title>
+    <meta http-equiv="Content-Security-Policy" 
+        content="default-src 'self'; 
+                 img-src https: data:; 
+                 script-src 'self' 'unsafe-inline'; 
+                 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+                 font-src https://fonts.gstatic.com; 
+                 connect-src https://api.meetempo.com;">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: white;
+            border-radius: 20px;
+            padding: 50px 40px;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .cancel-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #e53e3e;
+            margin-bottom: 15px;
+            font-size: 28px;
+        }
+        #message {
+            color: #4a5568;
+            font-size: 18px;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+        #planInfo {
+            background: #f7fafc;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 25px;
+            color: #718096;
+            font-size: 14px;
+        }
+        #planInfo.b2b {
+            background: #ebf8ff;
+            border: 1px solid #90cdf4;
+            color: #2b6cb0;
+        }
+        .redirect-info {
+            color: #718096;
+            font-size: 14px;
+            margin-bottom: 25px;
+        }
+        #countdown {
+            font-weight: 700;
+            color: #e53e3e;
+        }
+        .buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+        #retryButton {
+            display: inline-block;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 16px;
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        #retryButton:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+        }
+        #returnButton {
+            display: inline-block;
+            background: transparent;
+            color: #667eea;
+            padding: 12px 30px;
+            border-radius: 30px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 14px;
+            border: 2px solid #667eea;
+            transition: all 0.3s;
+        }
+        #returnButton:hover {
+            background: #667eea;
+            color: white;
+        }
+        .loader {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #e2e8f0;
+            border-top-color: #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-  <h1>❌ Paiement annulé</h1>
-  <p>Votre paiement n’a pas été finalisé. Vous pouvez réessayer à tout moment.</p>
-  <a href="https://chat.openai.com/g/g-meetempo">Réessayer</a>
+    <div class="container">
+        <div class="cancel-icon">❌</div>
+        <h1>Paiement annulé</h1>
+        <p id="message">Votre paiement n'a pas été finalisé. Vous pouvez réessayer à tout moment.</p>
+        
+        <div id="planInfo" style="display: none;"></div>
+        
+        <div class="loader" id="loader"></div>
+        <p class="redirect-info">Redirection automatique dans <span id="countdown">8</span> secondes...</p>
+        
+        <div class="buttons">
+            <a href="#" id="retryButton">🔄 Réessayer le paiement</a>
+            <a href="#" id="returnButton">Retour à MeeTempo</a>
+        </div>
+    </div>
+
+    <script>
+        // Récupérer token depuis URL ou localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const sessionToken = urlParams.get('session_token') || urlParams.get('token') || localStorage.getItem('session_token');
+        
+        // Éléments DOM
+        const messageEl = document.getElementById('message');
+        const planInfoEl = document.getElementById('planInfo');
+        const countdownEl = document.getElementById('countdown');
+        const loaderEl = document.getElementById('loader');
+        const retryBtn = document.getElementById('retryButton');
+        const returnBtn = document.getElementById('returnButton');
+        
+        // Base URL
+        const baseUrl = 'https://meetempo.github.io/meetempo-payment-pages';
+        
+        // URLs par défaut
+        let redirectUrl = `${baseUrl}/hub.html`;
+        let pricingUrl = `${baseUrl}/pricing.html`;
+        const tokenParam = sessionToken ? `?session_token=${sessionToken}` : '';
+        
+        // Countdown et redirection auto (8 secondes pour laisser le temps de lire)
+        let countdown = 8;
+        function startCountdown() {
+            const interval = setInterval(() => {
+                countdown--;
+                if (countdownEl) countdownEl.textContent = countdown;
+                if (countdown <= 0) {
+                    clearInterval(interval);
+                    window.location.href = redirectUrl;
+                }
+            }, 1000);
+        }
+        
+        // Détecter si B2B via /user/profile
+        if (sessionToken) {
+            fetch(`https://api.meetempo.com/user/profile?session_token=${sessionToken}`)
+                .then(r => r.json())
+                .then(data => {
+                    console.log('User profile:', data);
+                    
+                    // Masquer loader
+                    if (loaderEl) loaderEl.style.display = 'none';
+                    
+                    if (data.plan && data.plan.startsWith('b2b')) {
+                        // Mode B2B (admin ou employé)
+                        planInfoEl.style.display = 'block';
+                        planInfoEl.classList.add('b2b');
+                        
+                        // Déterminer si admin ou employé
+                        const isAdmin = data.b2b_role === 'admin' || data.is_b2b_admin;
+                        const companyName = data.b2b_company_name || data.company_name || 'votre entreprise';
+                        
+                        if (isAdmin) {
+                            planInfoEl.innerHTML = `🏢 <strong>Compte B2B Admin</strong><br>Entreprise : ${companyName}`;
+                            messageEl.textContent = `Le paiement pour votre abonnement entreprise n'a pas été finalisé.`;
+                        } else {
+                            planInfoEl.innerHTML = `🏢 <strong>Compte B2B Employé</strong><br>Entreprise : ${companyName}`;
+                            messageEl.textContent = `Le paiement n'a pas été finalisé. Contactez votre administrateur si nécessaire.`;
+                        }
+                        
+                        // Redirection vers B2B dashboard
+                        redirectUrl = `${baseUrl}/b2b-dashboard.html${tokenParam}`;
+                        pricingUrl = `${baseUrl}/b2b-pricing.html${tokenParam}`;
+                        
+                        if (returnBtn) {
+                            returnBtn.textContent = 'Retour au Dashboard B2B';
+                            returnBtn.href = redirectUrl;
+                        }
+                        if (retryBtn) {
+                            retryBtn.href = pricingUrl;
+                        }
+                        
+                    } else if (data.plan) {
+                        // Mode B2C
+                        const plans = {
+                            free: 'Free',
+                            meeting: 'Meeting',
+                            premium: 'Premium',
+                            vip: 'VIP'
+                        };
+                        
+                        planInfoEl.style.display = 'block';
+                        planInfoEl.innerHTML = `📋 Plan actuel : <strong>${plans[data.plan] || data.plan}</strong>`;
+                        
+                        redirectUrl = `${baseUrl}/hub.html${tokenParam}`;
+                        pricingUrl = `${baseUrl}/pricing.html${tokenParam}`;
+                        
+                        if (returnBtn) {
+                            returnBtn.href = redirectUrl;
+                        }
+                        if (retryBtn) {
+                            retryBtn.href = pricingUrl;
+                        }
+                    } else {
+                        // Fallback
+                        redirectUrl = `${baseUrl}/hub.html${tokenParam}`;
+                        if (returnBtn) returnBtn.href = redirectUrl;
+                        if (retryBtn) retryBtn.href = `${baseUrl}/pricing.html${tokenParam}`;
+                    }
+                    
+                    // Démarrer countdown
+                    startCountdown();
+                })
+                .catch(err => {
+                    console.error('Profile error:', err);
+                    // Masquer loader
+                    if (loaderEl) loaderEl.style.display = 'none';
+                    
+                    // Fallback
+                    redirectUrl = `${baseUrl}/hub.html${tokenParam}`;
+                    if (returnBtn) returnBtn.href = redirectUrl;
+                    if (retryBtn) retryBtn.href = `${baseUrl}/pricing.html${tokenParam}`;
+                    
+                    startCountdown();
+                });
+        } else {
+            // Pas de token → login
+            if (loaderEl) loaderEl.style.display = 'none';
+            
+            redirectUrl = `${baseUrl}/login.html`;
+            if (returnBtn) {
+                returnBtn.textContent = 'Se connecter';
+                returnBtn.href = redirectUrl;
+            }
+            if (retryBtn) {
+                retryBtn.href = `${baseUrl}/login.html`;
+            }
+            
+            startCountdown();
+        }
+    </script>
 </body>
 </html>
