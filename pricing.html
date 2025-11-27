@@ -701,8 +701,9 @@
           throw new Error(data.error || 'Erreur création paiement');
         }
         
-        if (data.checkout_url) {
-          window.location.href = data.checkout_url;
+        const checkoutUrl = data.checkout_url || data.url;
+        if (checkoutUrl) {
+          window.location.href = checkoutUrl;
         } else {
           throw new Error('URL de paiement manquante');
         }
