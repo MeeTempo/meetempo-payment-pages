@@ -397,16 +397,35 @@
         const API_BASE = 'https://api.meetempo.com';
         // const GPT_URL = '...'; // Plus besoin de rediriger
 
-        // 🔥 NOUVEAU : Capturer code parrainage depuis URL
+        // 🔥 NOUVEAU : Capturer code parrainage + email depuis URL
         const urlParams = new URLSearchParams(window.location.search);
         const referralCode = urlParams.get('ref') || null;
+        const referralEmail = urlParams.get('email') || null;
 
+        // Afficher badge si parrainage
         // Afficher badge si parrainage
         if (referralCode) {
             console.log('🎁 Code parrainage détecté:', referralCode);
-            // Afficher le banner quand la page est chargée
+            
+            // Afficher le banner
             const banner = document.getElementById('referralBanner');
             if (banner) banner.style.display = 'block';
+            
+            // Pré-remplir l'email si présent
+            if (referralEmail) {
+                const signupEmailField = document.getElementById('signupEmail');
+                if (signupEmailField) {
+                    signupEmailField.value = referralEmail;
+                    signupEmailField.readOnly = true; // Empêcher modification
+                    signupEmailField.style.opacity = '0.7';
+                }
+            }
+            
+            // Basculer automatiquement sur l'onglet "Créer un compte"
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('[data-tab="signup"]').classList.add('active');
+            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+            document.getElementById('signupForm').classList.add('active');
         }
         
         document.querySelectorAll('.tab').forEach(tab => {
