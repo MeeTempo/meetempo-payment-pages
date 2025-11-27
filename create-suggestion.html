@@ -405,10 +405,15 @@
       <h1>✨ Créer une Suggestion</h1>
       <p class="subtitle">Partagez votre disponibilité</p>
       
-      <!-- 🔥 NOUVEAU : Bouton vers Mes Suggestions -->
-      <button class="btn-link" onclick="goToMySuggestions()" style="margin-top: 16px;">
-        📋 Voir mes suggestions
-      </button>
+      <!-- Boutons navigation -->
+      <div style="margin-top: 16px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+        <button class="btn-link" onclick="goToHub()">
+          🏠 Hub
+        </button>
+        <button class="btn-link" onclick="goToMySuggestions()">
+          📋 Voir mes suggestions
+        </button>
+      </div>
     </div>
     
     <div class="card">
@@ -565,7 +570,7 @@
           <div id="btnLoading" class="loading"></div>
         </button>
         
-        <button type="button" class="btn btn-secondary" onclick="window.history.back()">
+        <button type="button" class="btn btn-secondary" onclick="goBack()">
           ← Retour
         </button>
       </form>
@@ -581,6 +586,9 @@
         </div>
         
         <div class="success-buttons">
+          <button class="btn btn-secondary" onclick="goToHub()" style="flex: 1;">
+            🏠 Hub
+          </button>
           <button class="btn btn-secondary" onclick="backToGPT()" style="flex: 1;">
             💬 Retour GPT
           </button>
@@ -1055,6 +1063,27 @@ if (goToList) {
     alert('❌ Erreur lors de l\'ouverture de la carte');
   }
 }
+
+// Fonction pour aller vers le hub
+function goToHub() {
+  const token = sessionStorage.getItem('meetempo_token');
+  
+  if (!token) {
+    alert('❌ Session expirée. Veuillez vous reconnecter.');
+    window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+    return;
+  }
+  
+  window.location.href = `hub.html?session_token=${token}`;
+}
+
+function goBack() {
+  if (window.history.length > 1) {
+    window.history.back();
+  } else {
+    goToHub();
+  }
+}
     // Fonction pour aller vers mes suggestions
 function goToMySuggestions() {
   const token = sessionStorage.getItem('meetempo_token');
@@ -1065,7 +1094,7 @@ function goToMySuggestions() {
     return;
   }
   
-  window.location.href = `my-suggestions.html?token=${token}`;
+  window.location.href = `my-suggestions.html?session_token=${token}`;
 }
   </script>
 </body>
