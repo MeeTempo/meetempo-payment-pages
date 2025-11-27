@@ -361,6 +361,9 @@
       <button class="btn" onclick="goToMap()">
         🗺️ Carte
       </button>
+      <button class="btn" onclick="goToHub()">
+        🏠 Hub
+      </button>
       <button class="btn" onclick="backToGPT()">
         💬 GPT
       </button>
@@ -596,9 +599,9 @@ function escapeHtml(text) {
     }
     
     function goToMySuggestions() {
-      const token = sessionStorage.getItem('meetempo_token');
-      window.location.href = `my-suggestions.html?token=${token}`;
-    }
+  const token = sessionStorage.getItem('meetempo_token');
+  window.location.href = `my-suggestions.html?session_token=${token}`;
+}
     
     async function goToMap() {
       const token = sessionStorage.getItem('meetempo_token');
@@ -610,13 +613,20 @@ function escapeHtml(text) {
         alert('Erreur ouverture carte');
       }
     }
+
+    function goToHub() {
+  const token = sessionStorage.getItem('meetempo_token');
+  if (!token) {
+    alert('Session expirée');
+    return;
+  }
+  window.location.href = `hub.html?session_token=${token}`;
+}
     
     function backToGPT() {
       window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
     }
     
-    window.addEventListener('DOMContentLoaded', init);
-
     window.addEventListener('DOMContentLoaded', init);
 
 // 🔥 NOUVEAU : Cleanup au unload
