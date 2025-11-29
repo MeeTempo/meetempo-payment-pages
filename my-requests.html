@@ -397,6 +397,39 @@
   </div>
   
   <script>
+    // === BLOC UNIVERSEL MEETEMPO - STANDARD (45 min) ===
+    (function() {
+      const TIMEOUT_MINUTES = 45;
+      
+      const params = new URLSearchParams(location.search);
+      window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
+                     || localStorage.getItem('session_token') 
+                     || sessionStorage.getItem('meetempo_token');
+      
+      if (window.MT_TOKEN) {
+        localStorage.setItem('session_token', window.MT_TOKEN);
+        sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
+      }
+      
+      if (!window.MT_TOKEN) {
+        alert('❌ Session expirée. Retour à MeeTempo GPT.');
+        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        return;
+      }
+      
+      const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
+      setTimeout(() => {
+        alert('⏰ Session expirée (45 min). Cette page va se fermer.');
+        window.close();
+        setTimeout(() => {
+          window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        }, 1000);
+      }, TIMEOUT_MS);
+      
+      console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
+    })();
+    // === FIN BLOC UNIVERSEL ===
+
     const API_BASE = 'https://api.meetempo.com';
     let allRequests = [];
     let currentTab = 'pending';
@@ -405,34 +438,14 @@
     async function init() {
       console.log('🔍 Initialisation my-requests...');
       
-      // 🔥 PRIORISER le token de l'URL (toujours plus frais)
-      const urlParams = new URLSearchParams(window.location.search);
-      let token = urlParams.get('session_token') || urlParams.get('token');
-      console.log('🔗 Token URL:', token ? token.substring(0,20) + '...' : 'null');
-      
-      // Si pas dans URL, essayer sessionStorage (fallback)
-      if (!token) {
-        token = sessionStorage.getItem('meetempo_token');
-        console.log('📦 Token sessionStorage (fallback):', token ? token.substring(0,20) + '...' : 'null');
-      }
-      
-      // Si toujours pas de token → Erreur
-      if (!token) {
-        console.error('❌ Aucun token trouvé');
-        alert('Session expirée. Retour à MeeTempo GPT.');
-        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-        return;
-      }
-      
-      // Sauvegarder le token frais dans sessionStorage
-      sessionStorage.setItem('meetempo_token', token);
-      console.log('💾 Token sauvegardé:', token.substring(0,20) + '...');
+      // 🔥 Token déjà validé par le bloc universel
+      const token = window.MT_TOKEN;
       
       await loadRequests(token);
       setupTabs();
     }
     
-    // Charger demandes
+    // Charger demandes (INCHANGÉ sauf token passé en paramètre)
     async function loadRequests(token) {
       try {
         document.getElementById('loading').style.display = 'block';
