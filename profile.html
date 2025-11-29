@@ -361,12 +361,12 @@ async function loadProfile() {
             const token = sessionStorage.getItem('meetempo_token');
             
             const params = new URLSearchParams({
-                token: token,  // ✅ Utilise token au lieu de user_id
-                name: document.getElementById('name').value,
-                city: document.getElementById('city').value,
-                role: document.getElementById('role').value,
-                bio: document.getElementById('bio').value || ''
-            });
+            session_token: token,  // ✅ Corrigé : session_token
+            name: document.getElementById('name').value,
+            city: document.getElementById('city').value,
+            role: document.getElementById('role').value,
+            bio: document.getElementById('bio').value || ''
+        });
             
             try {
                 const response = await fetch(`${API_BASE}/profile/update?${params}`);
