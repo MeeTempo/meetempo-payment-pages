@@ -107,10 +107,43 @@
     </div>
 
     <script>
-        // Récupérer session_id et token depuis URL
+        // === BLOC UNIVERSEL MEETEMPO - STANDARD (45 min) ===
+        (function() {
+          const TIMEOUT_MINUTES = 45;
+          
+          const params = new URLSearchParams(location.search);
+          window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
+                         || localStorage.getItem('session_token') 
+                         || sessionStorage.getItem('meetempo_token');
+          
+          if (window.MT_TOKEN) {
+            localStorage.setItem('session_token', window.MT_TOKEN);
+            sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
+          }
+          
+          if (!window.MT_TOKEN) {
+            alert('❌ Session expirée. Retour à MeeTempo GPT.');
+            window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+            return;
+          }
+          
+          const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
+          setTimeout(() => {
+            alert('⏰ Session expirée (45 min). Cette page va se fermer.');
+            window.close();
+            setTimeout(() => {
+              window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+            }, 1000);
+          }, TIMEOUT_MS);
+          
+          console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
+        })();
+        // === FIN BLOC UNIVERSEL ===
+
+        // Récupérer session_id et token
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get('session_id');
-        const sessionToken = urlParams.get('session_token') || urlParams.get('token') || localStorage.getItem('session_token');
+        const sessionToken = window.MT_TOKEN;
         
         // Éléments DOM
         const sessionInfo = document.getElementById('sessionInfo');
