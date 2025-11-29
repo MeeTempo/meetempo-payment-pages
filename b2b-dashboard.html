@@ -1475,27 +1475,37 @@
             { min: 31, max: 999, price: 12.90 }
         ];
 
+        // === BLOC UNIVERSEL MEETEMPO - ADMIN B2B (sans timeout) ===
+        (function() {
+          const params = new URLSearchParams(location.search);
+          window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
+                         || localStorage.getItem('session_token') 
+                         || sessionStorage.getItem('meetempo_token');
+          
+          if (window.MT_TOKEN) {
+            localStorage.setItem('session_token', window.MT_TOKEN);
+            sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
+          }
+          
+          if (!window.MT_TOKEN) {
+            alert('❌ Session expirée. Veuillez vous reconnecter.');
+            window.location.href = 'login.html';
+            return;
+          }
+          
+          console.log(`🔐 MeeTempo B2B Admin | Token: ${window.MT_TOKEN.substring(0,12)}...`);
+        })();
+        // === FIN BLOC UNIVERSEL ===
+
         // ============================================
         // AUTH & INIT
         // ============================================
         function getToken() {
-            const urlParams = new URLSearchParams(window.location.search);
-            return urlParams.get('session_token') || sessionStorage.getItem('meetempo_token');
+            return window.MT_TOKEN;
         }
 
         function goToHub() {
             window.location.href = `hub.html?session_token=${getToken()}`;
-        }
-
-        function checkAuth() {
-            const token = getToken();
-            if (!token) {
-                window.location.href = 'login.html?error=no_session';
-                return false;
-            }
-            // Stocker pour navigation future
-            sessionStorage.setItem('meetempo_token', token);
-            return true;
         }
 
         // ============================================
@@ -2979,8 +2989,6 @@ async function resendInviteByUserId(userId) {
         // INIT ON LOAD
         // ============================================
         document.addEventListener('DOMContentLoaded', () => {
-            if (!checkAuth()) return;
-
             // Load all data
             loadKPIs();
             loadRecommendations();
