@@ -214,74 +214,53 @@
     </div>
 
     <script>
-        const API_BASE = 'https://api.meetempo.com';
-        
-        // ✅ CORRECTION : Plus besoin de variable userId globale
-        
-        // Initialisation
-        async function init() {
-    const urlParams = new URLSearchParams(window.location.search);
-    // 🔥 NOUVEAU : Accepter token OU session_token
-    const token = urlParams.get('token') || urlParams.get('session_token');
-    
-    // Token requis obligatoire
-    if (!token) {
-        document.getElementById('loading').innerHTML = 
-            '❌ Accès non autorisé.<br><br>' +
-            'Utilisez le lien sécurisé depuis MeeTempo GPT.<br><br>' +
-            '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea;">← Retour à MeeTempo</a>';
+    // === BLOC UNIVERSEL MEETEMPO - STANDARD (45 min) ===
+    (function() {
+      const TIMEOUT_MINUTES = 45;
+      
+      const params = new URLSearchParams(location.search);
+      window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
+                     || localStorage.getItem('session_token') 
+                     || sessionStorage.getItem('meetempo_token');
+      
+      if (window.MT_TOKEN) {
+        localStorage.setItem('session_token', window.MT_TOKEN);
+        sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
+      }
+      
+      if (!window.MT_TOKEN) {
+        alert('❌ Session expirée. Retour à MeeTempo GPT.');
+        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
         return;
-    }
+      }
+      
+      const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
+      setTimeout(() => {
+        alert('⏰ Session expirée (45 min). Cette page va se fermer.');
+        window.close();
+        setTimeout(() => {
+          window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        }, 1000);
+      }, TIMEOUT_MS);
+      
+      console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
+    })();
+    // === FIN BLOC UNIVERSEL ===
+
+    const API_BASE = 'https://api.meetempo.com';
     
-    // 🔥 NOUVEAU : Valider via /profile (accepte session_token 24h) puis fallback /auth/session
-    try {
-        let isValid = false;
+    // Initialisation
+    async function init() {
+        // 🔥 Token déjà validé par le bloc universel
+        const token = window.MT_TOKEN;
+            
+        // Charger profil
+        await loadProfile();
         
-        // Essayer /profile d'abord (session_token 24h)
-        const profileRes = await fetch(`${API_BASE}/profile?session_token=${token}`);
-        if (profileRes.ok) {
-            const profileData = await profileRes.json();
-            if (profileData.user_id || profileData.email) {
-                isValid = true;
-                console.log('✅ Token validé via /profile (24h)');
-            }
-        }
-        
-        // Fallback /auth/session (elevated_token 15min)
-        if (!isValid) {
-            const sessionRes = await fetch(`${API_BASE}/auth/session?token=${token}`);
-            if (sessionRes.ok) {
-                const sessionData = await sessionRes.json();
-                if (sessionData.user_id) {
-                    isValid = true;
-                    console.log('✅ Token validé via /auth/session (15min)');
-                }
-            }
-        }
-        
-        if (!isValid) {
-            throw new Error('Token invalide');
-        }
-        
-        // Stocker le token validé
-        sessionStorage.setItem('meetempo_token', token);
-        
-    } catch (err) {
-        document.getElementById('loading').innerHTML = 
-            '❌ Session expirée ou token invalide.<br><br>' +
-            'Veuillez obtenir un nouveau lien depuis MeeTempo GPT.<br><br>' +
-            '<small>Les liens sont valables 15 minutes pour votre sécurité.</small><br><br>' +
-            '<a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19" style="color: #667eea;">← Retour à MeeTempo</a>';
-        return;
+        // Afficher form
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('mainContent').style.display = 'block';
     }
-            
-            // Charger profil
-            await loadProfile();
-            
-            // Afficher form
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('mainContent').style.display = 'block';
-        }
         
         // ✅ CORRECTION : Charger profil avec token au lieu de user_id
 async function loadProfile() {
