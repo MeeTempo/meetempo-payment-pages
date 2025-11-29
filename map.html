@@ -1240,7 +1240,7 @@
         
         await getUserLocation();
         
-        const cityParam = params.get('city');
+        const cityParam = new URLSearchParams(location.search).get('city');
         if (cityParam) {
           try {
             const geocodeUrl = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(cityParam)}&apiKey=${HERE_API_KEY}`;
