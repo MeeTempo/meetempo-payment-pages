@@ -575,10 +575,43 @@
   </div>
 
   <script>
+    // === BLOC UNIVERSEL MEETEMPO - STANDARD (45 min) ===
+    (function() {
+      const TIMEOUT_MINUTES = 45;
+      
+      const params = new URLSearchParams(location.search);
+      window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
+                     || localStorage.getItem('session_token') 
+                     || sessionStorage.getItem('meetempo_token');
+      
+      if (window.MT_TOKEN) {
+        localStorage.setItem('session_token', window.MT_TOKEN);
+        sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
+      }
+      
+      if (!window.MT_TOKEN) {
+        alert('❌ Session expirée. Retour à MeeTempo GPT.');
+        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        return;
+      }
+      
+      const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
+      setTimeout(() => {
+        alert('⏰ Session expirée (45 min). Cette page va se fermer.');
+        window.close();
+        setTimeout(() => {
+          window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        }, 1000);
+      }, TIMEOUT_MS);
+      
+      console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
+    })();
+    // === FIN BLOC UNIVERSEL ===
+
     const API_BASE = 'https://api.meetempo.com';
     const params = new URLSearchParams(location.search);
     const suggestion_id = params.get('suggestion_id');
-    const session_token = params.get('session_token') || params.get('token');
+    const session_token = window.MT_TOKEN;
     
     let currentUserId = null;
     let conversationData = null;
@@ -586,15 +619,15 @@
     let eventHappened = false;
     let isActive = true;
     let revelationShown = false;
-    let pollDelay = 3000; // Polling adaptatif (3s par défaut)
+    let pollDelay = 3000;
     let consecutiveEmptyPolls = 0;
     let lastMessageCount = 0;
     let isAtBottom = true;
     let userScrolled = false;
     let pollingStarted = false;
     
-    if (!suggestion_id || !session_token) {
-      showError('Paramètres manquants', 'suggestion_id et session_token requis');
+    if (!suggestion_id) {
+      showError('Paramètres manquants', 'suggestion_id requis');
     }
     
     function showError(title, message) {
