@@ -531,7 +531,7 @@
                             // Charte non acceptée → rediriger vers charter.html
                             console.log('📋 Charte non acceptée → redirection');
                             localStorage.setItem('session_token', data.session_token);
-                            window.location.href = `charter.html?token=${data.session_token}&return=hub.html`;
+                            window.location.href = `charter.html?session_token=${data.session_token}&return=hub.html`;
                             return;
                         }
                     }
