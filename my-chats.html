@@ -621,16 +621,10 @@ function escapeHtml(text) {
   window.location.href = `my-suggestions.html?session_token=${token}`;
 }
     
-    async function goToMap() {
-      const token = sessionStorage.getItem('meetempo_token');
-      try {
-        const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${token}`);
-        const data = await response.json();
-        window.location.href = `map.html?token=${data.token}`;
-      } catch (err) {
-        alert('Erreur ouverture carte');
-      }
-    }
+    function goToMap() {
+  const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
+  window.location.href = `map.html?session_token=${token}`;
+}
 
     function goToHub() {
   const token = sessionStorage.getItem('meetempo_token');
