@@ -682,28 +682,19 @@ document.getElementById('place').addEventListener('input', async (e) => {
       // Construire requête : prioriser la ville si fournie
       const searchQuery = city ? `${query}, ${city}` : query;
       
-      // 🔥 Récupérer clé HERE Maps de manière sécurisée
-      if (!window.HERE_API_KEY) {
-        try {
-          const elevateResponse = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
-          if (elevateResponse.ok) {
-            const elevateData = await elevateResponse.json();
-            const keyResponse = await fetch(`${API_BASE}/config/here-key?token=${elevateData.token}`);
-            if (keyResponse.ok) {
-              const keyData = await keyResponse.json();
-              window.HERE_API_KEY = keyData.key;
-            }
-          }
-        } catch (err) {
-          console.error('Erreur clé HERE:', err);
-        }
-      }
-      
-      // Vérifier clé disponible
-      if (!window.HERE_API_KEY) {
-        resultsDiv.innerHTML = '<div class="autocomplete-loading">⚠️ Clé API indisponible</div>';
-        return;
-      }
+      // 🔥 Récupérer clé HERE Maps
+if (!window.HERE_API_KEY) {
+  try {
+    const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
+    const keyResponse = await fetch(`${API_BASE}/config/here-key?session_token=${token}`);
+    if (keyResponse.ok) {
+      const keyData = await keyResponse.json();
+      window.HERE_API_KEY = keyData.key;
+    }
+  } catch (err) {
+    console.error('Erreur clé HERE:', err);
+  }
+}
       
       // Appel HERE Autosuggest API
       const autosuggestUrl = `https://autosuggest.search.hereapi.com/v1/autosuggest?q=${encodeURIComponent(searchQuery)}&at=48.8566,2.3522&limit=5&apiKey=${window.HERE_API_KEY}`;
@@ -1057,26 +1048,9 @@ if (goToList) {
       window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
     }
     
-    async function goToMap() {
-  try {
-    // 🔥 Générer token frais immédiatement
-    const elevateResponse = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
-    
-    if (!elevateResponse.ok) {
-      alert('❌ Impossible de générer le lien carte. Session expirée ?');
-      return;
-    }
-    
-    const elevateData = await elevateResponse.json();
-    const mapUrl = `https://meetempo.github.io/meetempo-payment-pages/map.html?token=${elevateData.token}`;
-    
-    // 🔥 Ouvrir dans nouvel onglet (évite expiration)
-    window.open(mapUrl, '_blank');
-    
-  } catch (err) {
-    console.error('Erreur génération lien carte:', err);
-    alert('❌ Erreur lors de l\'ouverture de la carte');
-  }
+    function goToMap() {
+  const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
+  window.open(`map.html?session_token=${token}`, '_blank');
 }
 
 // Fonction pour aller vers le hub
