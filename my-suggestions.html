@@ -887,56 +887,20 @@ function renderParticipantsBadge(sugg) {
   }
 }
     
-    async function viewOnMap(suggestionId) {
-  const session_token = sessionStorage.getItem('meetempo_token');
-  
-  try {
-    // 🔥 Générer elevated token (15min)
-    const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
-    
-    if (!response.ok) {
-      alert('❌ Impossible de générer le lien carte. Session expirée ?');
-      return;
-    }
-    
-    const data = await response.json();
-    
-    // 🔥 Ouvrir carte avec elevated token
-    window.open(`map.html?token=${data.token}&highlight=${suggestionId}`, '_blank');
-    
-  } catch (err) {
-    console.error('Erreur génération token carte:', err);
-    alert('❌ Erreur lors de l\'ouverture de la carte');
-  }
+    function viewOnMap(suggestionId) {
+  const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
+  window.open(`map.html?session_token=${token}&highlight=${suggestionId}`, '_blank');
 }
     
     // Navigation
     function createNew() {
-      const token = sessionStorage.getItem('meetempo_token');
-      window.location.href = `create-suggestion.html?token=${token}`;
-    }
+  const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
+  window.location.href = `create-suggestion.html?session_token=${token}`;
+}
     
-    async function goToMap() {
-  const session_token = sessionStorage.getItem('meetempo_token');
-  
-  try {
-    // 🔥 Générer elevated token (15min)
-    const response = await fetch(`${API_BASE}/auth/elevate-session?session_token=${session_token}`);
-    
-    if (!response.ok) {
-      alert('❌ Impossible de générer le lien carte. Session expirée ?');
-      return;
-    }
-    
-    const data = await response.json();
-    
-    // 🔥 Ouvrir carte avec elevated token
-    window.location.href = `map.html?token=${data.token}`;
-    
-  } catch (err) {
-    console.error('Erreur génération token carte:', err);
-    alert('❌ Erreur lors de l\'ouverture de la carte');
-  }
+    function goToMap() {
+  const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
+  window.location.href = `map.html?session_token=${token}`;
 }
 
 function goToHub() {
