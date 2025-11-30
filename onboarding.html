@@ -317,6 +317,94 @@
         @keyframes spin {
             to { transform: rotate(360deg); }
         }
+
+        /* Signature Questions */
+        .signature-questions {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        
+        .signature-card {
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+        
+        .signature-card.selected {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+        
+        .signature-header {
+            display: flex;
+            align-items: center;
+            padding: 14px 16px;
+            cursor: pointer;
+            background: #f7fafc;
+            transition: background 0.2s;
+        }
+        
+        .signature-header:hover {
+            background: #edf2f7;
+        }
+        
+        .signature-card.selected .signature-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        .signature-icon {
+            font-size: 20px;
+            margin-right: 12px;
+        }
+        
+        .signature-title {
+            flex: 1;
+            font-weight: 600;
+            font-size: 15px;
+        }
+        
+        .signature-check {
+            opacity: 0;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+        
+        .signature-card.selected .signature-check {
+            opacity: 1;
+        }
+        
+        .signature-input {
+            display: none;
+            padding: 12px 16px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .signature-card.selected .signature-input {
+            display: block;
+        }
+        
+        .signature-input input {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 14px;
+        }
+        
+        .signature-input input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+        
+        .signature-hint {
+            text-align: center;
+            color: #718096;
+            font-size: 14px;
+            margin-top: 16px;
+        }
         
         @media (max-width: 640px) {
             .header h1 {
@@ -619,6 +707,104 @@
                 </div>
             </div>
             
+            <!-- Étape 5: Questions Signature -->
+            <div class="step" data-step="5">
+                <h2 class="step-title">✨ Ta touche perso</h2>
+                <p class="step-subtitle">Choisis 2-3 questions pour te démarquer et créer des conversations mémorables</p>
+                
+                <div class="signature-questions">
+                    <div class="signature-card" data-question="hidden_talent">
+                        <div class="signature-header" onclick="toggleSignatureCard('hidden_talent')">
+                            <span class="signature-icon">🎭</span>
+                            <span class="signature-title">Mon talent caché</span>
+                            <span class="signature-check">✓</span>
+                        </div>
+                        <div class="signature-input">
+                            <input type="text" id="sig_hidden_talent" placeholder="Je sais jongler les yeux fermés..." maxlength="100">
+                        </div>
+                    </div>
+                    
+                    <div class="signature-card" data-question="superpower">
+                        <div class="signature-header" onclick="toggleSignatureCard('superpower')">
+                            <span class="signature-icon">🧠</span>
+                            <span class="signature-title">Mon super-pouvoir</span>
+                            <span class="signature-check">✓</span>
+                        </div>
+                        <div class="signature-input">
+                            <input type="text" id="sig_superpower" placeholder="Je calme les conflits en 2 phrases..." maxlength="100">
+                        </div>
+                    </div>
+                    
+                    <div class="signature-card" data-question="rabbit_hole">
+                        <div class="signature-header" onclick="toggleSignatureCard('rabbit_hole')">
+                            <span class="signature-icon">💡</span>
+                            <span class="signature-title">Mon Rabbit Hole</span>
+                            <span class="signature-check">✓</span>
+                        </div>
+                        <div class="signature-input">
+                            <input type="text" id="sig_rabbit_hole" placeholder="L'histoire des échecs, j'en parle 3h..." maxlength="100">
+                        </div>
+                    </div>
+                    
+                    <div class="signature-card" data-question="fictional_character">
+                        <div class="signature-header" onclick="toggleSignatureCard('fictional_character')">
+                            <span class="signature-icon">🦸</span>
+                            <span class="signature-title">Le personnage qui me ressemble</span>
+                            <span class="signature-check">✓</span>
+                        </div>
+                        <div class="signature-input">
+                            <input type="text" id="sig_fictional_character" placeholder="Ted Lasso - optimiste incurable..." maxlength="100">
+                        </div>
+                    </div>
+                    
+                    <div class="signature-card" data-question="kryptonite">
+                        <div class="signature-header" onclick="toggleSignatureCard('kryptonite')">
+                            <span class="signature-icon">🚨</span>
+                            <span class="signature-title">Ma Kryptonite</span>
+                            <span class="signature-check">✓</span>
+                        </div>
+                        <div class="signature-input">
+                            <input type="text" id="sig_kryptonite" placeholder="Les réunions sans ordre du jour..." maxlength="100">
+                        </div>
+                    </div>
+                    
+                    <div class="signature-card" data-question="coffee_offer">
+                        <div class="signature-header" onclick="toggleSignatureCard('coffee_offer')">
+                            <span class="signature-icon">☕</span>
+                            <span class="signature-title">Je paie le café si...</span>
+                            <span class="signature-check">✓</span>
+                        </div>
+                        <div class="signature-input">
+                            <input type="text" id="sig_coffee_offer" placeholder="...tu m'apprends un mot en japonais" maxlength="100">
+                        </div>
+                    </div>
+                    
+                    <div class="signature-card" data-question="nightstand_book">
+                        <div class="signature-header" onclick="toggleSignatureCard('nightstand_book')">
+                            <span class="signature-icon">📚</span>
+                            <span class="signature-title">Sur ma table de nuit</span>
+                            <span class="signature-check">✓</span>
+                        </div>
+                        <div class="signature-input">
+                            <input type="text" id="sig_nightstand_book" placeholder="Atomic Habits de James Clear..." maxlength="100">
+                        </div>
+                    </div>
+                    
+                    <div class="signature-card" data-question="unpopular_opinion">
+                        <div class="signature-header" onclick="toggleSignatureCard('unpopular_opinion')">
+                            <span class="signature-icon">🤔</span>
+                            <span class="signature-title">Mon opinion impopulaire</span>
+                            <span class="signature-check">✓</span>
+                        </div>
+                        <div class="signature-input">
+                            <input type="text" id="sig_unpopular_opinion" placeholder="La pizza ananas c'est délicieux..." maxlength="100">
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="signature-hint" id="signatureHint">💡 Sélectionne au moins 2 questions pour continuer</p>
+            </div>
+            
             <div class="button-group">
                 <button type="button" class="btn-secondary" id="prevBtn" onclick="previousStep()" style="display:none;">
                     ← Précédent
@@ -686,7 +872,7 @@
         const API_BASE = 'https://api.meetempo.com';
         let userId = null;
         let currentStep = 1;
-        const totalSteps = 4;
+        const totalSteps = 5;
         
         // Initialisation
         async function init() {
@@ -900,7 +1086,10 @@ document.getElementById('industry').addEventListener('change', toggleOtherIndust
                 meeting_types: getCheckboxValues('pref_'),
                 max_distance: document.getElementById('max_distance').value,
                 availability_times: getCheckboxValues('time_'),
-                bio_rich: document.getElementById('bio_rich').value
+                bio_rich: document.getElementById('bio_rich').value,
+                
+                // Step 5: Questions Signature
+                signature_questions: getSignatureQuestions()
             };
             
             try {
@@ -929,6 +1118,48 @@ document.getElementById('industry').addEventListener('change', toggleOtherIndust
                 submitBtn.disabled = false;
                 submitBtn.textContent = '✓ Terminer';
             }
+        }
+
+        // === SIGNATURE QUESTIONS ===
+        function toggleSignatureCard(questionId) {
+            const card = document.querySelector(`.signature-card[data-question="${questionId}"]`);
+            card.classList.toggle('selected');
+            
+            // Focus sur l'input si sélectionné
+            if (card.classList.contains('selected')) {
+                const input = card.querySelector('input');
+                setTimeout(() => input.focus(), 100);
+            }
+            
+            updateSignatureHint();
+        }
+        
+        function updateSignatureHint() {
+            const selected = document.querySelectorAll('.signature-card.selected').length;
+            const hint = document.getElementById('signatureHint');
+            
+            if (selected === 0) {
+                hint.textContent = '💡 Sélectionne au moins 2 questions pour continuer';
+                hint.style.color = '#718096';
+            } else if (selected === 1) {
+                hint.textContent = '👍 Encore 1 question minimum';
+                hint.style.color = '#d69e2e';
+            } else {
+                hint.textContent = `✅ ${selected} questions sélectionnées - Parfait !`;
+                hint.style.color = '#38a169';
+            }
+        }
+        
+        function getSignatureQuestions() {
+            const questions = [];
+            document.querySelectorAll('.signature-card.selected').forEach(card => {
+                const questionId = card.dataset.question;
+                const answer = card.querySelector('input').value.trim();
+                if (answer) {
+                    questions.push({ question: questionId, answer: answer });
+                }
+            });
+            return questions;
         }
         
         // Lancer au chargement
