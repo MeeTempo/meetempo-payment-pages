@@ -283,7 +283,7 @@ async function loadProfile() {
             document.getElementById('name').value = data.name || data.profile?.name || '';
             document.getElementById('city').value = data.city || data.profile?.city || '';
             document.getElementById('role').value = data.profile_rich?.role || data.profile?.role || '';
-            document.getElementById('bio').value = data.profile?.bio || '';
+            document.getElementById('bio').value = data.profile_rich?.bio_rich || data.profile?.bio || '';
         }
         
         // 🔥 BONUS : Badge profil complet
