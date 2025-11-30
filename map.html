@@ -1224,7 +1224,7 @@
           const charterData = await charterResponse.json();
           if (!charterData.accepted) {
             const returnUrl = encodeURIComponent(window.location.href);
-            window.location.href = `charter.html?token=${activeToken}&return=${returnUrl}`;
+            window.location.href = `charter.html?session_token=${activeToken}&return=${returnUrl}`;
             return;
           }
         }
