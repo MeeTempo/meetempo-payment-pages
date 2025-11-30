@@ -388,9 +388,9 @@ async function loadProfile() {
         
         // ✅ NOUVEAU : Bouton vers onboarding
         document.getElementById('onboardingBtn').addEventListener('click', function() {
-            const token = sessionStorage.getItem('meetempo_token');
-            window.location.href = `onboarding.html?token=${token}`;
-        });
+    const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
+    window.location.href = `onboarding.html?session_token=${token}`;
+});
         
         // Copier le code
         function copyCode() {
