@@ -664,7 +664,7 @@
             
             if (!charterData.accepted) {
               console.log('📋 Charte non acceptée → redirection');
-              window.location.href = `charter.html?token=${session_token}&return=hub.html`;
+              window.location.href = `charter.html?session_token=${session_token}&return=hub.html`;
               return;
             }
             console.log('✅ Charte acceptée');
