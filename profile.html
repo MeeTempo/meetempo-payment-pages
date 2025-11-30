@@ -336,6 +336,30 @@ async function loadProfile() {
                 html += `<p><strong>✍️ Bio :</strong> ${data.profile_rich.bio_rich}</p>`;
             }
             
+            // 🆕 Questions Signature
+            if (data.profile_rich.signature_questions?.length) {
+                html += `<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">`;
+                html += `<p style="font-weight: 600; color: #4a5568; margin-bottom: 10px;">✨ Ma touche perso</p>`;
+                
+                const questionLabels = {
+                    hidden_talent: '🎭 Mon talent caché',
+                    superpower: '🧠 Mon super-pouvoir',
+                    rabbit_hole: '💡 Mon Rabbit Hole',
+                    fictional_character: '🦸 Le personnage qui me ressemble',
+                    kryptonite: '🚨 Ma Kryptonite',
+                    coffee_offer: '☕ Je paie le café si...',
+                    nightstand_book: '📚 Sur ma table de nuit',
+                    unpopular_opinion: '🤔 Mon opinion impopulaire'
+                };
+                
+                data.profile_rich.signature_questions.forEach(sq => {
+                    const label = questionLabels[sq.question] || sq.question;
+                    html += `<p><strong>${label} :</strong> ${sq.answer}</p>`;
+                });
+                
+                html += `</div>`;
+            }
+            
             if (html) {
                 content.innerHTML = html;
                 section.style.display = 'block';
