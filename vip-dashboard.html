@@ -994,29 +994,10 @@
             window.location.href = `my-chats.html?session_token=${getToken()}`;
         }
         
-        async function goToMap() {
-        const token = getToken();
-        try {
-            const res = await fetch(`${API_BASE}/auth/elevate-session?session_token=${token}`);
-            if (!res.ok) throw new Error('Auth fail');
-            
-            const data = await res.json();
-            
-            // ✅ HYBRIDE : SessionStorage + URL
-            try {
-                sessionStorage.setItem('meetempo_elevated_token', data.token);
-            } catch (e) {
-                console.warn('SessionStorage failed:', e);
-            }
-            
-            // ✅ Token TOUJOURS dans URL (pour compatibilité)
-            window.location.href = `map.html?token=${data.token}`;
-            
-        } catch(e) {
-            showError('Erreur de connexion à la carte');
-            console.error(e);
-        }
-    }
+        function goToMap() {
+    const token = window.MT_TOKEN || getToken();
+    window.location.href = `map.html?session_token=${token}`;
+}
 
         // ========================================
 // B2B FORM MODAL
