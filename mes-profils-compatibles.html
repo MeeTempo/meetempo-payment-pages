@@ -1,0 +1,1046 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profils Compatibles - MeeTempo</title>
+  <meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; 
+               img-src https: data:; 
+               script-src 'self' 'unsafe-inline'; 
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+               font-src https://fonts.gstatic.com; 
+               connect-src https://api.meetempo.com;">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --mt-primary: #F49F1C;
+      --mt-primary-dark: #d88a0f;
+      --mt-bg: #FBF9F6;
+      --mt-card: #FFFFFF;
+      --mt-text: #1a1a2e;
+      --mt-text-muted: #6b7280;
+      --mt-border: #e5e7eb;
+      --mt-success: #10b981;
+      --mt-error: #ef4444;
+      --mt-warning: #f59e0b;
+      --mt-vip: #8b5cf6;
+      --mt-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      --mt-shadow-hover: 0 8px 30px rgba(244,159,28,0.15);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Montserrat, system-ui, -apple-system, sans-serif;
+      background: var(--mt-bg);
+      color: var(--mt-text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    /* Header Premium */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding: 24px;
+      background: linear-gradient(135deg, #fff 0%, #fef9f0 100%);
+      border-radius: 20px;
+      box-shadow: var(--mt-shadow);
+    }
+    
+    .logo-badge {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--mt-primary) 0%, #ffca63 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 15px rgba(244,159,28,0.3);
+    }
+    
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--mt-text);
+    }
+    
+    .subtitle {
+      font-size: 15px;
+      color: var(--mt-text-muted);
+    }
+    
+    .premium-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 16px;
+      background: linear-gradient(135deg, var(--mt-vip) 0%, #a78bfa 100%);
+      color: white;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    /* Section */
+    .section {
+      margin-bottom: 28px;
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--mt-border);
+    }
+    
+    .section-icon {
+      font-size: 24px;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--mt-text);
+    }
+    
+    .section-count {
+      margin-left: auto;
+      padding: 4px 12px;
+      background: var(--mt-primary);
+      color: white;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    
+    /* Profile Card */
+    .profile-card {
+      background: var(--mt-card);
+      border: 1px solid var(--mt-border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--mt-shadow);
+      transition: all 0.3s ease;
+    }
+    
+    .profile-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--mt-shadow-hover);
+      border-color: var(--mt-primary);
+    }
+    
+    .profile-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+    
+    .profile-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--mt-primary) 0%, #ffca63 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .profile-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--mt-text);
+      margin-bottom: 4px;
+    }
+    
+    .profile-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      font-size: 13px;
+      color: var(--mt-text-muted);
+    }
+    
+    .profile-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    .profile-score {
+      text-align: right;
+    }
+    
+    .score-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--mt-success);
+    }
+    
+    .score-label {
+      font-size: 11px;
+      color: var(--mt-text-muted);
+      text-transform: uppercase;
+    }
+    
+    /* Compatibility Reasons */
+    .compatibility-reasons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    
+    .reason-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #166534;
+    }
+    
+    .reason-tag.sport { background: #fef3c7; border-color: #fde68a; color: #92400e; }
+    .reason-tag.hobby { background: #ede9fe; border-color: #ddd6fe; color: #5b21b6; }
+    .reason-tag.sector { background: #dbeafe; border-color: #bfdbfe; color: #1e40af; }
+    .reason-tag.language { background: #fce7f3; border-color: #fbcfe8; color: #9d174d; }
+    
+    /* Message */
+    .profile-message {
+      padding: 12px 16px;
+      background: #fefce8;
+      border-left: 4px solid var(--mt-warning);
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      font-style: italic;
+      color: #854d0e;
+    }
+    
+    /* Status Badge */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .status-accepted {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-declined {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    /* Actions */
+    .profile-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--mt-primary) 0%, var(--mt-primary-dark) 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(244,159,28,0.3);
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(244,159,28,0.4);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, var(--mt-success) 0%, #059669 100%);
+      color: white;
+    }
+    
+    .btn-success:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+    }
+    
+    .btn-danger {
+      background: #fee2e2;
+      color: var(--mt-error);
+      border: 1px solid #fecaca;
+    }
+    
+    .btn-danger:hover {
+      background: #fecaca;
+    }
+    
+    .btn-secondary {
+      background: white;
+      color: var(--mt-text);
+      border: 1px solid var(--mt-border);
+    }
+    
+    .btn-secondary:hover {
+      background: #f9fafb;
+      border-color: var(--mt-primary);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      background: white;
+      border-radius: 16px;
+      border: 2px dashed var(--mt-border);
+    }
+    
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    
+    .empty-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--mt-text);
+      margin-bottom: 4px;
+    }
+    
+    .empty-text {
+      font-size: 14px;
+      color: var(--mt-text-muted);
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--mt-border);
+      border-top-color: var(--mt-primary);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Activity Badge */
+    .activity-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      background: #ecfdf5;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+      color: #059669;
+    }
+    
+    .activity-badge.recent {
+      background: #fef3c7;
+      color: #d97706;
+    }
+    
+    /* Subsection (10j / 30j) */
+    .subsection {
+      margin-bottom: 20px;
+    }
+    
+    .subsection-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--mt-text-muted);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .subsection-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: var(--mt-border);
+    }
+    
+    /* Bottom Actions */
+    .bottom-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--mt-border);
+    }
+    
+    .bottom-actions .btn {
+      flex: 1;
+      min-width: 140px;
+      justify-content: center;
+    }
+    
+    /* Responsive */
+    @media (max-width: 640px) {
+      .profile-header {
+        flex-wrap: wrap;
+      }
+      
+      .profile-score {
+        width: 100%;
+        text-align: left;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      
+      .score-value {
+        font-size: 22px;
+      }
+      
+      .profile-actions {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .bottom-actions {
+        flex-direction: column;
+      }
+    }
+    
+    /* Access Denied */
+    .access-denied {
+      text-align: center;
+      padding: 60px 20px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--mt-shadow);
+    }
+    
+    .access-denied-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    
+    .access-denied h2 {
+      font-size: 22px;
+      margin-bottom: 12px;
+      color: var(--mt-text);
+    }
+    
+    .access-denied p {
+      color: var(--mt-text-muted);
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-badge">🤝</div>
+      <h1>Profils Compatibles</h1>
+      <p class="subtitle">Découvre des personnes qui partagent tes passions</p>
+      <div class="premium-badge">👑 Fonctionnalité Premium</div>
+    </div>
+    
+    <!-- Loading -->
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <div>Chargement...</div>
+    </div>
+    
+    <!-- Access Denied (hidden by default) -->
+    <div id="accessDenied" class="access-denied" style="display:none;">
+      <div class="access-denied-icon">🔒</div>
+      <h2>Fonctionnalité Premium</h2>
+      <p>Les profils compatibles sont réservés aux membres VIP et B2B.</p>
+      <button class="btn btn-primary" onclick="goToUpgrade()">
+        ⭐ Passer VIP (29,99€/mois)
+      </button>
+    </div>
+    
+    <!-- Main Content -->
+    <div id="content" style="display:none;">
+      
+      <!-- Section: Demandes Reçues -->
+      <div class="section" id="sectionReceived">
+        <div class="section-header">
+          <span class="section-icon">📥</span>
+          <span class="section-title">Demandes reçues</span>
+          <span class="section-count" id="countReceived">0</span>
+        </div>
+        <div id="listReceived"></div>
+      </div>
+      
+      <!-- Section: Demandes Envoyées -->
+      <div class="section" id="sectionSent">
+        <div class="section-header">
+          <span class="section-icon">📤</span>
+          <span class="section-title">Mes demandes envoyées</span>
+          <span class="section-count" id="countSent">0</span>
+        </div>
+        <div id="listSent"></div>
+      </div>
+      
+      <!-- Section: Profils Compatibles -->
+      <div class="section" id="sectionCompatible">
+        <div class="section-header">
+          <span class="section-icon">✨</span>
+          <span class="section-title">Profils compatibles</span>
+          <span class="section-count" id="countCompatible">0</span>
+        </div>
+        
+        <!-- Subsection: Actifs 10 derniers jours -->
+        <div class="subsection" id="subsectionRecent">
+          <div class="subsection-title">🔥 Actifs ces 10 derniers jours</div>
+          <div id="listRecentProfiles"></div>
+        </div>
+        
+        <!-- Subsection: Actifs ce mois -->
+        <div class="subsection" id="subsectionMonth">
+          <div class="subsection-title">📅 Actifs ce mois</div>
+          <div id="listMonthProfiles"></div>
+        </div>
+      </div>
+      
+      <!-- Bottom Actions -->
+      <div class="bottom-actions">
+        <button class="btn btn-secondary" onclick="refreshData()">
+          🔄 Actualiser
+        </button>
+        <button class="btn btn-secondary" onclick="goToMap()">
+          🗺️ Voir la carte
+        </button>
+        <button class="btn btn-secondary" onclick="goToHub()">
+          🏠 Retour Hub
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // === BLOC UNIVERSEL MEETEMPO - STANDARD (45 min) ===
+    (function() {
+      const TIMEOUT_MINUTES = 45;
+      
+      const params = new URLSearchParams(location.search);
+      window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
+                     || localStorage.getItem('session_token') 
+                     || sessionStorage.getItem('meetempo_token');
+      
+      if (window.MT_TOKEN) {
+        localStorage.setItem('session_token', window.MT_TOKEN);
+        sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
+      }
+      
+      if (!window.MT_TOKEN) {
+        alert('❌ Session expirée. Retour à MeeTempo GPT.');
+        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        return;
+      }
+      
+      const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
+      setTimeout(() => {
+        alert('⏰ Session expirée (45 min). Cette page va se fermer.');
+        window.close();
+        setTimeout(() => {
+          window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        }, 1000);
+      }, TIMEOUT_MS);
+      
+      console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
+    })();
+    // === FIN BLOC UNIVERSEL ===
+    
+    const API_BASE = 'https://api.meetempo.com';
+    let userPlan = 'free';
+    
+    // Initialisation
+    async function init() {
+      console.log('🔍 Initialisation profils-compatibles...');
+      
+      const token = window.MT_TOKEN;
+      
+      try {
+        // 1. Vérifier le plan de l'utilisateur
+        const contextResp = await fetch(`${API_BASE}/maestro/context?session_token=${token}`);
+        const context = await contextResp.json();
+        
+        if (!contextResp.ok) {
+          throw new Error(context.error || 'Erreur contexte');
+        }
+        
+        userPlan = context.user?.plan || 'free';
+        const roles = context.user?.roles || [];
+        
+        // Vérifier accès : VIP ou B2B membre (pas admin)
+        const isVIP = userPlan === 'vip';
+        const isB2BMember = userPlan === 'b2b' && !roles.includes('admin');
+        
+        if (!isVIP && !isB2BMember) {
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('accessDenied').style.display = 'block';
+          return;
+        }
+        
+        // 2. Charger les données
+        await loadAllData(token);
+        
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        
+      } catch (err) {
+        console.error('Erreur init:', err);
+        document.getElementById('loading').innerHTML = `
+          <div style="color: var(--mt-error);">❌ ${err.message}</div>
+          <button class="btn btn-primary" onclick="init()" style="margin-top: 16px;">
+            Réessayer
+          </button>
+        `;
+      }
+    }
+    
+    // Charger toutes les données
+    async function loadAllData(token) {
+      await Promise.all([
+        loadReceived(token),
+        loadSent(token),
+        loadCompatibleProfiles(token)
+      ]);
+    }
+    
+    // Charger demandes reçues
+    async function loadReceived(token) {
+      try {
+        const resp = await fetch(`${API_BASE}/connections/received?session_token=${token}`);
+        const data = await resp.json();
+        
+        if (!resp.ok) throw new Error(data.error);
+        
+        document.getElementById('countReceived').textContent = data.total_pending || 0;
+        
+        const container = document.getElementById('listReceived');
+        
+        if (data.pending.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📭</div>
+              <div class="empty-title">Aucune demande en attente</div>
+              <div class="empty-text">Les demandes de connexion apparaîtront ici</div>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = data.pending.map(req => renderReceivedCard(req)).join('');
+        
+      } catch (err) {
+        console.error('Erreur loadReceived:', err);
+      }
+    }
+    
+    // Charger demandes envoyées
+    async function loadSent(token) {
+      try {
+        const resp = await fetch(`${API_BASE}/connections/sent?session_token=${token}`);
+        const data = await resp.json();
+        
+        if (!resp.ok) throw new Error(data.error);
+        
+        document.getElementById('countSent').textContent = data.total_pending || 0;
+        
+        const container = document.getElementById('listSent');
+        
+        const allSent = [...data.pending, ...data.accepted, ...data.declined];
+        
+        if (allSent.length === 0) {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📤</div>
+              <div class="empty-title">Aucune demande envoyée</div>
+              <div class="empty-text">Envoie des demandes aux profils compatibles ci-dessous</div>
+            </div>
+          `;
+          return;
+        }
+        
+        container.innerHTML = allSent.map(req => renderSentCard(req)).join('');
+        
+      } catch (err) {
+        console.error('Erreur loadSent:', err);
+      }
+    }
+    
+    // Charger profils compatibles
+    async function loadCompatibleProfiles(token) {
+      try {
+        const resp = await fetch(`${API_BASE}/profiles/compatible?session_token=${token}&radius=50&limit=20`);
+        const data = await resp.json();
+        
+        if (!resp.ok) throw new Error(data.error);
+        
+        const profiles = data.profiles || [];
+        document.getElementById('countCompatible').textContent = profiles.length;
+        
+        // Séparer par activité (10j vs 30j)
+        const now = Date.now();
+        const tenDaysAgo = now - (10 * 24 * 3600 * 1000);
+        
+        // Note: On utilise last_active_ago pour l'affichage, mais on n'a pas la date exacte
+        // On considère "Il y a Xh" ou "Il y a Xj" où X <= 10 comme "récent"
+        const recent = profiles.filter(p => {
+          const ago = p.last_active_ago || '';
+          if (ago.includes('min') || ago.includes('instant')) return true;
+          if (ago.includes('h')) return true;
+          const match = ago.match(/(\d+)j/);
+          if (match && parseInt(match[1]) <= 10) return true;
+          return false;
+        });
+        
+        const older = profiles.filter(p => !recent.includes(p));
+        
+        // Render récents
+        const recentContainer = document.getElementById('listRecentProfiles');
+        if (recent.length === 0) {
+          recentContainer.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">😴</div>
+              <div class="empty-title">Aucun profil actif récemment</div>
+              <div class="empty-text">Reviens plus tard !</div>
+            </div>
+          `;
+        } else {
+          recentContainer.innerHTML = recent.map(p => renderProfileCard(p, true)).join('');
+        }
+        
+        // Render older
+        const monthContainer = document.getElementById('listMonthProfiles');
+        if (older.length === 0) {
+          monthContainer.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📅</div>
+              <div class="empty-text">Tous les profils sont actifs récemment !</div>
+            </div>
+          `;
+        } else {
+          monthContainer.innerHTML = older.map(p => renderProfileCard(p, false)).join('');
+        }
+        
+      } catch (err) {
+        console.error('Erreur loadCompatibleProfiles:', err);
+      }
+    }
+    
+    // Render carte demande reçue
+    function renderReceivedCard(req) {
+      const reasons = (req.compatibility_reasons || []).slice(0, 4);
+      
+      return `
+        <div class="profile-card" id="received_${req.match_id}">
+          <div class="profile-header">
+            <div class="profile-avatar">${req.from_user.anonymous_avatar || '👤'}</div>
+            <div class="profile-info">
+              <div class="profile-name">${req.from_user.anonymous_display || 'MeeTemper'}</div>
+              <div class="profile-meta">
+                <span class="profile-meta-item">📍 ${req.from_user.city || '?'}</span>
+                <span class="profile-meta-item">👑 ${req.from_user.plan?.toUpperCase() || 'FREE'}</span>
+              </div>
+            </div>
+            <div class="profile-score">
+              <div class="score-value">${req.compatibility_score}%</div>
+              <div class="score-label">Compatible</div>
+            </div>
+          </div>
+          
+          ${req.message ? `<div class="profile-message">💬 "${req.message}"</div>` : ''}
+          
+          <div class="compatibility-reasons">
+            ${reasons.map(r => `<span class="reason-tag ${r.type}">${r.label}</span>`).join('')}
+          </div>
+          
+          <div class="profile-actions">
+            <button class="btn btn-success" onclick="acceptConnection('${req.match_id}')">
+              ✅ Accepter
+            </button>
+            <button class="btn btn-danger" onclick="declineConnection('${req.match_id}')">
+              ❌ Refuser
+            </button>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Render carte demande envoyée
+    function renderSentCard(req) {
+      const statusMap = {
+        'pending': { class: 'status-pending', label: '⏳ En attente' },
+        'accepted': { class: 'status-accepted', label: '✅ Acceptée' },
+        'declined': { class: 'status-declined', label: '❌ Refusée' }
+      };
+      const status = statusMap[req.status] || statusMap.pending;
+      
+      const reasons = (req.compatibility_reasons || []).slice(0, 3);
+      
+      return `
+        <div class="profile-card" id="sent_${req.match_id}">
+          <div class="profile-header">
+            <div class="profile-avatar">${req.to_user.anonymous_avatar || '👤'}</div>
+            <div class="profile-info">
+              <div class="profile-name">${req.to_user.anonymous_display || 'MeeTemper'}</div>
+              <div class="profile-meta">
+                <span class="profile-meta-item">📍 ${req.to_user.city || '?'}</span>
+                <span class="status-badge ${status.class}">${status.label}</span>
+              </div>
+            </div>
+            <div class="profile-score">
+              <div class="score-value">${req.compatibility_score}%</div>
+              <div class="score-label">Compatible</div>
+            </div>
+          </div>
+          
+          <div class="compatibility-reasons">
+            ${reasons.map(r => `<span class="reason-tag ${r.type}">${r.label}</span>`).join('')}
+          </div>
+          
+          <div class="profile-actions">
+            ${req.status === 'pending' ? `
+              <button class="btn btn-danger" onclick="cancelConnection('${req.match_id}')">
+                🗑️ Annuler
+              </button>
+            ` : ''}
+            ${req.status === 'accepted' ? `
+              <button class="btn btn-primary" onclick="goToChat('${req.suggestion_id}')">
+                💬 Ouvrir le chat
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
+    
+    // Render carte profil compatible
+    function renderProfileCard(profile, isRecent) {
+      const reasons = (profile.compatibility_reasons || []).slice(0, 4);
+      
+      return `
+        <div class="profile-card" id="profile_${profile.user_id}">
+          <div class="profile-header">
+            <div class="profile-avatar">${profile.anonymous_avatar || '👤'}</div>
+            <div class="profile-info">
+              <div class="profile-name">${profile.anonymous_display || 'MeeTemper'}</div>
+              <div class="profile-meta">
+                <span class="profile-meta-item">📍 ${profile.city || '?'} (${profile.distance_km} km)</span>
+                <span class="profile-meta-item">👑 ${profile.plan?.toUpperCase() || 'FREE'}</span>
+                <span class="activity-badge ${isRecent ? 'recent' : ''}">
+                  🕐 ${profile.last_active_ago || '?'}
+                </span>
+              </div>
+            </div>
+            <div class="profile-score">
+              <div class="score-value">${profile.compatibility_score}%</div>
+              <div class="score-label">Compatible</div>
+            </div>
+          </div>
+          
+          <div class="compatibility-reasons">
+            ${reasons.map(r => `<span class="reason-tag ${r.type}">${r.label}</span>`).join('')}
+          </div>
+          
+          <div class="profile-actions">
+            <button class="btn btn-primary" onclick="sendConnectionRequest('${profile.user_id}', '${profile.anonymous_display}')">
+              🤝 Demander connexion
+            </button>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Actions
+    async function sendConnectionRequest(targetUserId, displayName) {
+      const message = prompt(`Message pour ${displayName} (optionnel) :`);
+      
+      if (message === null) return; // Annulé
+      
+      const token = window.MT_TOKEN;
+      
+      try {
+        const url = `${API_BASE}/connection/request?session_token=${token}&target_user_id=${targetUserId}&message=${encodeURIComponent(message)}`;
+        const resp = await fetch(url);
+        const data = await resp.json();
+        
+        if (!resp.ok) {
+          throw new Error(data.error || 'Erreur envoi');
+        }
+        
+        alert('✅ Demande envoyée avec succès !');
+        
+        // Masquer le profil
+        const card = document.getElementById(`profile_${targetUserId}`);
+        if (card) {
+          card.style.opacity = '0.5';
+          card.querySelector('.btn-primary').disabled = true;
+          card.querySelector('.btn-primary').textContent = '✓ Demande envoyée';
+        }
+        
+        // Recharger les demandes envoyées
+        await loadSent(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+    
+    async function acceptConnection(matchId) {
+      if (!confirm('Accepter cette demande de connexion ?')) return;
+      
+      const token = window.MT_TOKEN;
+      
+      try {
+        const resp = await fetch(`${API_BASE}/match/respond?session_token=${token}&match_id=${matchId}&action=accept`);
+        const data = await resp.json();
+        
+        if (!resp.ok) throw new Error(data.error || 'Erreur');
+        
+        alert('✅ Connexion acceptée ! Vous pouvez maintenant discuter.');
+        await loadAllData(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+    
+    async function declineConnection(matchId) {
+      if (!confirm('Refuser cette demande de connexion ?')) return;
+      
+      const token = window.MT_TOKEN;
+      
+      try {
+        const resp = await fetch(`${API_BASE}/match/respond?session_token=${token}&match_id=${matchId}&action=decline`);
+        const data = await resp.json();
+        
+        if (!resp.ok) throw new Error(data.error || 'Erreur');
+        
+        alert('Demande refusée.');
+        await loadAllData(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+    
+    async function cancelConnection(matchId) {
+      if (!confirm('Annuler cette demande ?')) return;
+      
+      const token = window.MT_TOKEN;
+      
+      try {
+        const resp = await fetch(`${API_BASE}/match/cancel?session_token=${token}&match_id=${matchId}`);
+        const data = await resp.json();
+        
+        if (!resp.ok) throw new Error(data.error || 'Erreur');
+        
+        alert('✅ Demande annulée.');
+        await loadAllData(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+    
+    // Navigation
+    function goToChat(suggestionId) {
+      const token = window.MT_TOKEN;
+      window.location.href = `chat.html?suggestion_id=${suggestionId}&session_token=${token}`;
+    }
+    
+    function goToMap() {
+      const token = window.MT_TOKEN;
+      window.location.href = `map.html?session_token=${token}`;
+    }
+    
+    function goToHub() {
+      const token = window.MT_TOKEN;
+      window.location.href = `hub.html?session_token=${token}`;
+    }
+    
+    function goToUpgrade() {
+      const token = window.MT_TOKEN;
+      window.location.href = `pricing.html?session_token=${token}`;
+    }
+    
+    function refreshData() {
+      const token = window.MT_TOKEN;
+      loadAllData(token);
+    }
+    
+    // Lancer au chargement
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
