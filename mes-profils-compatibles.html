@@ -548,6 +548,26 @@
         <div id="listSent"></div>
       </div>
       
+      <!-- Section: Invitations Reçues -->
+      <div class="section" id="sectionInvitationsReceived">
+        <div class="section-header">
+          <span class="section-icon">🎯</span>
+          <span class="section-title">Invitations à des suggestions</span>
+          <span class="section-count" id="countInvitationsReceived">0</span>
+        </div>
+        <div id="listInvitationsReceived"></div>
+      </div>
+      
+      <!-- Section: Invitations Envoyées -->
+      <div class="section" id="sectionInvitationsSent">
+        <div class="section-header">
+          <span class="section-icon">📨</span>
+          <span class="section-title">Mes invitations envoyées</span>
+          <span class="section-count" id="countInvitationsSent">0</span>
+        </div>
+        <div id="listInvitationsSent"></div>
+      </div>
+      
       <!-- Section: Profils Compatibles -->
       <div class="section" id="sectionCompatible">
         <div class="section-header">
@@ -675,7 +695,7 @@
       ]);
     }
     
-    // Charger demandes reçues
+    // Charger demandes reçues (connexions + invitations)
     async function loadReceived(token) {
       try {
         const resp = await fetch(`${API_BASE}/connections/received?session_token=${token}`);
@@ -683,29 +703,48 @@
         
         if (!resp.ok) throw new Error(data.error);
         
-        document.getElementById('countReceived').textContent = data.total_pending || 0;
+        // === CONNEXIONS REÇUES ===
+        const connPending = data.connections?.pending || [];
+        document.getElementById('countReceived').textContent = connPending.length;
         
-        const container = document.getElementById('listReceived');
+        const connContainer = document.getElementById('listReceived');
         
-        if (data.pending.length === 0) {
-          container.innerHTML = `
+        if (connPending.length === 0) {
+          connContainer.innerHTML = `
             <div class="empty-state">
               <div class="empty-icon">📭</div>
               <div class="empty-title">Aucune demande en attente</div>
               <div class="empty-text">Les demandes de connexion apparaîtront ici</div>
             </div>
           `;
-          return;
+        } else {
+          connContainer.innerHTML = connPending.map(req => renderReceivedCard(req)).join('');
         }
         
-        container.innerHTML = data.pending.map(req => renderReceivedCard(req)).join('');
+        // === INVITATIONS REÇUES ===
+        const invPending = data.invitations?.pending || [];
+        document.getElementById('countInvitationsReceived').textContent = invPending.length;
+        
+        const invContainer = document.getElementById('listInvitationsReceived');
+        
+        if (invPending.length === 0) {
+          invContainer.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">🎯</div>
+              <div class="empty-title">Aucune invitation en attente</div>
+              <div class="empty-text">Les invitations à des suggestions apparaîtront ici</div>
+            </div>
+          `;
+        } else {
+          invContainer.innerHTML = invPending.map(inv => renderInvitationReceivedCard(inv)).join('');
+        }
         
       } catch (err) {
         console.error('Erreur loadReceived:', err);
       }
     }
     
-    // Charger demandes envoyées
+    // Charger demandes envoyées (connexions + invitations)
     async function loadSent(token) {
       try {
         const resp = await fetch(`${API_BASE}/connections/sent?session_token=${token}`);
@@ -713,24 +752,49 @@
         
         if (!resp.ok) throw new Error(data.error);
         
-        document.getElementById('countSent').textContent = data.total_pending || 0;
+        // === CONNEXIONS ENVOYÉES ===
+        const connPending = data.connections?.pending || [];
+        const connAccepted = data.connections?.accepted || [];
+        const connDeclined = data.connections?.declined || [];
+        const allConn = [...connPending, ...connAccepted, ...connDeclined];
         
-        const container = document.getElementById('listSent');
+        document.getElementById('countSent').textContent = connPending.length;
         
-        const allSent = [...data.pending, ...data.accepted, ...data.declined];
+        const connContainer = document.getElementById('listSent');
         
-        if (allSent.length === 0) {
-          container.innerHTML = `
+        if (allConn.length === 0) {
+          connContainer.innerHTML = `
             <div class="empty-state">
               <div class="empty-icon">📤</div>
               <div class="empty-title">Aucune demande envoyée</div>
               <div class="empty-text">Envoie des demandes aux profils compatibles ci-dessous</div>
             </div>
           `;
-          return;
+        } else {
+          connContainer.innerHTML = allConn.map(req => renderSentCard(req)).join('');
         }
         
-        container.innerHTML = allSent.map(req => renderSentCard(req)).join('');
+        // === INVITATIONS ENVOYÉES ===
+        const invPending = data.invitations?.pending || [];
+        const invAccepted = data.invitations?.accepted || [];
+        const invDeclined = data.invitations?.declined || [];
+        const allInv = [...invPending, ...invAccepted, ...invDeclined];
+        
+        document.getElementById('countInvitationsSent').textContent = invPending.length;
+        
+        const invContainer = document.getElementById('listInvitationsSent');
+        
+        if (allInv.length === 0) {
+          invContainer.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-icon">📨</div>
+              <div class="empty-title">Aucune invitation envoyée</div>
+              <div class="empty-text">Invite des profils compatibles à tes suggestions</div>
+            </div>
+          `;
+        } else {
+          invContainer.innerHTML = allInv.map(inv => renderInvitationSentCard(inv)).join('');
+        }
         
       } catch (err) {
         console.error('Erreur loadSent:', err);
@@ -883,6 +947,107 @@
         </div>
       `;
     }
+
+    // Render carte invitation reçue
+    function renderInvitationReceivedCard(inv) {
+      const reasons = (inv.compatibility_reasons || []).slice(0, 4);
+      const suggestion = inv.suggestion || {};
+      
+      return `
+        <div class="profile-card" id="inv_received_${inv.match_id}">
+          <div class="profile-header">
+            <div class="profile-avatar">${inv.from_user?.anonymous_avatar || '👤'}</div>
+            <div class="profile-info">
+              <div class="profile-name">${inv.from_user?.anonymous_display || 'MeeTemper'}</div>
+              <div class="profile-meta">
+                <span class="profile-meta-item">📍 ${inv.from_user?.city || '?'}</span>
+                <span class="profile-meta-item">👑 ${inv.from_user?.plan?.toUpperCase() || 'FREE'}</span>
+              </div>
+            </div>
+            <div class="profile-score">
+              <div class="score-value">${inv.compatibility_score || 0}%</div>
+              <div class="score-label">Compatible</div>
+            </div>
+          </div>
+          
+          <!-- Infos suggestion -->
+          <div class="profile-message" style="background: #ede9fe; border-color: var(--mt-vip);">
+            🎯 <strong>T'invite à :</strong> ${suggestion.title || 'Suggestion'}
+            <br><small>📍 ${suggestion.city || '?'} • 📅 ${suggestion.date || '?'} à ${suggestion.time || '?'}</small>
+          </div>
+          
+          ${inv.message ? `<div class="profile-message">💬 "${inv.message}"</div>` : ''}
+          
+          <div class="compatibility-reasons">
+            ${reasons.map(r => `<span class="reason-tag ${r.type}">${r.label}</span>`).join('')}
+          </div>
+          
+          <div class="profile-actions">
+            <button class="btn btn-success" onclick="acceptInvitation('${inv.match_id}')">
+              ✅ Rejoindre
+            </button>
+            <button class="btn btn-danger" onclick="declineInvitation('${inv.match_id}')">
+              ❌ Refuser
+            </button>
+          </div>
+        </div>
+      `;
+    }
+    
+    // Render carte invitation envoyée
+    function renderInvitationSentCard(inv) {
+      const statusMap = {
+        'pending': { class: 'status-pending', label: '⏳ En attente' },
+        'accepted': { class: 'status-accepted', label: '✅ Acceptée' },
+        'declined': { class: 'status-declined', label: '❌ Refusée' },
+        'cancelled': { class: 'status-declined', label: '🚫 Annulée' }
+      };
+      const status = statusMap[inv.status] || statusMap.pending;
+      const suggestion = inv.suggestion || {};
+      const reasons = (inv.compatibility_reasons || []).slice(0, 3);
+      
+      return `
+        <div class="profile-card" id="inv_sent_${inv.match_id}">
+          <div class="profile-header">
+            <div class="profile-avatar">${inv.to_user?.anonymous_avatar || '👤'}</div>
+            <div class="profile-info">
+              <div class="profile-name">${inv.to_user?.anonymous_display || 'MeeTemper'}</div>
+              <div class="profile-meta">
+                <span class="profile-meta-item">📍 ${inv.to_user?.city || '?'}</span>
+                <span class="status-badge ${status.class}">${status.label}</span>
+              </div>
+            </div>
+            <div class="profile-score">
+              <div class="score-value">${inv.compatibility_score || 0}%</div>
+              <div class="score-label">Compatible</div>
+            </div>
+          </div>
+          
+          <!-- Infos suggestion -->
+          <div class="profile-message" style="background: #ede9fe; border-color: var(--mt-vip);">
+            🎯 <strong>Invitation pour :</strong> ${suggestion.title || 'Suggestion'}
+            <br><small>📍 ${suggestion.city || '?'} • 📅 ${suggestion.date || '?'} à ${suggestion.time || '?'}</small>
+          </div>
+          
+          <div class="compatibility-reasons">
+            ${reasons.map(r => `<span class="reason-tag ${r.type}">${r.label}</span>`).join('')}
+          </div>
+          
+          <div class="profile-actions">
+            ${inv.status === 'pending' ? `
+              <button class="btn btn-danger" onclick="cancelInvitation('${inv.match_id}')">
+                🗑️ Annuler
+              </button>
+            ` : ''}
+            ${inv.status === 'accepted' ? `
+              <button class="btn btn-primary" onclick="goToChat('${inv.suggestion_id}')">
+                💬 Ouvrir le chat
+              </button>
+            ` : ''}
+          </div>
+        </div>
+      `;
+    }
     
     // Render carte profil compatible
     function renderProfileCard(profile, isRecent) {
@@ -1006,6 +1171,65 @@
         if (!resp.ok) throw new Error(data.error || 'Erreur');
         
         alert('✅ Demande annulée.');
+        await loadAllData(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+
+    // === ACTIONS INVITATIONS ===
+    
+    async function acceptInvitation(matchId) {
+      if (!confirm('Rejoindre cette suggestion ?')) return;
+      
+      const token = window.MT_TOKEN;
+      
+      try {
+        const resp = await fetch(`${API_BASE}/match/respond?session_token=${token}&match_id=${matchId}&action=accept`);
+        const data = await resp.json();
+        
+        if (!resp.ok) throw new Error(data.error || 'Erreur');
+        
+        alert('✅ Tu as rejoint la suggestion ! Retrouve-la dans tes participations.');
+        await loadAllData(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+    
+    async function declineInvitation(matchId) {
+      if (!confirm('Refuser cette invitation ?')) return;
+      
+      const token = window.MT_TOKEN;
+      
+      try {
+        const resp = await fetch(`${API_BASE}/match/respond?session_token=${token}&match_id=${matchId}&action=decline`);
+        const data = await resp.json();
+        
+        if (!resp.ok) throw new Error(data.error || 'Erreur');
+        
+        alert('Invitation refusée.');
+        await loadAllData(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+    
+    async function cancelInvitation(matchId) {
+      if (!confirm('Annuler cette invitation ?')) return;
+      
+      const token = window.MT_TOKEN;
+      
+      try {
+        const resp = await fetch(`${API_BASE}/match/cancel?session_token=${token}&match_id=${matchId}`);
+        const data = await resp.json();
+        
+        if (!resp.ok) throw new Error(data.error || 'Erreur');
+        
+        alert('✅ Invitation annulée.');
         await loadAllData(token);
         
       } catch (err) {
