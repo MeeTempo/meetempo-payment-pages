@@ -110,7 +110,11 @@
         // Récupérer session_id et token
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get('session_id');
-        const sessionToken = window.MT_TOKEN;
+        const sessionToken = new URLSearchParams(window.location.search).get('session_token') 
+                  || new URLSearchParams(window.location.search).get('token')
+                  || localStorage.getItem('session_token') 
+                  || sessionStorage.getItem('meetempo_token')
+                  || null;
         
         // Éléments DOM
         const sessionInfo = document.getElementById('sessionInfo');
