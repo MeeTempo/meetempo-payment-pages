@@ -201,6 +201,17 @@
                             returnBtn.textContent = 'Accéder au Dashboard B2B';
                             returnBtn.href = redirectUrl;
                         }
+                    } else if (data.plan === 'meeting_event') {
+                        // Mode Meeting Event
+                        if (messageEl) {
+                            const eventCode = data.event_code || '';
+                            messageEl.innerHTML = `🎫 Votre Pass Event est activé !<br><small style="color:#667eea; font-weight:600;">${eventCode}</small>`;
+                        }
+                        redirectUrl = `${baseUrl}/hub.html${tokenParam}`;
+                        if (returnBtn) {
+                            returnBtn.textContent = 'Rejoindre l\'événement';
+                            returnBtn.href = redirectUrl;
+                        }
                     } else if (data.plan) {
                         // Mode B2C (Premium, VIP, Meeting)
                         const plans = {
@@ -214,12 +225,6 @@
                         redirectUrl = `${baseUrl}/hub.html${tokenParam}`;
                         if (returnBtn) {
                             returnBtn.textContent = 'Accéder à MeeTempo';
-                            returnBtn.href = redirectUrl;
-                        }
-                    } else {
-                        // Fallback Hub
-                        redirectUrl = `${baseUrl}/hub.html${tokenParam}`;
-                        if (returnBtn) {
                             returnBtn.href = redirectUrl;
                         }
                     }
