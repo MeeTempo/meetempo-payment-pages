@@ -143,7 +143,11 @@
 
     <script>
         // Récupérer token depuis bloc universel
-        const sessionToken = window.MT_TOKEN;
+        const sessionToken = new URLSearchParams(window.location.search).get('session_token') 
+                  || new URLSearchParams(window.location.search).get('token')
+                  || localStorage.getItem('session_token') 
+                  || sessionStorage.getItem('meetempo_token')
+                  || null;
         
         // Éléments DOM
         const messageEl = document.getElementById('message');
