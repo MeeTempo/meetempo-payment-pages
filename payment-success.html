@@ -181,7 +181,7 @@ if (sessionToken) {
                         }
                     } else if (data.plan === 'meeting_event') {
                         // Mode Meeting Event
-                        const eventCode = data.event_code || localStorage.getItem('pending_event_code') || '';
+                        const eventCode = eventCodeFromUrl || data.event_code || localStorage.getItem('pending_event_code') || '';
                         if (messageEl) {
                             messageEl.innerHTML = `🎫 Votre Pass Event est activé !<br><small style="color:#667eea; font-weight:600;">${eventCode}</small>`;
                         }
