@@ -1107,7 +1107,17 @@ async function loadNextMeeting() {
     
     async function loadEventAccess(code) {
       try {
-        const email = userData?.user?.email || '';
+        // Récupérer email depuis /profile car maestro/context ne le contient pas toujours
+        let email = '';
+        try {
+          const profileRes = await fetch(`${API_BASE}/profile?session_token=${session_token}`);
+          if (profileRes.ok) {
+            const profile = await profileRes.json();
+            email = profile.email || '';
+          }
+        } catch (e) {
+          console.warn('⚠️ Erreur récup email:', e);
+        }
         const res = await fetch(`${API_BASE}/event/check-access?event_code=${code}&email=${encodeURIComponent(email)}`);
         
         if (!res.ok) {
