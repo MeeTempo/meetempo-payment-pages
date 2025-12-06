@@ -401,6 +401,9 @@
         const urlParams = new URLSearchParams(window.location.search);
         const referralCode = urlParams.get('ref') || null;
         const referralEmail = urlParams.get('email') || null;
+        const eventCode = urlParams.get('event_code') || null;
+        const prefillEmail = urlParams.get('email') || null;
+        const tabParam = urlParams.get('tab') || null;
 
         // Afficher badge si parrainage
         // Afficher badge si parrainage
@@ -422,6 +425,20 @@
             }
             
             // Basculer automatiquement sur l'onglet "Créer un compte"
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('[data-tab="signup"]').classList.add('active');
+            document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
+            document.getElementById('signupForm').classList.add('active');
+        }
+
+        // Pré-remplir email si fourni (depuis event-join)
+        if (prefillEmail) {
+            document.getElementById('loginEmail').value = prefillEmail;
+            document.getElementById('signupEmail').value = prefillEmail;
+        }
+
+        // Basculer sur onglet signup si demandé
+        if (tabParam === 'signup') {
             document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
             document.querySelector('[data-tab="signup"]').classList.add('active');
             document.querySelectorAll('.form-container').forEach(f => f.classList.remove('active'));
@@ -753,12 +770,38 @@
             }, 1000);
         }
 
-        function goToHubNow() {
+        async function goToHubNow() {
             if (countdownInterval) clearInterval(countdownInterval);
-            if (currentToken) {
-                localStorage.setItem('session_token', currentToken);
-                window.location.href = `hub.html?session_token=${currentToken}`;
+            if (!currentToken) return;
+            
+            localStorage.setItem('session_token', currentToken);
+            
+            // Si event_code présent → vérifier accès et rediriger
+            if (eventCode) {
+                try {
+                    const checkRes = await fetch(`${API_BASE}/event/check-access?event_code=${eventCode}&email=${document.getElementById('loginEmail').value.trim()}`);
+                    const checkData = await checkRes.json();
+                    
+                    if (checkData.success && checkData.access.requires_payment) {
+                        // Créer checkout Meeting Event
+                        const checkoutRes = await fetch(`${API_BASE}/create-checkout-session?session_token=${currentToken}&plan=meeting_event&event_id=${checkData.event.event_id}`);
+                        const checkoutData = await checkoutRes.json();
+                        
+                        if (checkoutData.url) {
+                            window.location.href = checkoutData.url;
+                            return;
+                        }
+                    }
+                    // VIP/B2B ou déjà pass → hub avec event_code
+                    window.location.href = `hub.html?session_token=${currentToken}&event_code=${eventCode}`;
+                    return;
+                } catch (err) {
+                    console.error('Erreur check event:', err);
+                }
             }
+            
+            // Sinon → hub normal
+            window.location.href = `hub.html?session_token=${currentToken}`;
         }
 
         function cancelRedirect() {
