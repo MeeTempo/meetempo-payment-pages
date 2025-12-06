@@ -401,7 +401,7 @@
         const urlParams = new URLSearchParams(window.location.search);
         const referralCode = urlParams.get('ref') || null;
         const referralEmail = urlParams.get('email') || null;
-        const eventCode = urlParams.get('event_code') || null;
+        const eventCode = urlParams.get('event_code') || localStorage.getItem('pending_event_code') || null;
         const prefillEmail = urlParams.get('email') || null;
         const tabParam = urlParams.get('tab') || null;
 
@@ -622,6 +622,11 @@
                 }
                 
                 showMessage('signupMessage', `✅ Code envoyé à ${email}. Vérifiez votre boîte email (et spam).`, 'success');
+                // Stocker event_code pour le récupérer au login
+                if (eventCode) {
+                    localStorage.setItem('pending_event_code', eventCode);
+                    console.log('📦 Event code stocké pour après login:', eventCode);
+                }
 
                 // Changer bouton en "Renvoyer le code"
                 btn.textContent = 'Renvoyer le code';
