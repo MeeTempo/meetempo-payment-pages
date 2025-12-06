@@ -545,12 +545,16 @@
                         const charterData = await charterRes.json();
                         
                         if (!charterData.accepted) {
-                            // Charte non acceptée → rediriger vers charter.html
-                            console.log('📋 Charte non acceptée → redirection');
-                            localStorage.setItem('session_token', data.session_token);
-                            window.location.href = `charter.html?session_token=${data.session_token}&return=hub.html`;
-                            return;
-                        }
+                    // Charte non acceptée → rediriger vers charter.html
+                    console.log('📋 Charte non acceptée → redirection');
+                    localStorage.setItem('session_token', data.session_token);
+                    // Stocker event_code pour après la charte
+                    if (eventCode) {
+                        localStorage.setItem('pending_event_code', eventCode);
+                    }
+                    window.location.href = `charter.html?session_token=${data.session_token}&return=hub.html`;
+                    return;
+                }
                     }
                 } catch (charterErr) {
                     console.warn('⚠️ Erreur check charte:', charterErr);
