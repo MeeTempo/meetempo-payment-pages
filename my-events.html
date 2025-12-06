@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Events | MeeTempo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --mt-dark: #030E4F;
+      --mt-accent: #F49F1C;
+      --mt-bg: #0a133f;
+      --mt-card: #0e184f;
+      --mt-text: #ffffff;
+      --mt-muted: #c9d1ff;
+      --ok: #23c55e;
+      --err: #ef4444;
+      --warn: #f59e0b;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(160deg, var(--mt-dark) 0%, var(--mt-bg) 60%, #11183f 100%);
+      min-height: 100vh;
+      padding: 20px;
+      padding-top: 80px;
+      color: var(--mt-text);
+    }
+    
+    /* Token Bar */
+    .token-bar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0, 0, 0, 0.9);
+      backdrop-filter: blur(10px);
+      padding: 12px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 1000;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .token-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .back-btn {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-family: 'Montserrat', sans-serif;
+      transition: all 0.2s;
+    }
+    .back-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    .token-display {
+      font-family: monospace;
+      font-size: 12px;
+      color: var(--mt-accent);
+      background: rgba(244,159,28,0.1);
+      padding: 6px 12px;
+      border-radius: 6px;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .header p {
+      color: var(--mt-muted);
+      font-size: 14px;
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--mt-muted);
+    }
+    .loading::after {
+      content: '...';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 16px;
+      border: 1px dashed rgba(255,255,255,0.2);
+    }
+    .empty-state .icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+    .empty-state h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .empty-state p {
+      color: var(--mt-muted);
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    .empty-state .btn {
+      display: inline-block;
+      background: var(--mt-accent);
+      color: #111;
+      padding: 12px 24px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+    }
+    
+    /* Event Cards */
+    .events-list {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .event-card {
+      background: rgba(255,255,255,0.06);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px;
+      padding: 24px;
+      transition: all 0.3s;
+    }
+    .event-card:hover {
+      background: rgba(255,255,255,0.08);
+      transform: translateY(-2px);
+    }
+    .event-card.active {
+      border-color: var(--ok);
+      box-shadow: 0 0 20px rgba(35,197,94,0.2);
+    }
+    .event-card.upcoming {
+      border-color: var(--mt-accent);
+    }
+    .event-card.ended {
+      opacity: 0.6;
+      border-color: rgba(255,255,255,0.1);
+    }
+    
+    .event-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 16px;
+    }
+    .event-info h3 {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+    .event-code {
+      display: inline-block;
+      background: var(--mt-accent);
+      color: #111;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 700;
+      margin-top: 6px;
+    }
+    
+    .event-status {
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .event-status.active {
+      background: rgba(35,197,94,0.2);
+      color: var(--ok);
+    }
+    .event-status.upcoming {
+      background: rgba(244,159,28,0.2);
+      color: var(--mt-accent);
+    }
+    .event-status.ended {
+      background: rgba(255,255,255,0.1);
+      color: var(--mt-muted);
+    }
+    
+    .event-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-bottom: 16px;
+      font-size: 14px;
+      color: var(--mt-muted);
+    }
+    .event-details .detail {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .event-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .event-actions .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: 'Montserrat', sans-serif;
+      transition: all 0.2s;
+    }
+    .event-actions .btn-primary {
+      background: var(--mt-accent);
+      color: #111;
+    }
+    .event-actions .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(244,159,28,0.3);
+    }
+    .event-actions .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    .event-actions .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .pass-info {
+      background: rgba(35,197,94,0.1);
+      border: 1px solid rgba(35,197,94,0.3);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      font-size: 13px;
+    }
+    .pass-info .label {
+      color: var(--ok);
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .pass-info .dates {
+      color: var(--mt-muted);
+    }
+    
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(35,197,94,0.95);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      z-index: 2000;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translate(-50%, 20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    
+    @media (max-width: 640px) {
+      body { padding: 16px; padding-top: 100px; }
+      .token-bar { flex-direction: column; gap: 10px; padding: 10px 16px; }
+      .event-header { flex-direction: column; gap: 12px; }
+      .event-details { flex-direction: column; gap: 8px; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Token Bar -->
+  <div class="token-bar">
+    <div class="token-info">
+      <button class="back-btn" onclick="goBack()">← Retour au Hub</button>
+      <span class="token-display" id="tokenDisplay">...</span>
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="header">
+      <h1>🎪 Mes Events</h1>
+      <p>Événements que vous avez rejoints</p>
+    </div>
+    
+    <div id="content">
+      <div class="loading">Chargement de vos événements</div>
+    </div>
+  </div>
+
+  <script>
+    // === BLOC UNIVERSEL MEETEMPO ===
+    (function() {
+      const TIMEOUT_MINUTES = 45;
+      const params = new URLSearchParams(location.search);
+      window.MT_TOKEN = params.get('session_token') || params.get('token')
+                     || localStorage.getItem('session_token') 
+                     || sessionStorage.getItem('meetempo_token');
+      
+      if (window.MT_TOKEN) {
+        localStorage.setItem('session_token', window.MT_TOKEN);
+        sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
+      }
+      
+      if (!window.MT_TOKEN) {
+        alert('❌ Session expirée. Retour au Hub.');
+        window.location.href = 'hub.html';
+        return;
+      }
+      
+      console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}...`);
+    })();
+    // === FIN BLOC UNIVERSEL ===
+
+    const API_BASE = 'https://api.meetempo.com';
+    const session_token = window.MT_TOKEN;
+    
+    document.getElementById('tokenDisplay').textContent = session_token.substring(0, 12) + '...';
+    
+    function goBack() {
+      window.location.href = `hub.html?session_token=${session_token}`;
+    }
+    
+    function showToast(message) {
+      const toast = document.createElement('div');
+      toast.className = 'toast';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+    
+    function formatDate(isoDate) {
+      if (!isoDate) return '-';
+      const d = new Date(isoDate);
+      return d.toLocaleDateString('fr-FR', {
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+    
+    function getEventStatus(event, pass) {
+      const now = Date.now();
+      const startsAt = new Date(event.starts_at).getTime();
+      const endsAt = new Date(event.ends_at).getTime();
+      
+      if (now > endsAt) {
+        return { status: 'ended', label: 'Terminé', class: 'ended' };
+      } else if (now >= startsAt && now <= endsAt) {
+        return { status: 'active', label: '🟢 En cours', class: 'active' };
+      } else {
+        return { status: 'upcoming', label: '📅 À venir', class: 'upcoming' };
+      }
+    }
+    
+    async function loadEvents() {
+      const content = document.getElementById('content');
+      
+      try {
+        // Récupérer profil avec event_passes
+        const profileRes = await fetch(`${API_BASE}/profile?session_token=${session_token}`);
+        if (!profileRes.ok) throw new Error('Erreur chargement profil');
+        
+        const profile = await profileRes.json();
+        const eventPasses = profile.profile_rich?.event_passes || [];
+        
+        console.log('🎫 Event passes:', eventPasses);
+        
+        if (eventPasses.length === 0) {
+          content.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">🎪</div>
+              <h3>Aucun événement</h3>
+              <p>Vous n'avez pas encore rejoint d'événement.</p>
+              <a href="hub.html?session_token=${session_token}" class="btn">Retour au Hub</a>
+            </div>
+          `;
+          return;
+        }
+        
+        // Récupérer les détails de chaque event
+        let eventsHtml = '';
+        
+        for (const pass of eventPasses) {
+          try {
+            const eventRes = await fetch(`${API_BASE}/event/check-access?event_code=${pass.event_code}`);
+            const eventData = await eventRes.json();
+            
+            if (!eventData.success) continue;
+            
+            const event = eventData.event;
+            const statusInfo = getEventStatus(event, pass);
+            
+            eventsHtml += `
+              <div class="event-card ${statusInfo.class}">
+                <div class="event-header">
+                  <div class="event-info">
+                    <h3>${event.event_name}</h3>
+                    <span class="event-code">${event.event_code}</span>
+                  </div>
+                  <span class="event-status ${statusInfo.class}">${statusInfo.label}</span>
+                </div>
+                
+                <div class="event-details">
+                  <div class="detail">📍 ${event.venue || 'Lieu non précisé'}${event.city ? ', ' + event.city : ''}</div>
+                  <div class="detail">📅 ${formatDate(event.starts_at)}</div>
+                </div>
+                
+                <div class="pass-info">
+                  <div class="label">🎫 Pass Event actif</div>
+                  <div class="dates">Valide du ${formatDate(pass.valid_from)} au ${formatDate(pass.valid_until)}</div>
+                </div>
+                
+                <div class="event-actions">
+                  <button class="btn btn-primary" onclick="viewParticipants('${event.event_code}')">
+                    👥 Voir les participants
+                  </button>
+                  <button class="btn btn-secondary" onclick="copyEventLink('${event.event_code}')">
+                    📋 Copier le lien
+                  </button>
+                </div>
+              </div>
+            `;
+          } catch (err) {
+            console.error('Erreur chargement event:', pass.event_code, err);
+          }
+        }
+        
+        if (eventsHtml) {
+          content.innerHTML = `<div class="events-list">${eventsHtml}</div>`;
+        } else {
+          content.innerHTML = `
+            <div class="empty-state">
+              <div class="icon">⚠️</div>
+              <h3>Erreur chargement</h3>
+              <p>Impossible de charger vos événements.</p>
+              <a href="hub.html?session_token=${session_token}" class="btn">Retour au Hub</a>
+            </div>
+          `;
+        }
+        
+      } catch (err) {
+        console.error('❌ Erreur:', err);
+        content.innerHTML = `
+          <div class="empty-state">
+            <div class="icon">❌</div>
+            <h3>Erreur</h3>
+            <p>${err.message}</p>
+            <a href="hub.html?session_token=${session_token}" class="btn">Retour au Hub</a>
+          </div>
+        `;
+      }
+    }
+    
+    function viewParticipants(eventCode) {
+      // Future feature - pour l'instant message
+      showToast('🚧 Fonctionnalité bientôt disponible !');
+      // TODO: window.location.href = `event-participants.html?session_token=${session_token}&event_code=${eventCode}`;
+    }
+    
+    function copyEventLink(eventCode) {
+      const link = `https://meetempo.github.io/meetempo-payment-pages/event-join.html?code=${eventCode}`;
+      navigator.clipboard.writeText(link).then(() => {
+        showToast('✅ Lien copié !');
+      }).catch(() => {
+        showToast('❌ Erreur copie');
+      });
+    }
+    
+    // Démarrer
+    loadEvents();
+  </script>
+</body>
+</html>
