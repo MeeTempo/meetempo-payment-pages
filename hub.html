@@ -709,6 +709,11 @@
         hasActiveInteraction = (data.pending?.chats_unread > 0) || 
                                (data.stats?.active_suggestions > 0);
         
+        // 🎪 Charger données event si event_code présent
+        if (pendingEventCode) {
+          await loadEventAccess(pendingEventCode);
+        }
+
         // Mettre à jour UI
         updateUI(data);
         
@@ -717,11 +722,7 @@
         
         // Charger prochaine interaction
         loadNextMeeting();
-        // 🎪 Charger données event si event_code présent
-        if (pendingEventCode) {
-          await loadEventAccess(pendingEventCode);
-        }
-        
+                
       } catch (err) {
         console.error('❌ Erreur chargement:', err);
         document.getElementById('cardsGrid').innerHTML = `
