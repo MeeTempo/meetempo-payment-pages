@@ -779,38 +779,19 @@
             }, 1000);
         }
 
-        async function goToHubNow() {
+        function goToHubNow() {
             if (countdownInterval) clearInterval(countdownInterval);
             if (!currentToken) return;
             
             localStorage.setItem('session_token', currentToken);
             
-            // Si event_code présent → vérifier accès et rediriger
+            // Construire URL hub avec event_code si présent
+            let hubUrl = `hub.html?session_token=${currentToken}`;
             if (eventCode) {
-                try {
-                    const checkRes = await fetch(`${API_BASE}/event/check-access?event_code=${eventCode}&email=${document.getElementById('loginEmail').value.trim()}`);
-                    const checkData = await checkRes.json();
-                    
-                    if (checkData.success && checkData.access.requires_payment) {
-                        // Créer checkout Meeting Event
-                        const checkoutRes = await fetch(`${API_BASE}/create-checkout-session?session_token=${currentToken}&plan=meeting_event&event_id=${checkData.event.event_id}`);
-                        const checkoutData = await checkoutRes.json();
-                        
-                        if (checkoutData.url) {
-                            window.location.href = checkoutData.url;
-                            return;
-                        }
-                    }
-                    // VIP/B2B ou déjà pass → hub avec event_code
-                    window.location.href = `hub.html?session_token=${currentToken}&event_code=${eventCode}`;
-                    return;
-                } catch (err) {
-                    console.error('Erreur check event:', err);
-                }
+                hubUrl += `&event_code=${eventCode}`;
             }
             
-            // Sinon → hub normal
-            window.location.href = `hub.html?session_token=${currentToken}`;
+            window.location.href = hubUrl;
         }
 
         function cancelRedirect() {
