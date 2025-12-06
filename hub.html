@@ -609,12 +609,22 @@
     })();
     // === FIN BLOC UNIVERSEL ===
 
+    // Récupérer event_code depuis URL ou localStorage
+    const urlParams = new URLSearchParams(window.location.search);
+    const pendingEventCode = urlParams.get('event_code') || localStorage.getItem('pending_event_code') || null;
+    if (pendingEventCode) {
+      console.log('🎪 Event code détecté:', pendingEventCode);
+    }
+
     const API_BASE = 'https://api.meetempo.com';
     let session_token = window.MT_TOKEN;
     let userData = null;
     let userPlan = 'free';
     let isB2BAdmin = false;
     let hasActiveInteraction = false;
+    let eventCode = null;
+    let eventData = null;
+    let eventAccess = null;
     
     // Afficher token dans la barre (après chargement DOM)
     document.addEventListener('DOMContentLoaded', () => {
@@ -707,6 +717,10 @@
         
         // Charger prochaine interaction
         loadNextMeeting();
+        // 🎪 Charger données event si event_code présent
+        if (pendingEventCode) {
+          await loadEventAccess(pendingEventCode);
+        }
         
       } catch (err) {
         console.error('❌ Erreur chargement:', err);
@@ -882,6 +896,45 @@
         onClick: "navigate('profile')"
       });
 
+      // Card : Mes Events (Event Context)
+      const hasEventAccess = userPlan === 'vip' || userPlan.startsWith('b2b');
+      const hasActivePass = userData?.user?.event_passes?.some(p => p.status === 'active') || false;
+      const showEventCard = eventCode || hasActivePass || hasEventAccess;
+      
+      if (showEventCard) {
+        let eventSubtitle = '';
+        let eventDisabled = false;
+        let eventOnClick = "navigate('events')";
+        
+        if (eventCode && eventAccess) {
+          if (eventAccess.requires_payment) {
+            // Doit payer → card active avec message paiement
+            eventSubtitle = `🎫 ${eventData?.event_name || 'Événement'} - Payer 2,99€`;
+            eventOnClick = `redirectToEventPayment('${eventCode}', '${eventData?.event_id || ''}')`;
+          } else if (eventAccess.action === 'already_joined') {
+            eventSubtitle = `✅ ${eventData?.event_name || 'Événement'} - Rejoint`;
+          } else {
+            // VIP/B2B → accès gratuit
+            eventSubtitle = `🎉 ${eventData?.event_name || 'Événement'} - Accès gratuit`;
+            eventOnClick = `joinEventFree('${eventCode}')`;
+          }
+        } else if (hasActivePass) {
+          eventSubtitle = 'Voir mes événements actifs';
+        } else if (hasEventAccess) {
+          eventSubtitle = 'Créer ou rejoindre un événement';
+        }
+        
+        cardsHTML += createCard({
+          id: 'events',
+          icon: '🎪',
+          title: 'Mes Events',
+          subtitle: eventSubtitle,
+          cssClass: 'card-create',
+          disabled: eventDisabled,
+          onClick: eventOnClick
+        });
+      }
+
       // Card 8 : Dashboard (visible pour Premium et B2B employee)
       if (userPlan === 'premium' || userPlan === 'b2b') {
         cardsHTML += createCard({
@@ -1046,6 +1099,89 @@ async function loadNextMeeting() {
     console.error('Erreur next meeting:', err);
   }
 }
+
+// ==========================================
+    // 🎪 CHARGEMENT ACCÈS EVENT
+    // ==========================================
+    
+    async function loadEventAccess(code) {
+      try {
+        const email = userData?.user?.email || '';
+        const res = await fetch(`${API_BASE}/event/check-access?event_code=${code}&email=${encodeURIComponent(email)}`);
+        
+        if (!res.ok) {
+          console.error('❌ Event introuvable:', code);
+          localStorage.removeItem('pending_event_code');
+          return;
+        }
+        
+        const data = await res.json();
+        eventCode = code;
+        eventData = data.event;
+        eventAccess = data.access;
+        
+        console.log('🎪 Event chargé:', eventData?.event_name);
+        console.log('🎫 Accès:', eventAccess);
+        
+        // Nettoyer localStorage si déjà rejoint
+        if (eventAccess?.action === 'already_joined') {
+          localStorage.removeItem('pending_event_code');
+        }
+        
+      } catch (err) {
+        console.error('❌ Erreur chargement event:', err);
+      }
+    }
+
+    // ==========================================
+    // 🎫 PAIEMENT EVENT & JOIN
+    // ==========================================
+    
+    async function redirectToEventPayment(code, eventId) {
+      try {
+        showToast('Redirection vers le paiement...');
+        
+        const res = await fetch(`${API_BASE}/create-checkout-session?session_token=${session_token}&plan=meeting_event&event_id=${eventId}`);
+        const data = await res.json();
+        
+        if (data.url) {
+          window.location.href = data.url;
+        } else {
+          alert('❌ Erreur création paiement: ' + (data.error || 'Réessayez'));
+        }
+      } catch (err) {
+        console.error('Erreur paiement event:', err);
+        alert('❌ Erreur réseau. Réessayez.');
+      }
+    }
+    
+    async function joinEventFree(code) {
+      try {
+        showToast('Inscription en cours...');
+        
+        const res = await fetch(`${API_BASE}/event/join`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_token: session_token,
+            event_code: code
+          })
+        });
+        
+        const data = await res.json();
+        
+        if (data.success) {
+          localStorage.removeItem('pending_event_code');
+          showToast('✅ Vous avez rejoint l\'événement !');
+          setTimeout(() => location.reload(), 1500);
+        } else {
+          alert('❌ Erreur: ' + (data.error || 'Réessayez'));
+        }
+      } catch (err) {
+        console.error('Erreur join event:', err);
+        alert('❌ Erreur réseau. Réessayez.');
+      }
+    }
     
     // ==========================================
     // 🗺️ COMPTEUR NEARBY
@@ -1144,6 +1280,10 @@ async function loadNextMeeting() {
 
         case 'dashboard':
           window.location.href = `dashboard.html?${tokenParam}`;
+          break;
+
+        case 'events':
+          window.location.href = `my-events.html?${tokenParam}`;
           break;
       }
     }
