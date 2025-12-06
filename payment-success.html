@@ -115,6 +115,8 @@
           || localStorage.getItem('session_token') 
           || sessionStorage.getItem('meetempo_token')
           || null;
+        const eventCodeFromUrl = urlParams.get('event_code') || null;
+        console.log('🎪 Event code from URL:', eventCodeFromUrl);
 
 // Stocker le token pour persistance (comme login.html)
 if (sessionToken) {
