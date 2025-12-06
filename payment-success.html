@@ -179,15 +179,19 @@ if (sessionToken) {
                         }
                     } else if (data.plan === 'meeting_event') {
                         // Mode Meeting Event
+                        const eventCode = data.event_code || localStorage.getItem('pending_event_code') || '';
                         if (messageEl) {
-                            const eventCode = data.event_code || '';
                             messageEl.innerHTML = `🎫 Votre Pass Event est activé !<br><small style="color:#667eea; font-weight:600;">${eventCode}</small>`;
                         }
-                        redirectUrl = `${baseUrl}/hub.html${tokenParam}`;
+                        // Ajouter event_code à l'URL pour que hub.html puisse rejoindre l'event
+                        let eventParam = eventCode ? `&event_code=${eventCode}` : '';
+                        redirectUrl = `${baseUrl}/hub.html${tokenParam}${eventParam}`;
                         if (returnBtn) {
                             returnBtn.textContent = 'Rejoindre l\'événement';
                             returnBtn.href = redirectUrl;
                         }
+                        // Nettoyer le localStorage
+                        localStorage.removeItem('pending_event_code');
                     } else if (data.plan) {
                         // Mode B2C (Premium, VIP, Meeting)
                         const plans = {
