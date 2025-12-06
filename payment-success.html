@@ -111,10 +111,15 @@
         const urlParams = new URLSearchParams(window.location.search);
         const sessionId = urlParams.get('session_id');
         const sessionToken = new URLSearchParams(window.location.search).get('session_token') 
-                  || new URLSearchParams(window.location.search).get('token')
-                  || localStorage.getItem('session_token') 
-                  || sessionStorage.getItem('meetempo_token')
-                  || null;
+          || new URLSearchParams(window.location.search).get('token')
+          || localStorage.getItem('session_token') 
+          || sessionStorage.getItem('meetempo_token')
+          || null;
+
+// Stocker le token pour persistance (comme login.html)
+if (sessionToken) {
+    localStorage.setItem('session_token', sessionToken);
+}
         
         // Éléments DOM
         const sessionInfo = document.getElementById('sessionInfo');
