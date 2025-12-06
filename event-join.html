@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rejoindre un événement | MeeTempo</title>
+    <meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; 
+               img-src https: data:; 
+               script-src 'self' 'unsafe-inline'; 
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+               font-src https://fonts.gstatic.com; 
+               connect-src https://api.meetempo.com;">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mt-dark: #030E4F;
+            --mt-accent: #F49F1C;
+            --mt-bg: #0a133f;
+            --mt-card: #0e184f;
+            --mt-text: #ffffff;
+            --mt-muted: #c9d1ff;
+            --ok: #23c55e;
+            --err: #ef4444;
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(160deg, var(--mt-dark) 0%, var(--mt-bg) 60%, #11183f 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--mt-text);
+        }
+        
+        .container {
+            background: rgba(255,255,255,0.06);
+            border: 1px solid rgba(255,255,255,0.12);
+            backdrop-filter: blur(6px);
+            border-radius: 16px;
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+        }
+        
+        .logo-badge {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
+            color: #111;
+            font-weight: 800;
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+        }
+        
+        /* Loading state */
+        .loading-state {
+            text-align: center;
+            padding: 40px 0;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-top-color: var(--mt-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        /* Error state */
+        .error-state {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .error-icon {
+            font-size: 60px;
+            margin-bottom: 16px;
+        }
+        
+        .error-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--err);
+            margin-bottom: 10px;
+        }
+        
+        .error-message {
+            color: var(--mt-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        /* Event display */
+        .event-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .event-badge {
+            display: inline-block;
+            background: var(--mt-accent);
+            color: #111;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 1px;
+            margin-bottom: 16px;
+        }
+        
+        .event-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            line-height: 1.3;
+        }
+        
+        .event-details {
+            color: var(--mt-muted);
+            font-size: 14px;
+            line-height: 1.8;
+        }
+        
+        .event-details span {
+            display: block;
+        }
+        
+        /* Divider */
+        .divider {
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            margin: 30px 0;
+        }
+        
+        /* Email form */
+        .email-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--mt-text);
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.16);
+            border-radius: 10px;
+            color: var(--mt-text);
+            font-size: 16px;
+            font-family: 'Montserrat', sans-serif;
+            transition: all 0.3s;
+        }
+        
+        input:focus {
+            outline: none;
+            border-color: var(--mt-accent);
+            background: rgba(255,255,255,0.12);
+        }
+        
+        input::placeholder {
+            color: rgba(255,255,255,0.4);
+        }
+        
+        .btn {
+            width: 100%;
+            padding: 16px;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .btn-primary {
+            background: var(--mt-accent);
+            color: #111;
+        }
+        
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(244,159,28,0.4);
+        }
+        
+        .btn-success {
+            background: var(--ok);
+            color: #111;
+        }
+        
+        .btn-success:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(35,197,94,0.4);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        /* Access result */
+        .access-result {
+            display: none;
+            margin-top: 24px;
+        }
+        
+        .access-result.show {
+            display: block;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .access-box {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--mt-accent);
+        }
+        
+        .access-box.free-access {
+            border-left-color: var(--ok);
+            background: rgba(35,197,94,0.1);
+        }
+        
+        .access-box.requires-payment {
+            border-left-color: var(--mt-accent);
+        }
+        
+        .access-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .access-icon {
+            font-size: 24px;
+        }
+        
+        .access-title {
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .access-message {
+            color: var(--mt-muted);
+            font-size: 14px;
+            line-height: 1.6;
+        }
+        
+        .price-tag {
+            display: inline-block;
+            background: var(--mt-accent);
+            color: #111;
+            padding: 4px 12px;
+            border-radius: 6px;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        /* Footer */
+        .footer-info {
+            margin-top: 30px;
+            text-align: center;
+            font-size: 12px;
+            color: var(--mt-muted);
+        }
+        
+        .footer-info a {
+            color: var(--mt-accent);
+            text-decoration: none;
+        }
+        
+        .footer-info a:hover {
+            text-decoration: underline;
+        }
+        
+        /* Message */
+        .message {
+            padding: 14px;
+            border-radius: 10px;
+            margin-top: 16px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+        
+        .message.error {
+            background: rgba(239,68,68,0.15);
+            border: 1px solid var(--err);
+            color: var(--err);
+            display: block;
+        }
+        
+        .message.success {
+            background: rgba(35,197,94,0.15);
+            border: 1px solid var(--ok);
+            color: var(--ok);
+            display: block;
+        }
+        
+        /* Responsive */
+        @media (max-width: 640px) {
+            .container { padding: 28px 20px; }
+            .event-name { font-size: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo-badge">🎪</div>
+        
+        <!-- Loading State -->
+        <div id="loadingState" class="loading-state">
+            <div class="spinner"></div>
+            <p>Chargement de l'événement...</p>
+        </div>
+        
+        <!-- Error State -->
+        <div id="errorState" class="error-state" style="display: none;">
+            <div class="error-icon">😕</div>
+            <div class="error-title" id="errorTitle">Événement introuvable</div>
+            <div class="error-message" id="errorMessage">Vérifiez le code et réessayez.</div>
+            <div style="margin-top: 24px;">
+                <a href="login.html" class="btn btn-primary" style="text-decoration: none;">
+                    Retour à l'accueil
+                </a>
+            </div>
+        </div>
+        
+        <!-- Event Content -->
+        <div id="eventContent" style="display: none;">
+            <!-- Event Header -->
+            <div class="event-header">
+                <div class="event-badge" id="eventCode">CODE</div>
+                <h1 class="event-name" id="eventName">Nom de l'événement</h1>
+                <div class="event-details">
+                    <span id="eventVenue">📍 Lieu</span>
+                    <span id="eventDates">📅 Dates</span>
+                </div>
+            </div>
+            
+            <div class="divider"></div>
+            
+            <!-- Email Section -->
+            <div class="email-section">
+                <h3>Vérifier mon accès</h3>
+                
+                <form id="checkAccessForm">
+                    <div class="form-group">
+                        <label for="email">Votre email</label>
+                        <input type="email" id="email" placeholder="votre@email.com" required autocomplete="email">
+                    </div>
+                    <button type="submit" class="btn btn-primary" id="checkBtn">
+                        <span>Vérifier mon accès</span>
+                    </button>
+                </form>
+                
+                <div class="message" id="formMessage"></div>
+                
+                <!-- Access Result -->
+                <div class="access-result" id="accessResult">
+                    <div class="access-box" id="accessBox">
+                        <div class="access-status">
+                            <span class="access-icon" id="accessIcon">✅</span>
+                            <span class="access-title" id="accessTitle">Statut</span>
+                        </div>
+                        <div class="access-message" id="accessMessage">Message</div>
+                        <div id="priceTag" style="display: none;">
+                            <span class="price-tag">2,99€</span>
+                        </div>
+                    </div>
+                    
+                    <button type="button" class="btn" id="actionBtn" style="display: none;">
+                        Action
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Footer -->
+            <div class="footer-info">
+                <p>Pas encore de compte ? <a href="login.html">Créer un compte gratuit</a></p>
+                <p style="margin-top: 8px;">Propulsé par <strong>MeeTempo</strong> 🤝</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_BASE = 'https://api.meetempo.com';
+        
+        // Récupérer paramètres URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const eventCode = urlParams.get('code') || urlParams.get('event_code');
+        const prefillEmail = urlParams.get('email');
+        
+        // Éléments DOM
+        const loadingState = document.getElementById('loadingState');
+        const errorState = document.getElementById('errorState');
+        const eventContent = document.getElementById('eventContent');
+        const checkAccessForm = document.getElementById('checkAccessForm');
+        const emailInput = document.getElementById('email');
+        const checkBtn = document.getElementById('checkBtn');
+        const formMessage = document.getElementById('formMessage');
+        const accessResult = document.getElementById('accessResult');
+        
+        // Données event
+        let currentEvent = null;
+        
+        // Formater date
+        function formatDate(isoDate) {
+            const d = new Date(isoDate);
+            return d.toLocaleDateString('fr-FR', { 
+                weekday: 'long', 
+                day: 'numeric', 
+                month: 'long',
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+        }
+        
+        // Afficher erreur
+        function showError(title, message) {
+            loadingState.style.display = 'none';
+            eventContent.style.display = 'none';
+            errorState.style.display = 'block';
+            document.getElementById('errorTitle').textContent = title;
+            document.getElementById('errorMessage').textContent = message;
+        }
+        
+        // Charger event
+        async function loadEvent() {
+            if (!eventCode) {
+                showError('Code manquant', 'Aucun code d\'événement fourni dans l\'URL.');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_BASE}/event/check-access?event_code=${encodeURIComponent(eventCode)}`);
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    showError(
+                        data.status === 'ended' ? 'Événement terminé' : 'Événement introuvable',
+                        data.error || 'Vérifiez le code et réessayez.'
+                    );
+                    return;
+                }
+                
+                // Stocker event
+                currentEvent = data.event;
+                
+                // Afficher event
+                document.getElementById('eventCode').textContent = currentEvent.event_code;
+                document.getElementById('eventName').textContent = currentEvent.event_name;
+                
+                const venueText = [currentEvent.venue, currentEvent.city].filter(Boolean).join(', ');
+                document.getElementById('eventVenue').textContent = venueText ? `📍 ${venueText}` : '';
+                document.getElementById('eventVenue').style.display = venueText ? 'block' : 'none';
+                
+                const startDate = formatDate(currentEvent.starts_at);
+                const endDate = formatDate(currentEvent.ends_at);
+                document.getElementById('eventDates').textContent = `📅 ${startDate}`;
+                
+                // Pré-remplir email si fourni
+                if (prefillEmail) {
+                    emailInput.value = prefillEmail;
+                    // Auto-check si email pré-rempli
+                    setTimeout(() => checkAccess(prefillEmail), 500);
+                }
+                
+                // Afficher contenu
+                loadingState.style.display = 'none';
+                eventContent.style.display = 'block';
+                
+            } catch (err) {
+                console.error('Erreur chargement event:', err);
+                showError('Erreur de connexion', 'Impossible de charger l\'événement. Réessayez.');
+            }
+        }
+        
+        // Vérifier accès
+        async function checkAccess(email) {
+            checkBtn.disabled = true;
+            checkBtn.innerHTML = '<span>Vérification...</span>';
+            formMessage.className = 'message';
+            accessResult.classList.remove('show');
+            
+            try {
+                const response = await fetch(
+                    `${API_BASE}/event/check-access?event_code=${encodeURIComponent(eventCode)}&email=${encodeURIComponent(email)}`
+                );
+                const data = await response.json();
+                
+                if (!response.ok) {
+                    formMessage.textContent = data.error || 'Erreur lors de la vérification';
+                    formMessage.className = 'message error';
+                    checkBtn.disabled = false;
+                    checkBtn.innerHTML = '<span>Vérifier mon accès</span>';
+                    return;
+                }
+                
+                // Afficher résultat
+                displayAccessResult(data.access, email);
+                
+            } catch (err) {
+                console.error('Erreur check access:', err);
+                formMessage.textContent = 'Erreur de connexion. Réessayez.';
+                formMessage.className = 'message error';
+            }
+            
+            checkBtn.disabled = false;
+            checkBtn.innerHTML = '<span>Vérifier mon accès</span>';
+        }
+        
+        // Afficher résultat accès
+        function displayAccessResult(access, email) {
+            const accessBox = document.getElementById('accessBox');
+            const accessIcon = document.getElementById('accessIcon');
+            const accessTitle = document.getElementById('accessTitle');
+            const accessMessage = document.getElementById('accessMessage');
+            const priceTag = document.getElementById('priceTag');
+            const actionBtn = document.getElementById('actionBtn');
+            
+            // Reset
+            accessBox.className = 'access-box';
+            priceTag.style.display = 'none';
+            actionBtn.style.display = 'block';
+            
+            const encodedEmail = encodeURIComponent(email);
+            const encodedCode = encodeURIComponent(eventCode);
+            
+            switch (access.action) {
+                case 'create_account':
+                    accessIcon.textContent = '👤';
+                    accessTitle.textContent = 'Nouveau sur MeeTempo';
+                    accessMessage.textContent = access.message;
+                    accessBox.classList.add('requires-payment');
+                    priceTag.style.display = 'block';
+                    actionBtn.textContent = '📝 Créer mon compte';
+                    actionBtn.className = 'btn btn-primary';
+                    actionBtn.onclick = () => {
+                        window.location.href = `login.html?tab=signup&email=${encodedEmail}&event_code=${encodedCode}`;
+                    };
+                    break;
+                    
+                case 'login_then_pay':
+                    accessIcon.textContent = '💳';
+                    accessTitle.textContent = 'Pass Event requis';
+                    accessMessage.textContent = access.message;
+                    accessBox.classList.add('requires-payment');
+                    priceTag.style.display = 'block';
+                    actionBtn.textContent = '🔑 Se connecter';
+                    actionBtn.className = 'btn btn-primary';
+                    actionBtn.onclick = () => {
+                        window.location.href = `login.html?email=${encodedEmail}&event_code=${encodedCode}`;
+                    };
+                    break;
+                    
+                case 'login_free_access':
+                    accessIcon.textContent = '🎉';
+                    accessTitle.textContent = 'Accès gratuit !';
+                    accessMessage.textContent = access.message;
+                    accessBox.classList.add('free-access');
+                    actionBtn.textContent = '🚀 Rejoindre l\'événement';
+                    actionBtn.className = 'btn btn-success';
+                    actionBtn.onclick = () => {
+                        window.location.href = `login.html?email=${encodedEmail}&event_code=${encodedCode}`;
+                    };
+                    break;
+                    
+                case 'login_with_pass':
+                    accessIcon.textContent = '🎫';
+                    accessTitle.textContent = 'Pass Event actif';
+                    accessMessage.textContent = access.message;
+                    accessBox.classList.add('free-access');
+                    actionBtn.textContent = '🚀 Accéder à l\'événement';
+                    actionBtn.className = 'btn btn-success';
+                    actionBtn.onclick = () => {
+                        window.location.href = `login.html?email=${encodedEmail}&event_code=${encodedCode}`;
+                    };
+                    break;
+                    
+                case 'already_joined':
+                    accessIcon.textContent = '✅';
+                    accessTitle.textContent = 'Déjà inscrit !';
+                    accessMessage.textContent = access.message;
+                    accessBox.classList.add('free-access');
+                    actionBtn.textContent = '🔑 Se connecter';
+                    actionBtn.className = 'btn btn-success';
+                    actionBtn.onclick = () => {
+                        window.location.href = `login.html?email=${encodedEmail}`;
+                    };
+                    break;
+                    
+                default:
+                    accessIcon.textContent = 'ℹ️';
+                    accessTitle.textContent = 'Information';
+                    accessMessage.textContent = access.message || 'Statut inconnu';
+                    actionBtn.style.display = 'none';
+            }
+            
+            accessResult.classList.add('show');
+        }
+        
+        // Form submit
+        checkAccessForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = emailInput.value.trim();
+            
+            if (!email || !email.includes('@')) {
+                formMessage.textContent = 'Veuillez entrer un email valide';
+                formMessage.className = 'message error';
+                return;
+            }
+            
+            await checkAccess(email);
+        });
+        
+        // Charger event au démarrage
+        loadEvent();
+    </script>
+</body>
+</html>
