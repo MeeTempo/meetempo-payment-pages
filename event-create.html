@@ -601,10 +601,24 @@
   <script>
     const API_BASE = 'https://api.meetempo.com';
     
-    // Get session token
-    function getSessionToken() {
-      return localStorage.getItem('session_token') || localStorage.getItem('meetempo_token');
-    }
+// === BLOC UNIVERSEL TOKEN ===
+(function() {
+  const params = new URLSearchParams(location.search);
+  window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
+                 || localStorage.getItem('session_token') 
+                 || sessionStorage.getItem('meetempo_token');
+  
+  if (window.MT_TOKEN) {
+    localStorage.setItem('session_token', window.MT_TOKEN);
+    sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
+  }
+})();
+// === FIN BLOC UNIVERSEL ===
+
+// Get session token
+function getSessionToken() {
+  return window.MT_TOKEN || localStorage.getItem('session_token');
+}
     
     // Show message
     function showMessage(type, text) {
@@ -627,7 +641,7 @@
       }
       
       try {
-        const response = await fetch(`${API_BASE}/auth/session?token=${token}`);
+        const response = await fetch(`${API_BASE}/auth/session?session_token=${token}`);
         const data = await response.json();
         
         if (!data.success || !data.user) {
