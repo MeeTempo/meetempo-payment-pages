@@ -1039,6 +1039,101 @@
         </div>
 
         <!-- ============================================
+             BLOC 3B : ÉVÉNEMENTS ENTREPRISE
+        ============================================ -->
+        <div class="section">
+            <div class="section-header">
+                <h2>🎪 Événements Entreprise</h2>
+                <button class="btn-primary" onclick="goToCreateEvent()">+ Créer un événement</button>
+            </div>
+
+            <!-- Accroche principale -->
+            <div style="display: flex; gap: 1.5rem; align-items: flex-start; margin-bottom: 1.5rem; padding: 1.5rem; background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.1) 100%); border-radius: 0.75rem; border-left: 4px solid var(--secondary);">
+                <div style="font-size: 3rem; line-height: 1;">🎪</div>
+                <div>
+                    <h3 style="font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--dark);">Transformez vos événements en opportunités de networking</h3>
+                    <p style="color: var(--gray); font-size: 0.9rem; line-height: 1.6;">
+                        MeeTempo ne se limite pas à gérer une liste de participants. Notre plateforme <strong style="color: var(--dark);">met vos participants en relation</strong> de manière intelligente, avant, pendant et après l'événement.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Ce que MeeTempo apporte -->
+            <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray); margin-bottom: 1rem;">Ce que MeeTempo apporte à vos événements</h4>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1rem; margin-bottom: 1.5rem;">
+                <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: var(--light-gray); border-radius: 0.5rem;">
+                    <span style="font-size: 1.5rem;">🔍</span>
+                    <div>
+                        <strong style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">Analyse des profils</strong>
+                        <span style="font-size: 0.8rem; color: var(--gray);">Centres d'intérêt, métier, objectifs de chaque participant</span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: var(--light-gray); border-radius: 0.5rem;">
+                    <span style="font-size: 1.5rem;">🤝</span>
+                    <div>
+                        <strong style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">Rencontres pertinentes</strong>
+                        <span style="font-size: 0.8rem; color: var(--gray);">Suggestions intelligentes entre participants compatibles</span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: var(--light-gray); border-radius: 0.5rem;">
+                    <span style="font-size: 1.5rem;">💬</span>
+                    <div>
+                        <strong style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">Prise de contact facilitée</strong>
+                        <span style="font-size: 0.8rem; color: var(--gray);">Avant, pendant et après l'événement</span>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: flex-start; gap: 0.75rem; padding: 1rem; background: var(--light-gray); border-radius: 0.5rem;">
+                    <span style="font-size: 1.5rem;">📊</span>
+                    <div>
+                        <strong style="display: block; font-size: 0.9rem; margin-bottom: 0.25rem;">Impact mesurable</strong>
+                        <span style="font-size: 0.8rem; color: var(--gray);">Connexions, rendez-vous, business généré</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cas d'usage -->
+            <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray); margin-bottom: 1rem;">Idéal pour</h4>
+            
+            <div style="display: flex; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 1.5rem;">
+                <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(99,102,241,0.1); border: 1px solid rgba(99,102,241,0.2); border-radius: 2rem; font-size: 0.85rem;">
+                    🏢 Séminaires internes
+                </span>
+                <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.2); border-radius: 2rem; font-size: 0.85rem;">
+                    🤝 Événements clients
+                </span>
+                <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(245,158,11,0.1); border: 1px solid rgba(245,158,11,0.2); border-radius: 2rem; font-size: 0.85rem;">
+                    🎯 Salons & conférences
+                </span>
+                <span style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; background: rgba(236,72,153,0.1); border: 1px solid rgba(236,72,153,0.2); border-radius: 2rem; font-size: 0.85rem;">
+                    🍻 Afterworks équipe
+                </span>
+            </div>
+
+            <!-- Badge inclus -->
+            <div style="background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(5,150,105,0.1) 100%); border: 1px solid rgba(16,185,129,0.3); border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                <span style="font-size: 1.25rem;">✅</span>
+                <span style="font-size: 0.9rem; color: #065f46; font-weight: 500;">
+                    <strong>Inclus dans votre abonnement B2B</strong> — Créez autant d'événements que vous voulez
+                </span>
+            </div>
+
+            <!-- CTA -->
+            <button onclick="goToCreateEvent()" class="btn-primary" style="width: 100%; padding: 1rem; font-size: 1rem;">
+                🎪 Créer mon premier événement
+            </button>
+
+            <!-- Placeholder pour liste des events (futur) -->
+            <div id="my-company-events" style="display: none; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border);">
+                <h4 style="font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--gray); margin-bottom: 1rem;">Mes événements</h4>
+                <!-- Events will be loaded here -->
+            </div>
+        </div>
+
+        <!-- ============================================
              BLOC 4 : ÉQUIPE & INVITATIONS
         ============================================ -->
         <div class="section">
