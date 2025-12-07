@@ -1238,8 +1238,8 @@
                 <button class="action-btn action-btn-secondary" onclick="goToMap()">
                     <i class="fas fa-map"></i> Carte
                 </button>
-                <button class="action-btn action-btn-secondary" onclick="goToChats()">
-                    <i class="fas fa-comments"></i> Mes chats
+                <button class="action-btn action-btn-secondary" id="btn-create-event" style="display: none; background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3)); border-color: #8b5cf6;" onclick="goToEventCreate()">
+                    <i class="fas fa-calendar-plus"></i> Créer un Event
                 </button>
             </div>
         </div>
@@ -1648,13 +1648,16 @@
 
         function renderCompanySection(profile) {
             const section = document.getElementById('company-section');
+            const eventBtn = document.getElementById('btn-create-event');
             
             if (profile.plan !== 'b2b' || !profile.company_id) {
                 section.classList.remove('visible');
+                if (eventBtn) eventBtn.style.display = 'none';
                 return;
             }
             
             section.classList.add('visible');
+            if (eventBtn) eventBtn.style.display = 'flex';
             
             document.getElementById('company-name').textContent = profile.company_name || 'Mon entreprise';
             document.getElementById('company-colleagues').textContent = profile.active_employees || '?';
@@ -1875,6 +1878,10 @@
 
         function createSuggestion() {
             window.location.href = `create-suggestion.html?session_token=${getToken()}`;
+        }
+
+        function goToEventCreate() {
+            window.location.href = `event-create.html?session_token=${getToken()}`;
         }
 
         function goToFeedback(suggestionId) {
