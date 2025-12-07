@@ -244,6 +244,12 @@
                     </div>
                 </div>
             </div>
+            <!-- Quick Action: Create Event -->
+            <div class="flex justify-end mt-4">
+                <a href="event-create.html" class="inline-flex items-center gap-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 text-white text-xs font-bold px-4 py-2 rounded-full shadow-lg transition">
+                    <i class="fas fa-plus"></i> Créer un Event
+                </a>
+            </div>
         </div>
 
         <main class="px-4 space-y-6">
@@ -386,6 +392,69 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Event Context Section -->
+<div class="fade-in" style="animation-delay: 0.45s">
+    <h2 class="text-lg font-black text-white mb-4 flex items-center">
+        <i class="fas fa-calendar-star text-purple-400 mr-2"></i> ÉVÉNEMENTS
+    </h2>
+    
+    <div class="glass-card p-5 rounded-2xl border border-purple-500/30">
+        <div class="flex items-start gap-4 mb-4">
+            <div class="w-14 h-14 rounded-xl bg-gradient-to-br from-purple-600 to-indigo-600 flex items-center justify-center text-2xl shadow-lg flex-shrink-0">
+                🎪
+            </div>
+            <div class="flex-1">
+                <h3 class="font-bold text-white text-base mb-1">Créez vos propres événements</h3>
+                <p class="text-xs text-gray-400 leading-relaxed">
+                    Organisez des rencontres professionnelles, conférences ou afterworks. 
+                    Invitez des participants et gérez votre événement facilement.
+                </p>
+            </div>
+        </div>
+        
+        <!-- Features list -->
+        <div class="grid grid-cols-2 gap-3 mb-4">
+            <div class="flex items-center gap-2 text-xs text-gray-300">
+                <i class="fas fa-check-circle text-green-400"></i>
+                <span>Events publics ou privés</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-gray-300">
+                <i class="fas fa-check-circle text-green-400"></i>
+                <span>Invitations par email</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-gray-300">
+                <i class="fas fa-check-circle text-green-400"></i>
+                <span>Gestion des participants</span>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-gray-300">
+                <i class="fas fa-check-circle text-green-400"></i>
+                <span>Dashboard organisateur</span>
+            </div>
+        </div>
+        
+        <!-- VIP Badge -->
+        <div class="bg-gradient-to-r from-yellow-500/10 to-purple-500/10 border border-yellow-500/20 rounded-lg p-3 mb-4">
+            <div class="flex items-center gap-2">
+                <i class="fas fa-crown text-yellow-400"></i>
+                <span class="text-xs text-yellow-300 font-semibold">
+                    Fonctionnalité <span class="text-white">100% GRATUITE</span> pour les plans VIP et B2B
+                </span>
+            </div>
+        </div>
+        
+        <!-- CTA Button -->
+        <a href="event-create.html" class="block w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:brightness-110 text-white text-sm font-bold py-3 rounded-xl text-center transition shadow-lg">
+            <i class="fas fa-plus mr-2"></i> Créer mon premier événement
+        </a>
+        
+        <!-- My Events (placeholder for later) -->
+        <div id="my-events-list" class="mt-4 pt-4 border-t border-white/10 hidden">
+            <h4 class="text-xs font-bold text-gray-400 uppercase mb-3">Mes événements</h4>
+            <!-- Events will be loaded here -->
+        </div>
+    </div>
+</div>
 
             <!-- B2B Section (Hidden by default) -->
             <div id="b2b-section" class="hidden fade-in" style="animation-delay: 0.5s">
