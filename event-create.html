@@ -641,10 +641,8 @@ function getSessionToken() {
       }
       
       try {
-        const response = await fetch(`${API_BASE}/auth/session?session_token=${token}`);
-        const data = await response.json();
-        
-        if (!data.success || !data.user) {
+        const response = await fetch(`${API_BASE}/profile?session_token=${token}`);
+        if (!response.ok) {
           showMessage('error', 'Session invalide. Redirection...');
           setTimeout(() => {
             window.location.href = 'login.html?redirect=event-create.html';
@@ -652,13 +650,23 @@ function getSessionToken() {
           return;
         }
         
-        const plan = data.user.plan || '';
-        const roles = data.user.roles || [];
+        const data = await response.json();
+        
+        if (!data.plan) {
+          showMessage('error', 'Session invalide. Redirection...');
+          setTimeout(() => {
+            window.location.href = 'login.html?redirect=event-create.html';
+          }, 2000);
+          return;
+        }
+        
+        const plan = data.plan || '';
+        const isB2B = !!data.company_id;
         
         // Vérifier droits : VIP, B2B Admin ou B2B Member uniquement
         const isVIP = plan === 'vip';
-        const isB2BAdmin = plan.startsWith('b2b') && roles.includes('admin');
-        const isB2BMember = plan.startsWith('b2b') && roles.includes('member');
+        const isB2BAdmin = isB2B && (data.code_admin || data.company_role === 'admin');
+        const isB2BMember = isB2B && !isB2BAdmin;
         
         if (!isVIP && !isB2BAdmin && !isB2BMember) {
           showMessage('error', 'La création d\'événements est réservée aux VIP et B2B. Redirection...');
