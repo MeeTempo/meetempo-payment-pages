@@ -1669,13 +1669,13 @@
         }
 
         function renderSubscription(profile, token) {
-            const section = document.getElementById('subscription-section');
-            
-            // Hide for B2B centralized (company pays)
-            if (profile.plan === 'b2b' && profile.payment_mode === 'centralized') {
-                section.style.display = 'none';
-                return;
-            }
+    const section = document.getElementById('subscription-section');
+    
+    // Hide for ALL B2B users (admin manages via b2b-dashboard)
+    if (profile.plan === 'b2b') {
+        section.style.display = 'none';
+        return;
+    }
             
             section.style.display = 'block';
             
