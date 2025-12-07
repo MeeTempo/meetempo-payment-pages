@@ -1318,6 +1318,18 @@
                     <label>Téléphone</label>
                     <input type="tel" id="phone" value="" disabled>
                 </div>
+
+                <div class="field-group">
+                    <label>N° TVA / VAT Number <span style="font-weight: normal; color: var(--gray); font-size: 0.8rem;">(optionnel)</span></label>
+                    <input type="text" id="vat_number" value="" disabled placeholder="Ex: FR12345678901">
+                    <small style="color: var(--gray); font-size: 0.75rem;">Format UE : préfixe pays + numéro (FR, DE, BE...)</small>
+                </div>
+
+                <div class="field-group">
+                    <label>N° SIRET / NIF / TIN <span style="font-weight: normal; color: var(--gray); font-size: 0.8rem;">(optionnel)</span></label>
+                    <input type="text" id="company_registration" value="" disabled placeholder="Ex: 123 456 789 00012">
+                    <small style="color: var(--gray); font-size: 0.75rem;">Numéro d'enregistrement ou identification fiscale</small>
+                </div>
                 
                 <div class="field-group" style="grid-column: 1 / -1;">
                     <label>Domaines email autorisés</label>
@@ -2704,10 +2716,11 @@ async function resendInviteByUserId(userId) {
                     document.getElementById('company-name-header').textContent = `🏢 ${data.company_name}`;
                     document.getElementById('company-name').value = data.company_name;
                     
-                    // Contact email = admin email pour l'instant
-                    //BACKEND: Ajouter dans KV company les champs: contact_email, phone
-                    document.getElementById('contact-email').value = data.admin_email || '';
-                    document.getElementById('phone').value = ''; // À compléter en Phase 2
+                    // 🔥 Champs profil entreprise
+                    document.getElementById('contact-email').value = data.contact_email || data.admin_email || '';
+                    document.getElementById('phone').value = data.phone || '';
+                    document.getElementById('vat_number').value = data.vat_number || '';
+                    document.getElementById('company_registration').value = data.company_registration || '';
 
                     // Display domains
                     displayDomains(data.admin_domains || []);
@@ -2773,7 +2786,10 @@ async function resendInviteByUserId(userId) {
             const updates = {
                 company_name: document.getElementById('company-name').value,
                 contact_email: document.getElementById('contact-email').value,
-                phone: document.getElementById('phone').value
+                phone: document.getElementById('phone').value,
+                // 🔥 Nouveaux champs
+                vat_number: document.getElementById('vat_number').value,
+                company_registration: document.getElementById('company_registration').value
             };
 
             try {
