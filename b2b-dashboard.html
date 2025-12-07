@@ -965,8 +965,11 @@
         </div>
         
         <div class="header-actions">
-            <a href="#" onclick="goToHub(); return false;" class="btn-secondary">Retour au Hub</a>
+            <a href="#" onclick="goToCreateEvent(); return false;" class="btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem;">
+                <span>+</span> Créer un Event
+            </a>
             <button onclick="scrollToProfile()" class="btn-tertiary">Profil entreprise</button>
+            <button onclick="logout()" class="btn-secondary" style="color: #ef4444;">Déconnexion</button>
         </div>
     </header>
 
@@ -1506,6 +1509,20 @@
 
         function goToHub() {
             window.location.href = `hub.html?session_token=${getToken()}`;
+        }
+
+        function goToCreateEvent() {
+            window.location.href = `event-create.html?session_token=${getToken()}`;
+        }
+
+        function logout() {
+            if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
+            
+            localStorage.removeItem('session_token');
+            localStorage.removeItem('meetempo_token');
+            sessionStorage.removeItem('meetempo_token');
+            
+            window.location.href = 'login.html';
         }
 
         // ============================================
