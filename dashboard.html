@@ -1855,17 +1855,9 @@
         // ============================================
         // NAVIGATION
         // ============================================
-        async function goToMap() {
-            const token = getToken();
-            try {
-                const res = await fetch(`${API_BASE}/auth/elevate-session?session_token=${token}`);
-                if (!res.ok) throw new Error('Auth fail');
-                const data = await res.json();
-                sessionStorage.setItem('meetempo_elevated_token', data.token);
-                window.location.href = `map.html?token=${data.token}`;
-            } catch (e) {
-                showToast('Erreur de connexion', 'error');
-            }
+        function goToMap() {
+            const token = window.MT_TOKEN || getToken();
+            window.location.href = `map.html?session_token=${token}`;
         }
 
         function goToChats() {
