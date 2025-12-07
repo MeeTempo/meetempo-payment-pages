@@ -1060,7 +1060,8 @@
         }
 
         function goToCreateEvent() {
-            window.location.href = `event-create.html?session_token=${getToken()}`;
+            const token = window.MT_TOKEN || getToken();
+            window.location.href = `event-create.html?session_token=${token}`;
         }
 
         function goToChats() {
