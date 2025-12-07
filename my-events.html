@@ -486,10 +486,8 @@
     }
     
     function viewParticipants(eventCode) {
-      // Future feature - pour l'instant message
-      showToast('🚧 Fonctionnalité bientôt disponible !');
-      // TODO: window.location.href = `event-participants.html?session_token=${session_token}&event_code=${eventCode}`;
-    }
+  window.location.href = `event-participants.html?session_token=${session_token}&event_code=${eventCode}`;
+}
     
     function copyEventLink(eventCode) {
       const link = `https://meetempo.github.io/meetempo-payment-pages/event-join.html?code=${eventCode}`;
