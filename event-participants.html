@@ -1,0 +1,949 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Participants - MeeTempo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: linear-gradient(135deg, #1a1f3a 0%, #2d3561 100%);
+      min-height: 100vh;
+      padding: 20px;
+      color: white;
+    }
+    
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    
+    /* ============================================
+       HEADER
+    ============================================ */
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+      animation: fadeInDown 0.6s ease;
+    }
+    
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .back-btn:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    
+    .header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #F49F1C;
+    }
+    
+    .header p {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    
+    /* ============================================
+       EVENT INFO BANNER
+    ============================================ */
+    .event-banner {
+      background: linear-gradient(135deg, rgba(244,159,28,0.2) 0%, rgba(255,140,0,0.2) 100%);
+      border: 1px solid rgba(244,159,28,0.3);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 24px;
+      animation: fadeInDown 0.6s ease;
+    }
+    
+    .event-name {
+      font-size: 20px;
+      font-weight: 700;
+      color: #F49F1C;
+      margin-bottom: 8px;
+    }
+    
+    .event-details {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    .event-detail {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .event-detail-icon {
+      font-size: 16px;
+    }
+    
+    /* ============================================
+       STATS BAR
+    ============================================ */
+    .stats-bar {
+      display: flex;
+      justify-content: center;
+      gap: 24px;
+      margin-bottom: 24px;
+      padding: 16px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 12px;
+    }
+    
+    .stat-item {
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #F49F1C;
+    }
+    
+    .stat-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    
+    /* ============================================
+       PARTICIPANTS GRID
+    ============================================ */
+    .participants-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+    
+    /* ============================================
+       PARTICIPANT CARD
+    ============================================ */
+    .participant-card {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 16px;
+      padding: 20px;
+      transition: all 0.3s ease;
+      animation: fadeInUp 0.6s ease;
+      position: relative;
+    }
+    
+    .participant-card:hover {
+      background: rgba(255,255,255,0.12);
+      transform: translateY(-4px);
+      box-shadow: 0 12px 24px rgba(0,0,0,0.3);
+    }
+    
+    .participant-card.is-me {
+      border-color: rgba(244,159,28,0.5);
+      background: rgba(244,159,28,0.1);
+    }
+    
+    .participant-card.is-organizer {
+      border-color: rgba(251,191,36,0.5);
+      background: rgba(251,191,36,0.1);
+    }
+    
+    /* Card Header */
+    .card-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    
+    .avatar {
+      font-size: 40px;
+      width: 56px;
+      height: 56px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.1);
+      border-radius: 50%;
+    }
+    
+    .user-info {
+      flex: 1;
+    }
+    
+    .pseudo {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    
+    .plan-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    
+    .plan-badge.free { background: rgba(107,114,128,0.3); color: #9ca3af; }
+    .plan-badge.meeting { background: rgba(59,130,246,0.3); color: #60a5fa; }
+    .plan-badge.premium { background: rgba(139,92,246,0.3); color: #a78bfa; }
+    .plan-badge.vip { background: rgba(245,158,11,0.3); color: #fbbf24; }
+    .plan-badge.b2b, .plan-badge.b2b_centralized, .plan-badge.b2b_delegated { 
+      background: rgba(16,185,129,0.3); color: #34d399; 
+    }
+    
+    /* Badges spéciaux */
+    .special-badge {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+    
+    .special-badge.organizer {
+      background: rgba(251,191,36,0.9);
+      color: #111;
+    }
+    
+    .special-badge.me {
+      background: rgba(244,159,28,0.9);
+      color: #111;
+    }
+    
+    /* Compatibilité */
+    .compatibility-section {
+      margin: 12px 0;
+      padding: 12px;
+      background: rgba(255,255,255,0.05);
+      border-radius: 8px;
+    }
+    
+    .compatibility-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    
+    .compatibility-label {
+      font-size: 11px;
+      color: rgba(255,255,255,0.6);
+      text-transform: uppercase;
+    }
+    
+    .compatibility-score {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .compatibility-score.high { color: #10b981; }
+    .compatibility-score.medium { color: #f59e0b; }
+    .compatibility-score.low { color: #6b7280; }
+    
+    .compatibility-bar {
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 8px;
+    }
+    
+    .compatibility-fill {
+      height: 100%;
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+    
+    .compatibility-fill.high { background: linear-gradient(90deg, #10b981, #34d399); }
+    .compatibility-fill.medium { background: linear-gradient(90deg, #f59e0b, #fbbf24); }
+    .compatibility-fill.low { background: linear-gradient(90deg, #6b7280, #9ca3af); }
+    
+    .compatibility-reasons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    
+    .reason-tag {
+      background: rgba(255,255,255,0.1);
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    /* Meta info */
+    .meta-info {
+      display: flex;
+      gap: 12px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.5);
+      margin-bottom: 12px;
+    }
+    
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    
+    /* Actions */
+    .card-actions {
+      display: flex;
+      gap: 8px;
+    }
+    
+    .btn {
+      flex: 1;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #F49F1C, #ff8c00);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(244,159,28,0.4);
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.2);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    
+    /* ============================================
+       EMPTY STATE
+    ============================================ */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255,255,255,0.6);
+    }
+    
+    .empty-state-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    
+    .empty-state-title {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: white;
+    }
+    
+    .empty-state-text {
+      font-size: 14px;
+    }
+    
+    /* ============================================
+       ERROR STATE
+    ============================================ */
+    .error-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: rgba(255,255,255,0.8);
+    }
+    
+    .error-state-icon {
+      font-size: 64px;
+      margin-bottom: 16px;
+    }
+    
+    .error-state-title {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: #ef4444;
+    }
+    
+    .error-state-text {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+    
+    /* ============================================
+       LOADING
+    ============================================ */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+      font-size: 16px;
+      opacity: 0.8;
+    }
+    
+    .loading::after {
+      content: '...';
+      animation: dots 1.5s steps(4, end) infinite;
+    }
+    
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60%, 100% { content: '...'; }
+    }
+    
+    /* ============================================
+       TOAST
+    ============================================ */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(16, 185, 129, 0.95);
+      color: white;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      z-index: 2000;
+      animation: slideUp 0.3s ease;
+    }
+    
+    .toast.error {
+      background: rgba(239, 68, 68, 0.95);
+    }
+    
+    @keyframes slideUp {
+      from { opacity: 0; transform: translate(-50%, 20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    
+    /* ============================================
+       ANIMATIONS
+    ============================================ */
+    @keyframes fadeInDown {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* ============================================
+       RESPONSIVE
+    ============================================ */
+    @media (max-width: 640px) {
+      body {
+        padding: 16px;
+        padding-top: 60px;
+      }
+      
+      .back-btn {
+        top: 12px;
+        left: 12px;
+        padding: 8px 12px;
+        font-size: 12px;
+      }
+      
+      .header h1 {
+        font-size: 22px;
+      }
+      
+      .event-details {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .stats-bar {
+        gap: 16px;
+      }
+      
+      .stat-value {
+        font-size: 20px;
+      }
+      
+      .participants-grid {
+        grid-template-columns: 1fr;
+      }
+      
+      .participant-card {
+        padding: 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  
+  <a href="#" class="back-btn" id="backBtn">
+    ← Retour
+  </a>
+  
+  <div class="container">
+    
+    <!-- Header -->
+    <div class="header">
+      <h1>👥 Participants</h1>
+      <p>Découvrez les MeeTempers de cet événement</p>
+    </div>
+    
+    <!-- Event Banner -->
+    <div class="event-banner" id="eventBanner" style="display: none;">
+      <div class="event-name" id="eventName">-</div>
+      <div class="event-details">
+        <div class="event-detail">
+          <span class="event-detail-icon">📍</span>
+          <span id="eventVenue">-</span>
+        </div>
+        <div class="event-detail">
+          <span class="event-detail-icon">📅</span>
+          <span id="eventDates">-</span>
+        </div>
+        <div class="event-detail">
+          <span class="event-detail-icon">🏙️</span>
+          <span id="eventCity">-</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Stats Bar -->
+    <div class="stats-bar" id="statsBar" style="display: none;">
+      <div class="stat-item">
+        <div class="stat-value" id="totalParticipants">0</div>
+        <div class="stat-label">Participants</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-value" id="compatibleCount">0</div>
+        <div class="stat-label">Compatibles</div>
+      </div>
+    </div>
+    
+    <!-- Participants Grid -->
+    <div class="participants-grid" id="participantsGrid">
+      <div class="loading" style="grid-column: 1 / -1;">
+        Chargement des participants
+      </div>
+    </div>
+    
+  </div>
+
+  <script>
+    // === BLOC UNIVERSEL MEETEMPO ===
+    (function() {
+      const params = new URLSearchParams(location.search);
+      window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
+                     || localStorage.getItem('session_token') 
+                     || sessionStorage.getItem('meetempo_token');
+      
+      if (window.MT_TOKEN) {
+        localStorage.setItem('session_token', window.MT_TOKEN);
+        sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
+      }
+      
+      if (!window.MT_TOKEN) {
+        alert('❌ Session expirée. Retour à la connexion.');
+        window.location.href = 'login.html';
+        return;
+      }
+      
+      console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}...`);
+    })();
+    // === FIN BLOC UNIVERSEL ===
+
+    const API_BASE = 'https://api.meetempo.com';
+    const session_token = window.MT_TOKEN;
+    
+    // Récupérer event_code depuis URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const eventCode = urlParams.get('event_code') || urlParams.get('code');
+    
+    let currentUserId = null;
+    let eventData = null;
+    let participants = [];
+    
+    // ==========================================
+    // 🚀 INITIALISATION
+    // ==========================================
+    
+    async function init() {
+      // Configurer bouton retour
+      document.getElementById('backBtn').href = `my-events.html?session_token=${session_token}`;
+      
+      if (!eventCode) {
+        showError('Code événement manquant', 'Aucun code événement spécifié dans l\'URL.');
+        return;
+      }
+      
+      await loadParticipants();
+    }
+    
+    // ==========================================
+    // 📥 CHARGEMENT PARTICIPANTS
+    // ==========================================
+    
+    async function loadParticipants() {
+      try {
+        const response = await fetch(
+          `${API_BASE}/event/participants?session_token=${session_token}&event_code=${eventCode}`
+        );
+        
+        if (response.status === 401) {
+          showError('Session expirée', 'Veuillez vous reconnecter.');
+          setTimeout(() => {
+            window.location.href = 'login.html';
+          }, 2000);
+          return;
+        }
+        
+        if (response.status === 403) {
+          showError('Accès refusé', 'Vous devez rejoindre cet événement pour voir les participants.');
+          return;
+        }
+        
+        if (!response.ok) {
+          const err = await response.json();
+          showError('Erreur', err.error || 'Impossible de charger les participants.');
+          return;
+        }
+        
+        const data = await response.json();
+        
+        eventData = data.event;
+        participants = data.participants || [];
+        
+        // Trouver l'ID de l'utilisateur actuel
+        const meParticipant = participants.find(p => p.is_me);
+        if (meParticipant) {
+          currentUserId = meParticipant.user_id;
+        }
+        
+        // Afficher les données
+        renderEventBanner();
+        renderStats();
+        renderParticipants();
+        
+      } catch (err) {
+        console.error('❌ Erreur chargement:', err);
+        showError('Erreur réseau', 'Impossible de contacter le serveur.');
+      }
+    }
+    
+    // ==========================================
+    // 🎪 AFFICHAGE BANNER EVENT
+    // ==========================================
+    
+    function renderEventBanner() {
+      if (!eventData) return;
+      
+      document.getElementById('eventBanner').style.display = 'block';
+      document.getElementById('eventName').textContent = eventData.event_name || 'Événement';
+      document.getElementById('eventVenue').textContent = eventData.venue || '-';
+      document.getElementById('eventCity').textContent = eventData.city || '-';
+      
+      // Formater dates
+      if (eventData.starts_at) {
+        const start = new Date(eventData.starts_at);
+        const end = eventData.ends_at ? new Date(eventData.ends_at) : null;
+        
+        const options = { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' };
+        let dateStr = start.toLocaleDateString('fr-FR', options);
+        
+        if (end && end.toDateString() === start.toDateString()) {
+          dateStr += ` - ${end.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}`;
+        } else if (end) {
+          dateStr += ` → ${end.toLocaleDateString('fr-FR', options)}`;
+        }
+        
+        document.getElementById('eventDates').textContent = dateStr;
+      }
+    }
+    
+    // ==========================================
+    // 📊 AFFICHAGE STATS
+    // ==========================================
+    
+    function renderStats() {
+      document.getElementById('statsBar').style.display = 'flex';
+      document.getElementById('totalParticipants').textContent = participants.length;
+      
+      // Compter participants avec compatibilité > 60%
+      const compatible = participants.filter(p => !p.is_me && p.compatibility_score >= 60).length;
+      document.getElementById('compatibleCount').textContent = compatible;
+    }
+    
+    // ==========================================
+    // 👥 AFFICHAGE PARTICIPANTS
+    // ==========================================
+    
+    function renderParticipants() {
+      const grid = document.getElementById('participantsGrid');
+      
+      if (participants.length === 0) {
+        grid.innerHTML = `
+          <div class="empty-state" style="grid-column: 1 / -1;">
+            <div class="empty-state-icon">👻</div>
+            <div class="empty-state-title">Aucun participant</div>
+            <div class="empty-state-text">Soyez le premier à rejoindre cet événement !</div>
+          </div>
+        `;
+        return;
+      }
+      
+      grid.innerHTML = participants.map((p, index) => renderParticipantCard(p, index)).join('');
+    }
+    
+    function renderParticipantCard(participant, index) {
+      const {
+        user_id, pseudo, avatar, plan, city,
+        joined_at, access_type, is_organizer, is_me,
+        compatibility_score, compatibility_reasons, total_matches
+      } = participant;
+      
+      // Classes CSS
+      let cardClasses = 'participant-card';
+      if (is_me) cardClasses += ' is-me';
+      if (is_organizer) cardClasses += ' is-organizer';
+      
+      // Badge spécial
+      let specialBadge = '';
+      if (is_organizer) {
+        specialBadge = '<div class="special-badge organizer">👑 Organisateur</div>';
+      } else if (is_me) {
+        specialBadge = '<div class="special-badge me">Moi</div>';
+      }
+      
+      // Plan label
+      const planLabels = {
+        'free': '🆓 Free',
+        'meeting': '🤝 Meeting',
+        'premium': '⭐ Premium',
+        'vip': '👑 VIP',
+        'b2b': '🏢 B2B',
+        'b2b_centralized': '🏢 B2B',
+        'b2b_delegated': '🏢 B2B'
+      };
+      const planLabel = planLabels[plan] || plan;
+      const planClass = plan?.startsWith('b2b') ? 'b2b' : plan;
+      
+      // Compatibilité
+      let compatibilityHTML = '';
+      if (!is_me && compatibility_score !== null && compatibility_score !== undefined) {
+        const level = compatibility_score >= 70 ? 'high' : compatibility_score >= 50 ? 'medium' : 'low';
+        
+        let reasonsHTML = '';
+        if (compatibility_reasons && compatibility_reasons.length > 0) {
+          reasonsHTML = `
+            <div class="compatibility-reasons">
+              ${compatibility_reasons.slice(0, 3).map(r => `<span class="reason-tag">${r}</span>`).join('')}
+            </div>
+          `;
+        }
+        
+        compatibilityHTML = `
+          <div class="compatibility-section">
+            <div class="compatibility-header">
+              <span class="compatibility-label">Compatibilité</span>
+              <span class="compatibility-score ${level}">${compatibility_score}%</span>
+            </div>
+            <div class="compatibility-bar">
+              <div class="compatibility-fill ${level}" style="width: ${compatibility_score}%"></div>
+            </div>
+            ${reasonsHTML}
+          </div>
+        `;
+      }
+      
+      // Meta info
+      let metaHTML = '';
+      const metaItems = [];
+      
+      if (city) {
+        metaItems.push(`<span class="meta-item">📍 ${city}</span>`);
+      }
+      
+      if (joined_at) {
+        const joinedDate = new Date(joined_at);
+        const timeAgo = formatTimeAgo(joinedDate);
+        metaItems.push(`<span class="meta-item">⏰ Rejoint ${timeAgo}</span>`);
+      }
+      
+      if (metaItems.length > 0) {
+        metaHTML = `<div class="meta-info">${metaItems.join('')}</div>`;
+      }
+      
+      // Actions
+      let actionsHTML = '';
+      if (!is_me) {
+        actionsHTML = `
+          <div class="card-actions">
+            <button class="btn btn-primary" onclick="contactParticipant('${user_id}', '${pseudo.replace(/'/g, "\\'")}')">
+              💬 Contacter
+            </button>
+          </div>
+        `;
+      } else {
+        actionsHTML = `
+          <div class="card-actions">
+            <button class="btn btn-secondary" disabled>
+              C'est vous !
+            </button>
+          </div>
+        `;
+      }
+      
+      return `
+        <div class="${cardClasses}" style="animation-delay: ${index * 0.05}s">
+          ${specialBadge}
+          <div class="card-header">
+            <div class="avatar">${avatar || '👤'}</div>
+            <div class="user-info">
+              <div class="pseudo">${pseudo || 'MeeTemper'}</div>
+              <span class="plan-badge ${planClass}">${planLabel}</span>
+            </div>
+          </div>
+          ${compatibilityHTML}
+          ${metaHTML}
+          ${actionsHTML}
+        </div>
+      `;
+    }
+    
+    // ==========================================
+    // 💬 CONTACTER PARTICIPANT
+    // ==========================================
+    
+    async function contactParticipant(userId, pseudo) {
+      if (!confirm(`Envoyer une demande de contact à ${pseudo} ?`)) {
+        return;
+      }
+      
+      try {
+        showToast('Envoi de la demande...');
+        
+        const response = await fetch(`${API_BASE}/connection/request`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_token: session_token,
+            to_user_id: userId,
+            context: `event:${eventCode}`,
+            message: `Je souhaite vous contacter suite à l'événement ${eventData?.event_name || eventCode}`
+          })
+        });
+        
+        const data = await response.json();
+        
+        if (data.success || response.ok) {
+          showToast('✅ Demande envoyée !');
+        } else if (data.error?.includes('déjà') || data.error?.includes('already')) {
+          showToast('ℹ️ Demande déjà envoyée', 'info');
+        } else {
+          showToast('❌ ' + (data.error || 'Erreur'), 'error');
+        }
+        
+      } catch (err) {
+        console.error('❌ Erreur contact:', err);
+        showToast('❌ Erreur réseau', 'error');
+      }
+    }
+    
+    // ==========================================
+    // 🛠️ UTILITAIRES
+    // ==========================================
+    
+    function formatTimeAgo(date) {
+      const now = new Date();
+      const diffMs = now - date;
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMs / 3600000);
+      const diffDays = Math.floor(diffMs / 86400000);
+      
+      if (diffMins < 1) return "à l'instant";
+      if (diffMins < 60) return `il y a ${diffMins}min`;
+      if (diffHours < 24) return `il y a ${diffHours}h`;
+      if (diffDays < 7) return `il y a ${diffDays}j`;
+      
+      return date.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short' });
+    }
+    
+    function showError(title, message) {
+      document.getElementById('participantsGrid').innerHTML = `
+        <div class="error-state" style="grid-column: 1 / -1;">
+          <div class="error-state-icon">🚫</div>
+          <div class="error-state-title">${title}</div>
+          <div class="error-state-text">${message}</div>
+          <a href="my-events.html?session_token=${session_token}" class="btn btn-primary" style="display: inline-flex; margin-top: 16px;">
+            ← Retour à mes events
+          </a>
+        </div>
+      `;
+    }
+    
+    function showToast(message, type = 'success') {
+      // Supprimer ancien toast
+      const old = document.querySelector('.toast');
+      if (old) old.remove();
+      
+      const toast = document.createElement('div');
+      toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => toast.remove(), 3000);
+    }
+    
+    // ==========================================
+    // 🚀 DÉMARRAGE
+    // ==========================================
+    
+    init();
+  </script>
+</body>
+</html>
