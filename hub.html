@@ -625,6 +625,8 @@
     let eventCode = null;
     let eventData = null;
     let eventAccess = null;
+    let userEventPasses = [];
+
     
     // Afficher token dans la barre (après chargement DOM)
     document.addEventListener('DOMContentLoaded', () => {
@@ -710,12 +712,15 @@
                                (data.stats?.active_suggestions > 0);
         
         // 🎪 Charger données event si event_code présent
-        if (pendingEventCode) {
-          await loadEventAccess(pendingEventCode);
-        }
+if (pendingEventCode) {
+  await loadEventAccess(pendingEventCode);
+}
 
-        // Mettre à jour UI
-        updateUI(data);
+// 🎫 Charger event passes actifs (pour affichage card persistante)
+await loadActiveEventPasses();
+
+// Mettre à jour UI
+updateUI(data);
         
         // Charger compteur nearby
         loadNearbyCount();
@@ -899,8 +904,8 @@
 
       // Card : Mes Events (Event Context)
       const hasEventAccess = userPlan === 'vip' || userPlan.startsWith('b2b');
-      const hasActivePass = userData?.user?.event_passes?.some(p => p.status === 'active') || false;
-      const showEventCard = eventCode || hasActivePass || hasEventAccess;
+      const hasActivePasses = userEventPasses.length > 0;
+      const showEventCard = eventCode || hasActivePasses || hasEventAccess;
       
       if (showEventCard) {
         let eventSubtitle = '';
@@ -919,11 +924,12 @@
             eventSubtitle = `🎉 ${eventData?.event_name || 'Événement'} - Accès gratuit`;
             eventOnClick = `joinEventFree('${eventCode}')`;
           }
-        } else if (hasActivePass) {
-          eventSubtitle = 'Voir mes événements actifs';
+        } else if (hasActivePasses) {
+          const count = userEventPasses.length;
+          eventSubtitle = `🎫 ${count} événement${count > 1 ? 's' : ''} actif${count > 1 ? 's' : ''}`;
         } else if (hasEventAccess) {
-          eventSubtitle = 'Créer ou rejoindre un événement';
-        }
+                  eventSubtitle = 'Créer ou rejoindre un événement';
+                }
         
         cardsHTML += createCard({
           id: 'events',
@@ -1143,6 +1149,35 @@ async function loadNextMeeting() {
         console.error('❌ Erreur chargement event:', err);
       }
     }
+
+    // ==========================================
+// 🎫 CHARGEMENT EVENT PASSES ACTIFS
+// ==========================================
+
+async function loadActiveEventPasses() {
+  try {
+    const profileRes = await fetch(`${API_BASE}/profile?session_token=${session_token}`);
+    if (!profileRes.ok) return [];
+    
+    const profile = await profileRes.json();
+    const passes = profile.profile_rich?.event_passes || [];
+    
+    // Filtrer passes actifs ET non expirés
+    const now = Date.now();
+    userEventPasses = passes.filter(p => {
+      if (p.status !== 'active') return false;
+      const validUntil = new Date(p.valid_until).getTime();
+      return validUntil > now;
+    });
+    
+    console.log(`🎫 Event passes actifs: ${userEventPasses.length}`);
+    return userEventPasses;
+    
+  } catch (err) {
+    console.error('❌ Erreur chargement event passes:', err);
+    return [];
+  }
+}
 
     // ==========================================
     // 🎫 PAIEMENT EVENT & JOIN
