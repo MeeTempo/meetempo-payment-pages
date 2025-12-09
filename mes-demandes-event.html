@@ -644,6 +644,7 @@
         // Récupérer demandes envoyées
         const sentResp = await fetch(`${API_BASE}/connections/sent?session_token=${token}&context=event`);
         const sentData = await sentResp.json();
+        console.log('📤 Sent data:', sentData);
         
         // Séparer actifs vs historique (J+10)
         const now = Date.now();
