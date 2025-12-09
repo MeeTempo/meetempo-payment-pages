@@ -877,6 +877,7 @@
           body: JSON.stringify({
             session_token: session_token,
             target_user_id: userId,
+            context: `event:${eventCode}`,
             message: `Je souhaite vous contacter suite à l'événement ${eventData?.event_name || eventCode}`
           })
         });
