@@ -1,0 +1,977 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mes Connexions Event - MeeTempo</title>
+  <meta http-equiv="Content-Security-Policy" 
+      content="default-src 'self'; 
+               img-src https: data:; 
+               script-src 'self' 'unsafe-inline'; 
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
+               font-src https://fonts.gstatic.com; 
+               connect-src https://api.meetempo.com;">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --mt-primary: #F49F1C;
+      --mt-primary-dark: #d88a0f;
+      --mt-bg: #FBF9F6;
+      --mt-card: #FFFFFF;
+      --mt-text: #1a1a2e;
+      --mt-text-muted: #6b7280;
+      --mt-border: #e5e7eb;
+      --mt-success: #10b981;
+      --mt-error: #ef4444;
+      --mt-warning: #f59e0b;
+      --mt-vip: #8b5cf6;
+      --mt-event: #0891b2;
+      --mt-shadow: 0 4px 20px rgba(0,0,0,0.08);
+      --mt-shadow-hover: 0 8px 30px rgba(244,159,28,0.15);
+    }
+    
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    body {
+      font-family: Montserrat, system-ui, -apple-system, sans-serif;
+      background: var(--mt-bg);
+      color: var(--mt-text);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    
+    /* Header */
+    .header {
+      text-align: center;
+      margin-bottom: 32px;
+      padding: 24px;
+      background: linear-gradient(135deg, #fff 0%, #ecfeff 100%);
+      border-radius: 20px;
+      box-shadow: var(--mt-shadow);
+    }
+    
+    .logo-badge {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--mt-event) 0%, #06b6d4 100%);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 15px rgba(8,145,178,0.3);
+    }
+    
+    h1 {
+      font-size: 26px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: var(--mt-text);
+    }
+    
+    .subtitle {
+      font-size: 15px;
+      color: var(--mt-text-muted);
+    }
+    
+    .event-badge {
+      display: inline-block;
+      margin-top: 12px;
+      padding: 6px 16px;
+      background: linear-gradient(135deg, var(--mt-event) 0%, #06b6d4 100%);
+      color: white;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    /* Section */
+    .section {
+      margin-bottom: 28px;
+    }
+    
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--mt-border);
+    }
+    
+    .section-icon {
+      font-size: 24px;
+    }
+    
+    .section-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--mt-text);
+    }
+    
+    .section-count {
+      margin-left: auto;
+      padding: 4px 12px;
+      background: var(--mt-event);
+      color: white;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    
+    .section-count.history {
+      background: var(--mt-text-muted);
+    }
+    
+    /* Profile Card */
+    .profile-card {
+      background: var(--mt-card);
+      border: 1px solid var(--mt-border);
+      border-radius: 16px;
+      padding: 20px;
+      margin-bottom: 16px;
+      box-shadow: var(--mt-shadow);
+      transition: all 0.3s ease;
+    }
+    
+    .profile-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--mt-shadow-hover);
+      border-color: var(--mt-event);
+    }
+    
+    .profile-card.expired {
+      opacity: 0.7;
+      background: #f9fafb;
+    }
+    
+    .profile-card.expired:hover {
+      transform: none;
+      box-shadow: var(--mt-shadow);
+      border-color: var(--mt-border);
+    }
+    
+    .profile-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    
+    .profile-avatar {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--mt-primary) 0%, #ffca63 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+    
+    .profile-info {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .profile-name {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--mt-text);
+      margin-bottom: 6px;
+    }
+    
+    .profile-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+    
+    /* Access Badges */
+    .access-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+    
+    .badge-vip { background: #fef3c7; color: #d97706; }
+    .badge-b2b { background: #dbeafe; color: #1e40af; }
+    .badge-premium { background: #ede9fe; color: #7c3aed; }
+    .badge-meeting { background: #fce7f3; color: #be185d; }
+    .badge-event-pass { background: #d1fae5; color: #059669; border: 1px dashed #059669; }
+    .badge-free { background: #f3f4f6; color: #6b7280; }
+    
+    /* Event Info */
+    .event-info {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding: 12px 16px;
+      background: linear-gradient(135deg, #ecfeff 0%, #cffafe 100%);
+      border-radius: 10px;
+      margin-bottom: 12px;
+      font-size: 13px;
+    }
+    
+    .event-info-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #0e7490;
+      font-weight: 500;
+    }
+    
+    .event-info-item.event-name {
+      width: 100%;
+      font-size: 14px;
+      font-weight: 700;
+      color: #0891b2;
+    }
+    
+    /* Status Badge */
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    
+    .status-pending {
+      background: #fef3c7;
+      color: #92400e;
+    }
+    
+    .status-accepted {
+      background: #d1fae5;
+      color: #065f46;
+    }
+    
+    .status-declined {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+    
+    .status-expired {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+    
+    /* Message */
+    .profile-message {
+      padding: 12px 16px;
+      background: #fefce8;
+      border-left: 4px solid var(--mt-warning);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 14px;
+      font-style: italic;
+      color: #854d0e;
+    }
+    
+    /* Expired Notice */
+    .expired-notice {
+      padding: 10px 16px;
+      background: #f3f4f6;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      font-size: 13px;
+      color: var(--mt-text-muted);
+      text-align: center;
+    }
+    
+    .expired-notice .icon {
+      margin-right: 6px;
+    }
+    
+    /* Actions */
+    .profile-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    
+    .btn {
+      padding: 10px 18px;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: inherit;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--mt-event) 0%, #06b6d4 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(8,145,178,0.3);
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(8,145,178,0.4);
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, var(--mt-success) 0%, #059669 100%);
+      color: white;
+    }
+    
+    .btn-success:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(16,185,129,0.3);
+    }
+    
+    .btn-danger {
+      background: #fee2e2;
+      color: var(--mt-error);
+      border: 1px solid #fecaca;
+    }
+    
+    .btn-danger:hover:not(:disabled) {
+      background: #fecaca;
+    }
+    
+    .btn-secondary {
+      background: white;
+      color: var(--mt-text);
+      border: 1px solid var(--mt-border);
+    }
+    
+    .btn-secondary:hover:not(:disabled) {
+      background: #f9fafb;
+      border-color: var(--mt-event);
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      background: white;
+      border-radius: 16px;
+      border: 2px dashed var(--mt-border);
+    }
+    
+    .empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    
+    .empty-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--mt-text);
+      margin-bottom: 4px;
+    }
+    
+    .empty-text {
+      font-size: 14px;
+      color: var(--mt-text-muted);
+    }
+    
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--mt-border);
+      border-top-color: var(--mt-event);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 16px;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    /* Bottom Actions */
+    .bottom-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 32px;
+      padding-top: 24px;
+      border-top: 1px solid var(--mt-border);
+    }
+    
+    .bottom-actions .btn {
+      flex: 1;
+      min-width: 140px;
+      justify-content: center;
+    }
+    
+    /* No Access */
+    .no-access {
+      text-align: center;
+      padding: 60px 20px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: var(--mt-shadow);
+    }
+    
+    .no-access-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    
+    .no-access h2 {
+      font-size: 22px;
+      margin-bottom: 12px;
+      color: var(--mt-text);
+    }
+    
+    .no-access p {
+      color: var(--mt-text-muted);
+      margin-bottom: 24px;
+    }
+    
+    /* Responsive */
+    @media (max-width: 640px) {
+      .profile-header {
+        flex-wrap: wrap;
+      }
+      
+      .event-info {
+        flex-direction: column;
+        gap: 8px;
+      }
+      
+      .profile-actions {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .bottom-actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="logo-badge">🎪</div>
+      <h1>Mes Connexions Event</h1>
+      <p class="subtitle">Contacts établis lors de vos événements</p>
+      <div class="event-badge">🎫 Networking Event</div>
+    </div>
+    
+    <!-- Loading -->
+    <div id="loading" class="loading">
+      <div class="spinner"></div>
+      <div>Chargement...</div>
+    </div>
+    
+    <!-- No Access (hidden by default) -->
+    <div id="noAccess" class="no-access" style="display:none;">
+      <div class="no-access-icon">🎫</div>
+      <h2>Aucun Event Pass</h2>
+      <p>Vous n'avez participé à aucun événement pour le moment.</p>
+      <button class="btn btn-primary" onclick="goToEvents()">
+        🎪 Découvrir les events
+      </button>
+    </div>
+    
+    <!-- Main Content -->
+    <div id="content" style="display:none;">
+      
+      <!-- Section: Demandes Reçues -->
+      <div class="section" id="sectionReceived">
+        <div class="section-header">
+          <span class="section-icon">📥</span>
+          <span class="section-title">Demandes reçues</span>
+          <span class="section-count" id="countReceived">0</span>
+        </div>
+        <div id="listReceived"></div>
+      </div>
+      
+      <!-- Section: Demandes Envoyées -->
+      <div class="section" id="sectionSent">
+        <div class="section-header">
+          <span class="section-icon">📤</span>
+          <span class="section-title">Mes demandes envoyées</span>
+          <span class="section-count" id="countSent">0</span>
+        </div>
+        <div id="listSent"></div>
+      </div>
+      
+      <!-- Section: Historique -->
+      <div class="section" id="sectionHistory">
+        <div class="section-header">
+          <span class="section-icon">📦</span>
+          <span class="section-title">Historique (events terminés)</span>
+          <span class="section-count history" id="countHistory">0</span>
+        </div>
+        <div id="listHistory"></div>
+      </div>
+      
+      <!-- Bottom Actions -->
+      <div class="bottom-actions">
+        <button class="btn btn-secondary" onclick="refreshData()">
+          🔄 Actualiser
+        </button>
+        <button class="btn btn-secondary" onclick="goToMyEvents()">
+          🎪 Mes Events
+        </button>
+        <button class="btn btn-secondary" onclick="goToHub()">
+          🏠 Retour Hub
+        </button>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // === BLOC UNIVERSEL MEETEMPO - STANDARD (45 min) ===
+    (function() {
+      const TIMEOUT_MINUTES = 45;
+      
+      const params = new URLSearchParams(location.search);
+      window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
+                     || localStorage.getItem('session_token') 
+                     || sessionStorage.getItem('meetempo_token');
+      
+      if (window.MT_TOKEN) {
+        localStorage.setItem('session_token', window.MT_TOKEN);
+        sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
+      }
+      
+      if (!window.MT_TOKEN) {
+        alert('❌ Session expirée. Retour à MeeTempo GPT.');
+        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        return;
+      }
+      
+      const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
+      setTimeout(() => {
+        alert('⏰ Session expirée (45 min). Cette page va se fermer.');
+        window.close();
+        setTimeout(() => {
+          window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        }, 1000);
+      }, TIMEOUT_MS);
+      
+      console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
+    })();
+    // === FIN BLOC UNIVERSEL ===
+    
+    const API_BASE = 'https://api.meetempo.com';
+    
+    // Initialisation
+    async function init() {
+      console.log('🎪 Initialisation mes-demandes-event...');
+      
+      const token = window.MT_TOKEN;
+      
+      try {
+        // 1. Vérifier le profil et les event passes
+        const profileResp = await fetch(`${API_BASE}/profile?session_token=${token}`);
+        const profileData = await profileResp.json();
+        
+        if (!profileResp.ok) {
+          throw new Error(profileData.error || 'Erreur profil');
+        }
+        
+        const eventPasses = profileData.profile_rich?.event_passes || [];
+        
+        // Si aucun event pass, afficher message
+        if (eventPasses.length === 0) {
+          document.getElementById('loading').style.display = 'none';
+          document.getElementById('noAccess').style.display = 'block';
+          return;
+        }
+        
+        // 2. Charger les demandes event
+        await loadEventConnections(token);
+        
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+        
+      } catch (err) {
+        console.error('Erreur init:', err);
+        document.getElementById('loading').innerHTML = `
+          <div style="color: var(--mt-error);">❌ ${err.message}</div>
+          <button class="btn btn-primary" onclick="init()" style="margin-top: 16px;">
+            Réessayer
+          </button>
+        `;
+      }
+    }
+    
+    // Charger les connexions event
+    async function loadEventConnections(token) {
+      try {
+        // Récupérer demandes reçues
+        const receivedResp = await fetch(`${API_BASE}/connections/received?session_token=${token}&context=event`);
+        const receivedData = await receivedResp.json();
+        
+        // Récupérer demandes envoyées
+        const sentResp = await fetch(`${API_BASE}/connections/sent?session_token=${token}&context=event`);
+        const sentData = await sentResp.json();
+        
+        // Séparer actifs vs historique (J+10)
+        const now = Date.now();
+        const J10_MS = 10 * 24 * 60 * 60 * 1000;
+        
+        // === DEMANDES REÇUES ===
+        const allReceived = receivedData.connections?.pending || [];
+        const activeReceived = allReceived.filter(r => !isExpired(r.event_ends_at, J10_MS));
+        const historyReceived = allReceived.filter(r => isExpired(r.event_ends_at, J10_MS));
+        
+        document.getElementById('countReceived').textContent = activeReceived.length;
+        renderList('listReceived', activeReceived, 'received', false);
+        
+        // === DEMANDES ENVOYÉES ===
+        const allSentPending = sentData.connections?.pending || [];
+        const allSentAccepted = sentData.connections?.accepted || [];
+        const allSentDeclined = sentData.connections?.declined || [];
+        const allSent = [...allSentPending, ...allSentAccepted, ...allSentDeclined];
+        
+        const activeSent = allSent.filter(r => !isExpired(r.event_ends_at, J10_MS));
+        const historySent = allSent.filter(r => isExpired(r.event_ends_at, J10_MS));
+        
+        document.getElementById('countSent').textContent = activeSent.filter(s => s.status === 'pending').length;
+        renderList('listSent', activeSent, 'sent', false);
+        
+        // === HISTORIQUE ===
+        const allHistory = [...historyReceived, ...historySent];
+        document.getElementById('countHistory').textContent = allHistory.length;
+        renderList('listHistory', allHistory, 'history', true);
+        
+      } catch (err) {
+        console.error('Erreur loadEventConnections:', err);
+      }
+    }
+    
+    // Vérifier si event expiré (J+10)
+    function isExpired(eventEndsAt, j10Ms) {
+      if (!eventEndsAt) return false;
+      const endsAt = new Date(eventEndsAt).getTime();
+      const expireAt = endsAt + j10Ms;
+      return Date.now() > expireAt;
+    }
+    
+    // Calculer jours restants avant expiration
+    function getDaysUntilExpire(eventEndsAt) {
+      if (!eventEndsAt) return null;
+      const J10_MS = 10 * 24 * 60 * 60 * 1000;
+      const endsAt = new Date(eventEndsAt).getTime();
+      const expireAt = endsAt + J10_MS;
+      const remaining = expireAt - Date.now();
+      return Math.ceil(remaining / (24 * 60 * 60 * 1000));
+    }
+    
+    // Render liste
+    function renderList(containerId, items, type, isHistorySection) {
+      const container = document.getElementById(containerId);
+      
+      if (items.length === 0) {
+        const emptyMessages = {
+          'received': { icon: '📭', title: 'Aucune demande reçue', text: 'Les demandes de participants event apparaîtront ici' },
+          'sent': { icon: '📤', title: 'Aucune demande envoyée', text: 'Contactez des participants depuis les pages event' },
+          'history': { icon: '📦', title: 'Aucun historique', text: 'Les connexions d\'events terminés (J+10) apparaîtront ici' }
+        };
+        const msg = emptyMessages[type];
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">${msg.icon}</div>
+            <div class="empty-title">${msg.title}</div>
+            <div class="empty-text">${msg.text}</div>
+          </div>
+        `;
+        return;
+      }
+      
+      container.innerHTML = items.map(item => {
+        if (type === 'received') {
+          return renderReceivedCard(item, isHistorySection);
+        } else if (type === 'sent') {
+          return renderSentCard(item, isHistorySection);
+        } else {
+          // History peut être received ou sent
+          return item.direction === 'received' 
+            ? renderReceivedCard(item, true) 
+            : renderSentCard(item, true);
+        }
+      }).join('');
+    }
+    
+    // Badge d'accès selon le plan
+    function getAccessBadge(user, eventCode) {
+      const plan = user?.plan || 'free';
+      const companyId = user?.company_id;
+      const eventPasses = user?.event_passes || [];
+      
+      // VIP
+      if (plan === 'vip') {
+        return { icon: '👑', label: 'VIP', class: 'badge-vip' };
+      }
+      
+      // B2B
+      if (plan === 'b2b' || plan === 'b2b_centralized' || plan === 'b2b_delegated' || companyId) {
+        return { icon: '🏢', label: 'B2B', class: 'badge-b2b' };
+      }
+      
+      // Premium
+      if (plan === 'premium') {
+        return { icon: '⭐', label: 'Premium', class: 'badge-premium' };
+      }
+      
+      // Meeting 24h
+      if (plan === 'meeting') {
+        return { icon: '🎫', label: 'Meeting 24h', class: 'badge-meeting' };
+      }
+      
+      // Free avec Event Pass
+      if (plan === 'free' && (eventPasses.includes(eventCode) || eventPasses.some(p => p.event_code === eventCode))) {
+        return { icon: '🎟️', label: 'Pass Event', class: 'badge-event-pass' };
+      }
+      
+      // Free sans pass
+      return { icon: '🆓', label: 'Free', class: 'badge-free' };
+    }
+    
+    // Render carte demande reçue
+    function renderReceivedCard(req, isExpired) {
+      const user = req.from_user || {};
+      const badge = getAccessBadge(user, req.event_code);
+      const daysLeft = getDaysUntilExpire(req.event_ends_at);
+      
+      return `
+        <div class="profile-card ${isExpired ? 'expired' : ''}" id="received_${req.match_id}">
+          <div class="profile-header">
+            <div class="profile-avatar">${user.anonymous_avatar || '👤'}</div>
+            <div class="profile-info">
+              <div class="profile-name">${user.anonymous_display || 'MeeTemper'}</div>
+              <div class="profile-badges">
+                <span class="access-badge ${badge.class}">${badge.icon} ${badge.label}</span>
+                <span class="status-badge status-pending">⏳ En attente</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="event-info">
+            <div class="event-info-item event-name">🎪 ${req.event_name || req.event_code || 'Event'}</div>
+            <div class="event-info-item">📅 ${formatDate(req.event_starts_at)} - ${formatDate(req.event_ends_at)}</div>
+            <div class="event-info-item">📍 ${req.event_city || '?'}</div>
+            ${!isExpired && daysLeft !== null ? `<div class="event-info-item">⏳ ${daysLeft}j restants</div>` : ''}
+          </div>
+          
+          ${req.message ? `<div class="profile-message">💬 "${req.message}"</div>` : ''}
+          
+          ${isExpired ? `
+            <div class="expired-notice">
+              <span class="icon">🔒</span> Cet event est terminé depuis plus de 10 jours. Interactions désactivées.
+            </div>
+          ` : `
+            <div class="profile-actions">
+              <button class="btn btn-success" onclick="acceptConnection('${req.match_id}')">
+                ✅ Accepter
+              </button>
+              <button class="btn btn-danger" onclick="declineConnection('${req.match_id}')">
+                ❌ Refuser
+              </button>
+            </div>
+          `}
+        </div>
+      `;
+    }
+    
+    // Render carte demande envoyée
+    function renderSentCard(req, isExpired) {
+      const user = req.to_user || {};
+      const badge = getAccessBadge(user, req.event_code);
+      const daysLeft = getDaysUntilExpire(req.event_ends_at);
+      
+      const statusMap = {
+        'pending': { class: 'status-pending', label: '⏳ En attente' },
+        'accepted': { class: 'status-accepted', label: '✅ Acceptée' },
+        'declined': { class: 'status-declined', label: '❌ Refusée' }
+      };
+      const status = statusMap[req.status] || statusMap.pending;
+      
+      return `
+        <div class="profile-card ${isExpired ? 'expired' : ''}" id="sent_${req.match_id}">
+          <div class="profile-header">
+            <div class="profile-avatar">${user.anonymous_avatar || '👤'}</div>
+            <div class="profile-info">
+              <div class="profile-name">${user.anonymous_display || 'MeeTemper'}</div>
+              <div class="profile-badges">
+                <span class="access-badge ${badge.class}">${badge.icon} ${badge.label}</span>
+                <span class="status-badge ${status.class}">${status.label}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="event-info">
+            <div class="event-info-item event-name">🎪 ${req.event_name || req.event_code || 'Event'}</div>
+            <div class="event-info-item">📅 ${formatDate(req.event_starts_at)} - ${formatDate(req.event_ends_at)}</div>
+            <div class="event-info-item">📍 ${req.event_city || '?'}</div>
+            ${!isExpired && daysLeft !== null ? `<div class="event-info-item">⏳ ${daysLeft}j restants</div>` : ''}
+          </div>
+          
+          ${isExpired ? `
+            <div class="expired-notice">
+              <span class="icon">🔒</span> Cet event est terminé depuis plus de 10 jours. Interactions désactivées.
+            </div>
+          ` : `
+            <div class="profile-actions">
+              ${req.status === 'pending' ? `
+                <button class="btn btn-danger" onclick="cancelConnection('${req.match_id}')">
+                  🗑️ Annuler
+                </button>
+              ` : ''}
+              ${req.status === 'accepted' ? `
+                <button class="btn btn-primary" onclick="goToChat('${req.match_id}')">
+                  💬 Ouvrir le chat
+                </button>
+              ` : ''}
+            </div>
+          `}
+        </div>
+      `;
+    }
+    
+    // Format date
+    function formatDate(dateStr) {
+      if (!dateStr) return '?';
+      try {
+        const d = new Date(dateStr);
+        return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'short', year: 'numeric' });
+      } catch {
+        return dateStr;
+      }
+    }
+    
+    // === ACTIONS ===
+    
+    async function acceptConnection(matchId) {
+      if (!confirm('Accepter cette demande de connexion ?')) return;
+      
+      const token = window.MT_TOKEN;
+      
+      try {
+        const resp = await fetch(`${API_BASE}/match/respond?session_token=${token}&match_id=${matchId}&action=accept`);
+        const data = await resp.json();
+        
+        if (!resp.ok) throw new Error(data.error || 'Erreur');
+        
+        alert('✅ Connexion acceptée ! Vous pouvez maintenant discuter.');
+        await loadEventConnections(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+    
+    async function declineConnection(matchId) {
+      if (!confirm('Refuser cette demande de connexion ?')) return;
+      
+      const token = window.MT_TOKEN;
+      
+      try {
+        const resp = await fetch(`${API_BASE}/match/respond?session_token=${token}&match_id=${matchId}&action=decline`);
+        const data = await resp.json();
+        
+        if (!resp.ok) throw new Error(data.error || 'Erreur');
+        
+        alert('Demande refusée.');
+        await loadEventConnections(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+    
+    async function cancelConnection(matchId) {
+      if (!confirm('Annuler cette demande ?')) return;
+      
+      const token = window.MT_TOKEN;
+      
+      try {
+        const resp = await fetch(`${API_BASE}/match/cancel?session_token=${token}&match_id=${matchId}`);
+        const data = await resp.json();
+        
+        if (!resp.ok) throw new Error(data.error || 'Erreur');
+        
+        alert('✅ Demande annulée.');
+        await loadEventConnections(token);
+        
+      } catch (err) {
+        alert('❌ Erreur: ' + err.message);
+      }
+    }
+    
+    function goToChat(matchId) {
+      const token = window.MT_TOKEN;
+      window.location.href = `chat.html?match_id=${matchId}&session_token=${token}`;
+    }
+    
+    // === NAVIGATION ===
+    
+    function goToMyEvents() {
+      const token = window.MT_TOKEN;
+      window.location.href = `my-events.html?session_token=${token}`;
+    }
+    
+    function goToEvents() {
+      const token = window.MT_TOKEN;
+      window.location.href = `event-join.html?session_token=${token}`;
+    }
+    
+    function goToHub() {
+      const token = window.MT_TOKEN;
+      window.location.href = `hub.html?session_token=${token}`;
+    }
+    
+    function refreshData() {
+      const token = window.MT_TOKEN;
+      document.getElementById('loading').style.display = 'block';
+      document.getElementById('content').style.display = 'none';
+      loadEventConnections(token).then(() => {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('content').style.display = 'block';
+      });
+    }
+    
+    // Lancer au chargement
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
