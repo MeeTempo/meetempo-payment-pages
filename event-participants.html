@@ -525,6 +525,9 @@
   <a href="#" class="back-btn" id="backBtn">
     ← Retour
   </a>
+  <a href="#" class="back-btn" id="myRequestsBtn" style="right: 20px; left: auto;">
+  📬 Mes demandes
+</a>
   
   <div class="container">
     
@@ -615,6 +618,7 @@
     async function init() {
       // Configurer bouton retour
       document.getElementById('backBtn').href = `my-events.html?session_token=${session_token}`;
+      document.getElementById('myRequestsBtn').href = `mes-demandes-event.html?session_token=${session_token}`;
       
       if (!eventCode) {
         showError('Code événement manquant', 'Aucun code événement spécifié dans l\'URL.');
