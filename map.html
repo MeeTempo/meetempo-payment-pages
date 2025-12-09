@@ -4,21 +4,18 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Carte MeeTempers - MeeTempo</title>
-  
   <meta http-equiv="Content-Security-Policy" 
       content="default-src 'self'; 
                img-src https: data: blob:; 
                script-src 'self' https://js.api.here.com 'unsafe-inline' 'unsafe-eval'; 
                style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://js.api.here.com; 
-               font-src https://fonts.gstatic.com https://js.api.here.com https://cdnjs.cloudflare.com; 
+               font-src https://fonts.gstatic.com https://js.api.here.com; 
                worker-src blob:; 
                connect-src 'self' blob: https://api.meetempo.com https://*.hereapi.com https://js.api.here.com;">
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
   
+  <!-- HERE Maps -->
   <link rel="stylesheet" type="text/css" href="https://js.api.here.com/v3/3.1/mapsjs-ui.css" />
   <script src="https://js.api.here.com/v3/3.1/mapsjs-core.js"></script>
   <script src="https://js.api.here.com/v3/3.1/mapsjs-service.js"></script>
@@ -28,246 +25,774 @@
   
   <style>
     :root {
-      --mt-bg: #0f172a;
-      --mt-accent: #f97316;
-      --mt-text: #f8fafc;
-      --mt-muted: #94a3b8;
-      --glass-bg: rgba(15, 23, 42, 0.85);
-      --glass-border: rgba(255, 255, 255, 0.1);
-      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      --mt-dark: #030E4F;
+      --mt-accent: #F49F1C;
+      --mt-bg: #0a133f;
+      --mt-card: #0e184f;
+      --mt-text: #ffffff;
+      --mt-muted: #c9d1ff;
     }
     
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
     
     body {
-      font-family: 'Inter', sans-serif;
+      font-family: Montserrat, sans-serif;
       background: var(--mt-bg);
       color: var(--mt-text);
       overflow: hidden;
       height: 100vh;
+      touch-action: pan-y;
     }
     
-    /* === TOP BAR === */
+    /* Top Bar */
     .top-bar {
-      position: fixed; top: 0; left: 0; right: 0; height: 64px;
-      background: var(--glass-bg); backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--glass-border);
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 0 20px; z-index: 1000; box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 60px;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 20px;
+      box-shadow: 0 2px 20px rgba(0,0,0,0.3);
+      z-index: 1000;
     }
     
-    .logo-section { display: flex; align-items: center; gap: 12px; cursor: pointer; }
+    .logo-section {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
     .logo-badge {
-      width: 36px; height: 36px; border-radius: 12px;
-      background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-      display: flex; align-items: center; justify-content: center;
-      color: #fff; transition: 0.2s;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-weight: 800;
+      font-size: 14px;
     }
-    .logo-section:hover .logo-badge { background: rgba(255,255,255,0.2); }
-    .top-bar h1 { font-size: 16px; font-weight: 600; }
     
-    .stats { display: flex; align-items: center; gap: 8px; }
+    .top-bar h1 {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    
+    .stats {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+    }
+    
     .stat-item {
-      display: flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
-      padding: 6px 12px; border-radius: 50px; font-size: 12px;
-      cursor: pointer; transition: 0.2s;
-    }
-    .stat-item:hover { background: rgba(255,255,255,0.1); }
-
-    /* === SEARCH === */
-    .search-bar {
-      position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
-      width: 90%; max-width: 400px; z-index: 999;
-    }
-    .search-wrapper {
-      display: flex; gap: 10px; align-items: center;
-      background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(12px);
-      border: 1px solid var(--glass-border); border-radius: 50px;
-      padding: 12px 20px; box-shadow: var(--glass-shadow);
-    }
-    #citySearchInput {
-      flex: 1; border: none; background: transparent;
-      font-size: 15px; color: white; outline: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,0.1);
+      padding: 6px 10px;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
     }
     
-    /* Autocomplete */
-    .search-autocomplete-results {
-      display: none; position: absolute; top: calc(100% + 8px); left: 0; right: 0;
-      background: var(--mt-bg); border: 1px solid var(--glass-border);
-      border-radius: 16px; overflow: hidden; z-index: 10000;
+    .stat-item:hover {
+      background: rgba(255,255,255,0.15);
     }
-    .search-autocomplete-results.show { display: block; }
-    .search-autocomplete-item {
-      padding: 12px 16px; cursor: pointer; border-bottom: 1px solid rgba(255,255,255,0.05);
+    
+    /* 🔥 NOUVEAU : Barre recherche centrée style HERE */
+    .search-bar {
+      position: fixed;
+      top: 70px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 90%;
+      max-width: 500px;
+      z-index: 999;
     }
-    .search-autocomplete-item:hover { background: rgba(255,255,255,0.1); }
+    
+    .search-wrapper {
+      display: flex;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      padding: 12px 16px;
+      box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
+    }
 
-    /* === CONTROLS === */
+    /* 🔥 NOUVEAU : Autocomplete search */
+.search-autocomplete-results {
+  display: none;
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(14, 24, 79, 0.98);
+  border: 2px solid var(--mt-accent);
+  border-radius: 12px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 10000;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6);
+}
+
+.search-autocomplete-results.show {
+  display: block;
+}
+
+.search-autocomplete-item {
+  padding: 12px 16px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
+  display: flex;
+  align-items: start;
+  gap: 12px;
+}
+
+.search-autocomplete-item:last-child {
+  border-bottom: none;
+}
+
+.search-autocomplete-item:hover {
+  background: rgba(244, 159, 28, 0.2);
+}
+
+.search-autocomplete-icon {
+  font-size: 20px;
+  flex-shrink: 0;
+}
+
+.search-autocomplete-content {
+  flex: 1;
+}
+
+.search-autocomplete-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--mt-text);
+  margin-bottom: 4px;
+}
+
+.search-autocomplete-subtitle {
+  font-size: 12px;
+  color: var(--mt-muted);
+}
+
+.search-autocomplete-loading {
+  padding: 16px;
+  text-align: center;
+  color: var(--mt-muted);
+  font-size: 14px;
+}
+    
+    .search-icon {
+      font-size: 20px;
+      color: #666;
+    }
+    
+    #citySearchInput {
+      flex: 1;
+      border: none;
+      background: transparent;
+      font-size: 16px;
+      font-family: 'Montserrat', sans-serif;
+      color: #1a1a1a;
+      outline: none;
+    }
+    
+    #citySearchInput::placeholder {
+      color: #999;
+    }
+    
+    /* Distance Selector - repositionné à droite */
     .distance-selector {
-      position: fixed; top: 150px; right: 20px;
-      background: var(--glass-bg); backdrop-filter: blur(12px);
-      border: 1px solid var(--glass-border); border-radius: 16px;
-      padding: 12px; z-index: 999; display: flex; flex-direction: column; gap: 8px;
+      position: fixed;
+      top: 140px;
+      right: 20px;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(6px);
+      border-radius: 12px;
+      padding: 12px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+      z-index: 999;
     }
+    
+    .distance-label {
+      font-size: 11px;
+      color: var(--mt-muted);
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 8px;
+    }
+    
+    .distance-buttons {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+    
     .distance-btn {
-      padding: 8px; border: 1px solid transparent; border-radius: 8px;
-      background: rgba(255,255,255,0.05); color: var(--mt-muted);
-      font-size: 11px; font-weight: 600; cursor: pointer;
+      padding: 6px 12px;
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      background: rgba(255,255,255,0.08);
+      color: var(--mt-text);
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
     }
-    .distance-btn.active { background: var(--mt-accent); color: white; }
-
-    .my-location-btn {
-      position: fixed; bottom: 260px; right: 20px;
-      width: 48px; height: 48px; background: var(--mt-accent);
-      border: none; border-radius: 50%; color: white; font-size: 20px;
-      box-shadow: 0 4px 15px rgba(249, 115, 22, 0.5);
-      cursor: pointer; z-index: 999; display: flex; justify-content: center; align-items: center;
+    
+    .distance-btn:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    .distance-btn.active {
+      background: var(--mt-accent);
+      color: #111;
+      border-color: var(--mt-accent);
+    }
+    
+    .distance-btn.auto {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      border-color: transparent;
     }
 
-    /* === MAP === */
-    #map { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
+    /* 🔥 NOUVEAU : Bouton Ma Position */
+.my-location-btn {
+  position: fixed;
+  top: 230px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+  border: 1px solid rgba(255,255,255,0.12);
+  backdrop-filter: blur(6px);
+  border-radius: 50%;
+  font-size: 24px;
+  cursor: pointer;
+  transition: all 0.2s;
+  z-index: 999;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
 
-    /* === BOTTOM SHEET (Suggestions) === */
+.my-location-btn:hover {
+  background: var(--mt-accent);
+  transform: scale(1.1);
+}
+
+.my-location-btn:active {
+  transform: scale(0.95);
+}
+
+
+    /* Map */
+    #map {
+      position: fixed;
+      top: 60px;
+      left: 0;
+      right: 0;
+      bottom: 200px;
+      width: 100%;
+    }
+    
+    /* 🔥 NOUVEAU : Bottom Sheet expansible */
     .bottom-sheet {
-      position: fixed; bottom: 0; left: 0; right: 0;
-      height: 240px; /* Plus haut pour bien voir */
-      background: var(--glass-bg);
-      backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-      border-top: 1px solid var(--glass-border);
-      border-radius: 24px 24px 0 0;
-      box-shadow: 0 -4px 30px rgba(0,0,0,0.5);
-      z-index: 999; transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 200px;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      border-top-left-radius: 24px;
+      border-top-right-radius: 24px;
+      box-shadow: 0 -4px 30px rgba(0,0,0,0.4);
+      z-index: 999;
+      transition: height 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow: hidden;
+    }
+    
+    .bottom-sheet.expanded {
+      height: 60vh;
     }
     
     .sheet-handle {
-      width: 40px; height: 4px; background: rgba(255,255,255,0.2);
-      border-radius: 2px; margin: 12px auto; cursor: grab;
+      width: 40px;
+      height: 4px;
+      background: rgba(255,255,255,0.3);
+      border-radius: 2px;
+      margin: 12px auto;
+      cursor: grab;
     }
     
-    .sheet-container {
-      position: relative;
-      height: calc(100% - 30px);
-      padding: 0 40px; /* Espace pour les flèches */
+    .sheet-handle:active {
+      cursor: grabbing;
     }
-
-    /* Scroll Arrows */
-    .scroll-arrow {
-      position: absolute; top: 50%; transform: translateY(-50%);
-      width: 36px; height: 36px; border-radius: 50%;
-      background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255,255,255,0.2);
-      color: white; font-size: 14px; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      z-index: 1001; transition: 0.2s; opacity: 0; pointer-events: none;
+    
+    .sheet-content {
+      padding: 0 20px 20px;
+      overflow-y: auto;
+      height: calc(100% - 28px);
     }
-    .scroll-arrow.visible { opacity: 1; pointer-events: auto; }
-    .scroll-arrow:hover { background: var(--mt-accent); border-color: var(--mt-accent); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-    .scroll-arrow.left { left: 10px; }
-    .scroll-arrow.right { right: 10px; }
-
+    
     .users-grid {
-      display: flex; gap: 16px; overflow-x: auto; 
-      padding: 10px 0 20px 0;
-      scroll-behavior: smooth;
-      scrollbar-width: none; /* Hide scrollbar Firefox */
+      display: flex;
+      gap: 16px;
+      overflow-x: auto;
+      padding-bottom: 10px;
     }
-    .users-grid::-webkit-scrollbar { display: none; } /* Hide scrollbar Chrome */
-
-    /* === USER CARD === */
+    
+    .bottom-sheet.expanded .users-grid {
+      flex-direction: column;
+      overflow-x: visible;
+    }
+    
     .user-card {
       min-width: 280px;
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
-      border-radius: 16px; padding: 16px;
-      cursor: pointer; transition: 0.2s; position: relative;
-    }
-    .user-card:hover, .user-card.active {
-      background: rgba(255,255,255,0.07);
-      border-color: var(--mt-accent);
-      transform: translateY(-2px);
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      backdrop-filter: blur(6px);
+      border-radius: 16px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
     }
     
-    .user-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
-    .user-avatar {
-      width: 44px; height: 44px; border-radius: 50%;
-      background: linear-gradient(135deg, #3b82f6, #8b5cf6);
-      display: flex; align-items: center; justify-content: center;
-      font-weight: 700; color: white; font-size: 16px;
+    .bottom-sheet.expanded .user-card {
+      min-width: 100%;
     }
-    .user-info h3 { font-size: 15px; font-weight: 600; color: white; margin-bottom: 2px; }
-    .user-distance { font-size: 12px; color: var(--mt-accent); }
+    
+    .user-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 25px rgba(244,159,28,0.3);
+      border-color: var(--mt-accent);
+    }
+    
+    .user-card.active {
+      border-color: var(--mt-accent);
+      box-shadow: 0 0 0 2px rgba(244,159,28,0.3);
+    }
+    
+    .user-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+    
+    .user-avatar {
+      width: 44px;
+      height: 44px;
+      border-radius: 50%;
+      background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #111;
+      font-weight: 700;
+      font-size: 16px;
+      flex-shrink: 0;
+    }
+    
+    .user-info {
+      flex: 1;
+    }
+    
+    .user-info h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 2px;
+    }
+    
+    .user-distance {
+      font-size: 12px;
+      color: var(--mt-muted);
+    }
+    
+    .user-suggestion {
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #ebefff;
+      line-height: 1.4;
+    }
+    
+    .user-location {
+      font-size: 13px;
+      color: var(--mt-muted);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-bottom: 12px;
+    }
+    
+    .user-actions {
+      display: flex;
+      gap: 8px;
+    }
     
     .btn {
-      width: 100%; padding: 8px; border-radius: 8px; border: none;
-      font-size: 13px; font-weight: 600; cursor: pointer; margin-top: 10px;
+      flex: 1;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
     }
-    .btn-primary { background: var(--mt-accent); color: white; }
-
-    /* Loading & Error */
-    .loading, .error-screen {
-      position: fixed; inset: 0; background: var(--mt-bg);
-      display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 2000;
+    
+    .btn-primary {
+      background: var(--mt-accent);
+      color: #111;
     }
+    
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(244,159,28,0.4);
+    }
+    
+    .btn-secondary {
+      background: rgba(255,255,255,0.1);
+      color: var(--mt-text);
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+    
+    .btn-secondary:hover {
+      background: rgba(255,255,255,0.15);
+    }
+    
+    /* Loading */
+    .loading {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+    
     .spinner {
-      width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
-      border-top-color: var(--mt-accent); border-radius: 50%; animation: spin 1s infinite linear;
+      width: 50px;
+      height: 50px;
+      border: 4px solid rgba(255,255,255,0.1);
+      border-top-color: var(--mt-accent);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 20px;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* InfoBubble Styling */
-    .H_ib_body { background: #0f172a !important; color: white !important; border-radius: 8px; padding: 0 !important; }
-    .H_ib_content { margin: 0 !important; }
-    .H_ib_close { display: none; }
-    .H_ib_tail { fill: #0f172a !important; }
-
-    @media (max-width: 640px) {
-      .top-bar { height: 56px; padding: 0 16px; }
-      .stats span:not(#locationText):not([id*="Count"]) { display: none; }
-      .search-bar { top: 66px; width: 92%; }
-      .distance-selector { top: 130px; }
-      .my-location-btn { bottom: 250px; right: 16px; }
-      /* Cacher flèches sur mobile (on swipe) */
-      .scroll-arrow { display: none; }
-      .sheet-container { padding: 0 16px; }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
     }
+    
+    .loading-text {
+      font-size: 16px;
+      color: var(--mt-muted);
+    }
+    
+    /* Error */
+    .error-screen {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 20px;
+      z-index: 2000;
+    }
+    
+    .error-screen.show {
+      display: flex;
+    }
+    
+    .error-content {
+      max-width: 400px;
+    }
+    
+    .error-icon {
+      font-size: 64px;
+      margin-bottom: 20px;
+    }
+    
+    .error-title {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 12px;
+    }
+    
+    .error-message {
+      font-size: 16px;
+      color: var(--mt-muted);
+      margin-bottom: 24px;
+      line-height: 1.5;
+    }
+    
+    /* 🔥 NOUVEAU : Panneau Suggestions */
+    .suggestions-panel {
+      position: fixed;
+      top: 60px;
+      right: -400px;
+      width: 400px;
+      height: calc(100vh - 60px);
+      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      box-shadow: -4px 0 30px rgba(0,0,0,0.4);
+      z-index: 1001;
+      transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .suggestions-panel.open {
+      right: 0;
+    }
+    
+    .panel-header {
+      padding: 20px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    
+    .panel-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      margin: 0;
+    }
+    
+    .close-btn {
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 50%;
+      width: 32px;
+      height: 32px;
+      font-size: 18px;
+      cursor: pointer;
+      color: var(--mt-text);
+      transition: all 0.2s;
+    }
+    
+    .close-btn:hover {
+      background: rgba(255,255,255,0.2);
+      transform: rotate(90deg);
+    }
+    
+    .panel-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+    
+    .suggestion-item {
+      background: rgba(255,255,255,0.08);
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    
+    .suggestion-item:hover {
+      transform: translateX(-4px);
+      border-color: var(--mt-accent);
+      box-shadow: 0 4px 20px rgba(244,159,28,0.3);
+    }
+    
+    .suggestion-item-title {
+      font-size: 15px;
+      font-weight: 600;
+      margin-bottom: 8px;
+      color: var(--mt-text);
+    }
+    
+    .suggestion-item-meta {
+      font-size: 12px;
+      color: var(--mt-muted);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    
+    .load-more-btn {
+      margin: 16px;
+      padding: 12px;
+      background: var(--mt-accent);
+      color: #111;
+      border: none;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      width: calc(100% - 32px);
+    }
+    
+    .load-more-btn:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(244,159,28,0.4);
+    }
+    
+    .load-more-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .panel-empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--mt-muted);
+    }
+    
+    .panel-empty-icon {
+      font-size: 48px;
+      margin-bottom: 12px;
+    }
+    
+    /* Responsive */
+@media (max-width: 640px) {
+  .top-bar {
+    height: 56px;
+    padding: 0 12px;
+  }
+  
+  .top-bar h1 {
+    font-size: 16px;
+  }
+  
+  .stats {
+    gap: 8px;
+    font-size: 12px;
+  }
+  
+  .stat-item {
+    padding: 4px 8px;
+  }
+  
+  .search-bar {
+    top: 66px;
+    width: calc(100% - 24px);
+  }
+  
+  .search-wrapper {
+    padding: 10px 12px;
+  }
+  
+  .distance-selector {
+    top: 135px;
+    right: 12px;
+  }
+  
+  #map {
+    top: 56px;
+  }
+  
+  /* 🔥 NOUVEAU : Bouton ma position mobile */
+  .my-location-btn {
+    top: 210px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    font-size: 20px;
+  }
+}
+
   </style>
 </head>
 <body>
-
+  <!-- Loading Screen -->
   <div id="loading" class="loading">
     <div class="spinner"></div>
-    <div style="margin-top: 15px; color: var(--mt-muted); font-size: 14px;">Chargement de la carte...</div>
+    <div class="loading-text">Chargement de la carte...</div>
   </div>
   
-  <div id="errorScreen" class="error-screen" style="display: none;">
-    <i class="fas fa-exclamation-circle" style="font-size: 40px; color: #ef4444; margin-bottom: 20px;"></i>
-    <h2 id="errorTitle" style="margin-bottom: 10px;">Erreur</h2>
-    <p id="errorMessage" style="color: var(--mt-muted); margin-bottom: 20px;">Une erreur est survenue</p>
-    <button class="btn-primary" style="padding:10px 20px; width:auto;" onclick="goBackToHub()">Retour au Hub</button>
+  <!-- Error Screen -->
+  <div id="errorScreen" class="error-screen">
+    <div class="error-content">
+      <div class="error-icon">❌</div>
+      <h2 class="error-title" id="errorTitle">Erreur</h2>
+      <p class="error-message" id="errorMessage">Une erreur est survenue</p>
+      <button class="btn btn-primary" onclick="window.location.href='https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19'">
+        Retour à MeeTempo
+      </button>
+    </div>
   </div>
-
+  
+  <!-- Top Bar -->
   <div class="top-bar">
-    <div class="logo-section" onclick="goBackToHub()">
-      <div class="logo-badge"><i class="fas fa-arrow-left"></i></div>
-      <h1>Hub</h1>
+    <div class="logo-section">
+      <div class="logo-badge">MT</div>
+      <h1>🗺 Carte MeeTempers</h1>
     </div>
-    <div class="stats">
-      <div class="stat-item"><i class="fas fa-map-marker-alt" style="color:#f87171;"></i><span id="locationText">...</span></div>
-      <div class="stat-item"><i class="fas fa-users" style="color:#60a5fa;"></i><span id="userCount">0</span></div>
-      <div class="stat-item"><i class="fas fa-list-ul" style="color:var(--mt-accent);"></i><span id="suggestionCount">0</span></div>
+    <div class="stats" id="statsHeader">
+      <div class="stat-item">
+        <span>📍</span>
+        <span id="locationText">Paris</span>
+      </div>
+      <div class="stat-item">
+        <span>👥</span>
+        <span id="userCount">0</span>
+      </div>
+      <div class="stat-item" onclick="openSuggestionsList()" style="cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(244,159,28,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">
+        <span>📋</span>
+        <span id="suggestionCount">0</span>
+      </div>
+      <div class="stat-item">
+        <span>📏</span>
+        <span id="radiusText">20 km</span>
+      </div>
+      <div class="stat-item" id="visibilityToggle" onclick="toggleVisibility()">
+        <span id="visibilityIcon">👁️</span>
+        <span id="visibilityText">Visible</span>
+      </div>
     </div>
   </div>
-
-  <div class="search-bar">
-    <div class="search-wrapper">
-      <i class="fas fa-search" style="color:#94a3b8;"></i>
-      <input type="text" id="citySearchInput" placeholder="Chercher une ville..." autocomplete="off">
-      <div id="searchAutocomplete" class="search-autocomplete-results"></div>
-    </div>
+  
+  <!-- 🔥 NOUVEAU : Barre recherche centrée -->
+<div class="search-bar">
+  <div class="search-wrapper">
+    <span class="search-icon">🔍</span>
+    <input 
+      type="text" 
+      id="citySearchInput" 
+      placeholder="Où aller ?"
+      autocomplete="off"
+    >
+    <!-- 🔥 NOUVEAU : Autocomplete résultats -->
+    <div id="searchAutocomplete" class="search-autocomplete-results"></div>
   </div>
-
-  <div id="map"></div>
-
+</div>
+  
+  <!-- Distance Selector -->
   <div class="distance-selector">
     <div class="distance-label">RAYON</div>
     <div class="distance-buttons">
@@ -278,344 +803,1752 @@
     </div>
   </div>
 
-  <button class="my-location-btn" onclick="goToMyLocation()"><i class="fas fa-crosshairs"></i></button>
-
+  <!-- 🔥 NOUVEAU : Bouton Ma Position -->
+<button class="my-location-btn" onclick="goToMyLocation()" title="Recentrer sur ma position">
+  🎯
+</button>
+  
+  <!-- Map -->
+  <div id="map"></div>
+  
+  <!-- 🔥 NOUVEAU : Bottom Sheet expansible -->
   <div class="bottom-sheet" id="bottomSheet">
     <div class="sheet-handle" id="sheetHandle"></div>
-    <div class="sheet-container">
-      <button class="scroll-arrow left" id="arrowLeft" onclick="scrollUsers(-300)"><i class="fas fa-chevron-left"></i></button>
-      <button class="scroll-arrow right" id="arrowRight" onclick="scrollUsers(300)"><i class="fas fa-chevron-right"></i></button>
-      
-      <div class="users-grid" id="usersGrid">
-        </div>
+    <div class="sheet-content">
+      <div class="users-grid" id="usersGrid"></div>
     </div>
   </div>
 
+  <!-- 🔥 NOUVEAU : Panneau Suggestions -->
+  <div class="suggestions-panel" id="suggestionsPanel">
+    <div class="panel-header">
+      <h2>📋 Suggestions à proximité</h2>
+      <button class="close-btn" onclick="closeSuggestionsPanel()">✕</button>
+    </div>
+    <div class="panel-content" id="suggestionsList">
+      <!-- Liste remplie dynamiquement -->
+    </div>
+    <button class="load-more-btn" id="loadMoreBtn" onclick="loadMoreSuggestions()" style="display: none;">
+      🔍 Voir plus loin
+    </button>
+  </div>
+
   <script>
-    // ============================================
-    // ⚙️ LOGIQUE & ENDPOINTS (INTOUCHÉS)
-    // ============================================
-    
-    // Bloc Universel Token
+    // === BLOC UNIVERSEL MEETEMPO - STANDARD (45 min) ===
     (function() {
+      const TIMEOUT_MINUTES = 45;
+      
       const params = new URLSearchParams(location.search);
       window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
-                       || localStorage.getItem('session_token') || sessionStorage.getItem('meetempo_token');
+                     || localStorage.getItem('session_token') 
+                     || sessionStorage.getItem('meetempo_token');
+      
       if (window.MT_TOKEN) {
         localStorage.setItem('session_token', window.MT_TOKEN);
         sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
       }
+      
+      if (!window.MT_TOKEN) {
+        alert('❌ Session expirée. Retour à MeeTempo GPT.');
+        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        return;
+      }
+      
+      const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
+      setTimeout(() => {
+        alert('⏰ Session expirée (45 min). Cette page va se fermer.');
+        window.close();
+        setTimeout(() => {
+          window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        }, 1000);
+      }, TIMEOUT_MS);
+      
+      console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
     })();
+    // === FIN BLOC UNIVERSEL ===
 
     const API_BASE = 'https://api.meetempo.com';
     let token = window.MT_TOKEN;
-    let activeToken = null;
+    let activeToken = null; // Token validé utilisé pour tous les appels
+  
     let HERE_API_KEY = null;
-    let map, ui;
-    let userGpsLocation = { lat: 48.8566, lng: 2.3522, source: 'default' };
-    let currentLocation = { lat: 48.8566, lng: 2.3522 };
+    let map;
+    let ui;
+    let userGpsLocation = { lat: 48.8566, lng: 2.3522, source: 'default' }; // 🔥 NOUVEAU : Position GPS réelle
+    let currentLocation = { lat: 48.8566, lng: 2.3522 }; // Centre carte actuel
     let currentRadius = 20;
     let markers = [];
     let usersData = [];
-    let suggestionsData = [];
+    let currentVisibility = 'visible';
     let clusteringLayer = null;
-    let isManualRadius = false;
-    let reloadTimeout = null;
-    let searchAutocompleteTimeout = null;
-
-    const MARKER_COLORS = ['#F49F1C', '#3B82F6', '#10B981', '#8B5CF6', '#EF4444'];
-
-    // 🔙 Retour Hub Sécurisé
-    function goBackToHub() {
-      const t = activeToken || token;
-      if (t) window.location.href = `hub.html?session_token=${t}`;
-      else window.location.href = 'hub.html';
-    }
-
-    // 📍 NOUVEAUX MARQUEURS "NÉON"
+    let isManualRadius = false; // 🔥 NOUVEAU : Mode manuel vs auto
+    let suggestionsData = []; // 🔥 Cache suggestions proximité
+    let allSuggestionsData = []; // 🔥 NOUVEAU : Toutes suggestions monde (clustering)
+    let suggestionsRadius = 20; // 🔥 NOUVEAU : Rayon actuel suggestions
+    let reloadTimeout = null; // 🔥 NOUVEAU : Debounce reload carte
+    let searchAutocompleteTimeout = null; // 🔥 NOUVEAU : Debounce autocomplete recherche
+    let lastReverseGeocodingCall = 0; // 🔥 NOUVEAU : Throttle reverse geocoding
     
-    function createClusterIcon(count) {
-      return `<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg">
-        <defs>
-          <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="2" result="blur"/>
-            <feComposite in="SourceGraphic" in2="blur" operator="over"/>
-          </filter>
-        </defs>
-        <circle cx="30" cy="30" r="22" fill="#F49F1C" opacity="0.3" />
-        <circle cx="30" cy="30" r="16" fill="#F49F1C" stroke="#fff" stroke-width="2" />
-        <text x="30" y="35" text-anchor="middle" font-family="'Inter', sans-serif" font-size="14" font-weight="800" fill="#fff">${count}</text>
-      </svg>`;
-    }
-
-    function createDropletIcon(color, affinityScore = 50, plan = "free", visibility = "visible") {
-      const ringColor = getAffinityColor(affinityScore);
-      let glowColor = 'none', glowOpacity = 0;
-      if (plan === 'vip') { glowColor = '#FFD700'; glowOpacity = 0.5; }
-      else if (visibility === 'discret') { glowColor = '#1e293b'; glowOpacity = 0.5; }
+    const MARKER_COLORS = [
+      '#F49F1C', '#3B82F6', '#10B981', '#8B5CF6',
+      '#EF4444', '#F59E0B', '#06B6D4', '#EC4899'
+    ];
+    
+    // 🔥 MODIFIÉ : Ouvrir panneau suggestions (utilise suggestionsData déjà chargé)
+    function openSuggestionsList() {
+      const panel = document.getElementById('suggestionsPanel');
+      panel.classList.add('open');
       
-      return `<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg">
-        ${glowOpacity > 0 ? `<circle cx="30" cy="30" r="24" fill="${glowColor}" opacity="${glowOpacity}" />` : ''}
-        <circle cx="30" cy="30" r="18" fill="#0f172a" />
-        <circle cx="30" cy="30" r="16" fill="none" stroke="${ringColor}" stroke-width="3" />
-        <text x="30" y="34" font-family="'Inter', sans-serif" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">${affinityScore}</text>
-        <path d="M26 44 L30 50 L34 44 Z" fill="${ringColor}" />
-      </svg>`;
+      // 🔥 Afficher suggestions déjà chargées
+      displaySuggestionsList();
     }
-
+    
+    // 🔥 NOUVEAU : Afficher liste suggestions
+    function displaySuggestionsList() {
+      const listContainer = document.getElementById('suggestionsList');
+      
+      if (!suggestionsData || suggestionsData.length === 0) {
+        listContainer.innerHTML = `
+          <div class="panel-empty">
+            <div class="panel-empty-icon">📭</div>
+            <div style="font-weight:600;margin-bottom:8px;">Aucune suggestion</div>
+            <div style="font-size:13px;">Aucune suggestion dans ce rayon</div>
+          </div>
+        `;
+        document.getElementById('loadMoreBtn').style.display = 'none';
+      } else {
+        listContainer.innerHTML = suggestionsData.map(sugg => `
+  <div class="suggestion-item" onclick="highlightSuggestion('${sugg.id}')">
+    <div class="suggestion-item-title">${escapeHTML(sugg.title)}</div>
+        <div class="suggestion-item-meta">
+      <span>${escapeHTML(sugg.user_anonymous_display || sugg.user_pseudo)}</span>
+      <span>📍 ${sugg.distance_km} km</span>
+      <span>🏙️ ${escapeHTML(sugg.city || sugg.location_name || '?')}</span>  // 🔥 FIX
+    </div>
+  </div>
+`).join('');
+        
+        // 🔥 MODIFIÉ : Afficher bouton "Voir plus" si suggestions trouvées
+        const loadMoreBtn = document.getElementById('loadMoreBtn');
+        if (currentRadius < 200) {
+          loadMoreBtn.style.display = 'block';
+          loadMoreBtn.textContent = `🔍 Voir plus loin (+10 km) - Rayon actuel: ${currentRadius} km`;
+          loadMoreBtn.disabled = false;
+        } else {
+          loadMoreBtn.style.display = 'none';
+        }
+      }
+    }
+    
+    // 🔥 NOUVEAU : Fermer panneau
+    function closeSuggestionsPanel() {
+      const panel = document.getElementById('suggestionsPanel');
+      panel.classList.remove('open');
+    }
+    
+    // 🔥 NOUVEAU : Charger suggestions
+    async function loadSuggestionsNearby(radius) {
+      try {
+        const listContainer = document.getElementById('suggestionsList');
+        listContainer.innerHTML = '<div style="text-align:center;padding:20px;color:var(--mt-muted);">Chargement...</div>';
+        
+        const response = await fetch(
+          `${API_BASE}/suggestions/nearby?session_token=${activeToken}&lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${radius}`
+        );
+        
+        if (!response.ok) throw new Error('Erreur chargement');
+        
+        const data = await response.json();
+        suggestionsData = data.results || [];
+        
+        // Mettre à jour compteur
+        document.getElementById('suggestionCount').textContent = suggestionsData.length;
+        
+        // Afficher liste
+        if (suggestionsData.length === 0) {
+          listContainer.innerHTML = `
+            <div class="panel-empty">
+              <div class="panel-empty-icon">📭</div>
+              <div style="font-weight:600;margin-bottom:8px;">Aucune suggestion</div>
+              <div style="font-size:13px;">Aucune suggestion dans ce rayon</div>
+            </div>
+          `;
+          document.getElementById('loadMoreBtn').style.display = 'none';
+        } else {
+          listContainer.innerHTML = suggestionsData.map(sugg => `
+  <div class="suggestion-item" onclick="highlightSuggestion('${sugg.id}')">
+    <div class="suggestion-item-title">${escapeHTML(sugg.title)}</div>
+    <div class="suggestion-item-meta">
+      <span>${sugg.activity || '📍'}</span>
+      <span>${sugg.distance_km} km</span>
+      <span>🏙️ ${escapeHTML(sugg.city || sugg.location_name || '?')}</span>  // 🔥 AJOUTÉ
+    </div>
+  </div>
+`).join('');
+          
+          // Afficher bouton "Voir plus" si suggestions trouvées
+          document.getElementById('loadMoreBtn').style.display = 'block';
+        }
+        
+      } catch (err) {
+        console.error('Erreur suggestions:', err);
+        document.getElementById('suggestionsList').innerHTML = `
+          <div class="panel-empty">
+            <div class="panel-empty-icon">❌</div>
+            <div>Erreur chargement</div>
+          </div>
+        `;
+      }
+    }
+    
+    // 🔥 MODIFIÉ : Augmenter rayon carte (+10 km)
+    async function loadMoreSuggestions() {
+      const btn = document.getElementById('loadMoreBtn');
+      btn.disabled = true;
+      btn.textContent = '⏳ Chargement...';
+      
+      // 🔥 Augmenter rayon de 10 km
+      currentRadius += 10;
+      
+      // 🔥 Mettre à jour UI bouton rayon
+      document.querySelectorAll('.distance-btn').forEach(b => {
+        b.classList.remove('active', 'auto');
+      });
+      document.getElementById('radiusText').textContent = `${currentRadius} km (élargi)`;
+      
+      // 🔥 NOUVEAU : Dézoomer carte selon rayon
+      let newZoom;
+      if (currentRadius <= 5) newZoom = 14;
+      else if (currentRadius <= 10) newZoom = 13;
+      else if (currentRadius <= 20) newZoom = 12;
+      else if (currentRadius <= 50) newZoom = 11;
+      else if (currentRadius <= 100) newZoom = 10;
+      else if (currentRadius <= 200) newZoom = 8;
+      else newZoom = 6;
+      
+      map.setZoom(newZoom, true);
+      
+      // 🔥 Recharger users/suggestions avec nouveau rayon
+      await loadNearbyUsers();
+      
+      // 🔥 Réafficher panneau suggestions
+      displaySuggestionsList();
+      
+      btn.disabled = false;
+    }
+    
+    // 🔥 MODIFIÉ : Highlight suggestion + fermer panneau
+    function highlightSuggestion(suggestionId) {
+      const sugg = suggestionsData.find(s => s.id === suggestionId);
+      if (!sugg) {
+        console.warn(`⚠️ Suggestion ${suggestionId} introuvable`);
+        return;
+      }
+      
+      // 🔥 Centrer + zoomer sur la suggestion
+      map.setCenter({ lat: sugg.lat, lng: sugg.lng });
+      map.setZoom(15, true); // Animation smooth
+      
+      // 🔥 Fermer le panneau suggestions (pour voir la carte)
+      const panel = document.getElementById('suggestionsPanel');
+      panel.classList.remove('open');
+      
+      // 🔥 Highlight la carte utilisateur correspondante dans le bottom sheet
+      const userIndex = usersData.findIndex(u => 
+        u.suggestion_id === suggestionId || 
+        (u.location.lat === sugg.lat && u.location.lng === sugg.lng)
+      );
+      
+      if (userIndex !== -1) {
+        highlightUserCard(userIndex);
+      }
+      
+      console.log(`📍 Centré sur: ${sugg.title.substring(0, 50)}...`);
+    }
+    
+    function escapeHTML(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+    
+    function getMarkerColor(index) {
+      return MARKER_COLORS[index % MARKER_COLORS.length];
+    }
+    
     function getAffinityColor(score) {
       if (score >= 80) return '#10B981';
       if (score >= 60) return '#F49F1C';
-      return '#3B82F6';
+      if (score >= 40) return '#3B82F6';
+      return '#9CA3AF';
     }
-
-    // 🛠️ INIT & LOGIQUE
-    async function init() {
-      if (!token) { showError('Non connecté', 'Accès refusé'); return; }
+    
+    // 🔥 NOUVEAU : Icône cluster avec chiffre
+    function createClusterIcon(count) {
+      return `<svg width="60" height="60" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="30" cy="30" r="25" fill="#F49F1C" opacity="0.9"/>
+        <circle cx="30" cy="30" r="25" fill="none" stroke="#fff" stroke-width="2"/>
+        <text x="30" y="38" text-anchor="middle" 
+              font-family="Montserrat, sans-serif"
+              font-size="18" font-weight="800" fill="#111">
+          ${count}
+        </text>
+      </svg>`;
+    }
+    
+    function createDropletIcon(color, affinityScore = 50, plan = "free", visibility = "visible") {
+      const ringColor = getAffinityColor(affinityScore);
+      const ringWidth = 4;
       
-      try {
-        // Validate
-        const profileRes = await fetch(`${API_BASE}/profile?session_token=${token}`);
-        if (!profileRes.ok) throw new Error('Session invalide');
-        const profile = await profileRes.json();
-        activeToken = token;
-
-        // Get Key
-        const keyRes = await fetch(`${API_BASE}/config/here-key?session_token=${activeToken}`);
-        const keyData = await keyRes.json();
-        HERE_API_KEY = keyData.key;
-
-        await getUserLocation();
-        initMap();
-        setupControls();
-        
-      } catch (err) {
-        console.error(err);
-        showError('Erreur', 'Impossible de charger la carte');
+      let haloStroke = 'none';
+      let haloWidth = 0;
+      let haloOpacity = 1;
+      
+      if (plan === 'vip' && visibility === 'visible') {
+        haloStroke = '#F49F1C';
+        haloWidth = 8;
+        haloOpacity = 0.85;
+      } else if (visibility === 'discret') {
+        haloStroke = '#1E40AF';
+        haloWidth = 8;
+        haloOpacity = 0.85;
+      }
+      
+      return `<svg width="64" height="70" xmlns="http://www.w3.org/2000/svg">
+        ${haloWidth > 0 ? `
+        <circle cx="32" cy="28" r="28" 
+                fill="none" 
+                stroke="${haloStroke}" 
+                stroke-width="${haloWidth}"
+                opacity="${haloOpacity}"/>
+        ` : ''}
+        <circle cx="32" cy="28" r="20" 
+                fill="none" 
+                stroke="${ringColor}" 
+                stroke-width="${ringWidth}"
+                opacity="0.9"/>
+        <path d="M32 16 C32 16, 22 28, 22 36 C22 41, 26 46, 32 46 C38 46, 42 41, 42 36 C42 28, 32 16, 32 16 Z" 
+              fill="${color}" 
+              stroke="white" 
+              stroke-width="2.5"
+              stroke-linejoin="round"/>
+        <text x="32" y="66" 
+              font-family="Montserrat, sans-serif" 
+              font-size="10" 
+              font-weight="700" 
+              fill="${ringColor}" 
+              text-anchor="middle">
+          ${affinityScore}%
+        </text>
+      </svg>`;
+    }
+    
+    function showError(title, message, type = 'unknown') {
+      document.getElementById('loading').style.display = 'none';
+      document.getElementById('errorTitle').textContent = title;
+      document.getElementById('errorMessage').textContent = message;
+      document.getElementById('errorScreen').classList.add('show');
+      
+      if (type === 'expired') {
+        setTimeout(() => {
+          window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+        }, 3000);
       }
     }
-
+    
+    // 🔥 NOUVEAU : Validation intelligente multi-source
+    async function validateSession() {
+      if (!token) return { valid: false, reason: 'missing' };
+      
+      // 1. Essayer /profile (accepte session_token 24h)
+      try {
+        const profileRes = await fetch(`${API_BASE}/profile?session_token=${token}`);
+        if (profileRes.ok) {
+          const profile = await profileRes.json();
+          if (profile.user_id || profile.id || profile.email) {
+            activeToken = token;
+            console.log('✅ Token validé via /profile (24h)');
+            return { valid: true, source: 'profile', data: profile };
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ /profile check failed:', e.message);
+      }
+      
+      // 2. Fallback /auth/session (accepte elevated_token 15min)
+      try {
+        const sessionRes = await fetch(`${API_BASE}/auth/session?token=${token}`);
+        if (sessionRes.ok) {
+          const sessionData = await sessionRes.json();
+          if (sessionData.user_id) {
+            activeToken = token;
+            console.log('✅ Token validé via /auth/session (15min)');
+            return { valid: true, source: 'session', data: sessionData };
+          }
+        } else if (sessionRes.status === 401) {
+          return { valid: false, reason: 'expired' };
+        }
+      } catch (e) {
+        console.warn('⚠️ /auth/session check failed:', e.message);
+      }
+      
+      return { valid: false, reason: 'invalid' };
+    }
+    
+    async function init() {
+      if (!token) {
+        showError('Token manquant', 'Veuillez accéder depuis MeeTempo GPT', 'missing');
+        return;
+      }
+      
+      try {
+    // 🔥 NOUVEAU : Validation multi-source
+    const validation = await validateSession();
+    
+    if (!validation.valid) {
+      if (validation.reason === 'expired') {
+        showError('Session expirée', 'Redirection vers MeeTempo GPT...', 'expired');
+      } else if (validation.reason === 'missing') {
+        showError('Token manquant', 'Veuillez accéder depuis MeeTempo GPT', 'missing');
+      } else {
+        showError('Session invalide', 'Impossible de valider votre session', 'invalid');
+      }
+      return;
+    }
+    
+    console.log(`🔐 Session validée (source: ${validation.source})`);        
+                
+        const charterResponse = await fetch(`${API_BASE}/consent/status?session_token=${activeToken}`);
+        if (charterResponse.ok) {
+          const charterData = await charterResponse.json();
+          if (!charterData.accepted) {
+            const returnUrl = encodeURIComponent(window.location.href);
+            window.location.href = `charter.html?session_token=${activeToken}&return=${returnUrl}`;
+            return;
+          }
+        }
+        
+        const keyResponse = await fetch(`${API_BASE}/config/here-key?session_token=${activeToken}`);
+        if (!keyResponse.ok) {
+          showError('Erreur configuration', 'Impossible de charger la carte', 'config');
+          return;
+        }
+        
+        const keyData = await keyResponse.json();
+        HERE_API_KEY = keyData.key;
+        
+        await getUserLocation();
+        
+        const cityParam = new URLSearchParams(location.search).get('city');
+        if (cityParam) {
+          try {
+            const geocodeUrl = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(cityParam)}&apiKey=${HERE_API_KEY}`;
+            const response = await fetch(geocodeUrl);
+            const data = await response.json();
+            
+            if (data.items && data.items.length > 0) {
+              const position = data.items[0].position;
+              currentLocation = {
+                lat: position.lat,
+                lng: position.lng,
+                source: 'search',
+                city: cityParam
+              };
+              console.log(`📍 Carte centrée sur ${cityParam}`);
+            }
+          } catch (err) {
+            console.error('Erreur géocodage:', err);
+          }
+        }
+        
+        initMap();
+        setupDistanceSelector();
+        setupCitySearch();
+        setupBottomSheet();
+        
+      } catch (err) {
+        console.error('Init error:', err);
+        if (!navigator.onLine) {
+          showError('Pas de connexion', 'Vérifiez votre connexion internet', 'offline');
+        } else {
+          showError('Erreur inattendue', 'Une erreur est survenue', 'unknown');
+        }
+      }
+    }
+    
     async function getUserLocation() {
-      return new Promise(resolve => {
+      return new Promise((resolve) => {
         if (navigator.geolocation) {
-          navigator.geolocation.getCurrentPosition(pos => {
-            userGpsLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude, source: 'gps' };
-            currentLocation = { ...userGpsLocation };
-            resolve();
-          }, () => resolve(), { timeout: 5000 });
-        } else resolve();
+          navigator.geolocation.getCurrentPosition(
+            (position) => {
+              userGpsLocation = {  // 🔥 MODIFIÉ : Sauvegarder dans userGpsLocation
+              lat: position.coords.latitude,
+              lng: position.coords.longitude,
+              source: 'gps',
+              accuracy: position.coords.accuracy
+            };
+            currentLocation = { ...userGpsLocation }; // Centre carte = GPS au démarrage
+            console.log('✅ GPS:', userGpsLocation);
+              resolve();
+            },
+            (error) => {
+              console.warn('⚠️ Geoloc failed:', error.message);
+              currentLocation = {
+                lat: 48.8566,
+                lng: 2.3522,
+                source: 'default',
+                city: 'Paris'
+              };
+              resolve();
+            },
+            { timeout: 5000, enableHighAccuracy: true }
+          );
+        } else {
+          currentLocation = {
+            lat: 48.8566,
+            lng: 2.3522,
+            source: 'default',
+            city: 'Paris'
+          };
+          resolve();
+        }
       });
     }
+    
+    function setupDistanceSelector() {
+  const buttons = document.querySelectorAll('.distance-btn');
+  
+  buttons.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const radius = parseInt(btn.dataset.radius, 10);
+      
+      // UI state
+      buttons.forEach(b => b.classList.remove('active', 'auto'));
+      btn.classList.add('active');
+      
+      // État logique
+      currentRadius = radius;
+      isManualRadius = true;
+      document.getElementById('radiusText').textContent = `${radius} km`;
+      
+      // 🔥 Recentrer sur position GPS utilisateur
+if (userGpsLocation && (userGpsLocation.source === 'gps' || userGpsLocation.source === 'default')) {
+  const position = { lat: userGpsLocation.lat, lng: userGpsLocation.lng };
+  currentLocation = { ...userGpsLocation }; // 🔥 NOUVEAU : Réinitialiser currentLocation
+  map.setCenter(position);
+  // Le zoom est déjà géré juste après dans le if/else
+} else {
+  alert('⚠️ Position GPS inconnue. Utilisez le bouton 🎯 pour actualiser.');
+  return;
+}
+      
+      if (radius <= 5) map.setZoom(14, true);
+      else if (radius <= 10) map.setZoom(13, true);
+      else if (radius <= 20) map.setZoom(12, true);
+      else if (radius <= 50) map.setZoom(11, true);
+      else if (radius <= 100) map.setZoom(10, true);
+      else if (radius <= 200) map.setZoom(8, true);
+      else map.setZoom(6, true);
+      
+      loadNearbyUsers();
+    });
+  });
+}
+    
+    function setupCitySearch() {
+  const input = document.getElementById('citySearchInput');
+  const resultsDiv = document.getElementById('searchAutocomplete');
+  
+  // 🔥 NOUVEAU : Autocomplete recherche AVEC CACHE
+input.addEventListener('input', async (e) => {
+  const query = e.target.value.trim();
+  
+  // Clear timeout précédent
+  if (searchAutocompleteTimeout) {
+    clearTimeout(searchAutocompleteTimeout);
+  }
+  
+  // Si vide, masquer résultats
+  if (!query || query.length < 3) {
+    resultsDiv.classList.remove('show');
+    return;
+  }
+  
+  // Attendre 400ms après arrêt de frappe
+  searchAutocompleteTimeout = setTimeout(async () => {
+    try {
+      // Afficher loading
+      resultsDiv.innerHTML = '<div class="search-autocomplete-loading">🔍 Recherche...</div>';
+      resultsDiv.classList.add('show');
+      
+      // 🔥 NOUVEAU : Vérifier cache sessionStorage (1h)
+      const cacheKey = `autocomplete:${query.toLowerCase()}`;
+      const cached = sessionStorage.getItem(cacheKey);
+      
+      let data;
+      
+      if (cached) {
+        // Cache HIT
+        const cachedData = JSON.parse(cached);
+        const age = Date.now() - cachedData.timestamp;
+        
+        if (age < 3600000) { // 1 heure
+          data = cachedData.results;
+          console.log(`✅ Autocomplete (cache): "${query}" - ${data.items?.length || 0} résultats`);
+        } else {
+          // Cache expiré, supprimer
+          sessionStorage.removeItem(cacheKey);
+        }
+      }
+      
+      if (!data) {
+        // Cache MISS - Appel HERE Autosuggest API
+        const autosuggestUrl = `https://autosuggest.search.hereapi.com/v1/autosuggest?q=${encodeURIComponent(query)}&at=${currentLocation.lat},${currentLocation.lng}&limit=6&apiKey=${HERE_API_KEY}`;
+        
+        const response = await fetch(autosuggestUrl);
+        
+        if (!response.ok) {
+          throw new Error('Erreur autocomplete');
+        }
+        
+        data = await response.json();
+        
+        // 🔥 NOUVEAU : Sauvegarder en cache
+        sessionStorage.setItem(cacheKey, JSON.stringify({
+          results: data,
+          timestamp: Date.now()
+        }));
+        
+        console.log(`✅ Autocomplete (API): "${query}" - ${data.items?.length || 0} résultats - Mis en cache`);
+      }
+      
+      // Afficher résultats
+      if (data.items && data.items.length > 0) {
+        resultsDiv.innerHTML = data.items.map(item => {
+          const title = item.title || item.address?.label || '';
+          const subtitle = item.address?.label || item.vicinity || '';
+          const lat = item.position?.lat || 0;
+          const lng = item.position?.lng || 0;
+          
+          // Déterminer icône selon type
+          let icon = '📍';
+          if (item.resultType === 'locality') icon = '🏙️';
+          else if (item.resultType === 'place') icon = '🏢';
+          else if (item.resultType === 'street') icon = '🛣️';
+          
+          // Escape pour onclick
+          const safeLat = lat.toFixed(6);
+          const safeLng = lng.toFixed(6);
+          const safeTitle = title.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+          
+          return `
+            <div class="search-autocomplete-item" onclick="selectSearchLocation(${safeLat}, ${safeLng}, '${safeTitle}')">
+              <div class="search-autocomplete-icon">${icon}</div>
+              <div class="search-autocomplete-content">
+                <div class="search-autocomplete-title">${escapeHTML(title)}</div>
+                <div class="search-autocomplete-subtitle">${escapeHTML(subtitle)}</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        resultsDiv.innerHTML = '<div class="search-autocomplete-loading">Aucun résultat</div>';
+      }
+      
+    } catch (err) {
+      console.error('Erreur autocomplete recherche:', err);
+      resultsDiv.innerHTML = '<div class="search-autocomplete-loading">❌ Erreur recherche</div>';
+    }
+  }, 400);
+});
+  
+  // Conserver recherche Enter (fallback)
+  input.addEventListener('keypress', async (e) => {
+    if (e.key === 'Enter') {
+      const cityQuery = input.value.trim();
+      
+      if (!cityQuery) return;
+      
+      try {
+        const geocodeUrl = `https://geocode.search.hereapi.com/v1/geocode?q=${encodeURIComponent(cityQuery)}&apiKey=${HERE_API_KEY}`;
+        const response = await fetch(geocodeUrl);
+        const data = await response.json();
+        
+        if (data.items && data.items.length > 0) {
+          const position = data.items[0].position;
+          const cityName = data.items[0].address.city || cityQuery;
+          
+          selectSearchLocation(position.lat, position.lng, cityName);
+          
+        } else {
+          alert(`❌ Ville "${cityQuery}" introuvable`);
+        }
+        
+      } catch (err) {
+        console.error('Erreur recherche:', err);
+        alert('❌ Erreur lors de la recherche');
+      }
+    }
+  });
+}
 
-    function initMap() {
-      const platform = new H.service.Platform({ apikey: HERE_API_KEY });
-      const defaultLayers = platform.createDefaultLayers();
-      map = new H.Map(document.getElementById('map'), defaultLayers.vector.normal.map, {
-        center: currentLocation, zoom: 13, pixelRatio: window.devicePixelRatio || 1
-      });
-      new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
-      ui = H.ui.UI.createDefault(map, defaultLayers);
+// 🔥 NOUVEAU : Sélectionner un résultat autocomplete
+function selectSearchLocation(lat, lng, name) {
+  const input = document.getElementById('citySearchInput');
+  const resultsDiv = document.getElementById('searchAutocomplete');
+  
+  // Masquer autocomplete
+  resultsDiv.classList.remove('show');
+  
+  // Vider input
+  input.value = '';
+  input.blur();
+  
+  // Mettre à jour position
+  currentLocation.lat = lat;
+  currentLocation.lng = lng;
+  currentLocation.city = name;
+  
+  // Recentrer carte
+  map.setCenter({ lat, lng });
+  map.setZoom(13);
+  
+  // Mettre à jour indicateur
+  document.getElementById('locationText').textContent = name;
+  
+  // Recharger users
+  loadNearbyUsers();
+  
+  console.log(`🔍 Recherche: ${name} (${lat}, ${lng})`);
+}
 
-      map.addEventListener('mapviewchangeend', () => {
-        if (reloadTimeout) clearTimeout(reloadTimeout);
-        reloadTimeout = setTimeout(() => {
-          const center = map.getCenter();
-          currentLocation.lat = center.lat;
-          currentLocation.lng = center.lng;
-          loadNearbyUsers();
-        }, 800);
+// Helper: Escape HTML
+function escapeHTML(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+// Masquer autocomplete si clic extérieur
+document.addEventListener('click', (e) => {
+  if (!e.target.closest('.search-wrapper')) {
+    const resultsDiv = document.getElementById('searchAutocomplete');
+    if (resultsDiv) resultsDiv.classList.remove('show');
+  }
+});
+    
+    // 🔥 NOUVEAU : Setup bottom sheet expansible
+    function setupBottomSheet() {
+      const sheet = document.getElementById('bottomSheet');
+      const handle = document.getElementById('sheetHandle');
+      let startY = 0;
+      let currentHeight = 200;
+      
+      handle.addEventListener('touchstart', (e) => {
+        startY = e.touches[0].clientY;
       });
       
-      // Marker Moi
-      const meIcon = new H.map.Icon(createDropletIcon('#3B82F6', 100), { size: { w: 60, h: 60 }, anchor: { x: 30, y: 30 }});
-      map.addObject(new H.map.Marker(currentLocation, { icon: meIcon }));
+      handle.addEventListener('touchmove', (e) => {
+        const deltaY = startY - e.touches[0].clientY;
+        const newHeight = currentHeight + deltaY;
+        
+        if (newHeight >= 200 && newHeight <= window.innerHeight * 0.6) {
+          sheet.style.height = `${newHeight}px`;
+        }
+      });
+      
+      handle.addEventListener('touchend', (e) => {
+        currentHeight = parseInt(sheet.style.height) || 200;
+        
+        if (currentHeight > 300) {
+          sheet.classList.add('expanded');
+          sheet.style.height = '60vh';
+          currentHeight = window.innerHeight * 0.6;
+        } else {
+          sheet.classList.remove('expanded');
+          sheet.style.height = '200px';
+          currentHeight = 200;
+        }
+      });
+      
+      // Click sur handle toggle
+      handle.addEventListener('click', () => {
+        if (sheet.classList.contains('expanded')) {
+          sheet.classList.remove('expanded');
+          sheet.style.height = '200px';
+          currentHeight = 200;
+        } else {
+          sheet.classList.add('expanded');
+          sheet.style.height = '60vh';
+          currentHeight = window.innerHeight * 0.6;
+        }
+      });
+    }
+    
+    async function initMap() {
+      const platform = new H.service.Platform({
+        apikey: HERE_API_KEY
+      });
+      
+      const defaultLayers = platform.createDefaultLayers();
+      
+      map = new H.Map(
+  document.getElementById('map'),
+  defaultLayers.vector.normal.map,
+  {
+    center: currentLocation,
+    zoom: 13,
+    pixelRatio: window.devicePixelRatio || 1,
+    // 🔥 NOUVEAU : Limiter zoom pour économiser tiles
+    restrictions: {
+      minZoom: 8,   // Éviter zoom continent
+      maxZoom: 15   // Éviter zoom rue
+    }
+  }
+);
+
+const behavior = new H.mapevents.Behavior(new H.mapevents.MapEvents(map));
+ui = H.ui.UI.createDefault(map, defaultLayers);
+
+// 🔥 NOUVEAU : Double-clic sur carte → Mettre à jour ville
+map.addEventListener('dbltap', async (evt) => {
+  const coords = map.screenToGeo(
+    evt.currentPointer.viewportX,
+    evt.currentPointer.viewportY
+  );
+  
+  if (coords) {
+    await updateLocationIndicator(coords.lat, coords.lng);
+  }
+});
+
+// 🔥 MODIFIÉ : Listener drag/zoom → rafraîchir markers (avec debounce)
+map.addEventListener('mapviewchangeend', async function() {
+  // 🔥 Annuler timer précédent
+  if (reloadTimeout) {
+    clearTimeout(reloadTimeout);
+  }
+  
+  reloadTimeout = setTimeout(async () => {
+  // Mettre à jour position actuelle
+  const center = map.getCenter();
+  currentLocation.lat = center.lat;
+  currentLocation.lng = center.lng;
+  
+  // 🔥 NOUVEAU : Mettre à jour indicateur ville
+  await updateLocationIndicator(center.lat, center.lng);
+  
+  // Recharger users à la nouvelle position
+  await loadNearbyUsers();
+}, 800);
+  
+  // Ancien code zoom auto-ajuste (garde si besoin, sinon supprime)
+  if (isManualRadius) return;
+  
+  const zoom = map.getZoom();
+  let radiusNeeded;
+  if (zoom <= 6) radiusNeeded = 500;
+  else if (zoom <= 8) radiusNeeded = 200;
+  else if (zoom <= 10) radiusNeeded = 100;
+  else if (zoom <= 12) radiusNeeded = 50;
+  else if (zoom <= 14) radiusNeeded = 20;
+  else radiusNeeded = 10;
+  
+  if (radiusNeeded > currentRadius) {
+    currentRadius = radiusNeeded;
+    updateDistanceButtons(radiusNeeded);
+    document.getElementById('radiusText').textContent = `${radiusNeeded} km (auto)`;
+    console.log(`🔄 Auto-ajusté: ${radiusNeeded} km (zoom ${zoom})`);
+  }
+});
+  
+        window.addEventListener('resize', () => {
+        if (map) map.getViewPort().resize();
+      });
+      
+      const userIcon = new H.map.Icon(createDropletIcon('#3B82F6', 100, 'premium', 'visible'), { 
+        size: { w: 64, h: 70 },
+        anchor: { x: 32, y: 66 }
+      });
+      
+      const userMarker = new H.map.Marker(currentLocation, { icon: userIcon });
+      map.addObject(userMarker);
       
       loadNearbyUsers();
     }
-
-    async function loadNearbyUsers() {
-      try {
-        document.getElementById('loading').style.display = 'flex';
-        const res = await fetch(`${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${currentRadius}&session_token=${activeToken}`);
-        const data = await res.json();
-        usersData = data.users || [];
-        
-        document.getElementById('userCount').textContent = usersData.length;
-        suggestionsData = usersData.filter(u => u.latest_suggestion);
-        document.getElementById('suggestionCount').textContent = suggestionsData.length;
-        
-        updateMarkers();
-        updateUserCards();
-        document.getElementById('loading').style.display = 'none';
-      } catch (e) { console.error(e); document.getElementById('loading').style.display = 'none'; }
+    
+    // 🔥 NOUVEAU : Calculer distance entre 2 points
+    function calculateDistance(lat1, lng1, lat2, lng2) {
+      const R = 6371; // Rayon Terre en km
+      const dLat = (lat2 - lat1) * Math.PI / 180;
+      const dLng = (lng2 - lng1) * Math.PI / 180;
+      const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                Math.sin(dLng/2) * Math.sin(dLng/2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+      return R * c;
     }
-
-    function updateMarkers() {
-      if (clusteringLayer) map.removeLayer(clusteringLayer);
-      markers.forEach(m => map.removeObject(m));
-      markers = [];
-      
-      const dataPoints = usersData.map((u, i) => new H.clustering.DataPoint(u.location.lat, u.location.lng, null, { user: u, index: i }));
-      
-      const provider = new H.clustering.Provider(dataPoints, {
-        clusteringOptions: { eps: 64, minWeight: 1 },
-        theme: {
-          getClusterPresentation: cluster => new H.map.Marker(cluster.getPosition(), {
-            icon: new H.map.Icon(createClusterIcon(cluster.getWeight()), { size: {w:60, h:60}, anchor:{x:30,y:30} }),
-            min: cluster.getMinZoom(), max: cluster.getMaxZoom()
-          }),
-          getNoisePresentation: point => {
-            const u = point.getData().user;
-            const marker = new H.map.Marker(point.getPosition(), {
-              icon: new H.map.Icon(createDropletIcon(MARKER_COLORS[point.getData().index % 5], u.compatibility_score, u.plan), { size:{w:60,h:60}, anchor:{x:30,y:30} })
-            });
-            // Click Tooltip
-            marker.addEventListener('tap', () => {
-              // Highlight card
-              highlightUserCard(point.getData().index);
-              // Show bubble
-              const bubble = new H.ui.InfoBubble(point.getPosition(), {
-                content: `<div style="padding:10px; font-family:'Inter',sans-serif; color:#0f172a;">
-                  <b>${u.anonymous_display || u.pseudo}</b><br>
-                  ${u.latest_suggestion || 'Dispo'}<br>
-                  <button onclick="contactUser('${u.id}')" style="margin-top:5px; background:#f97316; color:white; border:none; padding:5px 10px; border-radius:5px; cursor:pointer;">Contacter</button>
-                </div>`
-              });
-              ui.addBubble(bubble);
-            });
-            return marker;
-          }
+    
+    // 🔥 NOUVEAU : Update distance buttons (mode auto)
+    function updateDistanceButtons(radius) {
+      const buttons = document.querySelectorAll('.distance-btn');
+      buttons.forEach(b => {
+        b.classList.remove('active', 'auto');
+        const btnRadius = parseInt(b.dataset.radius);
+        if (btnRadius === radius || (btnRadius > radius && btnRadius < radius + 10)) {
+          b.classList.add('auto');
         }
       });
-      clusteringLayer = new H.map.layer.ObjectLayer(provider);
-      map.addLayer(clusteringLayer);
+    }
+    
+    async function loadNearbyUsers() {
+  try {
+    document.getElementById('loading').style.display = 'flex';
+    
+    // 🔥 NOUVEAU : Charger TOUTES les suggestions pour clustering global
+    console.log('🌍 Chargement suggestions monde entier...');
+    try {
+      const allSuggestionsResponse = await fetch(`${API_BASE}/suggestions/all?session_token=${activeToken}`);
+      
+      if (allSuggestionsResponse.ok) {
+        const allSuggestionsJson = await allSuggestionsResponse.json();
+        allSuggestionsData = allSuggestionsJson.suggestions || [];
+        console.log(`✅ ${allSuggestionsData.length} suggestions chargées pour clustering global`);
+      } else {
+        console.warn('⚠️ Impossible de charger suggestions globales');
+        allSuggestionsData = [];
+      }
+    } catch (err) {
+      console.warn('⚠️ Erreur chargement suggestions globales:', err);
+      allSuggestionsData = [];
+    }
+    
+    // 🔥 Charger utilisateurs PROCHES (pour cartes bottom sheet)
+    const response = await fetch(
+      `${API_BASE}/users/nearby?lat=${currentLocation.lat}&lng=${currentLocation.lng}&radius=${currentRadius}&session_token=${activeToken}`
+    );
+    
+    if (!response.ok) {
+      if (response.status === 401) {
+        showError('Session expirée', 'Redirection...', 'expired');
+      } else if (response.status === 429) {
+        document.getElementById('loading').style.display = 'flex';
+        document.querySelector('.loading-text').textContent = '⏳ Carte très sollicitée, rechargement dans 10s...';
+        
+        setTimeout(() => {
+          loadNearbyUsers();
+        }, 10000);
+        return;
+      } else {
+        throw new Error('Failed to load');
+      }
+      return;
+    }
+    
+    const data = await response.json();
+    usersData = data.users || [];
+    
+    document.getElementById('userCount').textContent = `${usersData.length}`;
+    document.getElementById('locationText').textContent = currentLocation.city || 'Paris';
+    
+    // 🔥 Extraire suggestions depuis users proches
+    suggestionsData = usersData
+      .filter(u => u.latest_suggestion)
+      .map(u => ({
+        id: u.suggestion_id || u.id,
+        title: u.latest_suggestion,
+        distance_km: u.distance,
+        lat: u.location.lat,
+        lng: u.location.lng,
+        user_pseudo: u.pseudo,
+        user_city: u.city,
+        suggestion_date: u.suggestion_date,
+        suggestion_time: u.suggestion_time
+      }))
+      .sort((a, b) => {
+        const now = new Date();
+        const in24h = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+        
+        const dateA = a.suggestion_date ? new Date(a.suggestion_date) : null;
+        const dateB = b.suggestion_date ? new Date(b.suggestion_date) : null;
+        
+        const isASoon = dateA && dateA <= in24h && dateA >= now;
+        const isBSoon = dateB && dateB <= in24h && dateB >= now;
+        
+        if (isASoon && isBSoon) {
+          return dateA - dateB;
+        }
+        
+        if (isASoon) return -1;
+        if (isBSoon) return 1;
+        
+        return a.distance_km - b.distance_km;
+      });
+    
+    document.getElementById('suggestionCount').textContent = suggestionsData.length;
+    
+    // 🔥 Clustering adaptatif selon zoom
+    const currentZoom = map.getZoom();
+    addMarkersWithClustering(usersData, currentZoom);
+    populateUserCards(usersData, currentZoom);
+
+    document.getElementById('loading').style.display = 'none';
+            
+  } catch (err) {
+    console.error('Error loading:', err);
+    showError('Erreur chargement', 'Impossible de charger les MeeTempers', 'load');
+  }
+}
+
+    // 🔥 MODIFIÉ : Badge intelligent (Cycle de vie + Participants)
+function generateParticipantsBadge(user) {
+  // 1. Check "En cours" (Si l'événement a commencé il y a moins de 3h)
+  if (user.suggestion_date && user.suggestion_time) {
+    const now = new Date();
+    // Reconstruction date approximative pour affichage UX
+    const eventDate = new Date(`${user.suggestion_date}T${user.suggestion_time}:00`);
+    
+    // Si maintenant est entre "Début" et "Début + 3h"
+    if (now >= eventDate && now < new Date(eventDate.getTime() + 3 * 3600 * 1000)) {
+      return `
+        <div style="font-size: 12px; margin: 6px 0; padding: 6px 8px; background: #3B82F622; border-left: 3px solid #3B82F6; border-radius: 4px; white-space: nowrap;">
+          <span style="font-weight: 700; color: #3B82F6;">⏳ En cours (Dépêche-toi !)</span>
+        </div>
+      `;
+    }
+  }
+
+  // 2. Check Participants (Logique Standard)
+  // Si pas de données, on n'affiche rien
+  if (!user.participants || !user.participants.min || !user.participants.max) {
+    return '';
+  }
+
+  const min = user.participants.min;
+  const max = user.participants.max;
+  const current = user.participants.current?.length || 1;
+
+  let color = '';
+  let icon = '';
+  let text = '';
+
+  // CAS 1 : COMPLET (Full) -> ROUGE
+  if (current >= max) {
+    color = '#EF4444'; 
+    icon = '⛔';
+    text = `Complet (${current}/${max})`;
+  }
+  // CAS 2 : CONFIRMÉ (Min atteint) -> VERT
+  else if (current >= min) {
+    color = '#10B981'; 
+    icon = '✅';
+    text = `${current}/${max} confirmés`;
+  }
+  // CAS 3 : EN RECHERCHE (Min pas encore atteint) -> ORANGE
+  else {
+    color = '#F49F1C'; 
+    icon = '⚠️';
+    text = `${current}/${min} requis (Max ${max})`;
+  }
+
+  // Note comment on retourne directement le template string ici
+  return `
+    <div style="font-size: 12px; margin: 6px 0; padding: 6px 8px; background: ${color}22; border-left: 3px solid ${color}; border-radius: 4px; white-space: nowrap;">
+      <span style="font-weight: 600; color: ${color};">👥 ${icon} ${text}</span>
+    </div>
+  `;
+}
+    
+    // 🔥 NOUVEAU : Markers avec clustering
+function addMarkersWithClustering(users, zoom = 13) {
+  // Clear markers existants
+  if (clusteringLayer) {
+    map.removeLayer(clusteringLayer);
+  }
+  
+  markers.forEach(m => map.removeObject(m));
+  markers = [];
+  
+  if (!users || users.length === 0) {
+    console.log('Aucun utilisateur à afficher');
+    return;
+  }
+  
+  // 🔥 MODIFIÉ : Désactiver clustering si zoom >= 14
+  if (zoom >= 10) {
+    // Mode sans clustering : afficher pins individuels
+    users.forEach((user, index) => {
+      const color = getMarkerColor(index);
+      const affinityScore = user.compatibility_score || 50;
+      const plan = user.plan || 'free';
+      const visibility = user.visibility || 'visible';
+      
+      const markerIcon = new H.map.Icon(
+        createDropletIcon(color, affinityScore, plan, visibility),
+        {
+          size: { w: 64, h: 70 },
+          anchor: { x: 32, y: 66 }
+        }
+      );
+      
+      const marker = new H.map.Marker(user.location, { icon: markerIcon });
+      
+      marker.addEventListener('tap', function(evt) {
+        // 1. Formatter la date
+        let dateFormatted = '';
+        if (user.suggestion_date) {
+          const d = new Date(user.suggestion_date);
+          const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+          const monthNames = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+          dateFormatted = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
+        }
+
+        // 2. Calculer l'état
+        const currentP = user.participants?.current?.length || 1;
+        const maxP = user.participants?.max || 3;
+        const isFull = currentP >= maxP;
+        
+        // Check "En cours" (Heure passée)
+        let isOngoing = false;
+        if (user.suggestion_date && user.suggestion_time) {
+            const now = new Date();
+            const eventDate = new Date(`${user.suggestion_date}T${user.suggestion_time}:00`);
+            if (now >= eventDate && now < new Date(eventDate.getTime() + 3 * 3600 * 1000)) {
+                isOngoing = true;
+            }
+        }
+
+        // 🔥 3. CRÉER LA PASTILLE DE STATUT (Status Pill)
+        let statusPill = '';
+        if (isOngoing) {
+            statusPill = '<span style="background:#3B82F6; color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">⏳ EN COURS</span>';
+        } else if (isFull) {
+            statusPill = '<span style="background:#EF4444; color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">⛔ COMPLET</span>';
+        } else {
+            // C'est ici qu'on met le "ACTIVE" que tu voulais !
+            statusPill = '<span style="background:#10B981; color:white; font-size:10px; font-weight:700; padding:2px 8px; border-radius:10px;">🟢 ACTIVE</span>';
+        }
+
+        const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
+          content: `
+            <div style="padding: 12px; font-family: Montserrat, sans-serif; min-width: 220px; max-width: 300px;">
+                
+                <div style="display:flex; justify-content:space-between; align-items:start; margin-bottom: 12px;">
+                    <div style="font-weight: 700; font-size: 15px; color: #030E4F; padding-right:8px;">
+                      ${escapeHTML(user.anonymous_display || user.pseudo)}
+                    </div>
+                    ${statusPill} </div>
+              
+              ${user.suggestion_activity ? `
+                <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #030E4F;">
+                  ${escapeHTML(user.suggestion_activity)}
+                </div>
+              ` : ''}
+              
+              <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
+                📍 ${escapeHTML(user.city)}
+              </div>
+              
+              ${user.suggestion_date && user.suggestion_time ? `
+                <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
+                  🕐 ${dateFormatted} à ${user.suggestion_time}
+                </div>
+              ` : ''}
+              
+              ${generateParticipantsBadge(user)}
+              
+              <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(affinityScore)}; margin-top: 8px;">
+                🎯 Affinité : ${affinityScore}%
+              </div>
+              
+              <button 
+                onclick="contactUser('${user.id || ''}', '${user.suggestion_id || ''}', ${isFull})" 
+                style="
+                  width: 100%;
+                  margin-top: 12px;
+                  padding: 10px;
+                  background: ${isFull ? '#ccc' : 'linear-gradient(135deg, #F49F1C 0%, #ffca63 100%)'};
+                  color: ${isFull ? '#666' : '#111'};
+                  border: none;
+                  border-radius: 10px;
+                  font-weight: 600;
+                  font-size: 14px;
+                  cursor: ${isFull ? 'not-allowed' : 'pointer'};
+                  font-family: Montserrat, sans-serif;
+                  transition: transform 0.2s;
+                "
+                ${isFull ? 'disabled' : ''}
+                onmouseover="${isFull ? '' : "this.style.transform='scale(1.05)'"}"
+                onmouseout="${isFull ? '' : "this.style.transform='scale(1)'"}"
+              >
+                ${isFull ? '⛔ Complet' : '💬 Contacter'}
+              </button>
+            </div>
+          `
+        });
+        ui.addBubble(bubble);
+        
+        highlightUserCard(index);
+      });
+      
+      map.addObject(marker);
+      markers.push(marker);
+    });
+    
+    console.log(`✅ ${users.length} pins individuels (zoom ${zoom}, sans clustering)`);
+    return;
+  }
+  
+  // 🔥 MODIFIÉ : Si zoom < 10, utiliser allSuggestionsData (monde entier)
+const dataSource = (zoom < 10 && allSuggestionsData.length > 0) ? allSuggestionsData : users;
+
+console.log(`📊 Source: ${dataSource.length} items (zoom ${zoom}, source: ${zoom < 10 ? 'monde' : 'proximité'})`);
+
+// 🔥 MODIFIÉ : EPS adaptatif selon zoom
+let eps;
+if (zoom >= 10) {
+  eps = 64;   // Ville
+} else if (zoom >= 8) {
+  eps = 80;   // Grande région
+} else if (zoom >= 6) {
+  eps = 100;  // Pays
+} else if (zoom >= 4) {
+  eps = 120;  // Continent
+} else {
+  eps = 150;  // Monde (réduit de 256 à 150)
+}
+
+console.log(`🔍 Zoom ${zoom} → eps ${eps}`);
+
+// Créer markers (depuis dataSource)
+const dataPoints = dataSource.map((item, index) => {
+  // 🔥 NOUVEAU : Adapter selon source (suggestion simple ou user complet)
+  const location = item.location || { lat: item.lat, lng: item.lng };
+  const color = getMarkerColor(index);
+  const affinityScore = item.compatibility_score || 50;
+  const plan = item.plan || 'free';
+  const visibility = item.visibility || 'visible';
+  
+  // 🔥 Données enrichies pour tooltip
+  const enrichedData = zoom < 10 ? {
+    // Suggestion simple (clustering monde)
+    user: {
+      pseudo: item.city || 'Suggestion',
+      city: item.city,
+      suggestion_activity: item.activity_type,
+      suggestion_date: item.date,
+      suggestion_time: item.time,
+      location: location
+    },
+    index,
+    color,
+    affinityScore,
+    plan,
+    visibility
+  } : {
+    // User complet (proximité)
+    user: item,
+    index,
+    color,
+    affinityScore,
+    plan,
+    visibility
+  };
+  
+  return new H.clustering.DataPoint(
+    location.lat,
+    location.lng,
+    null,
+    enrichedData
+  );
+});
+  
+  // 🔥 Clustering provider
+  const clusteredDataProvider = new H.clustering.Provider(dataPoints, {
+    clusteringOptions: {
+      eps,
+      minWeight: 1
+    },
+    theme: {
+      getClusterPresentation: function(cluster) {
+        const clusterMarker = new H.map.Marker(cluster.getPosition(), {
+          icon: new H.map.Icon(createClusterIcon(cluster.getWeight()), {
+            size: { w: 60, h: 60 },
+            anchor: { x: 30, y: 30 }
+          }),
+          min: cluster.getMinZoom(),
+          max: cluster.getMaxZoom()
+        });
+        
+        clusterMarker.setData(cluster);
+        
+        clusterMarker.addEventListener('tap', () => {
+          const clusterBounds = cluster.getBoundingBox();
+          if (clusterBounds) {
+            map.getViewModel().setLookAtData({ bounds: clusterBounds });
+            map.setZoom(map.getZoom() + 2);
+          }
+        });
+        
+        return clusterMarker;
+      },
+      getNoisePresentation: function(noisePoint) {
+        const data = noisePoint.getData();
+        const markerIcon = new H.map.Icon(
+          createDropletIcon(data.color, data.affinityScore, data.plan, data.visibility),
+          {
+            size: { w: 64, h: 70 },
+            anchor: { x: 32, y: 66 }
+          }
+        );
+        
+        const noiseMarker = new H.map.Marker(noisePoint.getPosition(), {
+          icon: markerIcon,
+          min: noisePoint.getMinZoom()
+        });
+        
+        noiseMarker.setData(data);
+        
+        noiseMarker.addEventListener('tap', function(evt) {
+          // 1. Récupérer les données spécifiques au cluster/noise
+          const markerData = evt.target.getData();
+          const user = markerData.user;
+          
+          // Récupérer le score et l'index
+          const affinityScore = markerData.affinityScore || 50;
+          const index = markerData.index;
+
+          // 2. Formatter la date
+          let dateFormatted = '';
+          if (user.suggestion_date) {
+            const d = new Date(user.suggestion_date);
+            const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+            const monthNames = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+            dateFormatted = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
+          }
+
+          // 🔥 3. NOUVEAU : Calculer si c'est COMPLET
+          const currentP = user.participants?.current?.length || 1;
+          const maxP = user.participants?.max || 3;
+          const isFull = currentP >= maxP;
+
+          const bubble = new H.ui.InfoBubble(evt.target.getGeometry(), {
+            content: `
+              <div style="padding: 12px; font-family: Montserrat, sans-serif; min-width: 220px; max-width: 300px;">
+                <div style="font-weight: 700; font-size: 15px; margin-bottom: 12px; color: #030E4F;">
+                  ${escapeHTML(user.anonymous_display || user.pseudo)}
+                </div>
+                
+                ${user.suggestion_activity ? `
+                  <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: #030E4F;">
+                    ${escapeHTML(user.suggestion_activity)}
+                  </div>
+                ` : ''}
+                
+                <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
+                  📍 ${escapeHTML(user.city)}
+                </div>
+                
+                ${user.suggestion_date && user.suggestion_time ? `
+                  <div style="font-size: 13px; color: #666; margin-bottom: 6px;">
+                    🕐 ${dateFormatted} à ${user.suggestion_time}
+                  </div>
+                ` : ''}
+                
+                ${generateParticipantsBadge(user)}
+                
+                <div style="font-size: 12px; font-weight: 600; color: ${getAffinityColor(affinityScore)}; margin-top: 8px;">
+                  🎯 Affinité : ${affinityScore}%
+                </div>
+                
+                <button 
+                  onclick="contactUser('${user.id || ''}', '${user.suggestion_id || ''}', ${isFull})" 
+                  style="
+                    width: 100%;
+                    margin-top: 12px;
+                    padding: 10px;
+                    background: ${isFull ? '#ccc' : 'linear-gradient(135deg, #F49F1C 0%, #ffca63 100%)'};
+                    color: ${isFull ? '#666' : '#111'};
+                    border: none;
+                    border-radius: 10px;
+                    font-weight: 600;
+                    font-size: 14px;
+                    cursor: ${isFull ? 'not-allowed' : 'pointer'};
+                    font-family: Montserrat, sans-serif;
+                    transition: transform 0.2s;
+                  "
+                  ${isFull ? 'disabled' : ''}
+                  onmouseover="${isFull ? '' : "this.style.transform='scale(1.05)'"}"
+                  onmouseout="${isFull ? '' : "this.style.transform='scale(1)'"}"
+                >
+                  ${isFull ? '⛔ Complet' : '💬 Contacter'}
+                </button>
+              </div>
+            `
+          });
+          ui.addBubble(bubble);
+          
+          // Highlight dans le bottom sheet si possible
+          if (typeof highlightUserCard === 'function') {
+             highlightUserCard(index);
+          }
+        });
+        
+        return noiseMarker;
+      }
+    }
+  });
+  
+  clusteringLayer = new H.map.layer.ObjectLayer(clusteredDataProvider);
+  map.addLayer(clusteringLayer);
+  
+  console.log(`✅ ${users.length} users avec clustering (eps: ${eps})`);
+}
+    
+    function populateUserCards(users, zoom = 13) {
+  const grid = document.getElementById('usersGrid');
+  grid.innerHTML = '';
+  
+  // 🔥 NOUVEAU : Si zoom < 10, masquer cartes et afficher message
+  if (zoom < 10) {
+    grid.innerHTML = '<div style="padding: 32px; color: var(--mt-muted); text-align: center; width: 100%; font-size: 16px;">🔍 Zoomez pour voir les profils MeeTempers</div>';
+    return;
+  }
+  
+  if (users.length === 0) {
+        grid.innerHTML = '<div style="padding: 20px; color: var(--mt-muted); text-align: center; width: 100%;">Aucun MeeTemper à proximité</div>';
+        return;
+      }
+      
+      users.forEach((user, index) => {
+        const card = document.createElement('div');
+        card.className = 'user-card';
+        card.dataset.index = index;
+        
+        const displayName = user.anonymous_display || user.pseudo;
+        const initials = user.anonymous_initiales || escapeHTML(user.pseudo.substring(0, 2).toUpperCase());
+        const pseudo = escapeHTML(displayName);
+        const suggestion = escapeHTML(user.latest_suggestion);
+        const city = escapeHTML(user.city);
+        const distance = user.distance ? `${user.distance} km` : 'À proximité';
+        const affinityScore = user.compatibility_score || 50;
+        
+        // 🔥 NOUVEAU : Formatter date pour carte
+let dateFormatted = '';
+if (user.suggestion_date) {
+  const d = new Date(user.suggestion_date);
+  const dayNames = ['Dim', 'Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam'];
+  const monthNames = ['jan', 'fév', 'mar', 'avr', 'mai', 'jun', 'jul', 'aoû', 'sep', 'oct', 'nov', 'déc'];
+  dateFormatted = `${dayNames[d.getDay()]} ${d.getDate()} ${monthNames[d.getMonth()]}`;
+}
+
+// 🔥 NOUVEAU : Badge participants inline
+let participantsBadge = '';
+if (user.participants) {
+  const min = user.participants.min;
+  const max = user.participants.max;
+  const current = user.participants.current?.length || 1;
+  
+  let color = '';
+  let icon = '';
+  let text = '';
+  
+  if (min === max) {
+    if (current >= min) {
+      color = '#10B981';
+      icon = '✅';
+      text = `${current}/${max}`;
+    } else {
+      color = '#F97316';
+      icon = '⚠️';
+      text = `${current}/${min}`;
+    }
+  } else if (min <= 2) {
+    color = '#10B981';
+    icon = '✅';
+    text = `${current}/${max}`;
+  } else {
+    if (current >= min) {
+      color = '#10B981';
+      icon = '✅';
+      text = `${current}/${max}`;
+    } else {
+      color = '#FBBF24';
+      icon = '⚠️';
+      text = `${current}/${max}`;
+    }
+  }
+  
+  participantsBadge = `<span style="background: ${color}22; color: ${color}; padding: 4px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; white-space: nowrap;">👥 ${icon} ${text}</span>`;
+}
+
+card.innerHTML = `
+  <div class="user-header">
+    <div class="user-avatar">${initials}</div>
+    <div class="user-info">
+      <h3>${pseudo}</h3>
+      <div class="user-distance">${distance} • ${affinityScore}%</div>
+    </div>
+  </div>
+  
+  ${user.suggestion_activity ? `
+    <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px; color: var(--mt-text);">
+      ${escapeHTML(user.suggestion_activity)}
+    </div>
+  ` : ''}
+  
+  <div class="user-location">📍 ${city}</div>
+  
+  ${user.suggestion_date && user.suggestion_time ? `
+    <div style="font-size: 13px; color: var(--mt-muted); margin-top: 4px;">
+      🕐 ${dateFormatted} à ${user.suggestion_time}
+    </div>
+  ` : ''}
+  
+  ${participantsBadge ? `
+    <div style="margin-top: 8px;">
+      ${participantsBadge}
+    </div>
+  ` : ''}
+  
+  <div class="user-actions" style="margin-top: 12px;">
+    <button class="btn btn-primary" onclick="contactUser('${user.id}')">💬 Contacter</button>
+            <button class="btn btn-secondary" onclick="viewProfile('${user.id}')">👀 Profil</button>
+          </div>
+        `;
+        
+        card.onclick = function() {
+          centerOnUser(index);
+        };
+        
+        grid.appendChild(card);
+      });
+    }
+    
+    function highlightUserCard(index) {
+      document.querySelectorAll('.user-card').forEach(c => c.classList.remove('active'));
+      const card = document.querySelector(`.user-card[data-index="${index}"]`);
+      if (card) {
+        card.classList.add('active');
+        card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      }
+    }
+    
+    function centerOnUser(index) {
+      if (usersData[index]) {
+        map.setCenter(usersData[index].location);
+        map.setZoom(15);
+        highlightUserCard(index);
+      }
+    }
+    
+    function contactUser(userId) {
+      alert('💬 Messagerie en développement\n\nLa messagerie arrive bientôt !');
+    }
+    
+    function viewProfile(userId) {
+      alert('👀 Profil détaillé en développement');
+    }
+    
+    async function toggleVisibility() {
+      currentVisibility = currentVisibility === 'visible' ? 'discret' : 'visible';
+      
+      const icon = document.getElementById('visibilityIcon');
+      const text = document.getElementById('visibilityText');
+      const toggle = document.getElementById('visibilityToggle');
+      
+      if (currentVisibility === 'discret') {
+        icon.textContent = '🕶️';
+        text.textContent = 'Discret';
+        toggle.style.background = 'rgba(59, 130, 246, 0.2)';
+        toggle.style.borderColor = '#3B82F6';
+      } else {
+        icon.textContent = '👁️';
+        text.textContent = 'Visible';
+        toggle.style.background = 'rgba(255,255,255,0.1)';
+        toggle.style.borderColor = 'rgba(255,255,255,0.2)';
+      }
+      
+      try {
+        await fetch(`${API_BASE}/profile/update?session_token=${activeToken}&visibility=${currentVisibility}`);
+        console.log(`✅ Mode ${currentVisibility}`);
+      } catch (err) {
+        console.error('❌ Erreur:', err);
+      }
     }
 
-    // 📜 NAVIGATION BOTTOM SHEET & FLÈCHES
+    // 🔥 NOUVEAU : Recentrer sur ma position
+function goToMyLocation() {
+  if (userGpsLocation && userGpsLocation.source === 'gps') {
+    // 🔥 Utiliser userGpsLocation (position réelle)
+    const position = { lat: userGpsLocation.lat, lng: userGpsLocation.lng };
     
-    function updateUserCards() {
-      const grid = document.getElementById('usersGrid');
-      grid.innerHTML = '';
+    map.setCenter(position);
+    map.setZoom(14);
+    
+    // 🔥 NOUVEAU : Forcer mise à jour currentLocation + recharger
+    currentLocation = { ...userGpsLocation };
+    loadNearbyUsers();
+    
+    console.log(`🎯 Recentré sur GPS: ${position.lat}, ${position.lng}`);
+  } else {
+    // Redemander géolocalisation
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          userGpsLocation = {  // 🔥 MODIFIÉ : Sauvegarder GPS
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+            source: 'gps',
+            accuracy: position.coords.accuracy
+          };
+          
+          currentLocation = { ...userGpsLocation };
+          const pos = { lat: currentLocation.lat, lng: currentLocation.lng };
+          map.setCenter(pos);
+          map.setZoom(14);
+          loadNearbyUsers();
+          
+          console.log(`🎯 Position GPS rafraîchie: ${pos.lat}, ${pos.lng}`);
+        },
+        (error) => {
+          alert('❌ Impossible d\'accéder à votre position GPS');
+          console.error('Geoloc error:', error);
+        },
+        { timeout: 5000, enableHighAccuracy: true }
+      );
+    } else {
+      alert('❌ Géolocalisation non disponible');
+    }
+  }
+}
+// 🔥 NOUVEAU : Mettre à jour indicateur ville (reverse geocoding)
+async function updateLocationIndicator(lat, lng) {
+  try {
+    // 🔥 NOUVEAU : Throttle 1.2s minimum entre appels
+    const now = Date.now();
+    if (now - lastReverseGeocodingCall < 1200) {
+      console.log('⏳ Throttle reverse geocoding (1.2s)');
+      return;
+    }
+    lastReverseGeocodingCall = now;
+    
+    // 🔥 NOUVEAU : Cache 5min (arrondi 0.01° ≈ 1km)
+    const cacheKey = `city_${lat.toFixed(2)}_${lng.toFixed(2)}`;
+    const cached = sessionStorage.getItem(cacheKey);
+    
+    if (cached) {
+      const { city, timestamp } = JSON.parse(cached);
+      if (Date.now() - timestamp < 300000) { // 5min
+        document.getElementById('locationText').textContent = city;
+        currentLocation.city = city;
+        console.log(`📍 Ville (cache): ${city}`);
+        return;
+      }
+    }
+    
+    // Appel API HERE
+    const reverseUrl = `https://revgeocode.search.hereapi.com/v1/revgeocode?at=${lat},${lng}&apiKey=${HERE_API_KEY}`;
+    const response = await fetch(reverseUrl);
+    
+    if (!response.ok) {
+      console.warn('⚠️ Reverse geocoding échoué');
+      return;
+    }
+    
+    const data = await response.json();
+    
+    if (data.items && data.items.length > 0) {
+      const address = data.items[0].address;
+      const cityName = address.city || address.county || address.state || 'Lieu inconnu';
       
-      if(usersData.length === 0) {
-        grid.innerHTML = '<div style="color:#94a3b8; width:100%; text-align:center; padding-top:20px;">Personne ici 🦗</div>';
+      // Mettre à jour indicateur
+      document.getElementById('locationText').textContent = cityName;
+      currentLocation.city = cityName;
+      
+      // 🔥 NOUVEAU : Sauvegarder en cache
+      sessionStorage.setItem(cacheKey, JSON.stringify({
+        city: cityName,
+        timestamp: Date.now()
+      }));
+      
+      console.log(`📍 Ville mise à jour (API): ${cityName}`);
+    }
+    
+  } catch (err) {
+    console.error('❌ Erreur reverse geocoding:', err);
+  }
+}
+
+// 🔥 MODIFIÉ : Contacter un utilisateur (avec sécurité anti-complet)
+    async function contactUser(userId, suggestionId, isFull = false) {
+      console.log(`💬 Contact user ${userId}, suggestion ${suggestionId}, isFull=${isFull}`);
+
+      // 1. Bloquer si complet (Sécurité Client)
+      if (isFull) {
+        alert('⛔ Cette suggestion est complète (nombre max de participants atteint).\n\nEssayez-en une autre ou créez la vôtre !');
         return;
       }
 
-      usersData.forEach((u, i) => {
-        const div = document.createElement('div');
-        div.className = 'user-card';
-        div.dataset.index = i;
-        div.onclick = (e) => {
-            if(e.target.tagName !== 'BUTTON') {
-                map.setCenter(u.location); map.setZoom(15);
-                highlightUserCard(i);
-            }
-        };
-        
-        const pseudo = u.anonymous_display || u.pseudo;
-        div.innerHTML = `
-          <div class="user-header">
-            <div class="user-avatar">${pseudo.substring(0,2).toUpperCase()}</div>
-            <div class="user-info">
-              <h3>${pseudo}</h3>
-              <div class="user-distance">${u.distance ? u.distance+' km' : ''}</div>
-            </div>
-          </div>
-          <div style="font-size:14px; color:rgba(255,255,255,0.9); margin-bottom:10px;">${u.latest_suggestion || 'Disponible'}</div>
-          <button class="btn btn-primary" onclick="contactUser('${u.id}')">Contacter</button>
-        `;
-        grid.appendChild(div);
-      });
-      
-      updateArrows();
-    }
-
-    // Gestion du Scroll Horizontal
-    const grid = document.getElementById('usersGrid');
-    const arrowLeft = document.getElementById('arrowLeft');
-    const arrowRight = document.getElementById('arrowRight');
-
-    function scrollUsers(offset) {
-        grid.scrollBy({ left: offset, behavior: 'smooth' });
-    }
-
-    function updateArrows() {
-        // Afficher/Masquer flèches selon position scroll
-        if(grid.scrollLeft > 20) arrowLeft.classList.add('visible');
-        else arrowLeft.classList.remove('visible');
-        
-        if(grid.scrollLeft < (grid.scrollWidth - grid.clientWidth - 20)) arrowRight.classList.add('visible');
-        else arrowRight.classList.remove('visible');
-    }
-
-    grid.addEventListener('scroll', updateArrows);
-    window.addEventListener('resize', updateArrows);
-
-    function highlightUserCard(i) {
-      document.querySelectorAll('.user-card').forEach(c => c.classList.remove('active'));
-      const card = document.querySelector(`.user-card[data-index="${i}"]`);
-      if(card) {
-          card.classList.add('active');
-          card.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+      if (!userId || !suggestionId) {
+        alert('❌ Informations manquantes pour contacter cet utilisateur');
+        return;
       }
-    }
 
-    function setupControls() {
-        // Distance
-        document.querySelectorAll('.distance-btn').forEach(btn => {
-            btn.onclick = () => {
-                document.querySelectorAll('.distance-btn').forEach(b=>b.classList.remove('active'));
-                btn.classList.add('active');
-                currentRadius = parseInt(btn.dataset.radius);
-                loadNearbyUsers();
-                if(currentRadius <= 5) map.setZoom(14);
-                else if(currentRadius >= 50) map.setZoom(10);
-                else map.setZoom(12);
-            };
-        });
+      // 2. Vérifier session
+      if (!token) {
+        alert('❌ Session expirée. Veuillez vous reconnecter.');
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // 3. Demander message optionnel
+      const message = prompt('💬 Message pour le créateur (optionnel) :', '');
+
+      if (message === null) {
+        // Utilisateur a cliqué "Annuler"
+        return;
+      }
+
+      try {
+        // 4. Envoyer demande
+        // Note : On encode le message pour éviter les bugs d'URL
+        const url = `${API_BASE}/match/request?session_token=${activeToken}&suggestion_id=${suggestionId}${message ? '&message=' + encodeURIComponent(message) : ''}`;
         
-        // Search
-        const input = document.getElementById('citySearchInput');
-        const results = document.getElementById('searchAutocomplete');
+        const response = await fetch(url);
+        const data = await response.json();
         
-        input.oninput = (e) => {
-            const q = e.target.value;
-            if(q.length < 3) { results.classList.remove('show'); return; }
-            if(searchAutocompleteTimeout) clearTimeout(searchAutocompleteTimeout);
-            
-            searchAutocompleteTimeout = setTimeout(async () => {
-                const res = await fetch(`https://autosuggest.search.hereapi.com/v1/autosuggest?q=${encodeURIComponent(q)}&at=${currentLocation.lat},${currentLocation.lng}&limit=5&apiKey=${HERE_API_KEY}`);
-                const data = await res.json();
-                if(data.items.length) {
-                    results.innerHTML = data.items.map(i => `
-                        <div class="search-autocomplete-item" onclick="selectCity(${i.position.lat}, ${i.position.lng}, '${i.title.replace(/'/g,"\\'")}')">
-                            ${i.title}
-                        </div>
-                    `).join('');
-                    results.classList.add('show');
-                }
-            }, 400);
-        };
-    }
-
-    window.selectCity = (lat, lng, name) => {
-        document.getElementById('searchAutocomplete').classList.remove('show');
-        document.getElementById('citySearchInput').value = '';
-        currentLocation = { lat, lng };
-        map.setCenter(currentLocation);
-        map.setZoom(13);
-        document.getElementById('locationText').textContent = name;
-        loadNearbyUsers();
-    };
-
-    window.contactUser = (id) => alert('Messagerie : Arrive Samedi !');
-    
-    function showError(t, m) {
-        document.getElementById('loading').style.display='none';
-        document.getElementById('errorScreen').style.display='flex';
-        document.getElementById('errorTitle').textContent=t;
-        document.getElementById('errorMessage').textContent=m;
+        if (!response.ok) {
+          // Gestion fine des erreurs serveur (Code 403/409)
+          throw new Error(data.error || 'Erreur inconnue');
+        }
+        
+        // Succès
+        alert(`✅ ${data.message}\n\nLe créateur recevra votre demande.`);
+        console.log('✅ Demande envoyée:', data);
+        
+      } catch (error) {
+        console.error('❌ Erreur contact:', error);
+        
+        // Messages d'erreur conviviaux
+        if (error.message.includes('propre suggestion')) {
+          alert('❌ Vous ne pouvez pas contacter votre propre suggestion !');
+        } else if (error.message.includes('déjà une demande')) {
+          alert('⏳ Vous avez déjà envoyé une demande pour cette suggestion.');
+        } else if (error.message.includes('complète')) {
+          alert('❌ Oups, trop tard ! Quelqu\'un a pris la dernière place à l\'instant.');
+          // On pourrait recharger la carte ici pour mettre à jour le statut
+          loadNearbyUsers();
+        } else if (error.message.includes('participez déjà')) {
+          alert('✅ Vous participez déjà à cette suggestion !');
+        } else if (error.message.includes('Upgrade requis')) {
+          alert(`🔒 ${error.message}`);
+        } else {
+          alert(`❌ Erreur : ${error.message}`);
+        }
+      }
     }
 
     init();
