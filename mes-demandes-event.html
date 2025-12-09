@@ -858,7 +858,7 @@
                 </button>
               ` : ''}
               ${req.status === 'accepted' ? `
-                <button class="btn btn-primary" onclick="goToChat('${req.match_id}')">
+                <button class="btn btn-primary" onclick="goToChat('${req.suggestion_id}')">
                   💬 Ouvrir le chat
                 </button>
               ` : ''}
@@ -938,9 +938,9 @@
       }
     }
     
-    function goToChat(matchId) {
+    function goToChat(suggestionId) {
       const token = window.MT_TOKEN;
-      window.location.href = `chat.html?match_id=${matchId}&session_token=${token}`;
+      window.location.href = `chat.html?suggestion_id=${suggestionId}&session_token=${token}`;
     }
     
     // === NAVIGATION ===
