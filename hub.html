@@ -4,6 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>MeeTempo Hub</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   <style>
     * {
       margin: 0;
@@ -12,11 +16,16 @@
     }
     
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
-      background: linear-gradient(135deg, #1a1f3a 0%, #2d3561 100%);
+      font-family: 'Inter', sans-serif;
+      background-color: #0f172a;
+      background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
       min-height: 100vh;
       padding: 20px;
-      padding-top: 80px; /* Espace pour la barre token */
+      padding-top: 80px;
       color: white;
     }
     
@@ -239,12 +248,19 @@
     .card {
       position: relative;
       height: 200px;
-      border-radius: 16px;
+      border-radius: 24px;
       overflow: hidden;
       cursor: pointer;
-      transition: all 0.3s ease;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       animation: fadeInUp 0.6s ease;
       animation-fill-mode: both;
+      
+      /* EFFET GLASSMORPHISM */
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
     }
     
     .card:nth-child(1) { animation-delay: 0.1s; }
@@ -297,16 +313,21 @@
       height: 100%;
     }
     
-    /* Gradients pour chaque card */
-    .card-create .card-overlay { background: linear-gradient(135deg, rgba(244,159,28,0.9) 0%, rgba(255,140,0,0.9) 100%); }
-    .card-map .card-overlay { background: linear-gradient(135deg, rgba(74,144,226,0.9) 0%, rgba(48,91,184,0.9) 100%); }
-    .card-requests .card-overlay { background: linear-gradient(135deg, rgba(16,185,129,0.9) 0%, rgba(5,150,105,0.9) 100%); }
-    .card-suggestions .card-overlay { background: linear-gradient(135deg, rgba(139,92,246,0.9) 0%, rgba(109,40,217,0.9) 100%); }
-    .card-messages .card-overlay { background: linear-gradient(135deg, rgba(245,158,11,0.9) 0%, rgba(217,119,6,0.9) 100%); }
-    .card-profile .card-overlay { background: linear-gradient(135deg, rgba(107,114,128,0.9) 0%, rgba(75,85,99,0.9) 100%); }
-    .card-vip .card-overlay { background: linear-gradient(135deg, rgba(251,191,36,0.9) 0%, rgba(245,158,11,0.9) 100%); }
-    .card-pricing .card-overlay { background: linear-gradient(135deg, rgba(139,92,246,0.9) 0%, rgba(244,159,28,0.9) 100%); }
-    .card-dashboard .card-overlay { background: linear-gradient(135deg, rgba(244,159,28,0.9) 0%, rgba(139,92,246,0.9) 100%); }
+    /* Gradients subtils pour effet verre */
+    .card-create .card-overlay { background: linear-gradient(135deg, rgba(244,159,28,0.25), rgba(255,140,0,0.1)); }
+    .card-map .card-overlay { background: linear-gradient(135deg, rgba(74,144,226,0.25), rgba(48,91,184,0.1)); }
+    .card-requests .card-overlay { background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.1)); }
+    .card-suggestions .card-overlay { background: linear-gradient(135deg, rgba(139,92,246,0.25), rgba(109,40,217,0.1)); }
+    .card-messages .card-overlay { background: linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.1)); }
+    .card-profile .card-overlay { background: linear-gradient(135deg, rgba(107,114,128,0.25), rgba(75,85,99,0.1)); }
+    .card-vip .card-overlay { background: linear-gradient(135deg, rgba(251,191,36,0.25), rgba(245,158,11,0.1)); }
+    .card-pricing .card-overlay { background: linear-gradient(135deg, rgba(139,92,246,0.15), rgba(244,159,28,0.15)); }
+    .card-dashboard .card-overlay { background: linear-gradient(135deg, rgba(244,159,28,0.15), rgba(139,92,246,0.15)); }
+    
+    /* Effet de survol lumineux */
+    .card:hover .card-overlay {
+      background: linear-gradient(135deg, rgba(255,255,255,0.1), rgba(255,255,255,0.05));
+    }
     
     .card-content {
       position: relative;
@@ -812,7 +833,8 @@ updateUI(data);
       // Card 1 : Créer suggestion
       cardsHTML += createCard({
         id: 'create',
-        icon: '➕',
+        icon: '<i class="fas fa-plus-circle"></i>',
+        image: 'https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=400',
         title: 'Créer une suggestion',
         subtitle: 'Propose une sortie',
         cssClass: 'card-create',
@@ -824,21 +846,23 @@ updateUI(data);
       // Card 2 : Map
       cardsHTML += createCard({
         id: 'map',
-        icon: '🗺️',
-        title: 'Découvrir autour de moi',
+        icon: '<i class="fas fa-map-marked-alt"></i>',
+        image: 'https://images.unsplash.com/photo-1524661135-423995f22d0b?q=80&w=400',
+        title: 'Autour de moi',
         subtitle: 'Rejoins des MeeTempers',
         cssClass: 'card-map',
         badgeId: 'nearbyBadge',
-        disabled: false, // Toujours accessible
+        disabled: false,
         onClick: "navigate('map')"
       });
       
       // Card 3 : Mes demandes
       cardsHTML += createCard({
         id: 'requests',
-        icon: '👥',
+        icon: '<i class="fas fa-user-friends"></i>',
+        image: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?q=80&w=400',
         title: 'Mes demandes',
-        subtitle: `${requestsCount} en attente de réponse`,
+        subtitle: `${requestsCount} en attente`,
         cssClass: 'card-requests',
         badge: requestsCount > 0 ? requestsCount : null,
         badgeId: 'requestsBadge',
@@ -850,22 +874,24 @@ updateUI(data);
       // Card 4 : Mes suggestions
       cardsHTML += createCard({
         id: 'suggestions',
-        icon: '📅',
+        icon: '<i class="far fa-calendar-alt"></i>',
+        image: 'https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=400',
         title: 'Mes suggestions',
-        subtitle: `${suggestionsCount} suggestion${suggestionsCount > 1 ? 's' : ''} active${suggestionsCount > 1 ? 's' : ''}`,
+        subtitle: `${suggestionsCount} active${suggestionsCount > 1 ? 's' : ''}`,
         cssClass: 'card-suggestions',
         badge: suggestionsCount > 0 ? suggestionsCount : null,
         badgeId: 'suggestionsBadge',
-        disabled: false, // Toujours accessible
+        disabled: false,
         onClick: "navigate('suggestions')"
       });
       
       // Card 5 : Messages
       cardsHTML += createCard({
         id: 'messages',
-        icon: '💬',
+        icon: '<i class="far fa-comments"></i>',
+        image: 'https://images.unsplash.com/photo-1577563908411-5077b6dc7624?q=80&w=400',
         title: 'Messages',
-        subtitle: `${messagesCount} conversation${messagesCount > 1 ? 's' : ''} active${messagesCount > 1 ? 's' : ''}`,
+        subtitle: `${messagesCount} non lu${messagesCount > 1 ? 's' : ''}`,
         cssClass: 'card-messages',
         badge: messagesCount > 0 ? messagesCount : null,
         badgeId: 'messagesBadge',
@@ -875,15 +901,15 @@ updateUI(data);
       });
       
       // Card 6 : Nos offres
-      const pricingSubtitle = userPlan === 'free' ? 'Découvrez Premium & VIP' :
+      const pricingSubtitle = userPlan === 'free' ? 'Go Premium & VIP' :
                               userPlan === 'meeting' ? 'Passez à Premium' :
                               userPlan === 'premium' ? 'Devenez VIP' :
-                              userPlan === 'vip' ? 'Votre plan actuel' :
-                              'Plans entreprise & VIP';
+                              userPlan === 'vip' ? 'Plan actuel' : 'Plans entreprise';
       
       cardsHTML += createCard({
         id: 'pricing',
-        icon: '💎',
+        icon: '<i class="far fa-gem"></i>',
+        image: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=400',
         title: 'Nos offres',
         subtitle: pricingSubtitle,
         cssClass: 'card-pricing',
@@ -894,16 +920,17 @@ updateUI(data);
       // Card 7 : Profil
       cardsHTML += createCard({
         id: 'profile',
-        icon: '⚙️',
+        icon: '<i class="fas fa-user-cog"></i>',
+        image: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=400',
         title: 'Mon profil',
-        subtitle: displayName,
+        subtitle: 'Gérer mon compte',
         cssClass: 'card-profile',
         disabled: false,
         onClick: "navigate('profile')"
       });
 
       // Card : Mes Events (Event Context)
-      const hasEventAccess = userPlan === 'vip' || userPlan.startsWith('b2b');
+      const hasEventAccess = userPlan === 'vip' || (userPlan && userPlan.startsWith('b2b'));
       const hasActivePasses = userEventPasses.length > 0;
       const showEventCard = eventCode || hasActivePasses || hasEventAccess;
       
@@ -914,54 +941,55 @@ updateUI(data);
         
         if (eventCode && eventAccess) {
           if (eventAccess.requires_payment) {
-            // Doit payer → card active avec message paiement
-            eventSubtitle = `🎫 ${eventData?.event_name || 'Événement'} - Payer 2,99€`;
+            eventSubtitle = `Payer 2,99€`;
             eventOnClick = `redirectToEventPayment('${eventCode}', '${eventData?.event_id || ''}')`;
           } else if (eventAccess.action === 'already_joined') {
-            eventSubtitle = `✅ ${eventData?.event_name || 'Événement'} - Rejoint`;
+            eventSubtitle = `✅ Rejoint`;
           } else {
-            // VIP/B2B → accès gratuit
-            eventSubtitle = `🎉 ${eventData?.event_name || 'Événement'} - Accès gratuit`;
+            eventSubtitle = `🎉 Accès gratuit`;
             eventOnClick = `joinEventFree('${eventCode}')`;
           }
         } else if (hasActivePasses) {
           const count = userEventPasses.length;
-          eventSubtitle = `🎫 ${count} événement${count > 1 ? 's' : ''} actif${count > 1 ? 's' : ''}`;
+          eventSubtitle = `${count} événement${count > 1 ? 's' : ''} actif${count > 1 ? 's' : ''}`;
         } else if (hasEventAccess) {
-                  eventSubtitle = 'Créer ou rejoindre un événement';
-                }
+             eventSubtitle = 'Organiser / Rejoindre';
+        }
         
         cardsHTML += createCard({
           id: 'events',
-          icon: '🎪',
+          icon: '<i class="fas fa-ticket-alt"></i>',
+          image: 'https://images.unsplash.com/photo-1492684223066-81342ee5ff30?q=80&w=400',
           title: 'Mes Events',
           subtitle: eventSubtitle,
-          cssClass: 'card-create',
+          cssClass: 'card-create', // On garde le style orange
           disabled: eventDisabled,
           onClick: eventOnClick
         });
       }
 
       // Card 8 : Dashboard (visible pour Premium et B2B employee)
-      if (userPlan === 'premium' || userPlan === 'b2b') {
+      if (userPlan === 'premium' || (userPlan && userPlan.startsWith('b2b'))) {
         cardsHTML += createCard({
           id: 'dashboard',
-          icon: '📈',
-          title: 'Mon Dashboard',
-          subtitle: 'Stats, abonnement, parrainage',
+          icon: '<i class="fas fa-chart-line"></i>',
+          image: 'https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=400',
+          title: 'Dashboard',
+          subtitle: 'Stats & Infos',
           cssClass: 'card-dashboard',
           disabled: false,
           onClick: "navigate('dashboard')"
         });
       }
       
-      // Card 8 : Dashboard VIP (visible uniquement pour VIP)
+      // Card 9 : Dashboard VIP
       if (userPlan === 'vip') {
         cardsHTML += createCard({
           id: 'vip',
-          icon: '👑',
+          icon: '<i class="fas fa-crown"></i>',
+          image: 'https://images.unsplash.com/photo-1504196606672-aef5c9ce79c6?q=80&w=400',
           title: 'Espace VIP',
-          subtitle: 'Points, récompenses, parrainage',
+          subtitle: 'Récompenses & Status',
           cssClass: 'card-vip',
           disabled: false,
           onClick: "navigate('vip')"
@@ -1028,18 +1056,22 @@ return accessMatrix[plan] || accessMatrix['free'];
     function createCard(options) {
       const {
         id, icon, title, subtitle, cssClass,
-        badge, badgeId, disabled, planRequired, onClick
+        badge, badgeId, disabled, planRequired, onClick, image
       } = options;
       
       const disabledClass = disabled ? 'disabled' : '';
       const badgeHtml = badge ? `<div class="badge" id="${badgeId || ''}">${badge}</div>` : 
                         (badgeId ? `<div class="badge hidden" id="${badgeId}">0</div>` : '');
-      const lockHtml = disabled ? '<div class="card-lock">🔒</div>' : '';
+      const lockHtml = disabled ? '<div class="card-lock"><i class="fas fa-lock"></i></div>' : '';
       const planHtml = planRequired ? `<div class="plan-required">${planRequired}</div>` : '';
       const clickAttr = disabled ? '' : `onclick="${onClick}"`;
       
+      // C'est ici qu'on ajoute l'image de fond
+      const bgHtml = image ? `<div class="card-bg" style="background-image: url('${image}');"></div>` : '';
+
       return `
         <div class="card ${cssClass} ${disabledClass}" ${clickAttr}>
+          ${bgHtml}
           <div class="card-overlay"></div>
           ${badgeHtml}
           ${lockHtml}
