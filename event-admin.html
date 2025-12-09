@@ -1191,21 +1191,40 @@
     // CHARGEMENT EVENT
     // ============================================
     async function loadEventData() {
-      // Utiliser /event/stats (authentifié) au lieu de /event/info (public)
-      const response = await fetch(
-        `${API_BASE}/event/stats?event_code=${window.EVENT_CODE}&session_token=${window.MT_TOKEN}`
-      );
+  // 1. D'abord récupérer les infos basiques via /event/info (public)
+  const infoResponse = await fetch(
+    `${API_BASE}/event/info?code=${window.EVENT_CODE}`
+  );
 
-      if (!response.ok) {
-        const err = await response.json().catch(() => ({}));
-        throw new Error(err.error || 'Événement introuvable ou accès refusé');
-      }
+  if (!infoResponse.ok) {
+    const err = await infoResponse.json().catch(() => ({}));
+    throw new Error(err.error || 'Événement introuvable');
+  }
 
-      const data = await response.json();
-      eventData = data.event || data;
-      
-      console.log('🎪 Event chargé:', eventData.event_name, '| Créateur:', eventData.created_by);
-    }
+  const infoData = await infoResponse.json();
+  const eventId = infoData.event?.event_id || infoData.event_id;
+  
+  if (!eventId) {
+    throw new Error('event_id non trouvé');
+  }
+
+  // 2. Ensuite récupérer les stats (avec created_by) via /event/stats
+  const statsResponse = await fetch(
+    `${API_BASE}/event/stats?event_id=${eventId}&session_token=${window.MT_TOKEN}`
+  );
+
+  if (!statsResponse.ok) {
+    const err = await statsResponse.json().catch(() => ({}));
+    throw new Error(err.error || 'Accès stats refusé');
+  }
+
+  const statsData = await statsResponse.json();
+  
+  // Fusionner les données
+  eventData = { ...infoData.event, ...statsData.event, ...statsData };
+  
+  console.log('🎪 Event chargé:', eventData.event_name, '| Créateur:', eventData.created_by);
+}
 
     // ============================================
     // AFFICHAGE EVENT
