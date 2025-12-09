@@ -90,6 +90,31 @@
       font-size: 14px;
     }
     
+    /* Section Headers */
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+    .section-header h2 {
+      font-size: 18px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .section-header .count {
+      background: var(--mt-accent);
+      color: #111;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    
     /* Loading */
     .loading {
       text-align: center;
@@ -109,10 +134,11 @@
     /* Empty State */
     .empty-state {
       text-align: center;
-      padding: 60px 20px;
+      padding: 40px 20px;
       background: rgba(255,255,255,0.05);
       border-radius: 16px;
       border: 1px dashed rgba(255,255,255,0.2);
+      margin-bottom: 24px;
     }
     .empty-state .icon {
       font-size: 48px;
@@ -139,6 +165,9 @@
     }
     
     /* Event Cards */
+    .events-section {
+      margin-bottom: 32px;
+    }
     .events-list {
       display: flex;
       flex-direction: column;
@@ -165,6 +194,11 @@
     .event-card.ended {
       opacity: 0.6;
       border-color: rgba(255,255,255,0.1);
+    }
+    
+    /* Card for created events (special style) */
+    .event-card.created {
+      border-left: 4px solid var(--mt-accent);
     }
     
     .event-header {
@@ -236,6 +270,7 @@
       border: none;
       font-family: 'Montserrat', sans-serif;
       transition: all 0.2s;
+      text-decoration: none;
     }
     .event-actions .btn-primary {
       background: var(--mt-accent);
@@ -252,6 +287,14 @@
     }
     .event-actions .btn-secondary:hover {
       background: rgba(255,255,255,0.15);
+    }
+    .event-actions .btn-admin {
+      background: linear-gradient(135deg, #8b5cf6, #6366f1);
+      color: white;
+    }
+    .event-actions .btn-admin:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(139,92,246,0.3);
     }
     
     .pass-info {
@@ -271,6 +314,22 @@
       color: var(--mt-muted);
     }
     
+    .participants-count {
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .participants-count .number {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--mt-accent);
+    }
+    
     /* Toast */
     .toast {
       position: fixed;
@@ -288,6 +347,26 @@
     @keyframes slideUp {
       from { opacity: 0; transform: translate(-50%, 20px); }
       to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    
+    /* Visibility Badge */
+    .visibility-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-left: 8px;
+    }
+    .visibility-badge.public {
+      background: rgba(35,197,94,0.2);
+      color: var(--ok);
+    }
+    .visibility-badge.private {
+      background: rgba(239,68,68,0.2);
+      color: var(--err);
     }
     
     @media (max-width: 640px) {
@@ -311,7 +390,7 @@
   <div class="container">
     <div class="header">
       <h1>🎪 Mes Events</h1>
-      <p>Événements que vous avez rejoints</p>
+      <p>Événements créés et rejoints</p>
     </div>
     
     <div id="content">
@@ -322,7 +401,6 @@
   <script>
     // === BLOC UNIVERSEL MEETEMPO ===
     (function() {
-      const TIMEOUT_MINUTES = 45;
       const params = new URLSearchParams(location.search);
       window.MT_TOKEN = params.get('session_token') || params.get('token')
                      || localStorage.getItem('session_token') 
@@ -345,6 +423,10 @@
 
     const API_BASE = 'https://api.meetempo.com';
     const session_token = window.MT_TOKEN;
+    
+    // Variables globales
+    let userProfile = null;
+    let canCreateEvents = false;
     
     document.getElementById('tokenDisplay').textContent = session_token.substring(0, 12) + '...';
     
@@ -372,14 +454,25 @@
       });
     }
     
-    function getEventStatus(event, pass) {
+    function formatDateShort(isoDate) {
+      if (!isoDate) return '-';
+      const d = new Date(isoDate);
+      return d.toLocaleDateString('fr-FR', {
+        day: 'numeric',
+        month: 'short',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+    
+    function getEventStatus(startsAt, endsAt) {
       const now = Date.now();
-      const startsAt = new Date(event.starts_at).getTime();
-      const endsAt = new Date(event.ends_at).getTime();
+      const start = new Date(startsAt).getTime();
+      const end = new Date(endsAt).getTime();
       
-      if (now > endsAt) {
+      if (now > end) {
         return { status: 'ended', label: 'Terminé', class: 'ended' };
-      } else if (now >= startsAt && now <= endsAt) {
+      } else if (now >= start && now <= end) {
         return { status: 'active', label: '🟢 En cours', class: 'active' };
       } else {
         return { status: 'upcoming', label: '📅 À venir', class: 'upcoming' };
@@ -390,86 +483,48 @@
       const content = document.getElementById('content');
       
       try {
-        // Récupérer profil avec event_passes
+        // 1. Récupérer profil avec event_passes
         const profileRes = await fetch(`${API_BASE}/profile?session_token=${session_token}`);
         if (!profileRes.ok) throw new Error('Erreur chargement profil');
         
-        const profile = await profileRes.json();
-        const eventPasses = profile.profile_rich?.event_passes || [];
+        userProfile = await profileRes.json();
+        const eventPasses = userProfile.profile_rich?.event_passes || [];
         
-        console.log('🎫 Event passes:', eventPasses);
+        // 2. Vérifier si peut créer des events (VIP ou B2B)
+        const plan = userProfile.plan || 'free';
+        const isB2B = !!userProfile.company_id;
+        canCreateEvents = plan === 'vip' || isB2B;
         
-        if (eventPasses.length === 0) {
+        console.log('👤 Plan:', plan, '| B2B:', isB2B, '| Peut créer:', canCreateEvents);
+        console.log('🎫 Event passes:', eventPasses.length);
+        
+        let html = '';
+        
+        // 3. Section "Mes événements créés" (si VIP/B2B)
+        if (canCreateEvents) {
+          html += await renderCreatedEventsSection();
+        }
+        
+        // 4. Section "Événements rejoints" (via Pass)
+        html += await renderJoinedEventsSection(eventPasses);
+        
+        // 5. Afficher ou état vide
+        if (html.trim() === '' || (html.includes('empty-state') && html.split('empty-state').length > 2)) {
+          // Tout est vide
           content.innerHTML = `
             <div class="empty-state">
               <div class="icon">🎪</div>
               <h3>Aucun événement</h3>
-              <p>Vous n'avez pas encore rejoint d'événement.</p>
-              <a href="hub.html?session_token=${session_token}" class="btn">Retour au Hub</a>
+              <p>Vous n'avez pas encore créé ou rejoint d'événement.</p>
+              ${canCreateEvents ? `
+                <a href="event-create.html?session_token=${session_token}" class="btn">➕ Créer un événement</a>
+              ` : `
+                <a href="hub.html?session_token=${session_token}" class="btn">Retour au Hub</a>
+              `}
             </div>
           `;
-          return;
-        }
-        
-        // Récupérer les détails de chaque event
-        let eventsHtml = '';
-        
-        for (const pass of eventPasses) {
-          try {
-            const eventRes = await fetch(`${API_BASE}/event/check-access?event_code=${pass.event_code}`);
-            const eventData = await eventRes.json();
-            
-            if (!eventData.success) continue;
-            
-            const event = eventData.event;
-            const statusInfo = getEventStatus(event, pass);
-            
-            eventsHtml += `
-              <div class="event-card ${statusInfo.class}">
-                <div class="event-header">
-                  <div class="event-info">
-                    <h3>${event.event_name}</h3>
-                    <span class="event-code">${event.event_code}</span>
-                  </div>
-                  <span class="event-status ${statusInfo.class}">${statusInfo.label}</span>
-                </div>
-                
-                <div class="event-details">
-                  <div class="detail">📍 ${event.venue || 'Lieu non précisé'}${event.city ? ', ' + event.city : ''}</div>
-                  <div class="detail">📅 ${formatDate(event.starts_at)}</div>
-                </div>
-                
-                <div class="pass-info">
-                  <div class="label">🎫 Pass Event actif</div>
-                  <div class="dates">Valide du ${formatDate(pass.valid_from)} au ${formatDate(pass.valid_until)}</div>
-                </div>
-                
-                <div class="event-actions">
-                  <button class="btn btn-primary" onclick="viewParticipants('${event.event_code}')">
-                    👥 Voir les participants
-                  </button>
-                  <button class="btn btn-secondary" onclick="copyEventLink('${event.event_code}')">
-                    📋 Copier le lien
-                  </button>
-                </div>
-              </div>
-            `;
-          } catch (err) {
-            console.error('Erreur chargement event:', pass.event_code, err);
-          }
-        }
-        
-        if (eventsHtml) {
-          content.innerHTML = `<div class="events-list">${eventsHtml}</div>`;
         } else {
-          content.innerHTML = `
-            <div class="empty-state">
-              <div class="icon">⚠️</div>
-              <h3>Erreur chargement</h3>
-              <p>Impossible de charger vos événements.</p>
-              <a href="hub.html?session_token=${session_token}" class="btn">Retour au Hub</a>
-            </div>
-          `;
+          content.innerHTML = html;
         }
         
       } catch (err) {
@@ -485,9 +540,199 @@
       }
     }
     
+    // ==========================================
+    // SECTION: MES ÉVÉNEMENTS CRÉÉS
+    // ==========================================
+    async function renderCreatedEventsSection() {
+      try {
+        const response = await fetch(`${API_BASE}/event/list?filter=mine&session_token=${session_token}`);
+        
+        if (!response.ok) {
+          console.error('Erreur chargement événements créés');
+          return '';
+        }
+        
+        const data = await response.json();
+        const events = data.events || [];
+        
+        console.log('📌 Événements créés:', events.length);
+        
+        if (events.length === 0) {
+          return `
+            <div class="events-section">
+              <div class="section-header">
+                <h2>📌 Mes événements créés</h2>
+              </div>
+              <div class="empty-state" style="padding: 30px;">
+                <p style="margin-bottom: 16px;">Vous n'avez pas encore créé d'événement.</p>
+                <a href="event-create.html?session_token=${session_token}" class="btn">➕ Créer un événement</a>
+              </div>
+            </div>
+          `;
+        }
+        
+        let cardsHtml = '';
+        
+        for (const event of events) {
+          const statusInfo = getEventStatus(event.starts_at, event.ends_at);
+          const visibilityClass = event.is_public ? 'public' : 'private';
+          const visibilityLabel = event.is_public ? '🌐 Public' : '🔒 Privé';
+          
+          cardsHtml += `
+            <div class="event-card created ${statusInfo.class}">
+              <div class="event-header">
+                <div class="event-info">
+                  <h3>
+                    ${event.event_name}
+                    <span class="visibility-badge ${visibilityClass}">${visibilityLabel}</span>
+                  </h3>
+                  <span class="event-code">${event.event_code}</span>
+                </div>
+                <span class="event-status ${statusInfo.class}">${statusInfo.label}</span>
+              </div>
+              
+              <div class="event-details">
+                <div class="detail">📍 ${event.venue || 'Lieu non précisé'}${event.city ? ', ' + event.city : ''}</div>
+                <div class="detail">📅 ${formatDateShort(event.starts_at)}</div>
+              </div>
+              
+              <div class="participants-count">
+                <span class="number">${event.participants_count || 0}</span>
+                <span>participant${(event.participants_count || 0) > 1 ? 's' : ''}</span>
+              </div>
+              
+              <div class="event-actions">
+                <a href="event-admin.html?code=${event.event_code}&from=my-events&session_token=${session_token}" class="btn btn-admin">
+                  ⚙️ Gérer
+                </a>
+                <button class="btn btn-primary" onclick="viewParticipants('${event.event_code}')">
+                  👥 Participants
+                </button>
+                <button class="btn btn-secondary" onclick="copyEventLink('${event.event_code}')">
+                  📋 Copier le lien
+                </button>
+              </div>
+            </div>
+          `;
+        }
+        
+        return `
+          <div class="events-section">
+            <div class="section-header">
+              <h2>📌 Mes événements créés</h2>
+              <span class="count">${events.length}</span>
+            </div>
+            <div class="events-list">
+              ${cardsHtml}
+            </div>
+          </div>
+        `;
+        
+      } catch (err) {
+        console.error('Erreur section créés:', err);
+        return '';
+      }
+    }
+    
+    // ==========================================
+    // SECTION: ÉVÉNEMENTS REJOINTS (via Pass)
+    // ==========================================
+    async function renderJoinedEventsSection(eventPasses) {
+      if (eventPasses.length === 0) {
+        return `
+          <div class="events-section">
+            <div class="section-header">
+              <h2>🎫 Événements rejoints</h2>
+            </div>
+            <div class="empty-state" style="padding: 30px;">
+              <p>Vous n'avez pas encore rejoint d'événement avec un Pass.</p>
+            </div>
+          </div>
+        `;
+      }
+      
+      let cardsHtml = '';
+      let validCount = 0;
+      
+      for (const pass of eventPasses) {
+        try {
+          const eventRes = await fetch(`${API_BASE}/event/check-access?event_code=${pass.event_code}`);
+          const eventData = await eventRes.json();
+          
+          if (!eventData.success) continue;
+          
+          const event = eventData.event;
+          const statusInfo = getEventStatus(event.starts_at, event.ends_at);
+          
+          validCount++;
+          
+          cardsHtml += `
+            <div class="event-card ${statusInfo.class}">
+              <div class="event-header">
+                <div class="event-info">
+                  <h3>${event.event_name}</h3>
+                  <span class="event-code">${event.event_code}</span>
+                </div>
+                <span class="event-status ${statusInfo.class}">${statusInfo.label}</span>
+              </div>
+              
+              <div class="event-details">
+                <div class="detail">📍 ${event.venue || 'Lieu non précisé'}${event.city ? ', ' + event.city : ''}</div>
+                <div class="detail">📅 ${formatDate(event.starts_at)}</div>
+              </div>
+              
+              <div class="pass-info">
+                <div class="label">🎫 Pass Event actif</div>
+                <div class="dates">Valide du ${formatDateShort(pass.valid_from)} au ${formatDateShort(pass.valid_until)}</div>
+              </div>
+              
+              <div class="event-actions">
+                <button class="btn btn-primary" onclick="viewParticipants('${event.event_code}')">
+                  👥 Voir les participants
+                </button>
+                <button class="btn btn-secondary" onclick="copyEventLink('${event.event_code}')">
+                  📋 Copier le lien
+                </button>
+              </div>
+            </div>
+          `;
+        } catch (err) {
+          console.error('Erreur chargement event:', pass.event_code, err);
+        }
+      }
+      
+      if (validCount === 0) {
+        return `
+          <div class="events-section">
+            <div class="section-header">
+              <h2>🎫 Événements rejoints</h2>
+            </div>
+            <div class="empty-state" style="padding: 30px;">
+              <p>Aucun événement valide trouvé.</p>
+            </div>
+          </div>
+        `;
+      }
+      
+      return `
+        <div class="events-section">
+          <div class="section-header">
+            <h2>🎫 Événements rejoints</h2>
+            <span class="count">${validCount}</span>
+          </div>
+          <div class="events-list">
+            ${cardsHtml}
+          </div>
+        </div>
+      `;
+    }
+    
+    // ==========================================
+    // ACTIONS
+    // ==========================================
     function viewParticipants(eventCode) {
-  window.location.href = `event-participants.html?session_token=${session_token}&event_code=${eventCode}`;
-}
+      window.location.href = `event-participants.html?session_token=${session_token}&event_code=${eventCode}`;
+    }
     
     function copyEventLink(eventCode) {
       const link = `https://meetempo.github.io/meetempo-payment-pages/event-join.html?code=${eventCode}`;
