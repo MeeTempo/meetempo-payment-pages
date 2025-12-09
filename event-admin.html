@@ -1191,19 +1191,20 @@
     // CHARGEMENT EVENT
     // ============================================
     async function loadEventData() {
+      // Utiliser /event/stats (authentifié) au lieu de /event/info (public)
       const response = await fetch(
-        `${API_BASE}/event/info?code=${window.EVENT_CODE}`
+        `${API_BASE}/event/stats?event_code=${window.EVENT_CODE}&session_token=${window.MT_TOKEN}`
       );
 
       if (!response.ok) {
         const err = await response.json().catch(() => ({}));
-        throw new Error(err.error || 'Événement introuvable');
+        throw new Error(err.error || 'Événement introuvable ou accès refusé');
       }
 
       const data = await response.json();
       eventData = data.event || data;
       
-      console.log('🎪 Event chargé:', eventData.event_name);
+      console.log('🎪 Event chargé:', eventData.event_name, '| Créateur:', eventData.created_by);
     }
 
     // ============================================
