@@ -1425,18 +1425,21 @@
         const statusLabel = inv.status === 'joined' ? '✅ Rejoint' : '⏳ En attente';
 
         html += `
-          <div class="invite-item">
-            <span class="invite-email">${inv.email}</span>
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <span class="invite-status ${statusClass}">${statusLabel}</span>
-              ${inv.status !== 'joined' ? `
-                <button class="btn btn-secondary btn-sm" onclick="cancelInvite('${inv.email}')">
-                  ❌
-                </button>
-              ` : ''}
-            </div>
+        <div class="invite-item">
+          <span class="invite-email">${inv.email}</span>
+          <div style="display: flex; align-items: center; gap: 0.75rem;">
+            ${inv.status === 'joined' && inv.plan ? `
+              <span class="plan-badge ${inv.plan.startsWith('b2b') ? 'b2b' : inv.plan}">${formatPlanLabel(inv.plan)}</span>
+            ` : ''}
+            <span class="invite-status ${statusClass}">${statusLabel}</span>
+            ${inv.status !== 'joined' ? `
+              <button class="btn btn-secondary btn-sm" onclick="cancelInvite('${inv.email}')">
+                ❌
+              </button>
+            ` : ''}
           </div>
-        `;
+        </div>
+      `;
       });
 
       container.innerHTML = html;
@@ -1469,7 +1472,8 @@
         if (response.ok && data.success) {
           showToast('✅ Invitation envoyée !', 'success');
           document.getElementById('inviteEmail').value = '';
-          loadInvites();
+          await loadInvites();
+          await loadParticipants();
         } else {
           showToast('❌ ' + (data.error || 'Erreur'), 'error');
         }
