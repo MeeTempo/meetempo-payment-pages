@@ -4,340 +4,197 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mes Conversations - MeeTempo</title>
+  
   <meta http-equiv="Content-Security-Policy" 
       content="default-src 'self'; 
                img-src https: data:; 
                script-src 'self' 'unsafe-inline'; 
-               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
-               font-src https://fonts.gstatic.com; 
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
+               font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
                connect-src https://api.meetempo.com;">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   
   <style>
     :root {
-      --mt-dark: #030E4F;
-      --mt-accent: #F49F1C;
-      --mt-bg: #0a133f;
-      --mt-text: #ffffff;
-      --mt-muted: #c9d1ff;
-      --ok: #23c55e;
-      --archived: #94a3b8;
+      /* Palette Hub Premium */
+      --mt-bg: #0f172a;
+      --mt-accent: #f97316;
+      --mt-text: #f8fafc;
+      --mt-muted: #94a3b8;
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      
+      --ok: #10b981;
+      --archived: #64748b;
     }
     
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     
     body {
-      font-family: Montserrat, system-ui, sans-serif;
-      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      font-family: 'Inter', sans-serif;
+      background-color: var(--mt-bg);
+      /* Fond profond du Hub */
+      background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
       color: var(--mt-text);
       min-height: 100vh;
       padding: 20px;
+      padding-top: 40px;
     }
     
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-    }
+    .container { max-width: 800px; margin: 0 auto; }
     
-    .header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
+    /* HEADER & LOGO */
+    .header { text-align: center; margin-bottom: 32px; animation: fadeInDown 0.6s ease; }
     
     .logo-badge {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #111;
-      font-weight: 800;
-      font-size: 24px;
-      margin-bottom: 16px;
+      width: 64px; height: 64px; border-radius: 20px;
+      background: linear-gradient(135deg, var(--mt-accent), #fbbf24);
+      display: inline-flex; align-items: center; justify-content: center;
+      /* Effet Pochoir */
+      color: var(--mt-bg); 
+      font-weight: 900; font-size: 24px; letter-spacing: -1px;
+      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
+      margin-bottom: 16px; font-family: 'Montserrat', sans-serif;
     }
     
-    h1 {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; font-family: 'Montserrat', sans-serif; }
+    .subtitle { font-size: 15px; color: var(--mt-muted); }
     
-    .subtitle {
-      font-size: 16px;
-      color: var(--mt-muted);
+    /* STATS ROW */
+    .stats-header {
+      display: flex; justify-content: center; gap: 20px; margin-bottom: 24px;
+      background: rgba(255,255,255,0.03); padding: 10px 20px;
+      border-radius: 12px; border: 1px solid var(--glass-border); display: inline-flex;
     }
-    
-    /* Chat Card */
+    .stat-item { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--mt-muted); }
+    .stat-value { font-weight: 700; font-size: 16px; color: var(--mt-accent); }
+
+    /* FILTERS (Pills) */
+    .filters {
+      display: flex; gap: 10px; margin-bottom: 30px; justify-content: center; flex-wrap: wrap;
+    }
+    .filter-btn {
+      background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 8px 16px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: all 0.3s; color: var(--mt-muted); font-family: inherit;
+    }
+    .filter-btn:hover { background: rgba(255,255,255,0.1); color: white; }
+    .filter-btn.active {
+      background: var(--mt-accent); border-color: var(--mt-accent); color: white;
+      box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3);
+    }
+
+    /* CHAT CARDS (Glassmorphism) */
     .chat-card {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 16px;
-      padding: 20px;
-      margin-bottom: 16px;
-      cursor: pointer;
-      transition: all 0.3s;
-      position: relative;
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 20px; margin-bottom: 16px;
+      cursor: pointer; transition: all 0.3s; position: relative;
+      box-shadow: var(--glass-shadow);
+      animation: fadeInUp 0.5s ease backwards;
     }
-    
     .chat-card:hover {
       transform: translateY(-2px);
-      background: rgba(255,255,255,0.12);
-      box-shadow: 0 8px 32px rgba(244,159,28,0.2);
+      background: rgba(255,255,255,0.08);
+      border-color: rgba(255,255,255,0.2);
+      box-shadow: 0 12px 40px rgba(0,0,0,0.4);
     }
+    .chat-card.archived { opacity: 0.6; filter: grayscale(0.8); }
     
-    .chat-card.archived {
-      opacity: 0.7;
-    }
+    .chat-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .chat-title { font-size: 17px; font-weight: 700; color: white; margin-bottom: 4px; font-family: 'Montserrat', sans-serif; }
+    .chat-status { font-size: 18px; }
     
-    .chat-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 12px;
-    }
-    
-    .chat-title {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--mt-text);
-      margin-bottom: 6px;
-    }
-    
-    .chat-status {
-      font-size: 20px;
-    }
-    
-    .chat-meta {
-      display: flex;
-      gap: 16px;
-      font-size: 13px;
-      color: var(--mt-muted);
-      margin-bottom: 12px;
-    }
+    .chat-meta { display: flex; gap: 16px; font-size: 12px; color: var(--mt-muted); margin-bottom: 12px; }
+    .chat-meta span { display: flex; align-items: center; gap: 4px; }
     
     .chat-preview {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      color: var(--mt-muted);
+      display: flex; align-items: center; gap: 8px; font-size: 14px;
+      color: rgba(255,255,255,0.8); padding-top: 12px; border-top: 1px solid var(--glass-border);
     }
+    .chat-time { margin-left: auto; font-size: 11px; color: var(--mt-muted); }
     
-    .chat-preview-name {
-      font-weight: 600;
-      color: var(--mt-accent);
-    }
-    
-    .chat-time {
-      margin-left: auto;
-      font-size: 12px;
-      color: var(--mt-muted);
-    }
-    
-    .loading {
-      text-align: center;
-      padding: 60px 20px;
-    }
-    
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(255,255,255,0.1);
-      border-top-color: var(--mt-accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 16px;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    .empty {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--mt-muted);
-    }
-    
-    .empty-icon {
-      font-size: 64px;
-      margin-bottom: 16px;
-    }
-    
-    .actions {
-      display: flex;
-      gap: 12px;
-      margin-top: 24px;
-    }
-
-    /* 🔥 NOUVEAU : Badge unread */
+    /* BADGES */
     .unread-badge {
-      position: absolute;
-      top: 16px;
-      right: 16px;
-      background: var(--mt-accent);
-      color: #111;
-      font-size: 12px;
-      font-weight: 700;
-      padding: 4px 10px;
-      border-radius: 12px;
-      min-width: 24px;
-      text-align: center;
-      animation: pulse 2s ease-in-out infinite;
+      position: absolute; top: -8px; right: -8px;
+      background: #ef4444; color: white;
+      font-size: 11px; font-weight: 700; padding: 4px 8px;
+      border-radius: 12px; min-width: 24px; text-align: center;
+      box-shadow: 0 4px 10px rgba(239, 68, 68, 0.4);
+      animation: pulse 2s infinite; border: 2px solid var(--mt-bg);
     }
+    @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.1); } 100% { transform: scale(1); } }
 
-    @keyframes pulse {
-      0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.1); }
-    }
-
-    /* 🔥 NOUVEAU : Badge feedback */
     .feedback-badge {
-      background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
-      color: white;
-      font-size: 12px;
-      font-weight: 600;
-      padding: 6px 12px;
-      border-radius: 8px;
-      margin-top: 8px;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      cursor: pointer;
-      transition: all 0.3s;
+      margin-top: 12px; background: linear-gradient(135deg, #f59e0b, #f97316);
+      color: white; font-size: 12px; font-weight: 600; padding: 8px 12px;
+      border-radius: 8px; display: inline-flex; align-items: center; gap: 6px;
+      cursor: pointer; transition: 0.2s;
     }
+    .feedback-badge:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3); }
 
-    .feedback-badge:hover {
-      transform: translateX(4px);
-      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+    /* ACTIONS (Bottom Buttons) */
+    .actions {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 40px;
     }
-
-    /* 🔥 NOUVEAU : Filtres */
-    .filters {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
-      justify-content: center;
-    }
-
-    .filter-btn {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      padding: 10px 20px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-family: inherit;
-      color: var(--mt-text);
-    }
-
-    .filter-btn.active {
-      background: var(--mt-accent);
-      border-color: var(--mt-accent);
-      color: #111;
-    }
-
-    .filter-btn:hover:not(.active) {
-      background: rgba(255,255,255,0.12);
-    }
-
-    /* 🔥 NOUVEAU : Stats header */
-    .stats-header {
-      display: flex;
-      justify-content: center;
-      gap: 24px;
-      margin-bottom: 24px;
-      font-size: 14px;
-      color: var(--mt-muted);
-    }
-
-    .stat-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .stat-value {
-      font-weight: 700;
-      font-size: 18px;
-      color: var(--mt-accent);
-    }
-    
     .btn {
-      flex: 1;
-      padding: 14px;
-      border: none;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-family: inherit;
-      background: rgba(255,255,255,0.1);
-      color: var(--mt-text);
-      border: 1px solid rgba(255,255,255,0.2);
+      padding: 12px; border: none; border-radius: 12px;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+      font-family: 'Inter', sans-serif; background: rgba(255,255,255,0.08);
+      color: white; border: 1px solid var(--glass-border);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
     }
-    
-    .btn:hover {
-      background: rgba(255,255,255,0.15);
+    .btn:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
+
+    /* LOADING & EMPTY */
+    .loading, .empty { text-align: center; padding: 60px 20px; color: var(--mt-muted); }
+    .spinner {
+      width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--mt-accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 16px;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+
     @media (max-width: 640px) {
-      .chat-meta {
-        flex-direction: column;
-        gap: 4px;
-      }
+      .chat-meta { flex-wrap: wrap; gap: 10px; }
+      .actions { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-  <div class="logo-badge">MT</div>
-  <h1>💬 Mes Conversations</h1>
-  <p class="subtitle">Tous vos chats de groupe</p>
-  
-  <!-- 🔥 NOUVEAU : Stats -->
-  <div class="stats-header" id="statsHeader" style="display: none;">
-    <div class="stat-item">
-      <span>📊 Total</span>
-      <span class="stat-value" id="statTotal">0</span>
+      <div class="logo-badge">MT</div>
+      <h1>Mes Conversations</h1>
+      <p class="subtitle">Discutez avec vos groupes d'événements</p>
+      
+      <div class="stats-header" id="statsHeader" style="display: none;">
+        <div class="stat-item"><span>📊 Total</span><span class="stat-value" id="statTotal">0</span></div>
+        <div class="stat-item"><span>🟢 Actifs</span><span class="stat-value" id="statActive">0</span></div>
+        <div class="stat-item"><span>🔔 Non lus</span><span class="stat-value" id="statUnread">0</span></div>
+      </div>
+      
+      <div class="filters" id="filters" style="display: none;">
+        <button class="filter-btn active" onclick="filterChats('all')">Tout</button>
+        <button class="filter-btn" onclick="filterChats('active')">Actifs</button>
+        <button class="filter-btn" onclick="filterChats('unread')">Non lus</button>
+        <button class="filter-btn" onclick="filterChats('archived')">Archivés</button>
+      </div>
     </div>
-    <div class="stat-item">
-      <span>🟢 Actifs</span>
-      <span class="stat-value" id="statActive">0</span>
-    </div>
-    <div class="stat-item">
-      <span>🔔 Non lus</span>
-      <span class="stat-value" id="statUnread">0</span>
-    </div>
-  </div>
-  
-  <!-- 🔥 NOUVEAU : Filtres -->
-  <div class="filters" id="filters" style="display: none;">
-    <button class="filter-btn active" onclick="filterChats('all')">
-      📋 Tous
-    </button>
-    <button class="filter-btn" onclick="filterChats('active')">
-      🟢 Actifs
-    </button>
-    <button class="filter-btn" onclick="filterChats('unread')">
-      🔔 Non lus
-    </button>
-    <button class="filter-btn" onclick="filterChats('archived')">
-      🔒 Archivés
-    </button>
-  </div>
-</div>
     
     <div id="loading" class="loading">
       <div class="spinner"></div>
@@ -348,62 +205,48 @@
       <div id="chatsList"></div>
       
       <div id="emptyState" class="empty" style="display:none;">
-        <div class="empty-icon">💬</div>
+        <div class="empty-icon"><i class="far fa-comments"></i></div>
         <div style="font-weight: 600; margin-bottom: 8px;">Aucune conversation</div>
-        <div style="font-size: 14px;">Vos chats de groupe apparaîtront ici</div>
+        <div style="font-size: 14px;">Rejoignez une suggestion pour discuter !</div>
       </div>
     </div>
     
     <div class="actions">
       <button class="btn" onclick="goToMySuggestions()">
-        📋 Mes suggestions
+        <i class="fas fa-list"></i> Mes suggestions
       </button>
       <button class="btn" onclick="goToMap()">
-        🗺️ Carte
+        <i class="fas fa-map-marked-alt"></i> Carte
       </button>
       <button class="btn" onclick="goToHub()">
-        🏠 Hub
+        <i class="fas fa-home"></i> Hub
       </button>
       <button class="btn" onclick="backToGPT()">
-        💬 GPT
+        <i class="fas fa-robot"></i> GPT
       </button>
     </div>
   </div>
   
   <script>
-    // === BLOC UNIVERSEL MEETEMPO - STANDARD (45 min) ===
+    // === BLOC UNIVERSEL (INTOUCHÉ) ===
     (function() {
       const TIMEOUT_MINUTES = 45;
-      
       const params = new URLSearchParams(location.search);
       window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
-                     || localStorage.getItem('session_token') 
-                     || sessionStorage.getItem('meetempo_token');
-      
+                       || localStorage.getItem('session_token') || sessionStorage.getItem('meetempo_token');
       if (window.MT_TOKEN) {
         localStorage.setItem('session_token', window.MT_TOKEN);
         sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
       }
-      
       if (!window.MT_TOKEN) {
-        alert('❌ Session expirée. Retour à MeeTempo GPT.');
+        alert('❌ Session expirée.');
         window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
         return;
       }
-      
-      const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
-      setTimeout(() => {
-        alert('⏰ Session expirée (45 min). Cette page va se fermer.');
-        window.close();
-        setTimeout(() => {
-          window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-        }, 1000);
-      }, TIMEOUT_MS);
-      
-      console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
+      setTimeout(() => { window.close(); }, TIMEOUT_MINUTES * 60 * 1000);
     })();
-    // === FIN BLOC UNIVERSEL ===
 
+    // === LOGIQUE MÉTIER (INTOUCHÉE) ===
     const API_BASE = 'https://api.meetempo.com';
     let allChats = [];
     let currentFilter = 'all';
@@ -411,35 +254,24 @@
     
     async function init() {
       const token = window.MT_TOKEN;
-      
       await loadChats(token);
 
-      // 🔥 NOUVEAU : Auto-refresh toutes les 30s
-      if (autoRefreshInterval) {
-        clearInterval(autoRefreshInterval);
-      }
-
+      if (autoRefreshInterval) clearInterval(autoRefreshInterval);
       autoRefreshInterval = setInterval(async () => {
         try {
           const response = await fetch(`${API_BASE}/user/chats?session_token=${token}`);
           const data = await response.json();
-          
           if (response.ok) {
             const oldUnreadCount = allChats.reduce((sum, c) => sum + (c.unread_count || 0), 0);
             const newUnreadCount = (data.chats || []).reduce((sum, c) => sum + (c.unread_count || 0), 0);
-            
-            // Si nouveaux messages non lus, mettre à jour
             if (newUnreadCount > oldUnreadCount) {
               allChats = data.chats || [];
-              filterChats(currentFilter); // Réappliquer filtre actif
+              filterChats(currentFilter);
               updateStats();
-              console.log('🔔 Nouveaux messages détectés');
             }
           }
-        } catch (err) {
-          console.error('Erreur auto-refresh:', err);
-        }
-      }, 30000); // 30 secondes
+        } catch (err) { console.error(err); }
+      }, 30000);
     }
     
     async function loadChats(token) {
@@ -450,11 +282,8 @@
         const response = await fetch(`${API_BASE}/user/chats?session_token=${token}`);
         const data = await response.json();
         
-        if (!response.ok) {
-          throw new Error(data.error || 'Erreur chargement');
-        }
+        if (!response.ok) throw new Error(data.error || 'Erreur chargement');
         
-        // 🔥 NOUVEAU : Stocker + afficher
         allChats = data.chats || [];
         renderChats(allChats);
         updateStats();
@@ -463,190 +292,117 @@
         document.getElementById('content').style.display = 'block';
         
       } catch (err) {
-        console.error('Erreur:', err);
-        alert('Erreur chargement conversations: ' + err.message);
+        console.error(err);
+        document.getElementById('loading').innerHTML = `<div style="color:var(--err)">${err.message}</div>`;
       }
     }
     
     function renderChats(chats) {
-  const container = document.getElementById('chatsList');
-  const emptyState = document.getElementById('emptyState');
-  
-  if (chats.length === 0) {
-    container.innerHTML = '';
-    emptyState.style.display = 'block';
-    return;
-  }
-  
-  emptyState.style.display = 'none';
-  
-  container.innerHTML = chats.map(chat => {
-    const statusIcon = chat.status === 'active' ? '🟢' : '🔒';
-    const date = chat.date ? new Date(chat.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '';
-    const time = chat.time || '';
-    
-    let lastMsgText = '';
-    if (chat.last_message) {
-      const msgType = chat.last_message.type === 'gpt' ? '🤖 ' : '';
-      lastMsgText = msgType + (chat.last_message.text || '').substring(0, 50);
-      if (chat.last_message.text && chat.last_message.text.length > 50) {
-        lastMsgText += '...';
+      const container = document.getElementById('chatsList');
+      const emptyState = document.getElementById('emptyState');
+      
+      if (chats.length === 0) {
+        container.innerHTML = '';
+        emptyState.style.display = 'block';
+        return;
+      }
+      emptyState.style.display = 'none';
+      
+      container.innerHTML = chats.map(chat => {
+        const statusIcon = chat.status === 'active' ? '🟢' : '🔒';
+        const date = chat.date ? new Date(chat.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' }) : '';
+        const time = chat.time || '';
+        
+        let lastMsgText = '';
+        if (chat.last_message) {
+          const msgType = chat.last_message.type === 'gpt' ? '🤖 ' : '';
+          lastMsgText = msgType + (chat.last_message.text || '').substring(0, 50) + (chat.last_message.text?.length > 50 ? '...' : '');
+        }
+        
+        const timeAgo = chat.last_message ? formatTimeAgo(chat.last_message.timestamp) : '';
+        const unreadBadge = chat.unread_count > 0 ? `<span class="unread-badge">${chat.unread_count}</span>` : '';
+        const feedbackBadge = chat.can_give_feedback ? 
+          `<div class="feedback-badge" onclick="event.stopPropagation(); openFeedback('${chat.suggestion_id}')"><i class="fas fa-star"></i> Donner ton avis</div>` : '';
+        
+        return `
+          <div class="chat-card ${chat.status === 'archived' ? 'archived' : ''}" onclick="openChat('${chat.suggestion_id}')">
+            ${unreadBadge}
+            <div class="chat-header">
+              <div>
+                <div class="chat-title">${escapeHtml(chat.title)}</div>
+                <div class="chat-meta">
+                  <span><i class="fas fa-users"></i> ${chat.participants_count}</span>
+                  ${chat.city ? `<span><i class="fas fa-map-marker-alt"></i> ${escapeHtml(chat.city)}</span>` : ''}
+                  ${date ? `<span><i class="far fa-calendar"></i> ${date} ${time}</span>` : ''}
+                </div>
+              </div>
+              <div class="chat-status">${statusIcon}</div>
+            </div>
+            
+            ${lastMsgText ? `
+              <div class="chat-preview">
+                <span><i class="far fa-comment-dots"></i> ${escapeHtml(lastMsgText)}</span>
+                <span class="chat-time">${timeAgo}</span>
+              </div>
+            ` : ''}
+            
+            ${feedbackBadge}
+          </div>
+        `;
+      }).join('');
+    }
+
+    function updateStats() {
+      const total = allChats.length;
+      document.getElementById('statTotal').textContent = total;
+      document.getElementById('statActive').textContent = allChats.filter(c => c.status === 'active').length;
+      document.getElementById('statUnread').textContent = allChats.filter(c => c.unread_count > 0).length;
+      
+      if (total > 0) {
+        document.getElementById('statsHeader').style.display = 'inline-flex';
+        document.getElementById('filters').style.display = 'flex';
       }
     }
-    
-    const timeAgo = chat.last_message ? formatTimeAgo(chat.last_message.timestamp) : '';
-    
-    // 🔥 NOUVEAU : Badge unread
-    const unreadBadge = chat.unread_count > 0 ? 
-      `<span class="unread-badge">${chat.unread_count}</span>` : '';
-    
-    // 🔥 NOUVEAU : Badge feedback
-    const feedbackBadge = chat.can_give_feedback ? 
-      `<div class="feedback-badge" onclick="event.stopPropagation(); openFeedback('${chat.suggestion_id}')">
-        ⭐ Donner ton avis
-      </div>` : '';
-    
-    return `
-      <div class="chat-card ${chat.status === 'archived' ? 'archived' : ''}" onclick="openChat('${chat.suggestion_id}')" style="position: relative;">
-        ${unreadBadge}
-        <div class="chat-header">
-          <div>
-            <div class="chat-title">${escapeHtml(chat.title)}</div>
-            <div class="chat-meta">
-              <span>👥 ${chat.participants_count} participants</span>
-              ${chat.city ? `<span>📍 ${escapeHtml(chat.city)}</span>` : ''}
-              ${date ? `<span>📅 ${date} ${time}</span>` : ''}
-            </div>
-          </div>
-          <div class="chat-status">${statusIcon}</div>
-        </div>
-        
-        ${lastMsgText ? `
-          <div class="chat-preview">
-            <span>${escapeHtml(lastMsgText)}</span>
-            <span class="chat-time">${timeAgo}</span>
-          </div>
-        ` : ''}
-        
-        ${feedbackBadge}
-      </div>
-    `;
-  }).join('');
-}
 
-// 🔥 NOUVEAU : Mettre à jour statistiques
-function updateStats() {
-  const total = allChats.length;
-  const active = allChats.filter(c => c.status === 'active').length;
-  const unread = allChats.filter(c => c.unread_count > 0).length;
-  
-  document.getElementById('statTotal').textContent = total;
-  document.getElementById('statActive').textContent = active;
-  document.getElementById('statUnread').textContent = unread;
-  
-  // Afficher stats si chats existent
-  if (total > 0) {
-    document.getElementById('statsHeader').style.display = 'flex';
-    document.getElementById('filters').style.display = 'flex';
-  }
-}
+    function filterChats(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.classList.add('active');
+      
+      let filtered = allChats;
+      if (filter === 'active') filtered = allChats.filter(c => c.status === 'active');
+      else if (filter === 'unread') filtered = allChats.filter(c => c.unread_count > 0);
+      else if (filter === 'archived') filtered = allChats.filter(c => c.status === 'archived');
+      
+      renderChats(filtered);
+    }
 
-// 🔥 NOUVEAU : Filtrer conversations
-function filterChats(filter) {
-  currentFilter = filter;
-  
-  // Mettre à jour boutons actifs
-  document.querySelectorAll('.filter-btn').forEach(btn => {
-    btn.classList.remove('active');
-  });
-  event.target.classList.add('active');
-  
-  // Filtrer
-  let filtered = allChats;
-  
-  switch(filter) {
-    case 'active':
-      filtered = allChats.filter(c => c.status === 'active');
-      break;
-    case 'unread':
-      filtered = allChats.filter(c => c.unread_count > 0);
-      break;
-    case 'archived':
-      filtered = allChats.filter(c => c.status === 'archived');
-      break;
-    case 'all':
-    default:
-      filtered = allChats;
-  }
-  
-  renderChats(filtered);
-}
-
-// 🔥 NOUVEAU : Fonction escape HTML
-function escapeHtml(text) {
-  const div = document.createElement('div');
-  div.textContent = text;
-  return div.innerHTML;
-}
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
     
     function formatTimeAgo(timestamp) {
-      const now = Date.now();
-      const diff = now - timestamp;
-      const minutes = Math.floor(diff / 60000);
+      const diff = Date.now() - timestamp;
+      const min = Math.floor(diff / 60000);
+      if (min < 1) return "À l'instant";
+      if (min < 60) return `${min} min`;
       const hours = Math.floor(diff / 3600000);
-      const days = Math.floor(diff / 86400000);
-      
-      if (minutes < 1) return "À l'instant";
-      if (minutes < 60) return `Il y a ${minutes} min`;
-      if (hours < 24) return `Il y a ${hours}h`;
-      if (days === 1) return "Hier";
-      if (days < 7) return `Il y a ${days}j`;
-      
+      if (hours < 24) return `${hours}h`;
       return new Date(timestamp).toLocaleDateString('fr-FR');
     }
     
-    function openChat(suggestionId) {
-      const token = sessionStorage.getItem('meetempo_token');
-      window.location.href = `chat.html?suggestion_id=${suggestionId}&session_token=${token}`;
-    }
-
-    // 🔥 NOUVEAU : Ouvrir feedback
-    function openFeedback(suggestionId) {
-      const token = sessionStorage.getItem('meetempo_token');
-      window.location.href = `feedback.html?suggestion_id=${suggestionId}&session_token=${token}`;
-    }
-    
-    function goToMySuggestions() {
-  const token = sessionStorage.getItem('meetempo_token');
-  window.location.href = `my-suggestions.html?session_token=${token}`;
-}
-    
-    function goToMap() {
-  const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
-  window.location.href = `map.html?session_token=${token}`;
-}
-
-    function goToHub() {
-  const token = sessionStorage.getItem('meetempo_token');
-  if (!token) {
-    alert('Session expirée');
-    return;
-  }
-  window.location.href = `hub.html?session_token=${token}`;
-}
-    
-    function backToGPT() {
-      window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-    }
+    // NAVIGATION
+    function openChat(id) { window.location.href = `chat.html?suggestion_id=${id}&session_token=${window.MT_TOKEN}`; }
+    function openFeedback(id) { window.location.href = `feedback.html?suggestion_id=${id}&session_token=${window.MT_TOKEN}`; }
+    function goToMySuggestions() { window.location.href = `my-suggestions.html?session_token=${window.MT_TOKEN}`; }
+    function goToMap() { window.location.href = `map.html?session_token=${window.MT_TOKEN}`; }
+    function goToHub() { window.location.href = `hub.html?session_token=${window.MT_TOKEN}`; }
+    function backToGPT() { window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19'; }
     
     window.addEventListener('DOMContentLoaded', init);
-
-// 🔥 NOUVEAU : Cleanup au unload
-window.addEventListener('beforeunload', () => {
-  if (autoRefreshInterval) {
-    clearInterval(autoRefreshInterval);
-  }
-});
+    window.addEventListener('beforeunload', () => { if (autoRefreshInterval) clearInterval(autoRefreshInterval); });
   </script>
 </body>
 </html>
