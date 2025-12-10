@@ -237,6 +237,98 @@
     }
     
     /* ============================================
+       BANDEAU COMPLÉTION PROFIL
+    ============================================ */
+    .profile-completion-banner {
+      background: linear-gradient(135deg, rgba(249,115,22,0.2) 0%, rgba(234,88,12,0.2) 100%);
+      border: 1px solid rgba(249,115,22,0.4);
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      animation: fadeInDown 0.6s ease;
+    }
+    
+    .profile-completion-banner.hidden {
+      display: none;
+    }
+    
+    .profile-completion-icon {
+      font-size: 32px;
+    }
+    
+    .profile-completion-info {
+      flex: 1;
+    }
+    
+    .profile-completion-title {
+      font-size: 15px;
+      font-weight: 600;
+      color: #f97316;
+      margin-bottom: 4px;
+    }
+    
+    .profile-completion-text {
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+    }
+    
+    .profile-completion-bar {
+      width: 100%;
+      height: 6px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 3px;
+      margin-top: 8px;
+      overflow: hidden;
+    }
+    
+    .profile-completion-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #f97316, #fb923c);
+      border-radius: 3px;
+      transition: width 0.5s ease;
+    }
+    
+    .profile-completion-actions {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    
+    .profile-completion-btn {
+      background: rgba(249,115,22,0.9);
+      color: white;
+      border: none;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    
+    .profile-completion-btn:hover {
+      background: #f97316;
+      transform: translateY(-1px);
+    }
+    
+    .profile-completion-dismiss {
+      background: transparent;
+      border: none;
+      color: rgba(255,255,255,0.5);
+      font-size: 18px;
+      cursor: pointer;
+      padding: 4px;
+    }
+    
+    .profile-completion-dismiss:hover {
+      color: rgba(255,255,255,0.8);
+    }
+    
+    /* ============================================
        GRID CARDS
     ============================================ */
     .grid {
@@ -586,6 +678,24 @@
     </div>
     
     <!-- ============================================
+         BANDEAU COMPLÉTION PROFIL
+    ============================================ -->
+    <div class="profile-completion-banner hidden" id="profileCompletionBanner">
+      <div class="profile-completion-icon">⚠️</div>
+      <div class="profile-completion-info">
+        <div class="profile-completion-title">Ton profil est incomplet (<span id="completionPercent">0</span>%)</div>
+        <div class="profile-completion-text">Complète-le pour améliorer tes matchs et rencontrer les bonnes personnes !</div>
+        <div class="profile-completion-bar">
+          <div class="profile-completion-fill" id="completionBar" style="width: 0%"></div>
+        </div>
+      </div>
+      <div class="profile-completion-actions">
+        <button class="profile-completion-btn" onclick="navigate('profile')">✏️ Compléter</button>
+        <button class="profile-completion-dismiss" onclick="dismissCompletionBanner()" title="Masquer">✕</button>
+      </div>
+    </div>
+    
+    <!-- ============================================
          GRID CARDS
     ============================================ -->
     <div class="grid" id="cardsGrid">
@@ -742,6 +852,9 @@ await loadActiveEventPasses();
 
 // Mettre à jour UI
 updateUI(data);
+        
+        // Charger bandeau complétion profil
+        loadProfileCompletion();
         
         // Charger compteur nearby
         loadNearbyCount();
@@ -1114,6 +1227,56 @@ return accessMatrix[plan] || accessMatrix['free'];
     
     function backToGPT() {
   alert('💡 Fermez cette fenêtre pour revenir à votre conversation GPT.\n\n⚠️ Note : MeeTempo GPT n\'a pas de mémoire des conversations. Pensez à redonner votre token si besoin.');
+}
+
+// ==========================================
+// 📊 BANDEAU COMPLÉTION PROFIL
+// ==========================================
+
+async function loadProfileCompletion() {
+  try {
+    // Vérifier si déjà dismissed aujourd'hui
+    const dismissedUntil = localStorage.getItem('profile_banner_dismissed');
+    if (dismissedUntil && Date.now() < parseInt(dismissedUntil)) {
+      console.log('📊 Bandeau complétion masqué (dismissed)');
+      return;
+    }
+    
+    const res = await fetch(`${API_BASE}/profile?session_token=${session_token}`);
+    if (!res.ok) return;
+    
+    const profile = await res.json();
+    const completion = profile.profile_completion || 0;
+    
+    console.log(`📊 Complétion profil: ${completion}%`);
+    
+    // Afficher si < 60%
+    if (completion < 60) {
+      const banner = document.getElementById('profileCompletionBanner');
+      const percentSpan = document.getElementById('completionPercent');
+      const bar = document.getElementById('completionBar');
+      
+      if (banner && percentSpan && bar) {
+        percentSpan.textContent = completion;
+        bar.style.width = `${completion}%`;
+        banner.classList.remove('hidden');
+      }
+    }
+    
+  } catch (err) {
+    console.error('❌ Erreur chargement complétion:', err);
+  }
+}
+
+function dismissCompletionBanner() {
+  const banner = document.getElementById('profileCompletionBanner');
+  if (banner) banner.classList.add('hidden');
+  
+  // Masquer pour 24h
+  const tomorrow = Date.now() + (24 * 60 * 60 * 1000);
+  localStorage.setItem('profile_banner_dismissed', tomorrow.toString());
+  
+  showToast('Bandeau masqué pour 24h');
 }
     
     // ==========================================
