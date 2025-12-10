@@ -66,15 +66,11 @@
         }
         
         /* Top Nav */
-        .top-nav {
-            position: absolute; top: 20px; right: 20px; z-index: 10;
-        }
+        .top-nav { position: absolute; top: 20px; right: 20px; z-index: 10; }
         .btn-hub {
-            background: rgba(255, 255, 255, 0.1);
-            border: 1px solid var(--glass-border);
-            color: var(--mt-muted); padding: 8px 16px;
-            border-radius: 50px; font-size: 13px; font-weight: 600;
-            cursor: pointer; transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border);
+            color: var(--mt-muted); padding: 8px 16px; border-radius: 50px;
+            font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.3s;
         }
         .btn-hub:hover { background: var(--mt-accent); color: white; border-color: var(--mt-accent); }
         
@@ -171,18 +167,14 @@
         .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5); }
         .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        /* Loading/Success */
+        /* States */
         .loading { text-align: center; padding: 60px 40px; color: var(--mt-muted); }
         .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--mt-accent); border-radius: 50%; animation: spin 0.8s infinite linear; margin: 0 auto 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
         .success-screen { display: none; text-align: center; padding: 60px 20px; }
         .success-screen.active { display: block; animation: zoomIn 0.5s ease; }
         @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        .success-icon {
-            width: 80px; height: 80px; background: #10b981; border-radius: 50%;
-            display: flex; align-items: center; justify-content: center;
-            margin: 0 auto 24px; font-size: 40px; color: #111;
-        }
+        .success-icon { width: 80px; height: 80px; background: #10b981; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px; font-size: 40px; color: #111; }
         .error-message { background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 12px; border-radius: 12px; margin-top: 16px; font-size: 13px; display: none; }
         .error-message.show { display: block; }
 
@@ -218,20 +210,10 @@
             <div class="step active" data-step="1">
                 <h2 class="step-title">👔 Profil Pro</h2>
                 <p class="step-subtitle">Votre univers professionnel</p>
-                <div class="form-group">
-                    <label>LinkedIn <span class="optional">(optionnel)</span></label>
-                    <input type="url" id="linkedin" placeholder="https://linkedin.com/in/...">
-                </div>
-                <div class="form-group">
-                    <label>Poste actuel</label>
-                    <input type="text" id="job_title" placeholder="Ex: Product Designer">
-                </div>
-                <div class="form-group">
-                    <label>Entreprise</label>
-                    <input type="text" id="company" placeholder="Ex: MeeTempo">
-                </div>
-                <div class="form-group">
-                    <label>Secteur</label>
+                <div class="form-group"><label>LinkedIn <span class="optional">(optionnel)</span></label><input type="url" id="linkedin" placeholder="https://linkedin.com/in/..."></div>
+                <div class="form-group"><label>Poste actuel</label><input type="text" id="job_title" placeholder="Ex: Product Designer"></div>
+                <div class="form-group"><label>Entreprise</label><input type="text" id="company" placeholder="Ex: MeeTempo"></div>
+                <div class="form-group"><label>Secteur</label>
                     <select id="industry">
                         <option value="">Choisir...</option>
                         <option value="tech">Tech & Digital</option>
@@ -244,8 +226,7 @@
                     </select>
                 </div>
                 <div class="form-group" id="otherIndustryGroup" style="display:none;">
-                    <label>Précisez votre secteur</label>
-                    <input type="text" id="other_industry" placeholder="...">
+                    <label>Précisez votre secteur</label><input type="text" id="other_industry" placeholder="...">
                 </div>
             </div>
             
@@ -256,13 +237,14 @@
                     <label>Sports</label>
                     <div class="checkbox-group">
                         <div class="checkbox-item"><input type="checkbox" id="sport_tennis" value="tennis"><label for="sport_tennis" class="checkbox-label">🎾 Tennis</label></div>
-                        <div class="checkbox-item"><input type="checkbox" id="sport_football" value="football"><label for="sport_football" class="checkbox-label">⚽ Football</label></div>
-                        <div class="checkbox-item"><input type="checkbox" id="sport_padel" value="padel"><label for="sport_padel" class="checkbox-label">🎾 Padel</label></div>
                         <div class="checkbox-item"><input type="checkbox" id="sport_running" value="running"><label for="sport_running" class="checkbox-label">🏃 Running</label></div>
                         <div class="checkbox-item"><input type="checkbox" id="sport_fitness" value="fitness"><label for="sport_fitness" class="checkbox-label">💪 Fitness</label></div>
                         <div class="checkbox-item"><input type="checkbox" id="sport_cycling" value="cycling"><label for="sport_cycling" class="checkbox-label">🚴 Vélo</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="sport_swimming" value="swimming"><label for="sport_swimming" class="checkbox-label">🏊 Natation</label></div>
                         <div class="checkbox-item"><input type="checkbox" id="sport_yoga" value="yoga"><label for="sport_yoga" class="checkbox-label">🧘 Yoga</label></div>
                         <div class="checkbox-item"><input type="checkbox" id="sport_golf" value="golf"><label for="sport_golf" class="checkbox-label">⛳ Golf</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="sport_football" value="football"><label for="sport_football" class="checkbox-label">⚽ Football</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="sport_padel" value="padel"><label for="sport_padel" class="checkbox-label">🎾 Padel</label></div>
                     </div>
                 </div>
                 <div class="form-group"><label>Autres sports</label><input type="text" id="other_sports" placeholder="Escalade, Boxe..."></div>
@@ -271,6 +253,8 @@
                     <div class="checkbox-group">
                         <div class="checkbox-item"><input type="checkbox" id="hobby_travel" value="travel"><label for="hobby_travel" class="checkbox-label">✈️ Voyage</label></div>
                         <div class="checkbox-item"><input type="checkbox" id="hobby_music" value="music"><label for="hobby_music" class="checkbox-label">🎵 Musique</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="hobby_reading" value="reading"><label for="hobby_reading" class="checkbox-label">📚 Lecture</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="hobby_cinema" value="cinema"><label for="hobby_cinema" class="checkbox-label">🎬 Cinéma</label></div>
                         <div class="checkbox-item"><input type="checkbox" id="hobby_photo" value="photo"><label for="hobby_photo" class="checkbox-label">📷 Photo</label></div>
                         <div class="checkbox-item"><input type="checkbox" id="hobby_cooking" value="cooking"><label for="hobby_cooking" class="checkbox-label">🍳 Cuisine</label></div>
                         <div class="checkbox-item"><input type="checkbox" id="hobby_art" value="art"><label for="hobby_art" class="checkbox-label">🎨 Art</label></div>
@@ -293,6 +277,9 @@
                         <div class="checkbox-item"><input type="checkbox" id="lang_es" value="es"><label for="lang_es" class="checkbox-label">🇪🇸 Espagnol</label></div>
                         <div class="checkbox-item"><input type="checkbox" id="lang_de" value="de"><label for="lang_de" class="checkbox-label">🇩🇪 Allemand</label></div>
                         <div class="checkbox-item"><input type="checkbox" id="lang_it" value="it"><label for="lang_it" class="checkbox-label">🇮🇹 Italien</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="lang_ar" value="ar"><label for="lang_ar" class="checkbox-label">🇸🇦 Arabe</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="lang_zh" value="zh"><label for="lang_zh" class="checkbox-label">🇨🇳 Chinois</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="lang_pt" value="pt"><label for="lang_pt" class="checkbox-label">🇵🇹 Portugais</label></div>
                     </div>
                 </div>
             </div>
@@ -342,6 +329,18 @@
                     <div class="signature-card" data-question="superpower">
                         <div class="signature-header" onclick="toggleSignatureCard('superpower')"><span class="signature-icon">🧠</span><span class="signature-title">Mon super-pouvoir</span><div class="signature-check"></div></div>
                         <div class="signature-input"><input type="text" id="sig_superpower" placeholder="Je calme les conflits..."></div>
+                    </div>
+                    <div class="signature-card" data-question="rabbit_hole">
+                        <div class="signature-header" onclick="toggleSignatureCard('rabbit_hole')"><span class="signature-icon">💡</span><span class="signature-title">Mon Rabbit Hole</span><div class="signature-check"></div></div>
+                        <div class="signature-input"><input type="text" id="sig_rabbit_hole" placeholder="L'histoire des échecs..."></div>
+                    </div>
+                    <div class="signature-card" data-question="fictional_character">
+                        <div class="signature-header" onclick="toggleSignatureCard('fictional_character')"><span class="signature-icon">🦸</span><span class="signature-title">Personnage qui me ressemble</span><div class="signature-check"></div></div>
+                        <div class="signature-input"><input type="text" id="sig_fictional_character" placeholder="Ted Lasso..."></div>
+                    </div>
+                    <div class="signature-card" data-question="kryptonite">
+                        <div class="signature-header" onclick="toggleSignatureCard('kryptonite')"><span class="signature-icon">🚨</span><span class="signature-title">Ma Kryptonite</span><div class="signature-check"></div></div>
+                        <div class="signature-input"><input type="text" id="sig_kryptonite" placeholder="Les réunions sans ordre du jour..."></div>
                     </div>
                     <div class="signature-card" data-question="coffee_offer">
                         <div class="signature-header" onclick="toggleSignatureCard('coffee_offer')"><span class="signature-icon">☕</span><span class="signature-title">Je paie le café si...</span><div class="signature-check"></div></div>
@@ -395,7 +394,7 @@
         
         async function init() {
             const token = window.MT_TOKEN;
-            // 🔥 RECUPERATION DES DONNEES EXISTANTES
+            // 🔥 RECUPERATION DONNEES
             await loadExistingProfile(token);
             
             document.getElementById('loading').style.display = 'none';
@@ -432,7 +431,7 @@
                 fillList('countries_visited', rich.countries_visited);
                 fillList('dream_destinations', rich.dream_destinations);
                 
-                // Checkboxes
+                // Checkboxes - LOGIQUE INTELLIGENTE RESTAURÉE
                 const checkBoxes = (prefix, arr) => {
                     if(!arr) return;
                     arr.forEach(val => {
@@ -440,8 +439,24 @@
                         if(el) el.checked = true;
                     });
                 };
-                checkBoxes('sport_', rich.sports);
-                checkBoxes('hobby_', rich.hobbies);
+                
+                // Sports : Standard vs Other
+                if(rich.sports) {
+                    checkBoxes('sport_', rich.sports);
+                    // Remplir champ "Autre"
+                    const standardSports = ['tennis', 'running', 'fitness', 'cycling', 'swimming', 'yoga', 'golf', 'football', 'padel'];
+                    const other = rich.sports.filter(s => !standardSports.includes(s));
+                    if(other.length) document.getElementById('other_sports').value = other.join(', ');
+                }
+
+                // Hobbies : Standard vs Other
+                if(rich.hobbies) {
+                    checkBoxes('hobby_', rich.hobbies);
+                    const standardHobbies = ['travel', 'music', 'reading', 'cinema', 'photo', 'cooking', 'art', 'gaming'];
+                    const other = rich.hobbies.filter(h => !standardHobbies.includes(h));
+                    if(other.length) document.getElementById('other_hobbies').value = other.join(', ');
+                }
+
                 checkBoxes('lang_', rich.languages);
                 checkBoxes('pref_', rich.meeting_types);
                 checkBoxes('time_', rich.availability_times);
@@ -509,7 +524,7 @@
         function updateSignatureHint() {
             const sel = document.querySelectorAll('.signature-card.selected').length;
             const hint = document.getElementById('signatureHint');
-            if (sel < 2) { hint.textContent = '💡 Choisissez au moins 2 questions'; hint.style.color = '#94a3b8'; }
+            if (sel < 2) { hint.textContent = '💡 Choisissez 2 questions'; hint.style.color = '#94a3b8'; }
             else { hint.textContent = `✅ ${sel} sélectionnées`; hint.style.color = '#10b981'; }
         }
         
