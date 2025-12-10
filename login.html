@@ -856,10 +856,8 @@
             try {
                 showMessage('loginMessage', '⏳ Envoi en cours...', 'success');
                 
-                const response = await fetch(`${API_BASE}/auth/resend-code`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ email })
+                const response = await fetch(`${API_BASE}/auth/regenerate-code?email=${encodeURIComponent(email)}`, {
+                    method: 'GET'
                 });
                 
                 const data = await response.json();
