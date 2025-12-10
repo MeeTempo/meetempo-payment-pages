@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Complétez votre profil - MeeTempo</title>
+    
     <meta http-equiv="Content-Security-Policy" 
       content="default-src 'self'; 
                img-src https: data:; 
@@ -11,810 +12,498 @@
                style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
                font-src https://fonts.gstatic.com; 
                connect-src https://api.meetempo.com;">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --mt-bg: #0f172a;
+            --mt-accent: #f97316;
+            --mt-text: #f8fafc;
+            --mt-muted: #94a3b8;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
         }
         
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--mt-bg);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-attachment: fixed;
             min-height: 100vh;
-            padding: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
+            color: var(--mt-text);
         }
         
+        /* === CONTAINER GLASS === */
         .container {
             max-width: 700px;
             width: 100%;
-            background: white;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
             border-radius: 24px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            box-shadow: var(--glass-shadow);
             overflow: hidden;
+            position: relative;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 40px;
-            text-align: center;
+        /* === TOP BAR (HUB BUTTON) === */
+        .top-nav {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            z-index: 10;
+        }
+
+        .btn-hub {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            color: var(--mt-muted);
+            padding: 8px 16px;
+            border-radius: 50px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-hub:hover {
+            background: var(--mt-accent);
             color: white;
+            border-color: var(--mt-accent);
+        }
+        
+        /* === HEADER === */
+        .header {
+            padding: 40px 40px 20px 40px;
+            text-align: center;
+        }
+        
+        .logo-badge {
+            width: 50px; height: 50px; border-radius: 16px;
+            background: linear-gradient(135deg, var(--mt-accent), #fbbf24);
+            display: inline-flex; align-items: center; justify-content: center;
+            color: var(--mt-bg); font-weight: 900; font-size: 20px; letter-spacing: -1px;
+            font-family: 'Montserrat', sans-serif; margin-bottom: 16px;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
         }
         
         .header h1 {
-            font-size: 28px;
-            font-weight: 700;
-            margin-bottom: 8px;
+            font-size: 24px; font-weight: 700; margin-bottom: 8px;
+            font-family: 'Montserrat', sans-serif;
         }
         
-        .header p {
-            font-size: 16px;
-            opacity: 0.95;
-        }
+        .header p { font-size: 14px; color: var(--mt-muted); }
         
-        .progress-bar {
-            height: 6px;
-            background: rgba(255,255,255,0.3);
-            position: relative;
-            overflow: hidden;
+        /* === PROGRESS BAR === */
+        .progress-container {
+            padding: 0 40px; margin-bottom: 30px;
         }
-        
+        .progress-track {
+            height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;
+        }
         .progress-fill {
-            height: 100%;
-            background: white;
-            transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            box-shadow: 0 0 20px rgba(255,255,255,0.5);
+            height: 100%; background: var(--mt-accent); width: 20%;
+            transition: width 0.5s ease; box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
         }
         
-        .content {
-            padding: 40px;
-        }
+        /* === CONTENT === */
+        .content { padding: 0 40px 40px 40px; }
         
-        .step {
-            display: none;
-            animation: fadeIn 0.4s ease;
-        }
-        
-        .step.active {
-            display: block;
-        }
+        .step { display: none; animation: fadeIn 0.4s ease; }
+        .step.active { display: block; }
         
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateX(10px); }
+            to { opacity: 1; transform: translateX(0); }
         }
         
         .step-title {
-            font-size: 22px;
-            font-weight: 700;
-            color: #1a202c;
-            margin-bottom: 8px;
+            font-size: 20px; font-weight: 600; color: white; margin-bottom: 6px;
+            font-family: 'Montserrat', sans-serif;
         }
+        .step-subtitle { font-size: 14px; color: var(--mt-muted); margin-bottom: 30px; }
         
-        .step-subtitle {
-            font-size: 15px;
-            color: #718096;
-            margin-bottom: 30px;
-        }
-        
-        .form-group {
-            margin-bottom: 24px;
-        }
+        /* === FORMS === */
+        .form-group { margin-bottom: 24px; }
         
         label {
-            display: block;
-            font-size: 14px;
-            font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 8px;
+            display: block; font-size: 13px; font-weight: 600; color: var(--mt-text);
+            margin-bottom: 8px; letter-spacing: 0.5px;
         }
+        label .optional { font-weight: 400; color: var(--mt-muted); font-size: 12px; }
         
-        label .optional {
-            font-weight: 400;
-            color: #a0aec0;
-            font-size: 13px;
-        }
-        
-        input[type="text"],
-        input[type="url"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #e2e8f0;
+        input[type="text"], input[type="url"], select, textarea {
+            width: 100%; padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
             border-radius: 12px;
-            font-size: 15px;
-            transition: all 0.2s;
-            font-family: inherit;
+            font-size: 15px; color: white;
+            transition: all 0.2s; font-family: 'Inter', sans-serif;
         }
         
-        input:focus,
-        select:focus,
-        textarea:focus {
-            outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        input:focus, select:focus, textarea:focus {
+            outline: none; border-color: var(--mt-accent);
+            background: rgba(0, 0, 0, 0.4);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
         }
         
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
+        /* Select Hack for Dark Mode options */
+        select option { background-color: var(--mt-bg); color: white; }
+        textarea { resize: vertical; min-height: 100px; }
         
+        /* === TILES (CHECKBOXES) === */
         .checkbox-group {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 12px;
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;
         }
         
-        .checkbox-item {
-            position: relative;
-        }
-        
-        .checkbox-item input[type="checkbox"] {
-            position: absolute;
-            opacity: 0;
-            cursor: pointer;
-        }
+        .checkbox-item { position: relative; }
+        .checkbox-item input[type="checkbox"] { position: absolute; opacity: 0; cursor: pointer; }
         
         .checkbox-label {
-            display: flex;
-            align-items: center;
-            padding: 12px 16px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            background: white;
-            font-size: 14px;
-            font-weight: 500;
+            display: flex; align-items: center; justify-content: center;
+            padding: 14px; border: 1px solid var(--glass-border);
+            border-radius: 16px; cursor: pointer; transition: all 0.2s;
+            background: rgba(255,255,255,0.05);
+            font-size: 14px; font-weight: 500; text-align: center;
         }
         
-        .checkbox-label:hover {
-            border-color: #cbd5e0;
-            background: #f7fafc;
-        }
+        .checkbox-label:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
         
         .checkbox-item input[type="checkbox"]:checked + .checkbox-label {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border-color: #667eea;
-            color: white;
+            background: var(--mt-accent); border-color: var(--mt-accent);
+            color: #111; font-weight: 700; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
         }
         
-        .checkbox-label::before {
-            content: '';
-            width: 18px;
-            height: 18px;
-            border: 2px solid #cbd5e0;
-            border-radius: 4px;
-            margin-right: 10px;
-            transition: all 0.2s;
-        }
-        
-        .checkbox-item input[type="checkbox"]:checked + .checkbox-label::before {
-            background: white;
-            border-color: white;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='%23667eea'%3E%3Cpath fill-rule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clip-rule='evenodd'/%3E%3C/svg%3E");
-        }
-        
-        .button-group {
-            display: flex;
-            gap: 12px;
-            margin-top: 32px;
-        }
-        
-        button {
-            flex: 1;
-            padding: 16px;
-            border: none;
-            border-radius: 12px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: inherit;
-        }
-        
-        .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-        }
-        
-        .btn-secondary:hover {
-            background: #cbd5e0;
-        }
-        
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 4px 14px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
-        }
-        
-        .btn-primary:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .success-screen {
-            display: none;
-            text-align: center;
-            padding: 60px 40px;
-        }
-        
-        .success-screen.active {
-            display: block;
-        }
-        
-        .success-icon {
-            width: 80px;
-            height: 80px;
-            background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 24px;
-            font-size: 40px;
-        }
-        
-        .success-screen h2 {
-            font-size: 26px;
-            color: #1a202c;
-            margin-bottom: 12px;
-        }
-        
-        .success-screen p {
-            font-size: 16px;
-            color: #718096;
-            margin-bottom: 32px;
-        }
-        
-        .error-message {
-            background: #fed7d7;
-            color: #c53030;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-top: 16px;
-            font-size: 14px;
-            display: none;
-        }
-        
-        .error-message.show {
-            display: block;
-        }
-        
-        .loading {
-            text-align: center;
-            padding: 60px 40px;
-            color: #667eea;
-        }
-        
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid #e2e8f0;
-            border-top-color: #667eea;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
-            margin: 0 auto 20px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* Signature Questions */
-        .signature-questions {
-            display: flex;
-            flex-direction: column;
-            gap: 12px;
-        }
+        /* === SIGNATURE CARDS === */
+        .signature-questions { display: flex; flex-direction: column; gap: 12px; }
         
         .signature-card {
-            border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            overflow: hidden;
-            transition: all 0.2s;
+            border: 1px solid var(--glass-border); border-radius: 16px;
+            overflow: hidden; background: rgba(255,255,255,0.03); transition: all 0.3s;
         }
         
         .signature-card.selected {
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: var(--mt-accent); background: rgba(249, 115, 22, 0.05);
         }
         
         .signature-header {
-            display: flex;
-            align-items: center;
-            padding: 14px 16px;
-            cursor: pointer;
-            background: #f7fafc;
+            display: flex; align-items: center; padding: 16px; cursor: pointer;
             transition: background 0.2s;
         }
+        .signature-header:hover { background: rgba(255,255,255,0.05); }
         
-        .signature-header:hover {
-            background: #edf2f7;
-        }
-        
-        .signature-card.selected .signature-header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        .signature-icon {
-            font-size: 20px;
-            margin-right: 12px;
-        }
-        
-        .signature-title {
-            flex: 1;
-            font-weight: 600;
-            font-size: 15px;
-        }
+        .signature-icon { font-size: 24px; margin-right: 16px; }
+        .signature-title { flex: 1; font-weight: 600; font-size: 15px; }
         
         .signature-check {
-            opacity: 0;
-            font-weight: bold;
-            transition: opacity 0.2s;
+            width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--mt-muted);
+            display: flex; align-items: center; justify-content: center; opacity: 0.5; transition: 0.2s;
         }
         
         .signature-card.selected .signature-check {
-            opacity: 1;
+            background: var(--mt-accent); border-color: var(--mt-accent); opacity: 1; color: #111;
         }
+        .signature-check::after { content: '✓'; font-weight: bold; font-size: 14px; }
         
         .signature-input {
-            display: none;
-            padding: 12px 16px;
-            border-top: 1px solid #e2e8f0;
+            display: none; padding: 0 16px 16px 16px;
+            animation: slideDown 0.3s ease;
+        }
+        .signature-card.selected .signature-input { display: block; }
+        
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .signature-hint { text-align: center; color: var(--mt-muted); font-size: 13px; margin-top: 20px; }
+        
+        /* === BUTTONS === */
+        .button-group { display: flex; gap: 12px; margin-top: 40px; }
+        
+        button {
+            flex: 1; padding: 14px; border: none; border-radius: 12px;
+            font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
         }
         
-        .signature-card.selected .signature-input {
-            display: block;
+        .btn-secondary {
+            background: rgba(255,255,255,0.1); color: white;
+            border: 1px solid var(--glass-border);
+        }
+        .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+        
+        .btn-primary {
+            background: var(--mt-accent); color: #111;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
+        }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        
+        /* === STATES === */
+        .loading { text-align: center; padding: 60px 40px; color: var(--mt-muted); }
+        .spinner {
+            width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
+            border-top-color: var(--mt-accent); border-radius: 50%;
+            animation: spin 0.8s linear infinite; margin: 0 auto 20px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .success-screen { display: none; text-align: center; padding: 60px 20px; }
+        .success-screen.active { display: block; animation: zoomIn 0.5s ease; }
+        @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+        
+        .success-icon {
+            width: 80px; height: 80px; background: #10b981; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            margin: 0 auto 24px; font-size: 40px; color: #111;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
         }
         
-        .signature-input input {
-            width: 100%;
-            padding: 10px 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 8px;
-            font-size: 14px;
+        .error-message {
+            background: rgba(239, 68, 68, 0.15); color: #f87171;
+            padding: 12px; border-radius: 12px; margin-top: 16px;
+            font-size: 13px; display: none; border: 1px solid rgba(239, 68, 68, 0.3);
         }
-        
-        .signature-input input:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .signature-hint {
-            text-align: center;
-            color: #718096;
-            font-size: 14px;
-            margin-top: 16px;
-        }
-        
+        .error-message.show { display: block; }
+
         @media (max-width: 640px) {
-            .header h1 {
-                font-size: 24px;
-            }
-            
-            .content {
-                padding: 30px 24px;
-            }
-            
-            .checkbox-group {
-                grid-template-columns: 1fr;
-            }
-            
-            .button-group {
-                flex-direction: column-reverse;
-            }
+            .container { border-radius: 0; min-height: 100vh; border: none; }
+            .header { padding: 30px 20px 10px 20px; }
+            .content { padding: 20px; }
+            .checkbox-group { grid-template-columns: 1fr 1fr; }
+            .top-nav { top: 15px; right: 15px; }
         }
     </style>
 </head>
 <body>
+
+    <div class="top-nav">
+        <button class="btn-hub" onclick="goToHub()">
+            🏠 Hub
+        </button>
+    </div>
+
     <div class="container">
         <div class="header">
-            <h1>✨ Complétez votre profil</h1>
-            <p>Aidez-nous à vous proposer les meilleures connexions</p>
+            <div class="logo-badge">MT</div>
+            <h1>Complétez votre profil</h1>
+            <p>Aidez l'IA Maestro à trouver vos meilleures connexions</p>
         </div>
         
-        <div class="progress-bar">
-            <div class="progress-fill" id="progressBar"></div>
+        <div class="progress-container">
+            <div class="progress-track">
+                <div class="progress-fill" id="progressBar"></div>
+            </div>
         </div>
         
         <div id="loading" class="loading">
             <div class="spinner"></div>
-            <p>Vérification de votre session...</p>
+            <p>Initialisation...</p>
         </div>
         
         <div id="mainContent" class="content" style="display:none;">
-            <!-- Étape 1: Professionnel -->
             <div class="step active" data-step="1">
-                <h2 class="step-title">👔 Profil Professionnel</h2>
-                <p class="step-subtitle">Partagez votre parcours professionnel</p>
+                <h2 class="step-title">👔 Profil Pro</h2>
+                <p class="step-subtitle">Votre univers professionnel</p>
                 
                 <div class="form-group">
                     <label for="linkedin">LinkedIn <span class="optional">(optionnel)</span></label>
-                    <input type="url" id="linkedin" placeholder="https://linkedin.com/in/votre-profil">
+                    <input type="url" id="linkedin" placeholder="https://linkedin.com/in/...">
                 </div>
                 
                 <div class="form-group">
-                    <label for="job_title">Poste actuel <span class="optional">(optionnel)</span></label>
-                    <input type="text" id="job_title" placeholder="Entrepreneur, Développeur, Manager...">
+                    <label for="job_title">Poste actuel</label>
+                    <input type="text" id="job_title" placeholder="Ex: Product Designer">
                 </div>
                 
                 <div class="form-group">
-                    <label for="company">Entreprise <span class="optional">(optionnel)</span></label>
-                    <input type="text" id="company" placeholder="Nom de votre entreprise">
+                    <label for="company">Entreprise</label>
+                    <input type="text" id="company" placeholder="Ex: MeeTempo">
                 </div>
                 
                 <div class="form-group">
-                    <label for="industry">Secteur d'activité</label>
+                    <label for="industry">Secteur</label>
                     <select id="industry">
-                        <option value="">Sélectionner...</option>
+                        <option value="">Choisir...</option>
                         <option value="tech">Tech & Digital</option>
-                        <option value="finance">Finance & Banque</option>
-                        <option value="consulting">Conseil</option>
-                        <option value="marketing">Marketing & Communication</option>
-                        <option value="sales">Commerce & Vente</option>
-                        <option value="education">Éducation & Formation</option>
-                        <option value="health">Santé & Médical</option>
-                        <option value="legal">Juridique</option>
-                        <option value="real_estate">Immobilier</option>
-                        <option value="retail">Commerce de détail</option>
-                        <option value="hospitality">Hôtellerie & Restauration</option>
-                        <option value="creative">Création & Design</option>
+                        <option value="finance">Finance</option>
+                        <option value="marketing">Marketing</option>
+                        <option value="creative">Arts & Design</option>
+                        <option value="health">Santé</option>
+                        <option value="education">Éducation</option>
                         <option value="other">Autre</option>
                     </select>
                 </div>
                 
-                <!-- AJOUT: Autre secteur -->
                 <div class="form-group" id="otherIndustryGroup" style="display:none;">
-                    <label for="other_industry">Précisez votre secteur</label>
-                    <input type="text" id="other_industry" placeholder="Votre secteur d'activité...">
+                    <label>Précisez votre secteur</label>
+                    <input type="text" id="other_industry" placeholder="...">
                 </div>
             </div>
             
-            <!-- Étape 2: Centres d'intérêt -->
             <div class="step" data-step="2">
-                <h2 class="step-title">⚽ Centres d'intérêt</h2>
-                <p class="step-subtitle">Sélectionnez vos passions (plusieurs choix possibles)</p>
+                <h2 class="step-title">⚽ Passions</h2>
+                <p class="step-subtitle">Ce qui vous fait vibrer</p>
                 
                 <div class="form-group">
-                    <label>Sports & Activités</label>
+                    <label>Sports</label>
                     <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="sport_tennis" value="tennis">
-                            <label for="sport_tennis" class="checkbox-label">🎾 Tennis</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="sport_running" value="running">
-                            <label for="sport_running" class="checkbox-label">🏃 Running</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="sport_fitness" value="fitness">
-                            <label for="sport_fitness" class="checkbox-label">💪 Fitness</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="sport_cycling" value="cycling">
-                            <label for="sport_cycling" class="checkbox-label">🚴 Vélo</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="sport_swimming" value="swimming">
-                            <label for="sport_swimming" class="checkbox-label">🏊 Natation</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="sport_yoga" value="yoga">
-                            <label for="sport_yoga" class="checkbox-label">🧘 Yoga</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="sport_golf" value="golf">
-                            <label for="sport_golf" class="checkbox-label">⛳ Golf</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="sport_football" value="football">
-                            <label for="sport_football" class="checkbox-label">⚽ Football</label>
-                        </div>
+                        <div class="checkbox-item"><input type="checkbox" id="sport_tennis" value="tennis"><label for="sport_tennis" class="checkbox-label">🎾 Tennis</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="sport_running" value="running"><label for="sport_running" class="checkbox-label">🏃 Running</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="sport_fitness" value="fitness"><label for="sport_fitness" class="checkbox-label">💪 Fitness</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="sport_cycling" value="cycling"><label for="sport_cycling" class="checkbox-label">🚴 Vélo</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="sport_yoga" value="yoga"><label for="sport_yoga" class="checkbox-label">🧘 Yoga</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="sport_golf" value="golf"><label for="sport_golf" class="checkbox-label">⛳ Golf</label></div>
                     </div>
                 </div>
                 
-                <!-- AJOUT: Autres sports -->
-                <div class="form-group" style="margin-top: 16px;">
-                    <label for="other_sports">Autres sports <span class="optional">(séparés par des virgules)</span></label>
-                    <input type="text" id="other_sports" placeholder="Escalade, Boxe, Danse...">
+                <div class="form-group">
+                    <label for="other_sports">Autres sports</label>
+                    <input type="text" id="other_sports" placeholder="Escalade, Boxe...">
                 </div>
                 
                 <div class="form-group" style="margin-top: 32px;">
-                    <label>Hobbies & Passions</label>
+                    <label>Hobbies</label>
                     <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="hobby_reading" value="reading">
-                            <label for="hobby_reading" class="checkbox-label">📚 Lecture</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="hobby_music" value="music">
-                            <label for="hobby_music" class="checkbox-label">🎵 Musique</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="hobby_cinema" value="cinema">
-                            <label for="hobby_cinema" class="checkbox-label">🎬 Cinéma</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="hobby_travel" value="travel">
-                            <label for="hobby_travel" class="checkbox-label">✈️ Voyages</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="hobby_cooking" value="cooking">
-                            <label for="hobby_cooking" class="checkbox-label">🍳 Cuisine</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="hobby_photo" value="photo">
-                            <label for="hobby_photo" class="checkbox-label">📷 Photo</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="hobby_art" value="art">
-                            <label for="hobby_art" class="checkbox-label">🎨 Art</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="hobby_gaming" value="gaming">
-                            <label for="hobby_gaming" class="checkbox-label">🎮 Gaming</label>
-                        </div>
+                        <div class="checkbox-item"><input type="checkbox" id="hobby_travel" value="travel"><label for="hobby_travel" class="checkbox-label">✈️ Voyage</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="hobby_music" value="music"><label for="hobby_music" class="checkbox-label">🎵 Musique</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="hobby_photo" value="photo"><label for="hobby_photo" class="checkbox-label">📷 Photo</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="hobby_cooking" value="cooking"><label for="hobby_cooking" class="checkbox-label">🍳 Cuisine</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="hobby_art" value="art"><label for="hobby_art" class="checkbox-label">🎨 Art</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="hobby_gaming" value="gaming"><label for="hobby_gaming" class="checkbox-label">🎮 Gaming</label></div>
                     </div>
-                </div>
-                
-                <!-- AJOUT: Autres hobbies -->
-                <div class="form-group" style="margin-top: 16px;">
-                    <label for="other_hobbies">Autres passions <span class="optional">(séparés par des virgules)</span></label>
-                    <input type="text" id="other_hobbies" placeholder="Jardinage, Astronomie, Écriture...">
                 </div>
             </div>
             
-            <!-- Étape 3: Lifestyle -->
             <div class="step" data-step="3">
-                <h2 class="step-title">🌍 Lifestyle & Voyages</h2>
-                <p class="step-subtitle">Partagez vos expériences et langues</p>
+                <h2 class="step-title">🌍 Lifestyle</h2>
+                <p class="step-subtitle">Vos horizons</p>
                 
                 <div class="form-group">
-                    <label for="countries_visited">Pays visités <span class="optional">(séparés par des virgules)</span></label>
-                    <input type="text" id="countries_visited" placeholder="France, Espagne, Italie, États-Unis...">
+                    <label for="countries_visited">Pays visités</label>
+                    <input type="text" id="countries_visited" placeholder="France, Japon, Canada...">
                 </div>
                 
                 <div class="form-group">
-                    <label for="dream_destinations">Destinations de rêve <span class="optional">(séparés par des virgules)</span></label>
-                    <input type="text" id="dream_destinations" placeholder="Japon, Islande, Nouvelle-Zélande...">
+                    <label for="dream_destinations">Rêve de voyage</label>
+                    <input type="text" id="dream_destinations" placeholder="Nouvelle-Zélande, Pérou...">
                 </div>
                 
                 <div class="form-group">
                     <label>Langues parlées</label>
                     <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="lang_fr" value="fr" checked disabled>
-                            <label for="lang_fr" class="checkbox-label">🇫🇷 Français</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="lang_en" value="en">
-                            <label for="lang_en" class="checkbox-label">🇬🇧 Anglais</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="lang_es" value="es">
-                            <label for="lang_es" class="checkbox-label">🇪🇸 Espagnol</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="lang_de" value="de">
-                            <label for="lang_de" class="checkbox-label">🇩🇪 Allemand</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="lang_it" value="it">
-                            <label for="lang_it" class="checkbox-label">🇮🇹 Italien</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="lang_ar" value="ar">
-                            <label for="lang_ar" class="checkbox-label">🇸🇦 Arabe</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="lang_zh" value="zh">
-                            <label for="lang_zh" class="checkbox-label">🇨🇳 Chinois</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="lang_pt" value="pt">
-                            <label for="lang_pt" class="checkbox-label">🇵🇹 Portugais</label>
-                        </div>
+                        <div class="checkbox-item"><input type="checkbox" id="lang_fr" value="fr" checked disabled><label for="lang_fr" class="checkbox-label">🇫🇷 Français</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="lang_en" value="en"><label for="lang_en" class="checkbox-label">🇬🇧 Anglais</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="lang_es" value="es"><label for="lang_es" class="checkbox-label">🇪🇸 Espagnol</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="lang_de" value="de"><label for="lang_de" class="checkbox-label">🇩🇪 Allemand</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="lang_it" value="it"><label for="lang_it" class="checkbox-label">🇮🇹 Italien</label></div>
                     </div>
                 </div>
             </div>
             
-            <!-- Étape 4: Préférences Networking -->
             <div class="step" data-step="4">
-                <h2 class="step-title">🤝 Préférences Networking</h2>
-                <p class="step-subtitle">Personnalisez vos rencontres</p>
+                <h2 class="step-title">🤝 Networking</h2>
+                <p class="step-subtitle">Ce que vous cherchez ici</p>
                 
                 <div class="form-group">
-                    <label>Types de rencontres recherchées</label>
+                    <label>Type de rencontres</label>
                     <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="pref_sport" value="sport">
-                            <label for="pref_sport" class="checkbox-label">⚽ Sport</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="pref_business" value="business">
-                            <label for="pref_business" class="checkbox-label">💼 Business</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="pref_social" value="social">
-                            <label for="pref_social" class="checkbox-label">☕ Social</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="pref_cultural" value="cultural">
-                            <label for="pref_cultural" class="checkbox-label">🎭 Culturel</label>
-                        </div>
+                        <div class="checkbox-item"><input type="checkbox" id="pref_social" value="social"><label for="pref_social" class="checkbox-label">☕ Social</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="pref_sport" value="sport"><label for="pref_sport" class="checkbox-label">⚽ Sport</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="pref_business" value="business"><label for="pref_business" class="checkbox-label">💼 Business</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="pref_cultural" value="cultural"><label for="pref_cultural" class="checkbox-label">🎭 Culturel</label></div>
                     </div>
                 </div>
                 
                 <div class="form-group">
-                    <label for="max_distance">Distance max pour rencontres (km)</label>
+                    <label for="max_distance">Distance max</label>
                     <select id="max_distance">
-                        <option value="5">5 km</option>
                         <option value="10" selected>10 km</option>
                         <option value="20">20 km</option>
                         <option value="50">50 km</option>
-                        <option value="unlimited">Illimité</option>
+                        <option value="unlimited">Monde entier</option>
                     </select>
                 </div>
                 
                 <div class="form-group">
-                    <label>Créneaux de disponibilité préférés</label>
-                    <div class="checkbox-group">
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="time_morning" value="morning">
-                            <label for="time_morning" class="checkbox-label">🌅 Matin</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="time_lunch" value="lunch">
-                            <label for="time_lunch" class="checkbox-label">🌞 Midi</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="time_afternoon" value="afternoon">
-                            <label for="time_afternoon" class="checkbox-label">☀️ Après-midi</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="time_evening" value="evening">
-                            <label for="time_evening" class="checkbox-label">🌆 Soir</label>
-                        </div>
-                        <div class="checkbox-item">
-                            <input type="checkbox" id="time_weekend" value="weekend">
-                            <label for="time_weekend" class="checkbox-label">🎉 Weekend</label>
-                        </div>
-                    </div>
-                </div>
-                
-                <div class="form-group">
-                    <label for="bio_rich">Présentez-vous en quelques mots <span class="optional">(optionnel)</span></label>
-                    <textarea id="bio_rich" placeholder="Parlez de vous, vos objectifs, ce que vous recherchez..."></textarea>
+                    <label for="bio_rich">Mini Bio</label>
+                    <textarea id="bio_rich" placeholder="Dites-en plus sur vous..."></textarea>
                 </div>
             </div>
             
-            <!-- Étape 5: Questions Signature -->
             <div class="step" data-step="5">
-                <h2 class="step-title">✨ Ta touche perso</h2>
-                <p class="step-subtitle">Choisis 2-3 questions pour te démarquer et créer des conversations mémorables</p>
+                <h2 class="step-title">✨ Signature</h2>
+                <p class="step-subtitle">2 questions pour briser la glace</p>
                 
                 <div class="signature-questions">
                     <div class="signature-card" data-question="hidden_talent">
                         <div class="signature-header" onclick="toggleSignatureCard('hidden_talent')">
                             <span class="signature-icon">🎭</span>
                             <span class="signature-title">Mon talent caché</span>
-                            <span class="signature-check">✓</span>
+                            <div class="signature-check"></div>
                         </div>
-                        <div class="signature-input">
-                            <input type="text" id="sig_hidden_talent" placeholder="Je sais jongler les yeux fermés..." maxlength="100">
-                        </div>
+                        <div class="signature-input"><input type="text" id="sig_hidden_talent" placeholder="Je jongle..."></div>
                     </div>
                     
                     <div class="signature-card" data-question="superpower">
                         <div class="signature-header" onclick="toggleSignatureCard('superpower')">
                             <span class="signature-icon">🧠</span>
                             <span class="signature-title">Mon super-pouvoir</span>
-                            <span class="signature-check">✓</span>
+                            <div class="signature-check"></div>
                         </div>
-                        <div class="signature-input">
-                            <input type="text" id="sig_superpower" placeholder="Je calme les conflits en 2 phrases..." maxlength="100">
-                        </div>
-                    </div>
-                    
-                    <div class="signature-card" data-question="rabbit_hole">
-                        <div class="signature-header" onclick="toggleSignatureCard('rabbit_hole')">
-                            <span class="signature-icon">💡</span>
-                            <span class="signature-title">Mon Rabbit Hole</span>
-                            <span class="signature-check">✓</span>
-                        </div>
-                        <div class="signature-input">
-                            <input type="text" id="sig_rabbit_hole" placeholder="L'histoire des échecs, j'en parle 3h..." maxlength="100">
-                        </div>
-                    </div>
-                    
-                    <div class="signature-card" data-question="fictional_character">
-                        <div class="signature-header" onclick="toggleSignatureCard('fictional_character')">
-                            <span class="signature-icon">🦸</span>
-                            <span class="signature-title">Le personnage qui me ressemble</span>
-                            <span class="signature-check">✓</span>
-                        </div>
-                        <div class="signature-input">
-                            <input type="text" id="sig_fictional_character" placeholder="Ted Lasso - optimiste incurable..." maxlength="100">
-                        </div>
-                    </div>
-                    
-                    <div class="signature-card" data-question="kryptonite">
-                        <div class="signature-header" onclick="toggleSignatureCard('kryptonite')">
-                            <span class="signature-icon">🚨</span>
-                            <span class="signature-title">Ma Kryptonite</span>
-                            <span class="signature-check">✓</span>
-                        </div>
-                        <div class="signature-input">
-                            <input type="text" id="sig_kryptonite" placeholder="Les réunions sans ordre du jour..." maxlength="100">
-                        </div>
+                        <div class="signature-input"><input type="text" id="sig_superpower" placeholder="Je calme les conflits..."></div>
                     </div>
                     
                     <div class="signature-card" data-question="coffee_offer">
                         <div class="signature-header" onclick="toggleSignatureCard('coffee_offer')">
                             <span class="signature-icon">☕</span>
                             <span class="signature-title">Je paie le café si...</span>
-                            <span class="signature-check">✓</span>
+                            <div class="signature-check"></div>
                         </div>
-                        <div class="signature-input">
-                            <input type="text" id="sig_coffee_offer" placeholder="...tu m'apprends un mot en japonais" maxlength="100">
-                        </div>
+                        <div class="signature-input"><input type="text" id="sig_coffee_offer" placeholder="...tu m'apprends un truc"></div>
                     </div>
                     
                     <div class="signature-card" data-question="nightstand_book">
                         <div class="signature-header" onclick="toggleSignatureCard('nightstand_book')">
                             <span class="signature-icon">📚</span>
-                            <span class="signature-title">Sur ma table de nuit</span>
-                            <span class="signature-check">✓</span>
+                            <span class="signature-title">Livre de chevet</span>
+                            <div class="signature-check"></div>
                         </div>
-                        <div class="signature-input">
-                            <input type="text" id="sig_nightstand_book" placeholder="Atomic Habits de James Clear..." maxlength="100">
-                        </div>
-                    </div>
-                    
-                    <div class="signature-card" data-question="unpopular_opinion">
-                        <div class="signature-header" onclick="toggleSignatureCard('unpopular_opinion')">
-                            <span class="signature-icon">🤔</span>
-                            <span class="signature-title">Mon opinion impopulaire</span>
-                            <span class="signature-check">✓</span>
-                        </div>
-                        <div class="signature-input">
-                            <input type="text" id="sig_unpopular_opinion" placeholder="La pizza ananas c'est délicieux..." maxlength="100">
-                        </div>
+                        <div class="signature-input"><input type="text" id="sig_nightstand_book" placeholder="Titre du livre..."></div>
                     </div>
                 </div>
                 
-                <p class="signature-hint" id="signatureHint">💡 Sélectionne au moins 2 questions pour continuer</p>
+                <p class="signature-hint" id="signatureHint">💡 Choisissez au moins 2 questions</p>
             </div>
             
             <div class="button-group">
-                <button type="button" class="btn-secondary" id="prevBtn" onclick="previousStep()" style="display:none;">
-                    ← Précédent
-                </button>
-                <button type="button" class="btn-primary" id="nextBtn" onclick="nextStep()">
-                    Suivant →
-                </button>
-                <button type="button" class="btn-primary" id="submitBtn" onclick="submitOnboarding()" style="display:none;">
-                    ✓ Terminer
-                </button>
+                <button type="button" class="btn-secondary" id="prevBtn" onclick="previousStep()" style="display:none;">← Précédent</button>
+                <button type="button" class="btn-primary" id="nextBtn" onclick="nextStep()">Suivant →</button>
+                <button type="button" class="btn-primary" id="submitBtn" onclick="submitOnboarding()" style="display:none;">✓ Terminer</button>
             </div>
             
             <div class="error-message" id="errorMsg"></div>
@@ -822,171 +511,55 @@
         
         <div id="successScreen" class="success-screen">
             <div class="success-icon">✓</div>
-            <h2>Profil complété !</h2>
-            <p>Merci d'avoir pris le temps de compléter votre profil.<br>Nous allons pouvoir vous proposer les meilleures connexions.</p>
-            <button class="btn-primary" onclick="window.location.href='https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19'">
-                Retour à MeeTempo →
+            <h2>Profil prêt !</h2>
+            <p style="color:var(--mt-muted);">L'aventure commence maintenant.</p>
+            <button class="btn-primary" onclick="window.location.href='hub.html?session_token=' + sessionStorage.getItem('meetempo_token')">
+                Aller au Hub →
             </button>
-            <button class="btn-secondary" 
-        onclick="window.location.href='profile.html?session_token=' + sessionStorage.getItem('meetempo_token')"
-        style="margin-top: 16px;">
-    ← Retour au profil
-</button>
         </div>
     </div>
 
     <script>
-        // === BLOC UNIVERSEL MEETEMPO - STANDARD (45 min) ===
+        // === BLOC UNIVERSEL TOKEN ===
         (function() {
-          const TIMEOUT_MINUTES = 45;
-          
-          const params = new URLSearchParams(location.search);
-          window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
-                         || localStorage.getItem('session_token') 
-                         || sessionStorage.getItem('meetempo_token');
-          
-          if (window.MT_TOKEN) {
-            localStorage.setItem('session_token', window.MT_TOKEN);
-            sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
-          }
-          
-          if (!window.MT_TOKEN) {
-            alert('❌ Session expirée. Retour à MeeTempo GPT.');
-            window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-            return;
-          }
-          
-          const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
-          setTimeout(() => {
-            alert('⏰ Session expirée (45 min). Cette page va se fermer.');
-            window.close();
-            setTimeout(() => {
-              window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-            }, 1000);
-          }, TIMEOUT_MS);
-          
-          console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
+            const params = new URLSearchParams(location.search);
+            window.MT_TOKEN = params.get('session_token') || params.get('token') || localStorage.getItem('session_token') || sessionStorage.getItem('meetempo_token');
+            if (window.MT_TOKEN) {
+                localStorage.setItem('session_token', window.MT_TOKEN);
+                sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
+            }
+            if (!window.MT_TOKEN) {
+                alert('Session expirée');
+                window.location.href = 'login.html';
+            }
         })();
-        // === FIN BLOC UNIVERSEL ===
+
+        // === NAVIGATION HUB ===
+        function goToHub() {
+            const token = window.MT_TOKEN;
+            window.location.href = `hub.html?session_token=${token}`;
+        }
 
         const API_BASE = 'https://api.meetempo.com';
-        let userId = null;
         let currentStep = 1;
         const totalSteps = 5;
         
         // Initialisation
         async function init() {
             const token = window.MT_TOKEN;
-            
-            // Récupérer userId depuis le profil
-            try {
-                const profileRes = await fetch(`${API_BASE}/profile?session_token=${token}`);
-                if (profileRes.ok) {
-                    const profileData = await profileRes.json();
-                    userId = profileData.user_id;
-                }
-            } catch (err) {
-                console.warn('Erreur récupération userId:', err);
-            }
-            
-            // Charger profil existant pour pré-remplir
-            await loadExistingProfile(token);
+            // On peut pré-remplir ici si besoin (comme dans ton code précédent)
+            // await loadExistingProfile(token);
             
             document.getElementById('loading').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             updateProgress();
+            
+            // Listener pour secteur "Autre"
+            document.getElementById('industry').addEventListener('change', function() {
+                document.getElementById('otherIndustryGroup').style.display = this.value === 'other' ? 'block' : 'none';
+            });
         }
 
-// 🔥 NOUVELLE FONCTION : Pré-remplir onboarding
-async function loadExistingProfile(token) {
-    try {
-        const response = await fetch(`${API_BASE}/profile?session_token=${token}`);
-        if (!response.ok) return; // Pas grave si erreur
-        
-        const data = await response.json();
-        console.log('Profil existant chargé:', data);
-        
-        if (!data.profile_rich) return; // Pas de données à pré-remplir
-        
-        const rich = data.profile_rich;
-        
-        // ÉTAPE 1 : Professionnel
-        if (rich.linkedin) document.getElementById('linkedin').value = rich.linkedin;
-        if (rich.job_title) document.getElementById('job_title').value = rich.job_title;
-        if (rich.company) document.getElementById('company').value = rich.company;
-        if (rich.industry) {
-            document.getElementById('industry').value = rich.industry;
-            toggleOtherIndustry(); // Afficher champ "autre" si nécessaire
-        }
-        
-        // ÉTAPE 2 : Centres d'intérêt
-        if (rich.sports && Array.isArray(rich.sports)) {
-            rich.sports.forEach(sport => {
-                const checkbox = document.getElementById(`sport_${sport}`);
-                if (checkbox) checkbox.checked = true;
-            });
-            // Sports non-standards dans "other_sports"
-            const standardSports = ['tennis', 'running', 'fitness', 'cycling', 'swimming', 'yoga', 'golf', 'football'];
-            const otherSports = rich.sports.filter(s => !standardSports.includes(s));
-            if (otherSports.length) {
-                document.getElementById('other_sports').value = otherSports.join(', ');
-            }
-        }
-        
-        if (rich.hobbies && Array.isArray(rich.hobbies)) {
-            rich.hobbies.forEach(hobby => {
-                const checkbox = document.getElementById(`hobby_${hobby}`);
-                if (checkbox) checkbox.checked = true;
-            });
-            // Hobbies non-standards dans "other_hobbies"
-            const standardHobbies = ['reading', 'music', 'cinema', 'travel', 'cooking', 'photo', 'art', 'gaming'];
-            const otherHobbies = rich.hobbies.filter(h => !standardHobbies.includes(h));
-            if (otherHobbies.length) {
-                document.getElementById('other_hobbies').value = otherHobbies.join(', ');
-            }
-        }
-        
-        // ÉTAPE 3 : Lifestyle
-        if (rich.countries_visited && Array.isArray(rich.countries_visited)) {
-            document.getElementById('countries_visited').value = rich.countries_visited.join(', ');
-        }
-        if (rich.dream_destinations && Array.isArray(rich.dream_destinations)) {
-            document.getElementById('dream_destinations').value = rich.dream_destinations.join(', ');
-        }
-        if (rich.languages && Array.isArray(rich.languages)) {
-            rich.languages.forEach(lang => {
-                const checkbox = document.getElementById(`lang_${lang}`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
-        
-        // ÉTAPE 4 : Préférences
-        if (rich.meeting_types && Array.isArray(rich.meeting_types)) {
-            rich.meeting_types.forEach(type => {
-                const checkbox = document.getElementById(`pref_${type}`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
-        if (rich.max_distance) {
-            document.getElementById('max_distance').value = rich.max_distance;
-        }
-        if (rich.availability_times && Array.isArray(rich.availability_times)) {
-            rich.availability_times.forEach(time => {
-                const checkbox = document.getElementById(`time_${time}`);
-                if (checkbox) checkbox.checked = true;
-            });
-        }
-        if (rich.bio_rich) {
-            document.getElementById('bio_rich').value = rich.bio_rich;
-        }
-        
-        console.log('✅ Formulaire pré-rempli avec succès');
-        
-    } catch (err) {
-        console.log('Aucun profil à pré-remplir ou erreur:', err);
-    }
-}
-        
         function updateProgress() {
             const progress = (currentStep / totalSteps) * 100;
             document.getElementById('progressBar').style.width = progress + '%';
@@ -1023,146 +596,97 @@ async function loadExistingProfile(token) {
         }
         
         function getCheckboxValues(name) {
-            return Array.from(document.querySelectorAll(`input[id^="${name}"]:checked`))
-                .map(cb => cb.value);
-        }
-        
-        // AJOUT: Toggle secteur autre
-function toggleOtherIndustry() {
-    const industry = document.getElementById('industry').value;
-    const otherGroup = document.getElementById('otherIndustryGroup');
-    
-    if (industry === 'other') {
-        otherGroup.style.display = 'block';
-    } else {
-        otherGroup.style.display = 'none';
-    }
-}
-
-// 🔥 AJOUTER : Écouteur pour déclencher automatiquement
-document.getElementById('industry').addEventListener('change', toggleOtherIndustry);
-        
-        async function submitOnboarding() {
-            const submitBtn = document.getElementById('submitBtn');
-            const errorMsg = document.getElementById('errorMsg');
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Enregistrement...';
-            errorMsg.classList.remove('show');
-            
-            const onboarding = {
-                // Step 1: Professionnel
-                linkedin: document.getElementById('linkedin').value,
-                job_title: document.getElementById('job_title').value,
-                company: document.getElementById('company').value,
-                industry: document.getElementById('industry').value === 'other' 
-                    ? document.getElementById('other_industry').value 
-                    : document.getElementById('industry').value,
-                
-                // Step 2: Centres d'intérêt
-                sports: [
-                    ...getCheckboxValues('sport_'),
-                    ...document.getElementById('other_sports').value
-                        .split(',')
-                        .map(s => s.trim())
-                        .filter(s => s)
-                ],
-                hobbies: [
-                    ...getCheckboxValues('hobby_'),
-                    ...document.getElementById('other_hobbies').value
-                        .split(',')
-                        .map(s => s.trim())
-                        .filter(s => s)
-                ],
-                
-                // Step 3: Lifestyle
-                countries_visited: document.getElementById('countries_visited').value
-                    .split(',').map(s => s.trim()).filter(s => s),
-                dream_destinations: document.getElementById('dream_destinations').value
-                    .split(',').map(s => s.trim()).filter(s => s),
-                languages: getCheckboxValues('lang_'),
-                
-                // Step 4: Préférences
-                meeting_types: getCheckboxValues('pref_'),
-                max_distance: document.getElementById('max_distance').value,
-                availability_times: getCheckboxValues('time_'),
-                bio_rich: document.getElementById('bio_rich').value,
-                
-                // Step 5: Questions Signature
-                signature_questions: getSignatureQuestions()
-            };
-            
-            try {
-                const token = sessionStorage.getItem('meetempo_token');
-
-                const response = await fetch(`${API_BASE}/profile/onboarding`, {
-                method: 'POST',
-                headers: {
-                'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                token: token,
-                onboarding: onboarding
-                })
-            });
-                
-                if (!response.ok) throw new Error('Erreur API');
-                
-                // Succès
-                document.getElementById('mainContent').style.display = 'none';
-                document.getElementById('successScreen').classList.add('active');
-                
-            } catch (err) {
-                errorMsg.textContent = '❌ Erreur lors de l\'enregistrement. Veuillez réessayer.';
-                errorMsg.classList.add('show');
-                submitBtn.disabled = false;
-                submitBtn.textContent = '✓ Terminer';
-            }
+            return Array.from(document.querySelectorAll(`input[id^="${name}"]:checked`)).map(cb => cb.value);
         }
 
-        // === SIGNATURE QUESTIONS ===
+        // Signature Logic
         function toggleSignatureCard(questionId) {
             const card = document.querySelector(`.signature-card[data-question="${questionId}"]`);
             card.classList.toggle('selected');
-            
-            // Focus sur l'input si sélectionné
             if (card.classList.contains('selected')) {
                 const input = card.querySelector('input');
                 setTimeout(() => input.focus(), 100);
             }
-            
             updateSignatureHint();
         }
         
         function updateSignatureHint() {
             const selected = document.querySelectorAll('.signature-card.selected').length;
             const hint = document.getElementById('signatureHint');
-            
             if (selected === 0) {
-                hint.textContent = '💡 Sélectionne au moins 2 questions pour continuer';
-                hint.style.color = '#718096';
+                hint.textContent = '💡 Choisissez 2 questions';
+                hint.style.color = '#94a3b8';
             } else if (selected === 1) {
-                hint.textContent = '👍 Encore 1 question minimum';
-                hint.style.color = '#d69e2e';
+                hint.textContent = '👍 Encore 1 question';
+                hint.style.color = '#f59e0b';
             } else {
-                hint.textContent = `✅ ${selected} questions sélectionnées - Parfait !`;
-                hint.style.color = '#38a169';
+                hint.textContent = `✅ ${selected} sélectionnées - Parfait !`;
+                hint.style.color = '#10b981';
             }
         }
         
         function getSignatureQuestions() {
             const questions = [];
             document.querySelectorAll('.signature-card.selected').forEach(card => {
-                const questionId = card.dataset.question;
-                const answer = card.querySelector('input').value.trim();
-                if (answer) {
-                    questions.push({ question: questionId, answer: answer });
-                }
+                const qId = card.dataset.question;
+                const ans = card.querySelector('input').value.trim();
+                if (ans) questions.push({ question: qId, answer: ans });
             });
             return questions;
         }
         
-        // Lancer au chargement
+        async function submitOnboarding() {
+            const submitBtn = document.getElementById('submitBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            submitBtn.disabled = true;
+            submitBtn.textContent = '⏳ Envoi...';
+            errorMsg.classList.remove('show');
+            
+            const onboarding = {
+                linkedin: document.getElementById('linkedin').value,
+                job_title: document.getElementById('job_title').value,
+                company: document.getElementById('company').value,
+                industry: document.getElementById('industry').value === 'other' ? document.getElementById('other_industry').value : document.getElementById('industry').value,
+                
+                sports: [
+                    ...getCheckboxValues('sport_'),
+                    ...document.getElementById('other_sports').value.split(',').map(s=>s.trim()).filter(s=>s)
+                ],
+                hobbies: getCheckboxValues('hobby_'),
+                
+                countries_visited: document.getElementById('countries_visited').value.split(',').map(s=>s.trim()).filter(s=>s),
+                dream_destinations: document.getElementById('dream_destinations').value.split(',').map(s=>s.trim()).filter(s=>s),
+                languages: getCheckboxValues('lang_'),
+                
+                meeting_types: getCheckboxValues('pref_'),
+                max_distance: document.getElementById('max_distance').value,
+                bio_rich: document.getElementById('bio_rich').value,
+                
+                signature_questions: getSignatureQuestions()
+            };
+            
+            try {
+                const token = sessionStorage.getItem('meetempo_token');
+                const response = await fetch(`${API_BASE}/profile/onboarding`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ token: token, onboarding: onboarding })
+                });
+                
+                if (!response.ok) throw new Error('Erreur API');
+                
+                document.getElementById('mainContent').style.display = 'none';
+                document.getElementById('successScreen').classList.add('active');
+                
+            } catch (err) {
+                errorMsg.textContent = '❌ Erreur. Réessayez.';
+                errorMsg.classList.add('show');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '✓ Terminer';
+            }
+        }
+        
         init();
     </script>
 </body>
