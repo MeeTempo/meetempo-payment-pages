@@ -46,7 +46,6 @@
             color: var(--mt-text);
         }
         
-        /* === CONTAINER GLASS === */
         .container {
             max-width: 700px;
             width: 100%;
@@ -66,42 +65,21 @@
             to { opacity: 1; transform: translateY(0); }
         }
         
-        /* === TOP BAR (HUB BUTTON) === */
+        /* Top Nav */
         .top-nav {
-            position: absolute;
-            top: 20px;
-            right: 20px;
-            z-index: 10;
+            position: absolute; top: 20px; right: 20px; z-index: 10;
         }
-
         .btn-hub {
             background: rgba(255, 255, 255, 0.1);
             border: 1px solid var(--glass-border);
-            color: var(--mt-muted);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            text-decoration: none;
-            display: flex;
-            align-items: center;
-            gap: 6px;
+            color: var(--mt-muted); padding: 8px 16px;
+            border-radius: 50px; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s;
         }
-
-        .btn-hub:hover {
-            background: var(--mt-accent);
-            color: white;
-            border-color: var(--mt-accent);
-        }
+        .btn-hub:hover { background: var(--mt-accent); color: white; border-color: var(--mt-accent); }
         
-        /* === HEADER === */
-        .header {
-            padding: 40px 40px 20px 40px;
-            text-align: center;
-        }
-        
+        /* Header */
+        .header { padding: 40px 40px 20px 40px; text-align: center; }
         .logo-badge {
             width: 50px; height: 50px; border-radius: 16px;
             background: linear-gradient(135deg, var(--mt-accent), #fbbf24);
@@ -110,243 +88,150 @@
             font-family: 'Montserrat', sans-serif; margin-bottom: 16px;
             box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
         }
-        
-        .header h1 {
-            font-size: 24px; font-weight: 700; margin-bottom: 8px;
-            font-family: 'Montserrat', sans-serif;
-        }
-        
+        .header h1 { font-size: 24px; font-weight: 700; margin-bottom: 8px; font-family: 'Montserrat', sans-serif; }
         .header p { font-size: 14px; color: var(--mt-muted); }
         
-        /* === PROGRESS BAR === */
-        .progress-container {
-            padding: 0 40px; margin-bottom: 30px;
-        }
-        .progress-track {
-            height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden;
-        }
+        /* Progress */
+        .progress-container { padding: 0 40px; margin-bottom: 30px; }
+        .progress-track { height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; }
         .progress-fill {
             height: 100%; background: var(--mt-accent); width: 20%;
             transition: width 0.5s ease; box-shadow: 0 0 10px rgba(249, 115, 22, 0.5);
         }
         
-        /* === CONTENT === */
+        /* Content */
         .content { padding: 0 40px 40px 40px; }
-        
         .step { display: none; animation: fadeIn 0.4s ease; }
         .step.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateX(10px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        .step-title {
-            font-size: 20px; font-weight: 600; color: white; margin-bottom: 6px;
-            font-family: 'Montserrat', sans-serif;
-        }
+        .step-title { font-size: 20px; font-weight: 600; color: white; margin-bottom: 6px; font-family: 'Montserrat', sans-serif; }
         .step-subtitle { font-size: 14px; color: var(--mt-muted); margin-bottom: 30px; }
         
-        /* === FORMS === */
+        /* Forms */
         .form-group { margin-bottom: 24px; }
-        
-        label {
-            display: block; font-size: 13px; font-weight: 600; color: var(--mt-text);
-            margin-bottom: 8px; letter-spacing: 0.5px;
-        }
+        label { display: block; font-size: 13px; font-weight: 600; color: var(--mt-text); margin-bottom: 8px; }
         label .optional { font-weight: 400; color: var(--mt-muted); font-size: 12px; }
         
         input[type="text"], input[type="url"], select, textarea {
-            width: 100%; padding: 14px 16px;
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            font-size: 15px; color: white;
-            transition: all 0.2s; font-family: 'Inter', sans-serif;
+            width: 100%; padding: 14px 16px; background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border); border-radius: 12px;
+            font-size: 15px; color: white; transition: all 0.2s; font-family: 'Inter', sans-serif;
         }
-        
         input:focus, select:focus, textarea:focus {
-            outline: none; border-color: var(--mt-accent);
-            background: rgba(0, 0, 0, 0.4);
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+            outline: none; border-color: var(--mt-accent); background: rgba(0, 0, 0, 0.4);
         }
-        
-        /* Select Hack for Dark Mode options */
         select option { background-color: var(--mt-bg); color: white; }
         textarea { resize: vertical; min-height: 100px; }
         
-        /* === TILES (CHECKBOXES) === */
-        .checkbox-group {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px;
-        }
-        
+        /* Checkboxes (Tiles) */
+        .checkbox-group { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
         .checkbox-item { position: relative; }
         .checkbox-item input[type="checkbox"] { position: absolute; opacity: 0; cursor: pointer; }
-        
         .checkbox-label {
-            display: flex; align-items: center; justify-content: center;
-            padding: 14px; border: 1px solid var(--glass-border);
-            border-radius: 16px; cursor: pointer; transition: all 0.2s;
-            background: rgba(255,255,255,0.05);
-            font-size: 14px; font-weight: 500; text-align: center;
+            display: flex; align-items: center; justify-content: center; padding: 14px;
+            border: 1px solid var(--glass-border); border-radius: 16px; cursor: pointer;
+            transition: all 0.2s; background: rgba(255,255,255,0.05); font-size: 14px; font-weight: 500;
         }
-        
         .checkbox-label:hover { background: rgba(255,255,255,0.1); transform: translateY(-2px); }
-        
         .checkbox-item input[type="checkbox"]:checked + .checkbox-label {
-            background: var(--mt-accent); border-color: var(--mt-accent);
-            color: #111; font-weight: 700; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.4);
+            background: var(--mt-accent); border-color: var(--mt-accent); color: #111; font-weight: 700;
         }
         
-        /* === SIGNATURE CARDS === */
+        /* Signature Cards */
         .signature-questions { display: flex; flex-direction: column; gap: 12px; }
-        
         .signature-card {
             border: 1px solid var(--glass-border); border-radius: 16px;
             overflow: hidden; background: rgba(255,255,255,0.03); transition: all 0.3s;
         }
-        
-        .signature-card.selected {
-            border-color: var(--mt-accent); background: rgba(249, 115, 22, 0.05);
-        }
-        
-        .signature-header {
-            display: flex; align-items: center; padding: 16px; cursor: pointer;
-            transition: background 0.2s;
-        }
+        .signature-card.selected { border-color: var(--mt-accent); background: rgba(249, 115, 22, 0.05); }
+        .signature-header { display: flex; align-items: center; padding: 16px; cursor: pointer; }
         .signature-header:hover { background: rgba(255,255,255,0.05); }
-        
         .signature-icon { font-size: 24px; margin-right: 16px; }
         .signature-title { flex: 1; font-weight: 600; font-size: 15px; }
-        
         .signature-check {
             width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--mt-muted);
-            display: flex; align-items: center; justify-content: center; opacity: 0.5; transition: 0.2s;
+            display: flex; align-items: center; justify-content: center; opacity: 0.5;
         }
-        
-        .signature-card.selected .signature-check {
-            background: var(--mt-accent); border-color: var(--mt-accent); opacity: 1; color: #111;
-        }
+        .signature-card.selected .signature-check { background: var(--mt-accent); border-color: var(--mt-accent); opacity: 1; color: #111; }
         .signature-check::after { content: '✓'; font-weight: bold; font-size: 14px; }
-        
-        .signature-input {
-            display: none; padding: 0 16px 16px 16px;
-            animation: slideDown 0.3s ease;
-        }
+        .signature-input { display: none; padding: 0 16px 16px 16px; }
         .signature-card.selected .signature-input { display: block; }
-        
-        @keyframes slideDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-        
         .signature-hint { text-align: center; color: var(--mt-muted); font-size: 13px; margin-top: 20px; }
         
-        /* === BUTTONS === */
+        /* Buttons */
         .button-group { display: flex; gap: 12px; margin-top: 40px; }
-        
         button {
             flex: 1; padding: 14px; border: none; border-radius: 12px;
-            font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s;
-            font-family: 'Inter', sans-serif;
+            font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Inter', sans-serif;
         }
-        
-        .btn-secondary {
-            background: rgba(255,255,255,0.1); color: white;
-            border: 1px solid var(--glass-border);
-        }
+        .btn-secondary { background: rgba(255,255,255,0.1); color: white; border: 1px solid var(--glass-border); }
         .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+        .btn-primary { background: var(--mt-accent); color: #111; box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3); }
+        .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5); }
+        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
         
-        .btn-primary {
-            background: var(--mt-accent); color: #111;
-            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
-        }
-        .btn-primary:hover {
-            transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249, 115, 22, 0.5);
-        }
-        .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-        
-        /* === STATES === */
+        /* Loading/Success */
         .loading { text-align: center; padding: 60px 40px; color: var(--mt-muted); }
-        .spinner {
-            width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
-            border-top-color: var(--mt-accent); border-radius: 50%;
-            animation: spin 0.8s linear infinite; margin: 0 auto 20px;
-        }
+        .spinner { width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1); border-top-color: var(--mt-accent); border-radius: 50%; animation: spin 0.8s infinite linear; margin: 0 auto 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
-        
         .success-screen { display: none; text-align: center; padding: 60px 20px; }
         .success-screen.active { display: block; animation: zoomIn 0.5s ease; }
         @keyframes zoomIn { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
-        
         .success-icon {
             width: 80px; height: 80px; background: #10b981; border-radius: 50%;
             display: flex; align-items: center; justify-content: center;
             margin: 0 auto 24px; font-size: 40px; color: #111;
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.4);
         }
-        
-        .error-message {
-            background: rgba(239, 68, 68, 0.15); color: #f87171;
-            padding: 12px; border-radius: 12px; margin-top: 16px;
-            font-size: 13px; display: none; border: 1px solid rgba(239, 68, 68, 0.3);
-        }
+        .error-message { background: rgba(239, 68, 68, 0.15); color: #f87171; padding: 12px; border-radius: 12px; margin-top: 16px; font-size: 13px; display: none; }
         .error-message.show { display: block; }
 
         @media (max-width: 640px) {
             .container { border-radius: 0; min-height: 100vh; border: none; }
-            .header { padding: 30px 20px 10px 20px; }
             .content { padding: 20px; }
             .checkbox-group { grid-template-columns: 1fr 1fr; }
-            .top-nav { top: 15px; right: 15px; }
         }
     </style>
 </head>
 <body>
 
     <div class="top-nav">
-        <button class="btn-hub" onclick="goToHub()">
-            🏠 Hub
-        </button>
+        <button class="btn-hub" onclick="goToHub()">🏠 Hub</button>
     </div>
 
     <div class="container">
         <div class="header">
             <div class="logo-badge">MT</div>
             <h1>Complétez votre profil</h1>
-            <p>Aidez l'IA Maestro à trouver vos meilleures connexions</p>
+            <p>Aidez Maestro à trouver vos meilleures connexions</p>
         </div>
         
         <div class="progress-container">
-            <div class="progress-track">
-                <div class="progress-fill" id="progressBar"></div>
-            </div>
+            <div class="progress-track"><div class="progress-fill" id="progressBar"></div></div>
         </div>
         
         <div id="loading" class="loading">
-            <div class="spinner"></div>
-            <p>Initialisation...</p>
+            <div class="spinner"></div><p>Chargement du profil...</p>
         </div>
         
         <div id="mainContent" class="content" style="display:none;">
             <div class="step active" data-step="1">
                 <h2 class="step-title">👔 Profil Pro</h2>
                 <p class="step-subtitle">Votre univers professionnel</p>
-                
                 <div class="form-group">
-                    <label for="linkedin">LinkedIn <span class="optional">(optionnel)</span></label>
+                    <label>LinkedIn <span class="optional">(optionnel)</span></label>
                     <input type="url" id="linkedin" placeholder="https://linkedin.com/in/...">
                 </div>
-                
                 <div class="form-group">
-                    <label for="job_title">Poste actuel</label>
+                    <label>Poste actuel</label>
                     <input type="text" id="job_title" placeholder="Ex: Product Designer">
                 </div>
-                
                 <div class="form-group">
-                    <label for="company">Entreprise</label>
+                    <label>Entreprise</label>
                     <input type="text" id="company" placeholder="Ex: MeeTempo">
                 </div>
-                
                 <div class="form-group">
-                    <label for="industry">Secteur</label>
+                    <label>Secteur</label>
                     <select id="industry">
                         <option value="">Choisir...</option>
                         <option value="tech">Tech & Digital</option>
@@ -358,7 +243,6 @@
                         <option value="other">Autre</option>
                     </select>
                 </div>
-                
                 <div class="form-group" id="otherIndustryGroup" style="display:none;">
                     <label>Précisez votre secteur</label>
                     <input type="text" id="other_industry" placeholder="...">
@@ -368,7 +252,6 @@
             <div class="step" data-step="2">
                 <h2 class="step-title">⚽ Passions</h2>
                 <p class="step-subtitle">Ce qui vous fait vibrer</p>
-                
                 <div class="form-group">
                     <label>Sports</label>
                     <div class="checkbox-group">
@@ -380,12 +263,7 @@
                         <div class="checkbox-item"><input type="checkbox" id="sport_golf" value="golf"><label for="sport_golf" class="checkbox-label">⛳ Golf</label></div>
                     </div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="other_sports">Autres sports</label>
-                    <input type="text" id="other_sports" placeholder="Escalade, Boxe...">
-                </div>
-                
+                <div class="form-group"><label>Autres sports</label><input type="text" id="other_sports" placeholder="Escalade, Boxe..."></div>
                 <div class="form-group" style="margin-top: 32px;">
                     <label>Hobbies</label>
                     <div class="checkbox-group">
@@ -397,24 +275,16 @@
                         <div class="checkbox-item"><input type="checkbox" id="hobby_gaming" value="gaming"><label for="hobby_gaming" class="checkbox-label">🎮 Gaming</label></div>
                     </div>
                 </div>
+                <div class="form-group"><label>Autres passions</label><input type="text" id="other_hobbies" placeholder="Jardinage, Astronomie..."></div>
             </div>
             
             <div class="step" data-step="3">
                 <h2 class="step-title">🌍 Lifestyle</h2>
                 <p class="step-subtitle">Vos horizons</p>
-                
+                <div class="form-group"><label>Pays visités</label><input type="text" id="countries_visited" placeholder="France, Japon..."></div>
+                <div class="form-group"><label>Rêve de voyage</label><input type="text" id="dream_destinations" placeholder="Nouvelle-Zélande..."></div>
                 <div class="form-group">
-                    <label for="countries_visited">Pays visités</label>
-                    <input type="text" id="countries_visited" placeholder="France, Japon, Canada...">
-                </div>
-                
-                <div class="form-group">
-                    <label for="dream_destinations">Rêve de voyage</label>
-                    <input type="text" id="dream_destinations" placeholder="Nouvelle-Zélande, Pérou...">
-                </div>
-                
-                <div class="form-group">
-                    <label>Langues parlées</label>
+                    <label>Langues</label>
                     <div class="checkbox-group">
                         <div class="checkbox-item"><input type="checkbox" id="lang_fr" value="fr" checked disabled><label for="lang_fr" class="checkbox-label">🇫🇷 Français</label></div>
                         <div class="checkbox-item"><input type="checkbox" id="lang_en" value="en"><label for="lang_en" class="checkbox-label">🇬🇧 Anglais</label></div>
@@ -427,8 +297,7 @@
             
             <div class="step" data-step="4">
                 <h2 class="step-title">🤝 Networking</h2>
-                <p class="step-subtitle">Ce que vous cherchez ici</p>
-                
+                <p class="step-subtitle">Ce que vous cherchez</p>
                 <div class="form-group">
                     <label>Type de rencontres</label>
                     <div class="checkbox-group">
@@ -438,9 +307,8 @@
                         <div class="checkbox-item"><input type="checkbox" id="pref_cultural" value="cultural"><label for="pref_cultural" class="checkbox-label">🎭 Culturel</label></div>
                     </div>
                 </div>
-                
                 <div class="form-group">
-                    <label for="max_distance">Distance max</label>
+                    <label>Distance max</label>
                     <select id="max_distance">
                         <option value="10" selected>10 km</option>
                         <option value="20">20 km</option>
@@ -448,56 +316,45 @@
                         <option value="unlimited">Monde entier</option>
                     </select>
                 </div>
-                
                 <div class="form-group">
-                    <label for="bio_rich">Mini Bio</label>
-                    <textarea id="bio_rich" placeholder="Dites-en plus sur vous..."></textarea>
+                    <label>Disponibilités</label>
+                    <div class="checkbox-group">
+                        <div class="checkbox-item"><input type="checkbox" id="time_morning" value="morning"><label for="time_morning" class="checkbox-label">🌅 Matin</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="time_lunch" value="lunch"><label for="time_lunch" class="checkbox-label">🌞 Midi</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="time_afternoon" value="afternoon"><label for="time_afternoon" class="checkbox-label">☀️ Aprèm</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="time_evening" value="evening"><label for="time_evening" class="checkbox-label">🌆 Soir</label></div>
+                        <div class="checkbox-item"><input type="checkbox" id="time_weekend" value="weekend"><label for="time_weekend" class="checkbox-label">🎉 Weekend</label></div>
+                    </div>
                 </div>
+                <div class="form-group"><label>Mini Bio</label><textarea id="bio_rich" placeholder="Dites-en plus..."></textarea></div>
             </div>
             
             <div class="step" data-step="5">
                 <h2 class="step-title">✨ Signature</h2>
                 <p class="step-subtitle">2 questions pour briser la glace</p>
-                
                 <div class="signature-questions">
                     <div class="signature-card" data-question="hidden_talent">
-                        <div class="signature-header" onclick="toggleSignatureCard('hidden_talent')">
-                            <span class="signature-icon">🎭</span>
-                            <span class="signature-title">Mon talent caché</span>
-                            <div class="signature-check"></div>
-                        </div>
+                        <div class="signature-header" onclick="toggleSignatureCard('hidden_talent')"><span class="signature-icon">🎭</span><span class="signature-title">Mon talent caché</span><div class="signature-check"></div></div>
                         <div class="signature-input"><input type="text" id="sig_hidden_talent" placeholder="Je jongle..."></div>
                     </div>
-                    
                     <div class="signature-card" data-question="superpower">
-                        <div class="signature-header" onclick="toggleSignatureCard('superpower')">
-                            <span class="signature-icon">🧠</span>
-                            <span class="signature-title">Mon super-pouvoir</span>
-                            <div class="signature-check"></div>
-                        </div>
+                        <div class="signature-header" onclick="toggleSignatureCard('superpower')"><span class="signature-icon">🧠</span><span class="signature-title">Mon super-pouvoir</span><div class="signature-check"></div></div>
                         <div class="signature-input"><input type="text" id="sig_superpower" placeholder="Je calme les conflits..."></div>
                     </div>
-                    
                     <div class="signature-card" data-question="coffee_offer">
-                        <div class="signature-header" onclick="toggleSignatureCard('coffee_offer')">
-                            <span class="signature-icon">☕</span>
-                            <span class="signature-title">Je paie le café si...</span>
-                            <div class="signature-check"></div>
-                        </div>
+                        <div class="signature-header" onclick="toggleSignatureCard('coffee_offer')"><span class="signature-icon">☕</span><span class="signature-title">Je paie le café si...</span><div class="signature-check"></div></div>
                         <div class="signature-input"><input type="text" id="sig_coffee_offer" placeholder="...tu m'apprends un truc"></div>
                     </div>
-                    
                     <div class="signature-card" data-question="nightstand_book">
-                        <div class="signature-header" onclick="toggleSignatureCard('nightstand_book')">
-                            <span class="signature-icon">📚</span>
-                            <span class="signature-title">Livre de chevet</span>
-                            <div class="signature-check"></div>
-                        </div>
+                        <div class="signature-header" onclick="toggleSignatureCard('nightstand_book')"><span class="signature-icon">📚</span><span class="signature-title">Livre de chevet</span><div class="signature-check"></div></div>
                         <div class="signature-input"><input type="text" id="sig_nightstand_book" placeholder="Titre du livre..."></div>
                     </div>
+                    <div class="signature-card" data-question="unpopular_opinion">
+                        <div class="signature-header" onclick="toggleSignatureCard('unpopular_opinion')"><span class="signature-icon">🤔</span><span class="signature-title">Opinion impopulaire</span><div class="signature-check"></div></div>
+                        <div class="signature-input"><input type="text" id="sig_unpopular_opinion" placeholder="La pizza ananas..."></div>
+                    </div>
                 </div>
-                
-                <p class="signature-hint" id="signatureHint">💡 Choisissez au moins 2 questions</p>
+                <p class="signature-hint" id="signatureHint">💡 Choisissez 2 questions</p>
             </div>
             
             <div class="button-group">
@@ -505,7 +362,6 @@
                 <button type="button" class="btn-primary" id="nextBtn" onclick="nextStep()">Suivant →</button>
                 <button type="button" class="btn-primary" id="submitBtn" onclick="submitOnboarding()" style="display:none;">✓ Terminer</button>
             </div>
-            
             <div class="error-message" id="errorMsg"></div>
         </div>
         
@@ -513,56 +369,97 @@
             <div class="success-icon">✓</div>
             <h2>Profil prêt !</h2>
             <p style="color:var(--mt-muted);">L'aventure commence maintenant.</p>
-            <button class="btn-primary" onclick="window.location.href='hub.html?session_token=' + sessionStorage.getItem('meetempo_token')">
-                Aller au Hub →
-            </button>
+            <button class="btn-primary" onclick="goToHub()">Aller au Hub →</button>
         </div>
     </div>
 
     <script>
-        // === BLOC UNIVERSEL TOKEN ===
         (function() {
             const params = new URLSearchParams(location.search);
             window.MT_TOKEN = params.get('session_token') || params.get('token') || localStorage.getItem('session_token') || sessionStorage.getItem('meetempo_token');
             if (window.MT_TOKEN) {
                 localStorage.setItem('session_token', window.MT_TOKEN);
                 sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
-            }
-            if (!window.MT_TOKEN) {
-                alert('Session expirée');
-                window.location.href = 'login.html';
+            } else {
+                alert('Session expirée'); window.location.href = 'login.html';
             }
         })();
 
-        // === NAVIGATION HUB ===
-        function goToHub() {
-            const token = window.MT_TOKEN;
-            window.location.href = `hub.html?session_token=${token}`;
-        }
-
+        function goToHub() { window.location.href = `hub.html?session_token=${window.MT_TOKEN}`; }
+        
         const API_BASE = 'https://api.meetempo.com';
         let currentStep = 1;
         const totalSteps = 5;
         
-        // Initialisation
         async function init() {
             const token = window.MT_TOKEN;
-            // On peut pré-remplir ici si besoin (comme dans ton code précédent)
-            // await loadExistingProfile(token);
+            // 🔥 RECUPERATION DES DONNEES EXISTANTES
+            await loadExistingProfile(token);
             
             document.getElementById('loading').style.display = 'none';
             document.getElementById('mainContent').style.display = 'block';
             updateProgress();
             
-            // Listener pour secteur "Autre"
             document.getElementById('industry').addEventListener('change', function() {
                 document.getElementById('otherIndustryGroup').style.display = this.value === 'other' ? 'block' : 'none';
             });
         }
 
+        async function loadExistingProfile(token) {
+            try {
+                const response = await fetch(`${API_BASE}/profile?session_token=${token}`);
+                if (!response.ok) return;
+                const data = await response.json();
+                if (!data.profile_rich) return;
+                
+                const rich = data.profile_rich;
+                
+                // Fields
+                if(rich.linkedin) document.getElementById('linkedin').value = rich.linkedin;
+                if(rich.job_title) document.getElementById('job_title').value = rich.job_title;
+                if(rich.company) document.getElementById('company').value = rich.company;
+                if(rich.industry) {
+                    document.getElementById('industry').value = rich.industry;
+                    if(rich.industry === 'other') document.getElementById('otherIndustryGroup').style.display = 'block';
+                }
+                if(rich.max_distance) document.getElementById('max_distance').value = rich.max_distance;
+                if(rich.bio_rich) document.getElementById('bio_rich').value = rich.bio_rich;
+                
+                // Lists & Arrays
+                const fillList = (id, arr) => { if(arr) document.getElementById(id).value = arr.join(', '); };
+                fillList('countries_visited', rich.countries_visited);
+                fillList('dream_destinations', rich.dream_destinations);
+                
+                // Checkboxes
+                const checkBoxes = (prefix, arr) => {
+                    if(!arr) return;
+                    arr.forEach(val => {
+                        const el = document.getElementById(`${prefix}${val}`);
+                        if(el) el.checked = true;
+                    });
+                };
+                checkBoxes('sport_', rich.sports);
+                checkBoxes('hobby_', rich.hobbies);
+                checkBoxes('lang_', rich.languages);
+                checkBoxes('pref_', rich.meeting_types);
+                checkBoxes('time_', rich.availability_times);
+                
+                // Signature
+                if(rich.signature_questions) {
+                    rich.signature_questions.forEach(q => {
+                        const card = document.querySelector(`.signature-card[data-question="${q.question}"]`);
+                        if(card) {
+                            card.classList.add('selected');
+                            card.querySelector('input').value = q.answer;
+                        }
+                    });
+                    updateSignatureHint();
+                }
+            } catch(e) { console.log('No profile data'); }
+        }
+
         function updateProgress() {
-            const progress = (currentStep / totalSteps) * 100;
-            document.getElementById('progressBar').style.width = progress + '%';
+            document.getElementById('progressBar').style.width = (currentStep / totalSteps) * 100 + '%';
         }
         
         function nextStep() {
@@ -570,8 +467,7 @@
                 document.querySelector(`[data-step="${currentStep}"]`).classList.remove('active');
                 currentStep++;
                 document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
-                updateProgress();
-                updateButtons();
+                updateProgress(); updateButtons();
             }
         }
         
@@ -580,28 +476,26 @@
                 document.querySelector(`[data-step="${currentStep}"]`).classList.remove('active');
                 currentStep--;
                 document.querySelector(`[data-step="${currentStep}"]`).classList.add('active');
-                updateProgress();
-                updateButtons();
+                updateProgress(); updateButtons();
             }
         }
         
         function updateButtons() {
-            const prevBtn = document.getElementById('prevBtn');
-            const nextBtn = document.getElementById('nextBtn');
-            const submitBtn = document.getElementById('submitBtn');
+            const prev = document.getElementById('prevBtn');
+            const next = document.getElementById('nextBtn');
+            const submit = document.getElementById('submitBtn');
             
-            prevBtn.style.display = currentStep > 1 ? 'block' : 'none';
-            nextBtn.style.display = currentStep < totalSteps ? 'block' : 'none';
-            submitBtn.style.display = currentStep === totalSteps ? 'block' : 'none';
+            prev.style.display = currentStep > 1 ? 'block' : 'none';
+            next.style.display = currentStep < totalSteps ? 'block' : 'none';
+            submit.style.display = currentStep === totalSteps ? 'block' : 'none';
         }
         
         function getCheckboxValues(name) {
             return Array.from(document.querySelectorAll(`input[id^="${name}"]:checked`)).map(cb => cb.value);
         }
 
-        // Signature Logic
-        function toggleSignatureCard(questionId) {
-            const card = document.querySelector(`.signature-card[data-question="${questionId}"]`);
+        function toggleSignatureCard(qId) {
+            const card = document.querySelector(`.signature-card[data-question="${qId}"]`);
             card.classList.toggle('selected');
             if (card.classList.contains('selected')) {
                 const input = card.querySelector('input');
@@ -611,79 +505,56 @@
         }
         
         function updateSignatureHint() {
-            const selected = document.querySelectorAll('.signature-card.selected').length;
+            const sel = document.querySelectorAll('.signature-card.selected').length;
             const hint = document.getElementById('signatureHint');
-            if (selected === 0) {
-                hint.textContent = '💡 Choisissez 2 questions';
-                hint.style.color = '#94a3b8';
-            } else if (selected === 1) {
-                hint.textContent = '👍 Encore 1 question';
-                hint.style.color = '#f59e0b';
-            } else {
-                hint.textContent = `✅ ${selected} sélectionnées - Parfait !`;
-                hint.style.color = '#10b981';
-            }
+            if (sel < 2) { hint.textContent = '💡 Choisissez au moins 2 questions'; hint.style.color = '#94a3b8'; }
+            else { hint.textContent = `✅ ${sel} sélectionnées`; hint.style.color = '#10b981'; }
         }
         
         function getSignatureQuestions() {
-            const questions = [];
+            const qs = [];
             document.querySelectorAll('.signature-card.selected').forEach(card => {
                 const qId = card.dataset.question;
                 const ans = card.querySelector('input').value.trim();
-                if (ans) questions.push({ question: qId, answer: ans });
+                if (ans) qs.push({ question: qId, answer: ans });
             });
-            return questions;
+            return qs;
         }
         
         async function submitOnboarding() {
-            const submitBtn = document.getElementById('submitBtn');
-            const errorMsg = document.getElementById('errorMsg');
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Envoi...';
-            errorMsg.classList.remove('show');
+            const btn = document.getElementById('submitBtn');
+            btn.disabled = true; btn.textContent = '⏳ Envoi...';
             
             const onboarding = {
                 linkedin: document.getElementById('linkedin').value,
                 job_title: document.getElementById('job_title').value,
                 company: document.getElementById('company').value,
                 industry: document.getElementById('industry').value === 'other' ? document.getElementById('other_industry').value : document.getElementById('industry').value,
-                
-                sports: [
-                    ...getCheckboxValues('sport_'),
-                    ...document.getElementById('other_sports').value.split(',').map(s=>s.trim()).filter(s=>s)
-                ],
-                hobbies: getCheckboxValues('hobby_'),
-                
+                sports: [ ...getCheckboxValues('sport_'), ...document.getElementById('other_sports').value.split(',').map(s=>s.trim()).filter(s=>s) ],
+                hobbies: [ ...getCheckboxValues('hobby_'), ...document.getElementById('other_hobbies').value.split(',').map(s=>s.trim()).filter(s=>s) ],
                 countries_visited: document.getElementById('countries_visited').value.split(',').map(s=>s.trim()).filter(s=>s),
                 dream_destinations: document.getElementById('dream_destinations').value.split(',').map(s=>s.trim()).filter(s=>s),
                 languages: getCheckboxValues('lang_'),
-                
                 meeting_types: getCheckboxValues('pref_'),
                 max_distance: document.getElementById('max_distance').value,
+                availability_times: getCheckboxValues('time_'),
                 bio_rich: document.getElementById('bio_rich').value,
-                
                 signature_questions: getSignatureQuestions()
             };
             
             try {
-                const token = sessionStorage.getItem('meetempo_token');
-                const response = await fetch(`${API_BASE}/profile/onboarding`, {
+                const res = await fetch(`${API_BASE}/profile/onboarding`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: token, onboarding: onboarding })
+                    body: JSON.stringify({ token: window.MT_TOKEN, onboarding: onboarding })
                 });
-                
-                if (!response.ok) throw new Error('Erreur API');
-                
+                if (!res.ok) throw new Error();
                 document.getElementById('mainContent').style.display = 'none';
                 document.getElementById('successScreen').classList.add('active');
-                
             } catch (err) {
-                errorMsg.textContent = '❌ Erreur. Réessayez.';
-                errorMsg.classList.add('show');
-                submitBtn.disabled = false;
-                submitBtn.textContent = '✓ Terminer';
+                document.getElementById('errorMsg').classList.add('show');
+                document.getElementById('errorMsg').textContent = 'Erreur. Réessayez.';
+                btn.disabled = false; btn.textContent = '✓ Terminer';
             }
         }
         
