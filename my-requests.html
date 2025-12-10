@@ -4,614 +4,352 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mes Demandes - MeeTempo</title>
+  
   <meta http-equiv="Content-Security-Policy" 
       content="default-src 'self'; 
                img-src https: data:; 
                script-src 'self' 'unsafe-inline'; 
-               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
-               font-src https://fonts.gstatic.com; 
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
+               font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
                connect-src https://api.meetempo.com;">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   
   <style>
     :root {
-      --mt-dark: #030E4F;
-      --mt-accent: #F49F1C;
-      --mt-bg: #0a133f;
-      --mt-card: #0e184f;
-      --mt-text: #ffffff;
-      --mt-muted: #c9d1ff;
-      --ok: #23c55e;
+      /* Palette Hub Premium */
+      --mt-bg: #0f172a;
+      --mt-accent: #f97316;
+      --mt-text: #f8fafc;
+      --mt-muted: #94a3b8;
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      
+      --ok: #10b981;
       --err: #ef4444;
-      --warn: #FBBF24;
+      --warn: #f59e0b;
     }
     
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     
     body {
-      font-family: Montserrat, system-ui, -apple-system, sans-serif;
-      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      font-family: 'Inter', sans-serif;
+      background-color: var(--mt-bg);
+      /* Fond profond du Hub */
+      background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
       color: var(--mt-text);
       min-height: 100vh;
       padding: 20px;
+      padding-top: 40px;
     }
     
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
+    .container { max-width: 800px; margin: 0 auto; }
     
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
+    /* === HEADER === */
+    .header { text-align: center; margin-bottom: 40px; animation: fadeInDown 0.6s ease; }
     
     .logo-badge {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #111;
-      font-weight: 800;
-      font-size: 24px;
-      margin-bottom: 16px;
+      width: 64px; height: 64px; border-radius: 20px;
+      background: linear-gradient(135deg, var(--mt-accent), #fbbf24);
+      display: inline-flex; align-items: center; justify-content: center;
+      color: white; font-weight: 800; font-size: 28px;
+      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
+      margin-bottom: 16px; font-family: 'Montserrat', sans-serif;
     }
     
-    h1 {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; font-family: 'Montserrat', sans-serif; }
+    .subtitle { font-size: 15px; color: var(--mt-muted); font-weight: 400; }
     
-    .subtitle {
-      font-size: 16px;
-      color: var(--mt-muted);
-    }
-    
-    /* Tabs */
+    /* === TABS (Pills) === */
     .tabs {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
+      display: flex; gap: 10px; margin-bottom: 30px;
+      background: rgba(255,255,255,0.03); padding: 5px; border-radius: 12px;
+      border: 1px solid var(--glass-border);
     }
     
     .tab {
-      flex: 1;
-      padding: 12px;
-      background: rgba(255,255,255,0.08);
-      border: 2px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      cursor: pointer;
-      text-align: center;
-      font-weight: 600;
-      transition: all 0.3s;
+      flex: 1; padding: 12px; border-radius: 8px; cursor: pointer;
+      text-align: center; font-weight: 600; font-size: 14px;
+      transition: all 0.3s; color: var(--mt-muted);
     }
     
-    .tab:hover {
-      background: rgba(255,255,255,0.12);
-    }
+    .tab:hover { background: rgba(255,255,255,0.05); color: white; }
     
     .tab.active {
-      background: var(--mt-accent);
-      color: #111;
-      border-color: var(--mt-accent);
+      background: rgba(255,255,255,0.1);
+      color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      border: 1px solid var(--glass-border);
     }
     
-    /* Request Card */
+    /* === CARDS (Glassmorphism) === */
     .request-card {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 24px;
-      margin-bottom: 20px;
-      transition: all 0.3s;
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 24px; margin-bottom: 20px;
+      box-shadow: var(--glass-shadow); transition: transform 0.3s, box-shadow 0.3s;
+      animation: fadeInUp 0.5s ease backwards;
     }
     
-    .request-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(244,159,28,0.3);
-    }
+    .request-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.2); }
     
-    .request-card.declined {
-      opacity: 0.6;
-      border-color: rgba(239, 68, 68, 0.3);
-    }
+    .request-card.declined { opacity: 0.7; filter: grayscale(0.5); }
     
-    .request-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 16px;
-    }
+    .request-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
     
-    .request-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
+    .request-title { font-size: 18px; font-weight: 700; margin-bottom: 6px; color: white; font-family: 'Montserrat', sans-serif; }
     
     .request-meta {
-      font-size: 14px;
-      color: var(--mt-muted);
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
+      font-size: 13px; color: var(--mt-muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;
     }
     
-    .meta-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    .meta-item { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px; }
     
-    .badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 600;
-    }
+    /* BADGES */
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .badge-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .badge-accepted { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-declined { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .badge-full { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+    .badge-ongoing { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+    .badge-completed { background: rgba(16, 185, 129, 0.15); color: #34d399; }
     
-    .badge-pending {
-      background: rgba(244, 159, 28, 0.2);
-      color: var(--mt-accent);
-    }
-    
-    .badge-accepted {
-      background: rgba(35, 197, 94, 0.2);
-      color: var(--ok);
-    }
-    
-    .badge-declined {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--err);
-    }
-    .badge-full { background: rgba(239, 68, 68, 0.2); color: var(--err); }
-    .badge-ongoing { background: rgba(59, 130, 246, 0.2); color: #3b82f6; }
-    .badge-completed { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-    
-    /* Creator Info */
+    /* CREATOR PROFILE */
     .creator-section {
-      margin-top: 12px;
-      padding: 12px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
+      margin-top: 16px; padding: 12px;
+      background: rgba(0,0,0,0.2); border-radius: 12px;
+      display: flex; align-items: center; gap: 12px; border: 1px solid var(--glass-border);
     }
     
     .creator-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--mt-accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #111;
-      font-weight: 700;
-      font-size: 14px;
+      width: 40px; height: 40px; border-radius: 50%;
+      background: linear-gradient(135deg, #6366f1, #a855f7);
+      display: flex; align-items: center; justify-content: center;
+      color: white; font-weight: 700; font-size: 14px;
     }
     
-    .creator-info {
-      flex: 1;
-    }
+    .creator-info { flex: 1; }
+    .creator-name { font-weight: 600; font-size: 14px; color: white; }
+    .creator-city { font-size: 12px; color: var(--mt-muted); }
     
-    .creator-name {
-      font-weight: 600;
-      font-size: 14px;
-    }
-    
-    .creator-city {
-      font-size: 12px;
-      color: var(--mt-muted);
-    }
-    
-    /* Participants Badge */
-    .participants-badge {
-      margin: 8px 0;
-    }
-    
-    .participants-badge span {
-      padding: 6px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 600;
-      white-space: nowrap;
-      display: inline-block;
-    }
-    
-    /* Actions */
-    .actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-    }
+    /* ACTIONS */
+    .actions { display: flex; gap: 10px; margin-top: 20px; }
     
     .btn {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-family: inherit;
+      padding: 10px 16px; border: none; border-radius: 10px;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+      font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     }
     
-    .btn-primary {
-      background: var(--mt-accent);
-      color: #111;
-      flex: 1;
-    }
+    .btn-primary { background: var(--mt-accent); color: white; flex: 1; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4); }
     
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(244,159,28,0.4);
-    }
+    .btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid var(--glass-border); flex: 1; }
+    .btn-secondary:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
     
-    .btn-secondary {
-      background: rgba(255,255,255,0.1);
-      color: var(--mt-text);
-      border: 1px solid rgba(255,255,255,0.2);
-    }
+    .btn-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.25); }
     
-    .btn-secondary:hover {
-      background: rgba(255,255,255,0.15);
-    }
-    
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--err);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-    }
-    
-    .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.3);
-    }
-    
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    .btn-small {
-      padding: 6px 12px;
-      font-size: 12px;
-    }
-    
-    /* Loading & Empty */
-    .loading {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--mt-muted);
-    }
-    
+    /* LOADING & EMPTY */
+    .loading, .empty { text-align: center; padding: 60px 20px; color: var(--mt-muted); }
     .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(255,255,255,0.1);
-      border-top-color: var(--mt-accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 16px;
+      width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--mt-accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 16px;
     }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
     
-    @keyframes spin {
-      to { transform: rotate(360deg); }
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+    
+    /* Bottom Navigation */
+    .bottom-nav {
+      margin-top: 40px; display: grid; grid-template-columns: 1fr 1fr; gap: 10px;
     }
-    
-    .empty {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--mt-muted);
-    }
-    
-    .empty-icon {
-      font-size: 64px;
-      margin-bottom: 16px;
-    }
-    
-    /* Responsive */
+    .bottom-nav .btn { width: 100%; justify-content: center; }
+
     @media (max-width: 640px) {
-      .request-meta {
-        font-size: 12px;
-      }
-      
-      .actions {
-        flex-direction: column;
-      }
-      
-      .btn {
-        width: 100%;
-      }
+      .request-meta { gap: 8px; }
+      .actions { flex-direction: column; }
+      .btn { width: 100%; }
+      .bottom-nav { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo-badge">MT</div>
-      <h1>📬 Mes Demandes</h1>
-      <p class="subtitle">Suivez vos demandes de participation envoyées</p>
+      <div class="logo-badge">M</div>
+      <h1>Mes Demandes</h1>
+      <p class="subtitle">Gérez vos invitations et participations</p>
     </div>
     
-    <!-- Tabs -->
     <div class="tabs">
       <div class="tab active" data-tab="pending">
-        ⏳ En attente
+        En attente
       </div>
       <div class="tab" data-tab="accepted">
-        ✅ Confirmées
+        Confirmées
       </div>
       <div class="tab" data-tab="history">
-        📜 Historique
+        Historique
       </div>
     </div>
     
-    <!-- Loading -->
     <div id="loading" class="loading">
       <div class="spinner"></div>
       <div>Chargement...</div>
     </div>
     
-    <!-- Content -->
     <div id="content" style="display:none;">
-      <!-- Pending Requests -->
       <div id="pendingRequests"></div>
-      
-      <!-- Accepted Requests -->
       <div id="acceptedRequests" style="display:none;"></div>
-      
-      <!-- History -->
       <div id="historyRequests" style="display:none;"></div>
     </div>
     
-    <!-- Bottom Actions -->
-    <div class="actions" style="margin-top: 32px;">
+    <div class="bottom-nav">
       <button class="btn btn-secondary" onclick="goToMySuggestions()">
-        📋 Mes suggestions
+        <i class="fas fa-list"></i> Mes suggestions
       </button>
       <button class="btn btn-secondary" onclick="goToMap()">
-        🗺️ Voir la carte
+        <i class="fas fa-map-marked-alt"></i> Carte
       </button>
       <button class="btn btn-secondary" onclick="goToHub()">
-        🏠 Retour Hub
+        <i class="fas fa-home"></i> Hub
       </button>
       <button class="btn btn-secondary" onclick="backToGPT()">
-        💬 Retour GPT
+        <i class="fas fa-robot"></i> GPT
       </button>
     </div>
   </div>
   
   <script>
-    // === BLOC UNIVERSEL MEETEMPO - STANDARD (45 min) ===
+    // === BLOC UNIVERSEL (Intouché) ===
     (function() {
       const TIMEOUT_MINUTES = 45;
-      
       const params = new URLSearchParams(location.search);
       window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
-                     || localStorage.getItem('session_token') 
-                     || sessionStorage.getItem('meetempo_token');
-      
+                       || localStorage.getItem('session_token') || sessionStorage.getItem('meetempo_token');
       if (window.MT_TOKEN) {
         localStorage.setItem('session_token', window.MT_TOKEN);
         sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
       }
-      
       if (!window.MT_TOKEN) {
-        alert('❌ Session expirée. Retour à MeeTempo GPT.');
+        alert('❌ Session expirée.');
         window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
         return;
       }
-      
-      const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
       setTimeout(() => {
-        alert('⏰ Session expirée (45 min). Cette page va se fermer.');
         window.close();
-        setTimeout(() => {
-          window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-        }, 1000);
-      }, TIMEOUT_MS);
-      
-      console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
+      }, TIMEOUT_MINUTES * 60 * 1000);
     })();
-    // === FIN BLOC UNIVERSEL ===
 
     const API_BASE = 'https://api.meetempo.com';
     let allRequests = [];
     let currentTab = 'pending';
     
-    // Initialisation
     async function init() {
-      console.log('🔍 Initialisation my-requests...');
-      
-      // 🔥 Token déjà validé par le bloc universel
       const token = window.MT_TOKEN;
-      
       await loadRequests(token);
       setupTabs();
     }
     
-    // Charger demandes (INCHANGÉ sauf token passé en paramètre)
     async function loadRequests(token) {
       try {
         document.getElementById('loading').style.display = 'block';
         document.getElementById('content').style.display = 'none';
         
-        // Récupérer toutes les demandes
         const response = await fetch(`${API_BASE}/match/my-requests?session_token=${token}`);
         const data = await response.json();
         
-        if (!response.ok) {
-          throw new Error(data.error || 'Erreur chargement');
-        }
+        if (!response.ok) throw new Error(data.error || 'Erreur chargement');
         
         allRequests = data.requests || [];
-        
-        // Afficher
         renderRequests();
         
         document.getElementById('loading').style.display = 'none';
         document.getElementById('content').style.display = 'block';
         
       } catch (err) {
-        console.error('Erreur:', err);
-        alert('Erreur chargement demandes: ' + err.message);
-        document.getElementById('loading').innerHTML = `
-          <div style="color: var(--err);">❌ ${err.message}</div>
-          <button class="btn btn-primary" onclick="init()" style="margin-top: 16px;">
-            Réessayer
-          </button>
-        `;
+        console.error(err);
+        document.getElementById('loading').innerHTML = `<div style="color:var(--err)">${err.message}</div>`;
       }
     }
     
-    // Afficher demandes
     function renderRequests() {
       const now = Date.now();
-
-      // 1. Pending (En attente)
       const pending = allRequests.filter(r => r.status === 'pending');
-      
-      // 2. Accepted (Confirmées) : Inclut aussi les événements "Terminés" (completed) tant qu'ils sont pas archivés
       const accepted = allRequests.filter(r => {
           if (r.status !== 'accepted') return false;
-          
-          const suggStatus = r.suggestion?.status || 'active'; // Backend envoie status maintenant
-          // Si suggestion archivée/supprimée, ça va dans l'historique
+          const suggStatus = r.suggestion?.status || 'active';
           if (['expired', 'cancelled', 'deleted'].includes(suggStatus)) return false;
-          
-          // Sécurité date (si > 10 jours après event)
           if (r.suggestion?.date) {
              const eventTime = new Date(`${r.suggestion.date}T${r.suggestion.time || '12:00'}`).getTime();
              if (now > eventTime + (10 * 24 * 3600 * 1000)) return false;
           }
-          
           return true;
       });
-      
-      // 3. History (Refusées ou Terminées depuis longtemps)
       const history = allRequests.filter(r => {
           if (r.status === 'declined') return true;
           if (r.status === 'accepted') {
-              // Si c'est accepté mais que ce n'est PLUS dans la liste accepted ci-dessus
               const isInAccepted = accepted.some(a => a.match_id === r.match_id);
               return !isInAccepted;
           }
-          return false; // Pending n'est jamais dans l'historique
+          return false;
       });
       
-      // Affichage (reste inchangé)
       const pendingContainer = document.getElementById('pendingRequests');
-      if (pending.length === 0) {
-        pendingContainer.innerHTML = `<div class="empty"><div class="empty-icon">📭</div><div style="font-weight: 600; margin-bottom: 8px;">Aucune demande en attente</div><div style="font-size: 14px;">Explorez la carte pour découvrir des suggestions !</div></div>`;
-      } else {
-        pendingContainer.innerHTML = pending.map(r => renderRequestCard(r, 'pending')).join('');
-      }
+      pendingContainer.innerHTML = pending.length ? pending.map(r => renderRequestCard(r, 'pending')).join('') : emptyState('Aucune demande en attente');
       
       const acceptedContainer = document.getElementById('acceptedRequests');
-      if (accepted.length === 0) {
-        acceptedContainer.innerHTML = `<div class="empty"><div class="empty-icon">✅</div><div style="font-weight: 600; margin-bottom: 8px;">Aucune demande confirmée</div><div style="font-size: 14px;">Vos demandes acceptées apparaîtront ici.</div></div>`;
-      } else {
-        acceptedContainer.innerHTML = accepted.map(r => renderRequestCard(r, 'accepted')).join('');
-      }
+      acceptedContainer.innerHTML = accepted.length ? accepted.map(r => renderRequestCard(r, 'accepted')).join('') : emptyState('Aucune confirmation');
       
       const historyContainer = document.getElementById('historyRequests');
-      if (history.length === 0) {
-        historyContainer.innerHTML = `<div class="empty"><div class="empty-icon">📜</div><div style="font-weight: 600; margin-bottom: 8px;">Aucun historique</div></div>`;
-      } else {
-        historyContainer.innerHTML = history.map(r => renderRequestCard(r, 'declined')).join('');
-      }
+      historyContainer.innerHTML = history.length ? history.map(r => renderRequestCard(r, 'declined')).join('') : emptyState('Aucun historique');
     }
     
-    // Render badge participants
+    function emptyState(msg) {
+        return `<div class="empty"><div class="empty-icon"><i class="far fa-folder-open"></i></div><div style="font-weight:600;">${msg}</div></div>`;
+    }
+    
+    // BADGE PARTICIPANTS
     function renderParticipantsBadge(participants) {
-      if (!participants || !participants.min || !participants.max) {
-        return '';
-      }
-      
+      if (!participants || !participants.min || !participants.max) return '';
       const min = participants.min;
       const max = participants.max;
       const current = participants.current?.length || 1;
       
-      let color = '';
-      let icon = '';
-      let text = '';
+      let color = '#10B981'; // Green
+      let icon = 'users';
+      let text = `${current}/${max}`;
       
-      if (min === max) {
-        if (current >= min) {
-          color = '#10B981';
-          icon = '✅';
-          text = `${current}/${max} confirmés`;
-        } else {
-          color = '#F97316';
-          icon = '⚠️';
-          text = `${current}/${min} requis`;
-        }
-      } else if (min <= 2) {
-        color = '#10B981';
-        icon = '✅';
-        text = `${current}/${max} participants`;
-      } else {
-        if (current >= min) {
-          color = '#10B981';
-          icon = '✅';
-          text = `${current}/${max} participants`;
-        } else {
-          color = '#FBBF24';
-          icon = '⚠️';
-          text = `${current}/${max} (min ${min})`;
-        }
-      }
+      if (current < min) { color = '#FBBF24'; text = `${current}/${min} requis`; }
       
-      return `
-        <div class="participants-badge">
-          <span style="background: ${color}22; color: ${color};">
-            👥 ${icon} ${text}
-          </span>
-        </div>
-      `;
+      return `<div style="margin-top:8px;"><span style="background:${color}22; color:${color}; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600;"><i class="fas fa-${icon}"></i> ${text}</span></div>`;
     }
     
-    // Render une carte demande
     function renderRequestCard(req, statusType) {
       const sugg = req.suggestion;
       const creator = req.creator;
-      
       const date = sugg.date ? new Date(sugg.date).toLocaleDateString('fr-FR') : '?';
-      const time = sugg.time || '?';
       const createdDate = new Date(req.created_at).toLocaleDateString('fr-FR');
       
-      // 1. Badge Statut Demande
       let badgeClass = 'badge-pending';
       let badgeText = '⏳ En attente';
-      
-      if (statusType === 'accepted') {
-        badgeClass = 'badge-accepted';
-        badgeText = '✅ Confirmée';
-      } else if (statusType === 'declined') {
-        badgeClass = 'badge-declined';
-        badgeText = '❌ Refusée';
-      }
+      if (statusType === 'accepted') { badgeClass = 'badge-accepted'; badgeText = '✅ Confirmée'; }
+      else if (statusType === 'declined') { badgeClass = 'badge-declined'; badgeText = '❌ Refusée'; }
 
-      // 2. Badge Statut Suggestion (Cycle de vie)
-      // On devine le statut si le backend ne l'envoie pas explicitement
       let eventBadge = '';
-      const suggStatus = sugg.status || 'active'; // Suppose que le backend renvoie status
-      
+      const suggStatus = sugg.status || 'active';
       if (suggStatus === 'full') eventBadge = `<span class="badge badge-full">⛔ Complet</span>`;
       else if (suggStatus === 'ongoing') eventBadge = `<span class="badge badge-ongoing">⏳ En cours</span>`;
       else if (suggStatus === 'completed') eventBadge = `<span class="badge badge-completed">✅ Terminée</span>`;
@@ -622,209 +360,78 @@
             <div style="flex: 1;">
               <div class="request-title">${sugg.title || sugg.activity_type || 'Suggestion'}</div>
               <div class="request-meta">
-                <div class="meta-item">📍 ${sugg.city || '?'}</div>
-                ${sugg.place ? `<div class="meta-item">🏢 ${sugg.place}</div>` : ''}
-                <div class="meta-item">📅 ${date}</div>
-                <div class="meta-item">⏰ ${time}</div>
+                <div class="meta-item"><i class="fas fa-map-marker-alt"></i> ${sugg.city || '?'}</div>
+                <div class="meta-item"><i class="far fa-calendar-alt"></i> ${date}</div>
+                <div class="meta-item"><i class="far fa-clock"></i> ${sugg.time || '?'}</div>
               </div>
-              
               ${renderParticipantsBadge(sugg.participants)}
-              
-              <div style="margin-top: 8px;">
+              <div style="margin-top: 10px; display:flex; gap:8px; align-items:center;">
                 <span class="badge ${badgeClass}">${badgeText}</span>
-                ${eventBadge} <span class="badge" style="background: rgba(255,255,255,0.1); color: var(--mt-muted);">
-                  Envoyée le ${createdDate}
-                </span>
+                ${eventBadge}
               </div>
             </div>
           </div>
           
           <div class="creator-section">
-            <div class="creator-avatar">
-              ${creator.anonymous_initiales || creator.name.substring(0, 2).toUpperCase()}
-            </div>
+            <div class="creator-avatar">${creator.anonymous_initiales || creator.name.substring(0, 2).toUpperCase()}</div>
             <div class="creator-info">
               <div class="creator-name">${creator.anonymous_display || creator.name}</div>
               <div class="creator-city">📍 ${creator.city}</div>
             </div>
           </div>
           
-          ${req.message ? `
-            <div style="margin-top: 12px; padding: 12px; background: rgba(255,255,255,0.05); border-radius: 12px; font-size: 14px; font-style: italic;">
-              💬 "${req.message}"
-            </div>
-          ` : ''}
+          ${req.message ? `<div style="margin-top:12px; padding:10px; background:rgba(255,255,255,0.05); border-radius:8px; font-style:italic; font-size:13px; color:var(--mt-muted);">"${req.message}"</div>` : ''}
           
           <div class="actions">
-            <button class="btn btn-secondary btn-small" onclick="viewSuggestionOnMap('${sugg.id}', ${sugg.location?.lat}, ${sugg.location?.lng})">
-              🗺️ Carte
+            <button class="btn btn-secondary" onclick="viewSuggestionOnMap('${sugg.id}', ${sugg.location?.lat}, ${sugg.location?.lng})">
+              <i class="fas fa-map"></i> Carte
             </button>
-            
-            ${statusType === 'accepted' ? `
-                <button class="btn btn-primary btn-small" onclick="goToChat('${sugg.id}')">
-                  💬 Chat groupe
-                </button>
-            ` : ''}
-
-            ${statusType === 'pending' ? `
-              <button class="btn btn-danger btn-small" onclick="cancelRequest('${req.match_id}')">
-                🚫 Annuler
-              </button>
-            ` : ''}
+            ${statusType === 'accepted' ? `<button class="btn btn-primary" onclick="goToChat('${sugg.id}')"><i class="fas fa-comments"></i> Chat</button>` : ''}
+            ${statusType === 'pending' ? `<button class="btn btn-danger" onclick="cancelRequest('${req.match_id}')"><i class="fas fa-times"></i> Annuler</button>` : ''}
           </div>
         </div>
       `;
     }
     
-    // Annuler demande
+    // ACTIONS JS (INTOUCHÉES)
     async function cancelRequest(matchId) {
-      if (!confirm('⚠️ Annuler cette demande de participation ?')) return;
-      
+      if (!confirm('⚠️ Annuler cette demande ?')) return;
       const token = sessionStorage.getItem('meetempo_token');
-      
       try {
-        const response = await fetch(
-          `${API_BASE}/match/cancel?session_token=${token}&match_id=${matchId}`
-        );
+        const response = await fetch(`${API_BASE}/match/cancel?session_token=${token}&match_id=${matchId}`);
         const data = await response.json();
-        
-        if (!response.ok) throw new Error(data.error || 'Erreur annulation');
-        
-        alert('✅ Demande annulée avec succès !');
+        if (!response.ok) throw new Error(data.error);
+        alert('✅ Annulée');
         await loadRequests(token);
-        
-      } catch (err) {
-        alert('❌ Erreur: ' + err.message);
-      }
+      } catch (err) { alert('❌ Erreur: ' + err.message); }
     }
     
-    // Voir suggestion sur carte (avec centrage)
-function viewSuggestionOnMap(suggestionId, lat, lng) {
-  const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
-  
-  if (!token) {
-    showTokenExpiredMessage();
-    return;
-  }
-  
-  window.open(`map.html?session_token=${token}&lat=${lat}&lng=${lng}&zoom=15&highlight=${suggestionId}`, '_blank');
-}
-
-function goToMap() {
-  const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
-  
-  if (!token) {
-    showTokenExpiredMessage();
-    return;
-  }
-  
-  window.location.href = `map.html?session_token=${token}`;
-}
-
-// 🔥 NOUVEAU : Accéder au chat groupe
-  function goToChat(suggestionId) {
-    const session_token = sessionStorage.getItem('meetempo_token');
-    
-    if (!session_token) {
-      alert('❌ Session expirée. Veuillez vous reconnecter.');
-      window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-      return;
+    function viewSuggestionOnMap(id, lat, lng) {
+      const token = window.MT_TOKEN;
+      if (!token) return;
+      window.open(`map.html?session_token=${token}&lat=${lat}&lng=${lng}&zoom=15&highlight=${id}`, '_blank');
     }
-    
-    window.location.href = `chat.html?suggestion_id=${suggestionId}&session_token=${session_token}`;
-  }
 
-  function goToMySuggestions() {
-  const token = sessionStorage.getItem('meetempo_token');
-  if (!token) {
-    showTokenExpiredMessage();
-    return;
-  }
-  window.location.href = `my-suggestions.html?session_token=${token}`;
-}
+    function goToMap() { window.location.href = `map.html?session_token=${window.MT_TOKEN}`; }
+    function goToChat(id) { window.location.href = `chat.html?suggestion_id=${id}&session_token=${window.MT_TOKEN}`; }
+    function goToMySuggestions() { window.location.href = `my-suggestions.html?session_token=${window.MT_TOKEN}`; }
+    function goToHub() { window.location.href = `hub.html?session_token=${window.MT_TOKEN}`; }
+    function backToGPT() { window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19'; }
 
-function goToHub() {
-  const token = sessionStorage.getItem('meetempo_token');
-  if (!token) {
-    showTokenExpiredMessage();
-    return;
-  }
-  window.location.href = `hub.html?session_token=${token}`;
-}
-
-function backToGPT() {
-  if (window.opener) {
-    window.close();
-  } else {
-    window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-  }
-}
-
-// 🆕 Afficher message expiration élégant
-function showTokenExpiredMessage() {
-  // Cacher contenu principal
-const contentDiv = document.getElementById('content');
-const loadingDiv = document.getElementById('loading');
-if (contentDiv) contentDiv.style.display = 'none';
-if (loadingDiv) loadingDiv.style.display = 'none';
-  
-  // Afficher message expiration
-  const container = document.querySelector('.container');
-  container.innerHTML = `
-    <div style="text-align: center; padding: 40px 20px;">
-      <div style="font-size: 48px; margin-bottom: 20px;">⏱️</div>
-      <h2 style="color: var(--mt-text); margin-bottom: 16px;">Session expirée</h2>
-      <p style="color: var(--mt-muted); margin-bottom: 24px;">
-        Ton lien a expiré (durée 15 minutes).<br>
-        Retourne au GPT MeeTempo pour obtenir un nouveau lien.
-      </p>
-      <button onclick="backToGPT()" style="
-        background: var(--mt-accent);
-        color: #111;
-        border: none;
-        padding: 14px 28px;
-        border-radius: 12px;
-        font-weight: 700;
-        font-size: 16px;
-        cursor: pointer;
-        font-family: 'Montserrat', sans-serif;
-      ">
-        🤖 Retour au GPT
-      </button>
-    </div>
-  `;
-}
-    
-    // Tabs
     function setupTabs() {
       const tabs = document.querySelectorAll('.tab');
-      const pendingContainer = document.getElementById('pendingRequests');
-      const acceptedContainer = document.getElementById('acceptedRequests');
-      const historyContainer = document.getElementById('historyRequests');
-      
       tabs.forEach(tab => {
         tab.addEventListener('click', () => {
           tabs.forEach(t => t.classList.remove('active'));
           tab.classList.add('active');
-          
           const tabName = tab.dataset.tab;
-          
-          pendingContainer.style.display = 'none';
-          acceptedContainer.style.display = 'none';
-          historyContainer.style.display = 'none';
-          
-          if (tabName === 'pending') {
-            pendingContainer.style.display = 'block';
-          } else if (tabName === 'accepted') {
-            acceptedContainer.style.display = 'block';
-          } else {
-            historyContainer.style.display = 'block';
-          }
+          document.getElementById('pendingRequests').style.display = tabName === 'pending' ? 'block' : 'none';
+          document.getElementById('acceptedRequests').style.display = tabName === 'accepted' ? 'block' : 'none';
+          document.getElementById('historyRequests').style.display = tabName === 'history' ? 'block' : 'none';
         });
       });
     }
     
-    // Lancer au chargement
     window.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
