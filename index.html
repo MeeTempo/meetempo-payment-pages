@@ -374,7 +374,68 @@
         <p>Choisissez la formule adaptée à vos besoins</p>
     </div>
 
-    <div class="grid">
+    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
+        <div class="card">
+            <div class="icon"><i class="fas fa-user"></i></div>
+            <h3>Free</h3>
+            <p style="font-size: 2rem; font-weight: 700; margin: 1rem 0;">0€</p>
+            <ul style="list-style: none; color: var(--text-gray); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <li style="margin-bottom: 0.5rem;">✓ 1 suggestion/semaine</li>
+                <li style="margin-bottom: 0.5rem;">✓ Voir la carte</li>
+                <li style="margin-bottom: 0.5rem; opacity: 0.5;">✗ Messagerie</li>
+            </ul>
+            <a href="login.html?tab=signup" style="display: block; text-align: center; padding: 0.8rem; border: 1px solid var(--glass-border); border-radius: 50px; color: var(--text-light);">Commencer</a>
+        </div>
+
+        <div class="card">
+            <div class="icon"><i class="fas fa-handshake"></i></div>
+            <h3>Meeting</h3>
+            <p style="font-size: 2rem; font-weight: 700; margin: 1rem 0;">2,99€<span style="font-size: 0.9rem; color: var(--text-gray);">/24h</span></p>
+            <ul style="list-style: none; color: var(--text-gray); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <li style="margin-bottom: 0.5rem;">✓ 3 suggestions/24h</li>
+                <li style="margin-bottom: 0.5rem;">✓ 3 demandes/24h</li>
+                <li style="margin-bottom: 0.5rem;">✓ Messagerie activée</li>
+            </ul>
+            <a href="login.html?tab=signup&plan=meeting" style="display: block; text-align: center; padding: 0.8rem; border: 1px solid var(--glass-border); border-radius: 50px; color: var(--text-light);">Choisir</a>
+        </div>
+
+        <div class="card" style="border-color: var(--primary); box-shadow: 0 0 30px rgba(99, 102, 241, 0.3);">
+            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary); padding: 0.3rem 1rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700;">POPULAIRE</div>
+            <div class="icon"><i class="fas fa-star"></i></div>
+            <h3>Premium</h3>
+            <p style="font-size: 2rem; font-weight: 700; margin: 1rem 0;">15€<span style="font-size: 0.9rem; color: var(--text-gray);">/mois</span></p>
+            <ul style="list-style: none; color: var(--text-gray); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <li style="margin-bottom: 0.5rem;">✓ Suggestions illimitées</li>
+                <li style="margin-bottom: 0.5rem;">✓ Demandes illimitées</li>
+                <li style="margin-bottom: 0.5rem;">✓ Messagerie complète</li>
+            </ul>
+            <a href="login.html?tab=signup&plan=premium" class="btn-cta" style="display: block; text-align: center; padding: 0.8rem;">Choisir Premium</a>
+        </div>
+
+        <div class="card" style="border-color: var(--accent);">
+            <div class="icon" style="background: linear-gradient(135deg, var(--accent), #fbbf24);"><i class="fas fa-crown"></i></div>
+            <h3>VIP</h3>
+            <p style="font-size: 2rem; font-weight: 700; margin: 1rem 0;">29,99€<span style="font-size: 0.9rem; color: var(--text-gray);">/mois</span></p>
+            <ul style="list-style: none; color: var(--text-gray); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                <li style="margin-bottom: 0.5rem;">✓ Tout Premium inclus</li>
+                <li style="margin-bottom: 0.5rem;">✓ Créer des Events</li>
+                <li style="margin-bottom: 0.5rem;">✓ Espace VIP exclusif</li>
+            </ul>
+            <a href="login.html?tab=signup&plan=vip" style="display: block; text-align: center; padding: 0.8rem; background: var(--accent); color: #111; border-radius: 50px; font-weight: 600;">Devenir VIP</a>
+        </div>
+    </div>
+
+    <div style="margin-top: 3rem; background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.15)); border: 1px solid rgba(99,102,241,0.3); border-radius: 16px; padding: 2rem; text-align: center;">
+        <h3 style="margin-bottom: 0.5rem;">🏢 Offres Entreprises B2B</h3>
+        <p style="color: var(--text-gray); margin-bottom: 1rem;">Gestion centralisée, tarifs dégressifs, dashboard admin</p>
+        <p style="color: var(--primary); font-weight: 600; margin-bottom: 1.5rem;">À partir de 12,90€ HT/mois par collaborateur</p>
+        <a href="login.html?tab=signup&plan=b2b" class="btn-cta">Contacter l'équipe B2B</a>
+    </div>
+
+    <p style="text-align: center; margin-top: 2rem; color: var(--text-gray);">
+        <a href="pricing.html" style="color: var(--primary);">Voir le détail complet des offres →</a>
+    </p>
+</section>
         <div class="card">
             <div class="icon"><i class="fas fa-user"></i></div>
             <h3>Free</h3>
