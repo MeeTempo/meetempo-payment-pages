@@ -201,6 +201,34 @@
                 </div>
                 
                 <div class="form-group">
+                    <label for="country">Pays</label>
+                    <select id="country" required>
+                        <option value="">Sélectionner...</option>
+                        <option value="France">🇫🇷 France</option>
+                        <option value="Belgique">🇧🇪 Belgique</option>
+                        <option value="Suisse">🇨🇭 Suisse</option>
+                        <option value="Canada">🇨🇦 Canada</option>
+                        <option value="Maroc">🇲🇦 Maroc</option>
+                        <option value="Algérie">🇩🇿 Algérie</option>
+                        <option value="Tunisie">🇹🇳 Tunisie</option>
+                        <option value="Sénégal">🇸🇳 Sénégal</option>
+                        <option value="Côte d'Ivoire">🇨🇮 Côte d'Ivoire</option>
+                        <option value="Luxembourg">🇱🇺 Luxembourg</option>
+                        <option value="Monaco">🇲🇨 Monaco</option>
+                        <option value="Royaume-Uni">🇬🇧 Royaume-Uni</option>
+                        <option value="Allemagne">🇩🇪 Allemagne</option>
+                        <option value="Espagne">🇪🇸 Espagne</option>
+                        <option value="Italie">🇮🇹 Italie</option>
+                        <option value="Portugal">🇵🇹 Portugal</option>
+                        <option value="Pays-Bas">🇳🇱 Pays-Bas</option>
+                        <option value="États-Unis">🇺🇸 États-Unis</option>
+                        <option value="Japon">🇯🇵 Japon</option>
+                        <option value="Australie">🇦🇺 Australie</option>
+                        <option value="Autre">🌍 Autre</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
                     <label for="role">Rôle</label>
                     <select id="role" required>
                         <option value="">Sélectionner...</option>
@@ -292,6 +320,7 @@
             if (data.profile || data.name) {
                 document.getElementById('name').value = data.name || data.profile?.name || '';
                 document.getElementById('city').value = data.city || data.profile?.city || '';
+                document.getElementById('country').value = data.profile?.country || '';
                 document.getElementById('role').value = data.profile_rich?.role || data.profile?.role || '';
                 document.getElementById('bio').value = data.profile_rich?.bio_rich || data.profile?.bio || '';
             }
@@ -364,6 +393,7 @@
             session_token: window.MT_TOKEN,
             name: document.getElementById('name').value,
             city: document.getElementById('city').value,
+            country: document.getElementById('country').value,
             role: document.getElementById('role').value,
             bio: document.getElementById('bio').value || ''
         });
