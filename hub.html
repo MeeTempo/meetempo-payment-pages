@@ -1250,8 +1250,11 @@ async function loadProfileCompletion() {
     
     console.log(`📊 Complétion profil: ${completion}%`);
     
-    // Afficher si < 60%
-    if (completion < 60) {
+    // Afficher si < 60% OU si signature_questions manquantes
+    const missingFields = profile.missing_fields || [];
+    const missingSignatures = missingFields.includes('signature_questions');
+    
+    if (completion < 60 || missingSignatures) {
       const banner = document.getElementById('profileCompletionBanner');
       const percentSpan = document.getElementById('completionPercent');
       const bar = document.getElementById('completionBar');
