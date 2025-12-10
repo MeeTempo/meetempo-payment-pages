@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mon Profil - MeeTempo</title>
+    
     <meta http-equiv="Content-Security-Policy" 
       content="default-src 'self'; 
                img-src https: data:; 
@@ -11,164 +12,196 @@
                style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
                font-src https://fonts.gstatic.com; 
                connect-src https://api.meetempo.com;">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+    
     <style>
+        :root {
+            --mt-bg: #0f172a;
+            --mt-accent: #f97316;
+            --mt-text: #f8fafc;
+            --mt-muted: #94a3b8;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            max-width: 600px;
-            margin: 50px auto;
-            padding: 20px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--mt-bg);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-attachment: fixed;
             min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            color: var(--mt-text);
         }
-        .card {
-            background: white;
-            border-radius: 20px;
+        
+        /* Top Nav */
+        .top-nav { position: absolute; top: 20px; right: 20px; z-index: 10; }
+        .btn-hub {
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid var(--glass-border);
+            color: var(--mt-muted); padding: 8px 16px;
+            border-radius: 50px; font-size: 13px; font-weight: 600;
+            cursor: pointer; transition: all 0.3s;
+        }
+        .btn-hub:hover { background: var(--mt-accent); color: white; border-color: var(--mt-accent); }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            box-shadow: var(--glass-shadow);
+            overflow: hidden;
             padding: 40px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            position: relative;
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
+
+        @keyframes slideUp { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+        
         h1 {
-            color: #1a202c;
-            margin-bottom: 30px;
-            text-align: center;
+            color: white; margin-bottom: 30px; text-align: center;
+            font-family: 'Montserrat', sans-serif; font-size: 24px;
         }
+        
+        /* Code Box */
         .code-box {
-            background: #f7fafc;
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 25px;
-            text-align: center;
+            background: rgba(255,255,255,0.05);
+            padding: 20px; border-radius: 16px; margin-bottom: 30px;
+            text-align: center; border: 1px solid var(--glass-border);
         }
-        .code-label {
-            color: #4a5568;
-            font-size: 14px;
-            margin-bottom: 5px;
-        }
+        .code-label { color: var(--mt-muted); font-size: 13px; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; }
         .code-display {
-            font-size: 28px;
-            font-weight: bold;
-            color: #667eea;
-            letter-spacing: 3px;
+            font-size: 32px; font-weight: 700; color: var(--mt-accent);
+            letter-spacing: 4px; font-family: 'Montserrat', sans-serif;
+            margin-bottom: 12px;
         }
         .copy-btn {
-            margin-top: 10px;
-            width: auto;
-            padding: 8px 20px;
-            font-size: 14px;
-            background: #e2e8f0;
-            color: #4a5568;
+            padding: 8px 16px; font-size: 13px; background: rgba(255,255,255,0.1);
+            color: var(--mt-text); border: none; border-radius: 8px; cursor: pointer; transition: 0.2s;
         }
-        .form-group {
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #4a5568;
-            font-weight: 600;
-        }
+        .copy-btn:hover { background: rgba(255,255,255,0.15); }
+        
+        /* Form */
+        .form-group { margin-bottom: 24px; }
+        label { display: block; margin-bottom: 8px; color: var(--mt-muted); font-weight: 600; font-size: 13px; }
+        
         input, select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #e2e8f0;
-            border-radius: 10px;
-            font-size: 16px;
-            box-sizing: border-box;
+            width: 100%; padding: 14px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            font-size: 15px; color: white;
+            font-family: 'Inter', sans-serif; transition: 0.2s;
         }
-        input:focus, select:focus {
-            outline: none;
-            border-color: #667eea;
-        }
+        input:focus, select:focus { outline: none; border-color: var(--mt-accent); background: rgba(0,0,0,0.4); }
+        select option { background-color: var(--mt-bg); color: white; }
+        
+        /* Buttons */
         button {
-            width: 100%;
-            padding: 15px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            border-radius: 30px;
-            font-size: 18px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s;
+            width: 100%; padding: 16px; background: var(--mt-accent);
+            color: #111; border: none; border-radius: 12px;
+            font-size: 16px; font-weight: 700; cursor: pointer;
+            transition: transform 0.2s; font-family: 'Inter', sans-serif;
         }
-        button:hover {
-            transform: translateY(-2px);
-        }
-        button:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
+        button:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3); }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        
         .btn-secondary {
-            background: #e2e8f0;
-            color: #4a5568;
-            margin-top: 12px;
+            background: rgba(255,255,255,0.1); color: white; margin-top: 12px;
+            border: 1px solid var(--glass-border);
         }
-        .btn-secondary:hover {
-            background: #cbd5e0;
+        .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+        
+        /* Rich Profile Section */
+        #richProfileSection {
+            margin-top: 30px; padding: 24px;
+            background: rgba(255,255,255,0.03);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
         }
+        #richProfileSection h3 {
+            color: white; margin-bottom: 20px; font-size: 16px;
+            border-bottom: 1px solid var(--glass-border); padding-bottom: 12px;
+        }
+        
+        .rich-item { margin-bottom: 12px; font-size: 14px; line-height: 1.6; }
+        .rich-label { color: var(--mt-muted); font-weight: 600; display: inline-block; width: 100px; }
+        .rich-value { color: white; }
+        
+        .tags-container { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 4px; }
+        .tag {
+            background: rgba(255,255,255,0.1); padding: 4px 10px;
+            border-radius: 6px; font-size: 12px; color: var(--mt-text);
+        }
+        
+        /* Messages */
         .success {
-            background: #48bb78;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            margin-top: 20px;
-            display: none;
+            background: rgba(16, 185, 129, 0.2); color: #34d399;
+            padding: 15px; border-radius: 12px; text-align: center;
+            margin-top: 20px; display: none; border: 1px solid rgba(16, 185, 129, 0.3);
         }
-        .success a {
-            color: white;
-            text-decoration: underline;
-        }
+        .success a { color: white; text-decoration: underline; font-weight: 600; }
+        
         .error {
-            background: #f56565;
-            color: white;
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            margin-top: 20px;
-            display: none;
+            background: rgba(239, 68, 68, 0.2); color: #f87171;
+            padding: 15px; border-radius: 12px; text-align: center;
+            margin-top: 20px; display: none; border: 1px solid rgba(239, 68, 68, 0.3);
         }
-        .loading {
-            text-align: center;
-            padding: 40px;
-            color: #667eea;
+        
+        .loading { text-align: center; padding: 40px; color: var(--mt-muted); }
+
+        @media (max-width: 640px) {
+            .container { padding: 24px; border-radius: 0; border: none; min-height: 100vh; }
         }
     </style>
 </head>
 <body>
-    <div class="card">
-        <div id="loading" class="loading">
-            ⏳ Chargement de votre profil...
-        </div>
+
+    <div class="top-nav">
+        <button class="btn-hub" onclick="goToHub()">🏠 Hub</button>
+    </div>
+
+    <div class="container">
+        <div id="loading" class="loading">⏳ Chargement...</div>
         
         <div id="mainContent" style="display:none;">
-            <h1>🎯 Mon Profil MeeTempo</h1>
+            <h1>🎯 Mon Profil</h1>
             
-            <!-- Affichage Code -->
             <div class="code-box">
-                <div class="code-label">
-                    🔑 Votre code MeeTempo
-                </div>
-                <div class="code-display" id="codeDisplay">
-                    ------
-                </div>
-                <button type="button" onclick="copyCode()" class="copy-btn">
-                    📋 Copier le code
-                </button>
+                <div class="code-label">🔑 Votre code MeeTempo</div>
+                <div class="code-display" id="codeDisplay">------</div>
+                <button type="button" onclick="copyCode()" class="copy-btn">📋 Copier</button>
             </div>
             
             <form id="profileForm">
                 <div class="form-group">
-                    <label for="name">Prénom & Nom *</label>
-                    <input type="text" id="name" required placeholder="Djamel Benali">
+                    <label for="name">Prénom & Nom</label>
+                    <input type="text" id="name" required placeholder="Votre nom">
                 </div>
                 
                 <div class="form-group">
-                    <label for="city">Ville *</label>
+                    <label for="city">Ville</label>
                     <input type="text" id="city" required placeholder="Paris">
                 </div>
                 
                 <div class="form-group">
-                    <label for="role">Rôle *</label>
+                    <label for="role">Rôle</label>
                     <select id="role" required>
                         <option value="">Sélectionner...</option>
                         <option value="entrepreneur">Entrepreneur</option>
@@ -181,255 +214,183 @@
                 </div>
                 
                 <div class="form-group">
-                    <label for="bio">Bio (optionnel)</label>
-                    <input type="text" id="bio" placeholder="Passionné de tennis et networking...">
+                    <label for="bio">Bio courte</label>
+                    <input type="text" id="bio" placeholder="Passionné de...">
                 </div>
                 
-                <button type="submit" id="submitBtn">
-                    💾 Enregistrer mon profil
-                </button>
+                <button type="submit" id="submitBtn">💾 Enregistrer</button>
                 
-                <!-- NOUVEAU : Bouton vers onboarding -->
                 <button type="button" class="btn-secondary" id="onboardingBtn">
                     ✨ Compléter mes centres d'intérêt
                 </button>
             </form>
-            <!-- 🔥 BONUS : Affichage profil enrichi -->
-<div id="richProfileSection" style="display:none; margin-top: 30px; padding: 20px; background: #f7fafc; border-radius: 10px;">
-    <h3 style="color: #4a5568; margin-bottom: 15px;">📊 Mon profil enrichi</h3>
-    <div id="richProfileContent" style="font-size: 14px; color: #718096; line-height: 1.6;"></div>
-</div>
+
+            <div id="richProfileSection" style="display:none;">
+                <h3>📊 Profil détaillé</h3>
+                <div id="richProfileContent"></div>
+            </div>
             
             <div class="success" id="successMsg">
-                ✅ Profil enregistré avec succès!<br><br>
-                <a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19">
-                    ← Retour à MeeTempo GPT
-                </a>
+                ✅ Profil enregistré !<br><br>
+                <a href="https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19">← Retour GPT</a>
             </div>
             
-            <div class="error" id="errorMsg">
-                ❌ Erreur lors de l'enregistrement. Réessayez.
-            </div>
+            <div class="error" id="errorMsg">❌ Erreur. Réessayez.</div>
         </div>
     </div>
 
     <script>
     // === BLOC UNIVERSEL MEETEMPO - STANDARD (45 min) ===
-    (function() {
-      const TIMEOUT_MINUTES = 45;
-      
-      const params = new URLSearchParams(location.search);
-      window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
-                     || localStorage.getItem('session_token') 
-                     || sessionStorage.getItem('meetempo_token');
-      
-      if (window.MT_TOKEN) {
+(function() {
+    const TIMEOUT_MINUTES = 45;
+    
+    const params = new URLSearchParams(location.search);
+    window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
+                   || localStorage.getItem('session_token') 
+                   || sessionStorage.getItem('meetempo_token');
+    
+    if (window.MT_TOKEN) {
         localStorage.setItem('session_token', window.MT_TOKEN);
         sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
-      }
-      
-      if (!window.MT_TOKEN) {
-        alert('❌ Session expirée. Retour à MeeTempo GPT.');
-        window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
+    }
+    
+    if (!window.MT_TOKEN) {
+        alert('❌ Session expirée. Reconnexion requise.');
+        window.location.href = 'login.html';
         return;
-      }
-      
-      const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
-      setTimeout(() => {
-        alert('⏰ Session expirée (45 min). Cette page va se fermer.');
-        window.close();
-        setTimeout(() => {
-          window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-        }, 1000);
-      }, TIMEOUT_MS);
-      
-      console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
-    })();
-    // === FIN BLOC UNIVERSEL ===
+    }
+    
+    const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
+    setTimeout(() => {
+        alert('⏰ Session expirée (45 min). Reconnexion requise.');
+        window.location.href = 'login.html';
+    }, TIMEOUT_MS);
+    
+    console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
+})();
+// === FIN BLOC UNIVERSEL ===
 
+    function goToHub() { window.location.href = `hub.html?session_token=${window.MT_TOKEN}`; }
+    
     const API_BASE = 'https://api.meetempo.com';
     
-    // Initialisation
     async function init() {
-        // 🔥 Token déjà validé par le bloc universel
-        const token = window.MT_TOKEN;
-            
-        // Charger profil
         await loadProfile();
-        
-        // Afficher form
         document.getElementById('loading').style.display = 'none';
         document.getElementById('mainContent').style.display = 'block';
     }
-        
-        // ✅ CORRECTION : Charger profil avec token au lieu de user_id
-async function loadProfile() {
-    try {
-        const token = sessionStorage.getItem('meetempo_token');
-        const response = await fetch(`${API_BASE}/profile?session_token=${token}`);
-        const data = await response.json();
-        
-        console.log('Profil chargé:', data); // 🔥 Debug
-        
-        // Afficher le code
-        if (data.code) {
-            document.getElementById('codeDisplay').textContent = data.code;
-        }
-        
-        // 🔥 AMÉLIORATION : Pré-remplir TOUS les champs
-        
-        // Champs basiques (profile)
-        if (data.profile || data.name) {
-            document.getElementById('name').value = data.name || data.profile?.name || '';
-            document.getElementById('city').value = data.city || data.profile?.city || '';
-            document.getElementById('role').value = data.profile_rich?.role || data.profile?.role || '';
-            document.getElementById('bio').value = data.profile_rich?.bio_rich || data.profile?.bio || '';
-        }
-        
-        // 🔥 BONUS : Badge profil complet
-        if (data.profile_rich && Object.keys(data.profile_rich).length > 0) {
-            console.log('✅ Profil enrichi détecté:', data.profile_rich);
+    
+    async function loadProfile() {
+        try {
+            const token = window.MT_TOKEN;
+            const res = await fetch(`${API_BASE}/profile?session_token=${token}`);
+            const data = await res.json();
             
-            const codeBox = document.querySelector('.code-box');
-            if (codeBox && !document.getElementById('profileCompleteBadge')) {
-                const badge = document.createElement('div');
-                badge.id = 'profileCompleteBadge';
-                badge.style.cssText = 'margin-top: 10px; padding: 8px; background: #48bb78; color: white; border-radius: 8px; font-size: 14px;';
-                badge.textContent = '✅ Profil enrichi complété';
-                codeBox.appendChild(badge);
+            if (data.code) document.getElementById('codeDisplay').textContent = data.code;
+            
+            // Pré-remplissage
+            if (data.profile || data.name) {
+                document.getElementById('name').value = data.name || data.profile?.name || '';
+                document.getElementById('city').value = data.city || data.profile?.city || '';
+                document.getElementById('role').value = data.profile_rich?.role || data.profile?.role || '';
+                document.getElementById('bio').value = data.profile_rich?.bio_rich || data.profile?.bio || '';
             }
             
-            // 🔥 NOUVEAU : Afficher profil enrichi détaillé
-            const section = document.getElementById('richProfileSection');
-            const content = document.getElementById('richProfileContent');
-            
-            let html = '';
-            
-            if (data.profile_rich.sports?.length) {
-                html += `<p><strong>⚽ Sports :</strong> ${data.profile_rich.sports.join(', ')}</p>`;
+            // Badge Complet
+            if (data.profile_rich && Object.keys(data.profile_rich).length > 0) {
+                const codeBox = document.querySelector('.code-box');
+                if (!document.getElementById('profileCompleteBadge')) {
+                    const badge = document.createElement('div');
+                    badge.id = 'profileCompleteBadge';
+                    badge.style.cssText = 'margin-top:10px; padding:6px; background:rgba(16,185,129,0.2); color:#34d399; border-radius:8px; font-size:12px; font-weight:600; display:inline-block;';
+                    badge.textContent = '✨ Profil enrichi actif';
+                    codeBox.appendChild(badge);
+                }
+                renderRichProfile(data.profile_rich);
             }
-            if (data.profile_rich.hobbies?.length) {
-                html += `<p><strong>🎨 Hobbies :</strong> ${data.profile_rich.hobbies.join(', ')}</p>`;
-            }
-            if (data.profile_rich.languages?.length) {
-                html += `<p><strong>🌍 Langues :</strong> ${data.profile_rich.languages.join(', ')}</p>`;
-            }
-            if (data.profile_rich.industry) {
-                html += `<p><strong>💼 Secteur :</strong> ${data.profile_rich.industry}</p>`;
-            }
-            if (data.profile_rich.job_title) {
-                html += `<p><strong>👔 Poste :</strong> ${data.profile_rich.job_title}</p>`;
-            }
-            if (data.profile_rich.company) {
-                html += `<p><strong>🏢 Entreprise :</strong> ${data.profile_rich.company}</p>`;
-            }
-            if (data.profile_rich.linkedin) {
-                html += `<p><strong>💼 LinkedIn :</strong> <a href="${data.profile_rich.linkedin}" target="_blank" style="color: #667eea;">Voir profil</a></p>`;
-            }
-            if (data.profile_rich.meeting_types?.length) {
-                html += `<p><strong>🤝 Types de rencontres :</strong> ${data.profile_rich.meeting_types.join(', ')}</p>`;
-            }
-            if (data.profile_rich.max_distance) {
-                html += `<p><strong>📍 Distance max :</strong> ${data.profile_rich.max_distance} km</p>`;
-            }
-            if (data.profile_rich.bio_rich) {
-                html += `<p><strong>✍️ Bio :</strong> ${data.profile_rich.bio_rich}</p>`;
-            }
-            
-            // 🆕 Questions Signature
-            if (data.profile_rich.signature_questions?.length) {
-                html += `<div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #e2e8f0;">`;
-                html += `<p style="font-weight: 600; color: #4a5568; margin-bottom: 10px;">✨ Ma touche perso</p>`;
-                
-                const questionLabels = {
-                    hidden_talent: '🎭 Mon talent caché',
-                    superpower: '🧠 Mon super-pouvoir',
-                    rabbit_hole: '💡 Mon Rabbit Hole',
-                    fictional_character: '🦸 Le personnage qui me ressemble',
-                    kryptonite: '🚨 Ma Kryptonite',
-                    coffee_offer: '☕ Je paie le café si...',
-                    nightstand_book: '📚 Sur ma table de nuit',
-                    unpopular_opinion: '🤔 Mon opinion impopulaire'
-                };
-                
-                data.profile_rich.signature_questions.forEach(sq => {
-                    const label = questionLabels[sq.question] || sq.question;
-                    html += `<p><strong>${label} :</strong> ${sq.answer}</p>`;
-                });
-                
-                html += `</div>`;
-            }
-            
-            if (html) {
-                content.innerHTML = html;
-                section.style.display = 'block';
-            }
-        }
-        
-    } catch (err) {
-        console.log('Nouveau profil ou erreur chargement:', err);
+        } catch (err) { console.log('Erreur load:', err); }
     }
-}
+
+    function renderRichProfile(rich) {
+        const section = document.getElementById('richProfileSection');
+        const content = document.getElementById('richProfileContent');
+        let html = '';
+
+        const addRow = (label, value) => {
+            if(!value) return;
+            html += `<div class="rich-item"><span class="rich-label">${label}</span><span class="rich-value">${value}</span></div>`;
+        };
         
-        // ✅ CORRECTION : Sauvegarder avec token au lieu de user_id
-        document.getElementById('profileForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const submitBtn = document.getElementById('submitBtn');
-            const successMsg = document.getElementById('successMsg');
-            const errorMsg = document.getElementById('errorMsg');
-            
-            submitBtn.disabled = true;
-            submitBtn.textContent = '⏳ Enregistrement...';
-            
-            const token = sessionStorage.getItem('meetempo_token');
-            
-            const params = new URLSearchParams({
-            session_token: token,  // ✅ Corrigé : session_token
+        const addTags = (label, arr) => {
+            if(!arr || !arr.length) return;
+            const tags = arr.map(t => `<span class="tag">${t}</span>`).join('');
+            html += `<div class="rich-item"><div style="margin-bottom:4px; color:var(--mt-muted); font-weight:600;">${label}</div><div class="tags-container">${tags}</div></div>`;
+        };
+
+        if(rich.job_title) addRow('Poste', rich.job_title);
+        if(rich.company) addRow('Boîte', rich.company);
+        if(rich.industry) addRow('Secteur', rich.industry);
+        if(rich.linkedin) html += `<div class="rich-item"><span class="rich-label">LinkedIn</span><a href="${rich.linkedin}" target="_blank" style="color:var(--mt-accent)">Voir le profil</a></div>`;
+
+        addTags('⚽ Sports', rich.sports);
+        addTags('🎨 Hobbies', rich.hobbies);
+        addTags('🌍 Langues', rich.languages);
+        addTags('🤝 Rencontres', rich.meeting_types);
+
+        // Signature Questions
+        if(rich.signature_questions?.length) {
+            html += `<div style="margin-top:20px; padding-top:15px; border-top:1px solid var(--glass-border);">`;
+            html += `<div style="color:var(--mt-accent); font-weight:700; margin-bottom:10px;">✨ Ma touche perso</div>`;
+            const qLabels = {
+                hidden_talent: 'Mon talent caché', superpower: 'Mon super-pouvoir', rabbit_hole: 'Mon Rabbit Hole',
+                fictional_character: 'Personnage', kryptonite: 'Ma Kryptonite', coffee_offer: 'Je paie le café si...',
+                nightstand_book: 'Livre de chevet', unpopular_opinion: 'Opinion impopulaire'
+            };
+            rich.signature_questions.forEach(sq => {
+                html += `<div style="margin-bottom:8px;"><div style="color:var(--mt-muted); font-size:12px;">${qLabels[sq.question]||sq.question}</div><div style="color:white;">${sq.answer}</div></div>`;
+            });
+            html += `</div>`;
+        }
+
+        if(html) { content.innerHTML = html; section.style.display = 'block'; }
+    }
+    
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submitBtn');
+        btn.disabled = true; btn.textContent = '⏳ Enregistrement...';
+        
+        const params = new URLSearchParams({
+            session_token: window.MT_TOKEN,
             name: document.getElementById('name').value,
             city: document.getElementById('city').value,
             role: document.getElementById('role').value,
             bio: document.getElementById('bio').value || ''
         });
-            
-            try {
-                const response = await fetch(`${API_BASE}/profile/update?${params}`);
-                
-                if (response.ok) {
-                    successMsg.style.display = 'block';
-                    errorMsg.style.display = 'none';
-                    submitBtn.textContent = '✅ Enregistré!';
-                } else {
-                    throw new Error('API error');
-                }
-            } catch (err) {
-                errorMsg.style.display = 'block';
-                successMsg.style.display = 'none';
-                submitBtn.disabled = false;
-                submitBtn.textContent = '💾 Réessayer';
-            }
-        });
         
-        // ✅ NOUVEAU : Bouton vers onboarding
-        document.getElementById('onboardingBtn').addEventListener('click', function() {
-    const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
-    window.location.href = `onboarding.html?session_token=${token}`;
-});
-        
-        // Copier le code
-        function copyCode() {
-            const code = document.getElementById('codeDisplay').textContent;
-            if (code !== '------') {
-                navigator.clipboard.writeText(code).then(() => {
-                    alert('✅ Code copié: ' + code);
-                }).catch(() => {
-                    alert('Code: ' + code);
-                });
-            }
+        try {
+            const res = await fetch(`${API_BASE}/profile/update?${params}`);
+            if(res.ok) {
+                document.getElementById('successMsg').style.display = 'block';
+                document.getElementById('errorMsg').style.display = 'none';
+                btn.textContent = '✅ Enregistré!';
+            } else throw new Error();
+        } catch(err) {
+            document.getElementById('errorMsg').style.display = 'block';
+            btn.disabled = false; btn.textContent = '💾 Réessayer';
         }
-        
-        // Lancer au chargement
-        init();
+    });
+    
+    document.getElementById('onboardingBtn').addEventListener('click', () => {
+        window.location.href = `onboarding.html?session_token=${window.MT_TOKEN}`;
+    });
+    
+    function copyCode() {
+        const code = document.getElementById('codeDisplay').textContent;
+        navigator.clipboard.writeText(code).then(() => alert('✅ Copié !'));
+    }
+    
+    init();
     </script>
 </body>
 </html>
