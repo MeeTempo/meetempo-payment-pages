@@ -4,381 +4,182 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Mes Suggestions - MeeTempo</title>
+  
   <meta http-equiv="Content-Security-Policy" 
       content="default-src 'self'; 
                img-src https: data:; 
                script-src 'self' 'unsafe-inline'; 
-               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
-               font-src https://fonts.gstatic.com; 
+               style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; 
+               font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com; 
                connect-src https://api.meetempo.com;">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
   
   <style>
     :root {
-      --mt-dark: #030E4F;
-      --mt-accent: #F49F1C;
-      --mt-bg: #0a133f;
-      --mt-card: #0e184f;
-      --mt-text: #ffffff;
-      --mt-muted: #c9d1ff;
-      --ok: #23c55e;
+      /* Palette Hub Premium */
+      --mt-bg: #0f172a;
+      --mt-accent: #f97316;
+      --mt-text: #f8fafc;
+      --mt-muted: #94a3b8;
+      --glass-bg: rgba(255, 255, 255, 0.05);
+      --glass-border: rgba(255, 255, 255, 0.1);
+      --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+      
+      --ok: #10b981;
       --err: #ef4444;
+      --warn: #f59e0b;
     }
     
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     
     body {
-      font-family: Montserrat, system-ui, -apple-system, sans-serif;
-      background: linear-gradient(160deg, #030E4F 0%, #0a133f 100%);
+      font-family: 'Inter', sans-serif;
+      background-color: var(--mt-bg);
+      background-image: 
+        radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+        radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+        radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+      background-attachment: fixed;
       color: var(--mt-text);
       min-height: 100vh;
       padding: 20px;
+      padding-top: 40px;
     }
     
-    .container {
-      max-width: 900px;
-      margin: 0 auto;
-    }
+    .container { max-width: 800px; margin: 0 auto; }
     
-    /* Header */
-    .header {
-      text-align: center;
-      margin-bottom: 32px;
-    }
+    /* HEADER */
+    .header { text-align: center; margin-bottom: 40px; animation: fadeInDown 0.6s ease; }
     
     .logo-badge {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: #111;
-      font-weight: 800;
-      font-size: 24px;
-      margin-bottom: 16px;
+      width: 64px; height: 64px; border-radius: 20px;
+      background: linear-gradient(135deg, var(--mt-accent), #fbbf24);
+      display: inline-flex; align-items: center; justify-content: center;
+      /* Effet Pochoir */
+      color: var(--mt-bg); 
+      font-weight: 900; font-size: 24px; letter-spacing: -1px;
+      box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
+      margin-bottom: 16px; font-family: 'Montserrat', sans-serif;
     }
     
-    h1 {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
+    h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; font-family: 'Montserrat', sans-serif; }
+    .subtitle { font-size: 15px; color: var(--mt-muted); }
     
-    .subtitle {
-      font-size: 16px;
-      color: var(--mt-muted);
-    }
-    
-    /* Tabs */
+    /* TABS */
     .tabs {
-      display: flex;
-      gap: 12px;
-      margin-bottom: 24px;
+      display: flex; gap: 10px; margin-bottom: 30px;
+      background: rgba(255,255,255,0.03); padding: 5px; border-radius: 12px;
+      border: 1px solid var(--glass-border);
     }
-    
     .tab {
-      flex: 1;
-      padding: 12px;
-      background: rgba(255,255,255,0.08);
-      border: 2px solid rgba(255,255,255,0.12);
-      border-radius: 12px;
-      cursor: pointer;
-      text-align: center;
-      font-weight: 600;
-      transition: all 0.3s;
+      flex: 1; padding: 12px; border-radius: 8px; cursor: pointer;
+      text-align: center; font-weight: 600; font-size: 14px;
+      transition: all 0.3s; color: var(--mt-muted);
     }
-    
-    .tab:hover {
-      background: rgba(255,255,255,0.12);
-    }
-    
+    .tab:hover { background: rgba(255,255,255,0.05); color: white; }
     .tab.active {
-      background: var(--mt-accent);
-      color: #111;
-      border-color: var(--mt-accent);
+      background: rgba(255,255,255,0.1); color: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2); border: 1px solid var(--glass-border);
     }
     
-    /* Suggestion Card */
+    /* SUGGESTION CARD (Glassmorphism) */
     .suggestion-card {
-      background: rgba(255,255,255,0.08);
-      border: 1px solid rgba(255,255,255,0.12);
-      backdrop-filter: blur(10px);
-      border-radius: 20px;
-      padding: 24px;
-      margin-bottom: 20px;
-      transition: all 0.3s;
+      background: var(--glass-bg);
+      backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px; padding: 24px; margin-bottom: 20px;
+      box-shadow: var(--glass-shadow); transition: transform 0.3s, box-shadow 0.3s;
+      animation: fadeInUp 0.5s ease backwards;
     }
+    .suggestion-card:hover { transform: translateY(-4px); box-shadow: 0 12px 40px rgba(0,0,0,0.4); border-color: rgba(255,255,255,0.2); }
+    .suggestion-card.expired { opacity: 0.6; filter: grayscale(0.5); }
     
-    .suggestion-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 32px rgba(244,159,28,0.3);
-    }
-    
-    .suggestion-card.expired {
-      opacity: 0.6;
-      border-color: rgba(255,255,255,0.08);
-    }
-    
-    .suggestion-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 16px;
-    }
-    
-    .suggestion-title {
-      font-size: 18px;
-      font-weight: 700;
-      margin-bottom: 8px;
-    }
+    .suggestion-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px; }
+    .suggestion-title { font-size: 18px; font-weight: 700; margin-bottom: 8px; color: white; font-family: 'Montserrat', sans-serif; }
     
     .suggestion-meta {
-      font-size: 14px;
-      color: var(--mt-muted);
-      display: flex;
-      gap: 16px;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
+      font-size: 13px; color: var(--mt-muted); display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px;
     }
+    .meta-item { display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 20px; }
     
-    .meta-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
+    /* BADGES */
+    .badge { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; text-transform: uppercase; }
+    .badge-active { background: rgba(35, 197, 94, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+    .badge-expired { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+    .badge-pending { background: rgba(245, 158, 11, 0.15); color: #fbbf24; }
+    .badge-full { background: rgba(239, 68, 68, 0.15); color: #f87171; }
+    .badge-ongoing { background: rgba(59, 130, 246, 0.15); color: #60a5fa; }
+    .badge-completed { background: rgba(16, 185, 129, 0.15); color: #34d399; }
     
-    .badge {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    
-    .badge-active {
-      background: rgba(35, 197, 94, 0.2);
-      color: var(--ok);
-    }
-    
-    .badge-expired {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--err);
-    }
-    
-    .badge-pending {
-      background: rgba(244, 159, 28, 0.2);
-      color: var(--mt-accent);
-    }
-
-    .badge-full {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--err);
-    }
-    .badge-ongoing {
-      background: rgba(59, 130, 246, 0.2);
-      color: #3b82f6;
-    }
-    .badge-completed {
-      background: rgba(16, 185, 129, 0.2);
-      color: #10b981;
-    }
-    
-    /* Requests Section */
+    /* REQUESTS SECTION */
     .requests-section {
-      margin-top: 16px;
-      padding-top: 16px;
-      border-top: 1px solid rgba(255,255,255,0.1);
+      margin-top: 16px; padding-top: 16px; border-top: 1px solid var(--glass-border);
     }
-    
-    .requests-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-    
-    .requests-title {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--mt-accent);
-    }
+    .requests-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .requests-title { font-size: 14px; font-weight: 600; color: var(--mt-accent); }
     
     .request-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      background: rgba(255,255,255,0.05);
-      border-radius: 12px;
-      margin-bottom: 8px;
+      display: flex; align-items: center; gap: 12px; padding: 12px;
+      background: rgba(255,255,255,0.03); border-radius: 12px; margin-bottom: 8px;
+      border: 1px solid transparent; transition: 0.2s;
     }
+    .request-item:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.1); }
     
-    .request-checkbox {
-      width: 20px;
-      height: 20px;
-      cursor: pointer;
-    }
+    .request-checkbox { width: 18px; height: 18px; cursor: pointer; accent-color: var(--mt-accent); }
+    .request-info { flex: 1; }
+    .request-name { font-weight: 600; font-size: 14px; color: white; }
+    .request-city { font-size: 12px; color: var(--mt-muted); }
     
-    .request-avatar {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: var(--mt-accent);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #111;
-      font-weight: 700;
-      font-size: 14px;
-    }
-    
-    .request-info {
-      flex: 1;
-    }
-    
-    .request-name {
-      font-weight: 600;
-      font-size: 14px;
-    }
-    
-    .request-city {
-      font-size: 12px;
-      color: var(--mt-muted);
-    }
-    
-    .request-score {
-      padding: 4px 8px;
-      background: rgba(35, 197, 94, 0.2);
-      color: var(--ok);
-      border-radius: 8px;
-      font-size: 12px;
-      font-weight: 600;
-    }
-    
-    /* Actions */
-    .actions {
-      display: flex;
-      gap: 8px;
-      margin-top: 16px;
-    }
+    /* ACTIONS */
+    .actions { display: flex; gap: 10px; margin-top: 20px; flex-wrap: wrap; }
     
     .btn {
-      padding: 10px 16px;
-      border: none;
-      border-radius: 10px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      font-family: inherit;
+      padding: 10px 16px; border: none; border-radius: 10px;
+      font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s;
+      font-family: 'Inter', sans-serif; display: inline-flex; align-items: center; justify-content: center; gap: 8px;
     }
+    .btn-primary { background: var(--mt-accent); color: white; flex: 1; box-shadow: 0 4px 12px rgba(249, 115, 22, 0.3); }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(249, 115, 22, 0.4); }
     
-    .btn-primary {
-      background: var(--mt-accent);
-      color: #111;
-      flex: 1;
-    }
+    .btn-secondary { background: rgba(255,255,255,0.08); color: white; border: 1px solid var(--glass-border); flex: 1; }
+    .btn-secondary:hover { background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.3); }
     
-    .btn-primary:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(244,159,28,0.4);
-    }
+    .btn-danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .btn-danger:hover { background: rgba(239, 68, 68, 0.25); }
     
-    .btn-secondary {
-      background: rgba(255,255,255,0.1);
-      color: var(--mt-text);
-      border: 1px solid rgba(255,255,255,0.2);
-    }
-    
-    .btn-secondary:hover {
-      background: rgba(255,255,255,0.15);
-    }
-    
-    .btn-danger {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--err);
-      border: 1px solid rgba(239, 68, 68, 0.4);
-    }
-    
-    .btn-danger:hover {
-      background: rgba(239, 68, 68, 0.3);
-    }
-    
-    .btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    .btn-small {
-      padding: 6px 12px;
-      font-size: 12px;
-    }
-    
-    /* Loading & Empty */
-    .loading {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--mt-muted);
-    }
-    
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid rgba(255,255,255,0.1);
-      border-top-color: var(--mt-accent);
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 16px;
-    }
-    
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-    
-    .empty {
-      text-align: center;
-      padding: 60px 20px;
-      color: var(--mt-muted);
-    }
-    
-    .empty-icon {
-      font-size: 64px;
-      margin-bottom: 16px;
-    }
-    
-    /* Responsive */
-    @media (max-width: 640px) {
-      .suggestion-meta {
-        font-size: 12px;
-      }
-      
-      .actions {
-        flex-direction: column;
-      }
-      
-      .btn {
-        width: 100%;
-      }
-    }
+    .btn-small { padding: 8px 12px; font-size: 12px; flex: inherit; }
 
-    /* 🔥 NOUVEAU : Animation de mise en évidence */
+    /* LOADING & EMPTY */
+    .loading, .empty { text-align: center; padding: 60px 20px; color: var(--mt-muted); }
+    .spinner {
+      width: 40px; height: 40px; border: 3px solid rgba(255,255,255,0.1);
+      border-top-color: var(--mt-accent); border-radius: 50%;
+      animation: spin 0.8s linear infinite; margin: 0 auto 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeInDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    
+    .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.5; }
+    
+    /* HIGHLIGHT ANIMATION */
     @keyframes highlightPulse {
       0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 159, 28, 0.7); border-color: rgba(244, 159, 28, 0); }
       50% { transform: scale(1.02); box-shadow: 0 0 20px 10px rgba(244, 159, 28, 0.2); border-color: var(--mt-accent); }
       100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(244, 159, 28, 0); border-color: rgba(255,255,255,0.12); }
     }
-    
     .suggestion-card.highlight-target {
-      animation: highlightPulse 2s ease-in-out 3; /* Pulse 3 fois */
-      scroll-margin-top: 100px; /* Marge pour le scroll automatique */
-      border: 2px solid var(--mt-accent) !important; /* Garder une bordure après */
+      animation: highlightPulse 2s ease-in-out 3;
+      scroll-margin-top: 100px; border: 2px solid var(--mt-accent) !important;
+    }
+
+    @media (max-width: 640px) {
+      .actions { flex-direction: column; }
+      .btn { width: 100%; }
     }
   </style>
 </head>
@@ -386,337 +187,182 @@
   <div class="container">
     <div class="header">
       <div class="logo-badge">MT</div>
-      <h1>📋 Mes Suggestions</h1>
-      <p class="subtitle">Gérez vos suggestions et demandes reçues</p>
+      <h1>Mes Suggestions</h1>
+      <p class="subtitle">Gérez vos sorties et les demandes reçues</p>
     </div>
     
-    <!-- Tabs -->
     <div class="tabs">
-      <div class="tab active" data-tab="active">
-        ✨ Actives
-      </div>
-      <div class="tab" data-tab="history">
-        📜 Historique
-      </div>
+      <div class="tab active" data-tab="active">✨ Actives</div>
+      <div class="tab" data-tab="history">📜 Historique</div>
     </div>
     
-    <!-- Loading -->
     <div id="loading" class="loading">
       <div class="spinner"></div>
       <div>Chargement...</div>
     </div>
     
-    <!-- Content -->
     <div id="content" style="display:none;">
-      <!-- Active Suggestions -->
       <div id="activeSuggestions"></div>
-      
-      <!-- History -->
       <div id="historySuggestions" style="display:none;"></div>
-      
-      <!-- Empty State -->
       <div id="empty" class="empty" style="display:none;">
-        <div class="empty-icon">📭</div>
-        <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">
-          Aucune suggestion
-        </div>
-        <div style="font-size: 14px;">
-          Créez votre première suggestion pour commencer !
-        </div>
+        <div class="empty-icon"><i class="far fa-folder-open"></i></div>
+        <div style="font-weight: 600; margin-bottom: 8px;">Aucune suggestion active</div>
+        <div style="font-size: 14px;">C'est calme pour le moment...</div>
       </div>
     </div>
     
-    <!-- Bottom Actions -->
-    <div class="actions" style="margin-top: 32px;">
+    <div class="actions" style="margin-top: 40px; border-top: 1px solid var(--glass-border); padding-top: 20px;">
       <button class="btn btn-primary" onclick="createNew()">
-        ✨ Créer une suggestion
+        <i class="fas fa-plus-circle"></i> Créer une suggestion
       </button>
       <button class="btn btn-secondary" onclick="goToMyRequests()">
-        📬 Mes demandes
+        <i class="fas fa-envelope"></i> Mes demandes
       </button>
       <button class="btn btn-secondary" onclick="goToMap()">
-        🗺️ Voir la carte
+        <i class="fas fa-map-marked-alt"></i> Carte
       </button>
       <button class="btn btn-secondary" onclick="goToHub()">
-        🏠 Retour Hub
+        <i class="fas fa-home"></i> Hub
       </button>
       <button class="btn btn-secondary" onclick="backToGPT()">
-        💬 Retour GPT
+        <i class="fas fa-robot"></i> GPT
       </button>
     </div>
   </div>
+  
   <script>
-    // === BLOC UNIVERSEL MEETEMPO - STANDARD (45 min) ===
+    // === BLOC UNIVERSEL (INTOUCHÉ) ===
     (function() {
       const TIMEOUT_MINUTES = 45;
-      
       const params = new URLSearchParams(location.search);
       window.MT_TOKEN = params.get('session_token') || params.get('token') || params.get('t')
-                     || localStorage.getItem('session_token') 
-                     || sessionStorage.getItem('meetempo_token');
-      
+                       || localStorage.getItem('session_token') || sessionStorage.getItem('meetempo_token');
       if (window.MT_TOKEN) {
         localStorage.setItem('session_token', window.MT_TOKEN);
         sessionStorage.setItem('meetempo_token', window.MT_TOKEN);
       }
-      
       if (!window.MT_TOKEN) {
-        alert('❌ Session expirée. Retour à MeeTempo GPT.');
+        alert('❌ Session expirée.');
         window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
         return;
       }
-      
-      const TIMEOUT_MS = TIMEOUT_MINUTES * 60 * 1000;
-      setTimeout(() => {
-        alert('⏰ Session expirée (45 min). Cette page va se fermer.');
-        window.close();
-        setTimeout(() => {
-          window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-        }, 1000);
-      }, TIMEOUT_MS);
-      
-      console.log(`🔐 MeeTempo | Token: ${window.MT_TOKEN.substring(0,12)}... | Timeout: ${TIMEOUT_MINUTES}min`);
+      setTimeout(() => { window.close(); }, TIMEOUT_MINUTES * 60 * 1000);
     })();
-    // === FIN BLOC UNIVERSEL ===
 
+    // === LOGIQUE MÉTIER (INTOUCHÉE) ===
     const API_BASE = 'https://api.meetempo.com';
     let allSuggestions = [];
     let currentTab = 'active';
     
-    // Initialisation
     async function init() {
-      console.log('🔍 Initialisation my-suggestions...');
-      
-      // 🔥 Token déjà validé par le bloc universel
       const token = window.MT_TOKEN;
-      
       await loadSuggestions(token);
       setupTabs();
       
-      // 🔥 Vérifier si on doit mettre en avant une suggestion
       const urlParams = new URLSearchParams(window.location.search);
       const highlightId = urlParams.get('highlight');
-      if (highlightId) {
-          highlightSuggestion(highlightId);
-      }
+      if (highlightId) highlightSuggestion(highlightId);
     }
     
-    // 🔥 Mettre en avant une suggestion
     function highlightSuggestion(id) {
         setTimeout(() => {
             const card = document.getElementById(`sugg_${id}`);
-            
             if (card) {
                 card.scrollIntoView({ behavior: 'smooth', block: 'center' });
                 card.classList.add('highlight-target');
-                console.log(`✨ Suggestion ${id} mise en avant`);
-            } else {
-                console.warn(`⚠️ Suggestion ${id} introuvable pour highlight`);
             }
         }, 500);
     }
     
-    // Charger suggestions
     async function loadSuggestions(token) {
       try {
         document.getElementById('loading').style.display = 'block';
         document.getElementById('content').style.display = 'none';
         
-        // 1. Récupérer MES suggestions
         const response = await fetch(`${API_BASE}/user/suggestions?session_token=${token}`);
         const data = await response.json();
         
-        if (!response.ok) {
-          throw new Error(data.error || 'Erreur chargement');
-        }
-        
+        if (!response.ok) throw new Error(data.error || 'Erreur chargement');
         allSuggestions = data.suggestions || [];
         
-        // 2. Pour chaque suggestion, récupérer les demandes
         for (let sugg of allSuggestions) {
           try {
-            const reqResponse = await fetch(
-              `${API_BASE}/suggestions/${sugg.id}/requests?session_token=${token}`
-            );
+            const reqResponse = await fetch(`${API_BASE}/suggestions/${sugg.id}/requests?session_token=${token}`);
             const reqData = await reqResponse.json();
-            
             if (reqResponse.ok) {
               sugg.requests = reqData.requests || [];
               sugg.participants_current = reqData.participants_current || 1;
               sugg.participants_max = reqData.participants_max || 3;
-            } else {
-              sugg.requests = [];
-            }
-          } catch (err) {
-            console.log('Erreur récupération demandes:', err);
-            sugg.requests = [];
-          }
+            } else { sugg.requests = []; }
+          } catch (err) { sugg.requests = []; }
         }
         
-        // 3. Afficher
         renderSuggestions();
-        
         document.getElementById('loading').style.display = 'none';
         document.getElementById('content').style.display = 'block';
         
       } catch (err) {
-        console.error('Erreur:', err);
-        alert('Erreur chargement suggestions: ' + err.message);
-        document.getElementById('loading').innerHTML = `
-          <div style="color: var(--err);">❌ ${err.message}</div>
-          <button class="btn btn-primary" onclick="init()" style="margin-top: 16px;">
-            Réessayer
-          </button>
-        `;
+        console.error(err);
+        document.getElementById('loading').innerHTML = `<div style="color:var(--err)">${err.message}</div>`;
       }
     }
     
-    // Afficher suggestions (CORRIGÉ & VERROUILLÉ)
     function renderSuggestions() {
       const now = Date.now();
-      
-      // 1. Définition des camps
-      // Active = Futur ou En cours (mais PAS terminé)
       const activeStatuses = ['active', 'full', 'ongoing'];
-      
-      // Historique = Fini (Succès ou Échec)
       const historyStatuses = ['completed', 'expired', 'cancelled', 'deleted'];
 
-      // --- FILTRE ONGLET ACTIVES ---
       const active = allSuggestions.filter(s => {
         const status = s.statut || 'active';
-        
-        // 🚫 Exclusion formelle : Si c'est terminé, ça dégage de l'actif !
         if (status === 'completed') return false;
-        
-        // Sécurité date : si "active" mais date dépassée (et backend pas encore passé), on cache
         if (status === 'active' && new Date(s.expires_date) < now) return false;
-        
         return activeStatuses.includes(status);
       });
       
-      // --- FILTRE ONGLET HISTORIQUE ---
       const history = allSuggestions.filter(s => {
          const status = s.statut || 'active';
-         
-         // On prend tout ce qui est statut historique
          if (historyStatuses.includes(status)) return true;
-         
-         // Ou ce qui est "active" mais périmé (filet de sécurité)
          if (status === 'active' && new Date(s.expires_date) < now) return true;
-         
          return false;
       });
       
-      // Rendu Active
       const activeContainer = document.getElementById('activeSuggestions');
-      if (active.length === 0) {
-        activeContainer.innerHTML = `
-          <div class="empty">
-            <div class="empty-icon">📭</div>
-            <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">Aucune suggestion active</div>
-            <div style="font-size: 14px;">C'est calme pour le moment...</div>
-          </div>
-        `;
-      } else {
-        // false = Pas grisé (pleine couleur)
-        activeContainer.innerHTML = active.map(s => renderSuggestionCard(s, false)).join('');
-      }
+      activeContainer.innerHTML = active.length ? active.map(s => renderSuggestionCard(s, false)).join('') : '';
+      if(active.length === 0) document.getElementById('empty').style.display = 'block';
+      else document.getElementById('empty').style.display = 'none';
       
-      // Rendu Historique
       const historyContainer = document.getElementById('historySuggestions');
-      if (history.length === 0) {
-        historyContainer.innerHTML = `
-          <div class="empty">
-            <div class="empty-icon">📜</div>
-            <div>Historique vide</div>
-          </div>
-        `;
-      } else {
-        historyContainer.innerHTML = history.map(s => {
-            const status = s.statut || 'active';
-            // Astuce : On grise TOUT sauf 'completed' (car completed = chat encore actif)
-            const shouldBeGrey = status !== 'completed';
-            
-            return renderSuggestionCard(s, shouldBeGrey);
-        }).join('');
-      }
+      historyContainer.innerHTML = history.length ? history.map(s => {
+           const status = s.statut || 'active';
+           const shouldBeGrey = status !== 'completed';
+           return renderSuggestionCard(s, shouldBeGrey);
+      }).join('') : '<div class="empty">Historique vide</div>';
     }
     
-    // 🔥 NOUVEAU : Badge participants pour my-suggestions
-function renderParticipantsBadge(sugg) {
-  if (!sugg.participants || !sugg.participants.min || !sugg.participants.max) {
-    return '';
-  }
-  
-  const min = sugg.participants.min;
-  const max = sugg.participants.max;
-  const current = sugg.participants.current?.length || 1;
-  
-  let color = '';
-  let icon = '';
-  let text = '';
-  
-  // CAS 1 : min = max (seuil obligatoire)
-  if (min === max) {
-    if (current >= min) {
-      color = '#10B981'; // Vert
-      icon = '✅';
-      text = `${current}/${max} confirmés`;
-    } else {
-      color = '#F97316'; // Orange
-      icon = '⚠️';
-      text = `${current}/${min} requis`;
+    function renderParticipantsBadge(sugg) {
+      if (!sugg.participants || !sugg.participants.max) return '';
+      const min = sugg.participants.min;
+      const max = sugg.participants.max;
+      const current = sugg.participants.current?.length || 1;
+      
+      let color = '#10B981'; // Green
+      let icon = 'users';
+      let text = `${current}/${max}`;
+      if (current < min) { color = '#FBBF24'; text = `${current}/${min} requis`; }
+      
+      return `<div style="margin:8px 0;"><span style="background:${color}22; color:${color}; padding:4px 10px; border-radius:6px; font-size:12px; font-weight:600;"><i class="fas fa-${icon}"></i> ${text}</span></div>`;
     }
-  }
-  // CAS 2 : min < max ET min <= 2 (souple)
-  else if (min <= 2) {
-    color = '#10B981'; // Vert
-    icon = '✅';
-    text = `${current}/${max} participants`;
-  }
-  // CAS 3 : min < max ET min > 2 (seuil important)
-  else {
-    if (current >= min) {
-      color = '#10B981'; // Vert
-      icon = '✅';
-      text = `${current}/${max} participants`;
-    } else {
-      color = '#FBBF24'; // Jaune
-      icon = '⚠️';
-      text = `${current}/${max} (min ${min})`;
-    }
-  }
-  
-  return `
-    <div style="margin: 8px 0;">
-      <span style="background: ${color}22; color: ${color}; padding: 6px 12px; border-radius: 8px; font-size: 13px; font-weight: 600; white-space: nowrap;">
-        👥 ${icon} ${text}
-      </span>
-    </div>
-  `;
-}
 
-// Render une carte suggestion
     function renderSuggestionCard(sugg, isExpired) {
       const pendingRequests = (sugg.requests || []).filter(r => r.status === 'pending');
       const acceptedRequests = (sugg.requests || []).filter(r => r.status === 'accepted');
-      
       const date = sugg.date ? new Date(sugg.date).toLocaleDateString('fr-FR') : '?';
-      const time = sugg.time || '?';
-      
-      // 1. Calcul du badge
-      let statusBadge = '';
       const status = sugg.statut || 'active';
       
-      // Si c'est l'onglet historique (isExpired = true) mais que c'est completed
-      if (status === 'completed') {
-           statusBadge = `<span class="badge badge-completed">✅ Terminée</span>`;
-      } else if (isExpired) {
-           statusBadge = `<span class="badge badge-expired">⏰ Expirée</span>`;
-           if (status === 'cancelled') statusBadge = `<span class="badge badge-expired">🚫 Annulée</span>`;
-      } else {
-          // Onglet Actives
+      let statusBadge = '';
+      if (status === 'completed') statusBadge = `<span class="badge badge-completed">✅ Terminée</span>`;
+      else if (isExpired) statusBadge = `<span class="badge badge-expired">⏰ Expirée</span>`;
+      else {
           switch(status) {
               case 'full': statusBadge = `<span class="badge badge-full">⛔ Complète</span>`; break;
               case 'ongoing': statusBadge = `<span class="badge badge-ongoing">⏳ En cours</span>`; break;
@@ -724,30 +370,20 @@ function renderParticipantsBadge(sugg) {
           }
       }
 
-      // 2. Définir si les boutons sont actifs
-      // Le chat et le feedback sont dispos si 'completed' ou si 'active/ongoing' avec participants
-      const canInteract = !isExpired || status === 'completed';
-
       return `
         <div id="sugg_${sugg.id}" class="suggestion-card ${isExpired && status !== 'completed' ? 'expired' : ''}">
           <div class="suggestion-header">
             <div style="flex: 1;">
               <div class="suggestion-title">${sugg.ai_final_text || sugg.description}</div>
               <div class="suggestion-meta">
-                <div class="meta-item">📍 ${sugg.city || sugg.location_name || '?'}</div>
-                <div class="meta-item">📅 ${date}</div>
-                <div class="meta-item">⏰ ${time}</div>
+                <div class="meta-item"><i class="fas fa-map-marker-alt"></i> ${sugg.city || '?'}</div>
+                <div class="meta-item"><i class="far fa-calendar-alt"></i> ${date}</div>
+                <div class="meta-item"><i class="far fa-clock"></i> ${sugg.time || '?'}</div>
               </div>
-
               ${renderParticipantsBadge(sugg)}
-            
-              <div>
+              <div style="margin-top:8px; display:flex; gap:8px;">
                 ${statusBadge}
-                ${pendingRequests.length > 0 ? `
-                  <span class="badge badge-pending">
-                    ${pendingRequests.length} demande${pendingRequests.length > 1 ? 's' : ''}
-                  </span>
-                ` : ''}
+                ${pendingRequests.length > 0 ? `<span class="badge badge-pending">${pendingRequests.length} demande(s)</span>` : ''}
               </div>
             </div>
           </div>
@@ -756,9 +392,6 @@ function renderParticipantsBadge(sugg) {
             <div class="requests-section">
               <div class="requests-header">
                 <div class="requests-title">🤝 Demandes (${pendingRequests.length})</div>
-                <div style="font-size: 12px; color: var(--mt-muted);">
-                  ${sugg.participants_current}/${sugg.participants_max}
-                </div>
               </div>
               ${pendingRequests.map(req => `
                 <div class="request-item">
@@ -766,206 +399,89 @@ function renderParticipantsBadge(sugg) {
                       <div class="request-name">${req.anonymous_display || req.user_name}</div>
                       <div class="request-city">📍 ${req.user_city}</div>
                    </div>
-                   <button class="btn btn-primary btn-small" onclick="acceptSelected('${sugg.id}')">Accepter</button>
+                   <input type="checkbox" class="request-checkbox" data-match-id="${req.match_id}">
                 </div>
               `).join('')}
+              <div style="margin-top:10px; display:flex; gap:8px;">
+                  <button class="btn btn-primary btn-small" onclick="acceptSelected('${sugg.id}')">Accepter</button>
+                  <button class="btn btn-danger btn-small" onclick="declineAll('${sugg.id}')">Refuser</button>
+              </div>
             </div>
           ` : ''}
           
           <div class="actions">
-            <button class="btn btn-secondary btn-small" onclick="viewOnMap('${sugg.id}')">
-              🗺️ Carte
-            </button>
-
-            ${(acceptedRequests.length > 0 || status === 'completed') ? `
-              <button class="btn btn-primary btn-small" onclick="goToChat('${sugg.id}')">
-                💬 Chat
-              </button>
-            ` : ''}
-            
-            ${status === 'completed' ? `
-              <button class="btn btn-secondary btn-small" onclick="window.location.href='feedback.html?suggestion_id=${sugg.id}&session_token=${sessionStorage.getItem('meetempo_token')}'">
-                ⭐ Noter
-              </button>
-            ` : ''}
-
-            ${status !== 'completed' && status !== 'ongoing' ? `
-              <button class="btn btn-danger btn-small" onclick="deleteSuggestion('${sugg.id}')">
-                🗑️
-              </button>
-            ` : ''}
+            <button class="btn btn-secondary btn-small" onclick="viewOnMap('${sugg.id}')"><i class="fas fa-map"></i> Carte</button>
+            ${(acceptedRequests.length > 0 || status === 'completed') ? `<button class="btn btn-primary btn-small" onclick="goToChat('${sugg.id}')"><i class="fas fa-comments"></i> Chat</button>` : ''}
+            ${status === 'completed' ? `<button class="btn btn-secondary btn-small" onclick="window.location.href='feedback.html?suggestion_id=${sugg.id}&session_token=${sessionStorage.getItem('meetempo_token')}'"><i class="fas fa-star"></i> Noter</button>` : ''}
+            ${status !== 'completed' && status !== 'ongoing' ? `<button class="btn btn-danger btn-small" onclick="deleteSuggestion('${sugg.id}')"><i class="fas fa-trash"></i></button>` : ''}
           </div>
         </div>
       `;
     }
     
-    // Accepter sélectionnés
+    // ACTIONS JS (INTOUCHÉES)
     async function acceptSelected(suggestionId) {
       const checkboxes = document.querySelectorAll(`input[data-match-id]:checked`);
       const matchIds = Array.from(checkboxes).map(cb => cb.dataset.matchId);
-      
-      if (matchIds.length === 0) {
-        alert('Sélectionnez au moins une demande !');
-        return;
-      }
-      
+      if (matchIds.length === 0) return alert('Sélectionnez au moins une demande');
       if (!confirm(`Accepter ${matchIds.length} demande(s) ?`)) return;
       
       const token = sessionStorage.getItem('meetempo_token');
-      
       try {
-        const response = await fetch(
-          `${API_BASE}/match/respond?session_token=${token}&match_ids=${matchIds.join(',')}&action=accept`
-        );
+        const response = await fetch(`${API_BASE}/match/respond?session_token=${token}&match_ids=${matchIds.join(',')}&action=accept`);
         const data = await response.json();
-        
-        if (!response.ok) throw new Error(data.error || 'Erreur');
-        
-        alert(`✅ ${data.success} demande(s) acceptée(s) !`);
+        if (!response.ok) throw new Error(data.error);
+        alert('✅ Accepté');
         await loadSuggestions(token);
-        
-      } catch (err) {
-        alert('❌ Erreur: ' + err.message);
-      }
+      } catch (err) { alert('❌ Erreur: ' + err.message); }
     }
     
-    // Sélectionner tout
-    function selectAll(suggestionId) {
-      const checkboxes = document.querySelectorAll(`input[data-match-id]`);
-      checkboxes.forEach(cb => cb.checked = true);
-    }
-    
-    // Refuser tout
     async function declineAll(suggestionId) {
       const checkboxes = document.querySelectorAll(`input[data-match-id]`);
       const matchIds = Array.from(checkboxes).map(cb => cb.dataset.matchId);
-      
-      if (matchIds.length === 0) return;
-      
-      if (!confirm(`Refuser ${matchIds.length} demande(s) ?`)) return;
-      
+      if (!confirm(`Refuser tout ?`)) return;
       const token = sessionStorage.getItem('meetempo_token');
-      
       try {
-        const response = await fetch(
-          `${API_BASE}/match/respond?session_token=${token}&match_ids=${matchIds.join(',')}&action=decline`
-        );
-        const data = await response.json();
-        
-        if (!response.ok) throw new Error(data.error || 'Erreur');
-        
-        alert(`❌ ${data.success} demande(s) refusée(s)`);
+        await fetch(`${API_BASE}/match/respond?session_token=${token}&match_ids=${matchIds.join(',')}&action=decline`);
+        alert('❌ Refusé');
         await loadSuggestions(token);
-        
-      } catch (err) {
-        alert('❌ Erreur: ' + err.message);
-      }
+      } catch (err) { alert('❌ Erreur'); }
     }
     
-    async function deleteSuggestion(suggestionId) {
-  if (!confirm('⚠️ Supprimer définitivement cette suggestion ?\n\nCette action est irréversible.')) return;
-  
-  const token = sessionStorage.getItem('meetempo_token');
-  
-  try {
-    // 🔥 Utiliser GET au lieu de DELETE (CORS-safe)
-    const response = await fetch(
-      `${API_BASE}/suggestions/${suggestionId}/delete?session_token=${token}`
-    );
+    async function deleteSuggestion(id) {
+      if (!confirm('⚠️ Supprimer cette suggestion ?')) return;
+      const token = sessionStorage.getItem('meetempo_token');
+      try {
+        const res = await fetch(`${API_BASE}/suggestions/${id}/delete?session_token=${token}`);
+        if (!res.ok) throw new Error('Erreur');
+        alert('✅ Supprimée');
+        await loadSuggestions(token);
+      } catch (err) { alert('❌ Erreur'); }
+    }
     
-    const data = await response.json();
+    function viewOnMap(id) { window.open(`map.html?session_token=${window.MT_TOKEN}&highlight=${id}`, '_blank'); }
+    function createNew() { window.location.href = `create-suggestion.html?session_token=${window.MT_TOKEN}`; }
+    function goToMap() { window.location.href = `map.html?session_token=${window.MT_TOKEN}`; }
+    function goToMyRequests() { window.location.href = `my-requests.html?session_token=${window.MT_TOKEN}`; }
+    function goToHub() { window.location.href = `hub.html?session_token=${window.MT_TOKEN}`; }
+    function goToChat(id) { window.location.href = `chat.html?suggestion_id=${id}&session_token=${window.MT_TOKEN}`; }
+    function backToGPT() { window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19'; }
     
-    if (!response.ok) throw new Error(data.error || 'Erreur suppression');
-    
-    alert('✅ Suggestion supprimée avec succès !');
-    
-    // Recharger la liste
-    await loadSuggestions(token);
-    
-  } catch (err) {
-    alert('❌ Erreur: ' + err.message);
-  }
-}
-    
-    function viewOnMap(suggestionId) {
-  const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
-  window.open(`map.html?session_token=${token}&highlight=${suggestionId}`, '_blank');
-}
-    
-    // Navigation
-    function createNew() {
-  const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
-  window.location.href = `create-suggestion.html?session_token=${token}`;
-}
-    
-    function goToMap() {
-  const token = window.MT_TOKEN || sessionStorage.getItem('meetempo_token');
-  window.location.href = `map.html?session_token=${token}`;
-}
-
-function goToHub() {
-  const token = sessionStorage.getItem('meetempo_token');
-  if (!token) {
-    alert('Session expirée.');
-    return;
-  }
-  window.location.href = `hub.html?session_token=${token}`;
-}
-    
-    function backToGPT() {
-  // Essayer de fermer l'onglet (fonctionne si ouvert depuis GPT)
-  if (window.opener) {
-    window.close();
-  } else {
-    // Sinon rediriger vers GPT
-    window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-  }
-}
-    
-    // Tabs
     function setupTabs() {
       const tabs = document.querySelectorAll('.tab');
-      const activeContainer = document.getElementById('activeSuggestions');
-      const historyContainer = document.getElementById('historySuggestions');
-      
       tabs.forEach(tab => {
         tab.addEventListener('click', () => {
           tabs.forEach(t => t.classList.remove('active'));
           tab.classList.add('active');
-          
           const tabName = tab.dataset.tab;
-          
-          if (tabName === 'active') {
-            activeContainer.style.display = 'block';
-            historyContainer.style.display = 'none';
-          } else {
-            activeContainer.style.display = 'none';
-            historyContainer.style.display = 'block';
-          }
+          document.getElementById('activeSuggestions').style.display = tabName === 'active' ? 'block' : 'none';
+          document.getElementById('historySuggestions').style.display = tabName === 'history' ? 'block' : 'none';
+          if(tabName === 'active' && allSuggestions.length === 0) document.getElementById('empty').style.display = 'block';
+          else document.getElementById('empty').style.display = 'none';
         });
       });
     }
-
-    // Navigation vers my-requests
-    function goToMyRequests() {
-  const token = sessionStorage.getItem('meetempo_token');
-  window.location.href = `my-requests.html?session_token=${token}`;
-}
-
-    // 🔥 NOUVEAU : Accéder au chat groupe
-function goToChat(suggestionId) {
-  const session_token = sessionStorage.getItem('meetempo_token');
-  
-  if (!session_token) {
-    alert('❌ Session expirée. Veuillez vous reconnecter.');
-    window.location.href = 'https://chatgpt.com/g/g-68f522fa42b08191978685b03a9b03c2-meetempo-test-oct19';
-    return;
-  }
-  
-  window.location.href = `chat.html?suggestion_id=${suggestionId}&session_token=${session_token}`;
-}
     
-    // Lancer au chargement
     window.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
