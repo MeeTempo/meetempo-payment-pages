@@ -57,12 +57,22 @@
     .header { text-align: center; margin-bottom: 40px; animation: fadeInDown 0.6s ease; }
     
     .logo-badge {
-      width: 64px; height: 64px; border-radius: 20px;
+      width: 64px; 
+      height: 64px; 
+      border-radius: 20px;
+      /* Le fond reste Orange (Gradient) */
       background: linear-gradient(135deg, var(--mt-accent), #fbbf24);
-      display: inline-flex; align-items: center; justify-content: center;
-      color: white; font-weight: 800; font-size: 28px;
+      display: inline-flex; 
+      align-items: center; 
+      justify-content: center;
+      /* COULEUR TRANSPARENTE (en fait, c'est la couleur du fond de page #0f172a) */
+      color: #0f172a; 
+      font-weight: 900; /* Plus gras pour bien voir la découpe */
+      font-size: 24px;  /* Ajusté pour que 2 lettres rentrent bien */
+      letter-spacing: -1px; /* Rapproche un peu le M et le T */
       box-shadow: 0 10px 25px rgba(249, 115, 22, 0.4);
-      margin-bottom: 16px; font-family: 'Montserrat', sans-serif;
+      margin-bottom: 16px; 
+      font-family: 'Montserrat', sans-serif;
     }
     
     h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; font-family: 'Montserrat', sans-serif; }
@@ -188,7 +198,7 @@
 <body>
   <div class="container">
     <div class="header">
-      <div class="logo-badge">M</div>
+      <div class="logo-badge">MT</div>
       <h1>Mes Demandes</h1>
       <p class="subtitle">Gérez vos invitations et participations</p>
     </div>
