@@ -11,22 +11,30 @@
                style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; 
                font-src https://fonts.gstatic.com; 
                connect-src https://api.meetempo.com;">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         :root {
-            --mt-dark: #030E4F;
-            --mt-accent: #F49F1C;
-            --mt-bg: #0a133f;
-            --mt-card: #0e184f;
-            --mt-text: #ffffff;
-            --mt-muted: #c9d1ff;
-            --ok: #23c55e;
+            --mt-bg: #0f172a;
+            --mt-accent: #f97316;
+            --mt-text: #f8fafc;
+            --mt-muted: #94a3b8;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+            --ok: #10b981;
             --err: #ef4444;
         }
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
-            font-family: 'Montserrat', sans-serif;
-            background: linear-gradient(160deg, var(--mt-dark) 0%, var(--mt-bg) 60%, #11183f 100%);
+            font-family: 'Inter', sans-serif;
+            background-color: var(--mt-bg);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
             align-items: center;
@@ -35,20 +43,27 @@
             color: var(--mt-text);
         }
         .container {
-            background: rgba(255,255,255,0.06);
-            border: 1px solid rgba(255,255,255,0.12);
-            backdrop-filter: blur(6px);
-            border-radius: 16px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 24px;
             padding: 40px;
             max-width: 450px;
             width: 100%;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+            box-shadow: var(--glass-shadow);
+            animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(40px); }
+            to { opacity: 1; transform: translateY(0); }
         }
         .logo-badge {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: conic-gradient(from 0deg, var(--mt-accent), #ffca63, var(--mt-accent));
+            width: 64px;
+            height: 64px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--mt-accent), #fb923c);
             color: #111;
             font-weight: 800;
             font-size: 24px;
@@ -56,15 +71,17 @@
             align-items: center;
             justify-content: center;
             margin: 0 auto 24px;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3);
         }
-        h1 { font-size: 26px; font-weight: 700; text-align: center; margin-bottom: 12px; }
+            h1 { font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 12px; }
         .subtitle { text-align: center; color: var(--mt-muted); font-size: 14px; margin-bottom: 32px; }
         .tabs {
             display: flex;
             gap: 8px;
             margin-bottom: 24px;
-            background: rgba(255,255,255,0.05);
-            border-radius: 10px;
+            background: rgba(0,0,0,0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
             padding: 4px;
         }
         .tab {
@@ -72,15 +89,15 @@
             padding: 12px;
             background: transparent;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             color: var(--mt-muted);
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             cursor: pointer;
-            transition: all 0.3s;
-            font-family: 'Montserrat', sans-serif;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
         }
-        .tab:hover { background: rgba(255,255,255,0.08); }
+        .tab:hover { background: rgba(255,255,255,0.05); }
         .tab.active { background: var(--mt-accent); color: #111; }
         .form-container { display: none; }
         .form-container.active { display: block; }
@@ -89,16 +106,16 @@
         input {
             width: 100%;
             padding: 14px 16px;
-            background: rgba(255,255,255,0.08);
-            border: 1px solid rgba(255,255,255,0.16);
-            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
             color: var(--mt-text);
-            font-size: 16px;
-            font-family: 'Montserrat', sans-serif;
-            transition: all 0.3s;
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            transition: all 0.2s;
         }
-        input:focus { outline: none; border-color: var(--mt-accent); background: rgba(255,255,255,0.12); }
-        input::placeholder { color: rgba(255,255,255,0.4); }
+        input:focus { outline: none; border-color: var(--mt-accent); background: rgba(0,0,0,0.4); }
+        input::placeholder { color: var(--mt-muted); opacity: 0.6; }
         .btn {
             width: 100%;
             padding: 16px;
@@ -109,28 +126,41 @@
             font-size: 16px;
             font-weight: 700;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
             margin-top: 8px;
-            font-family: 'Montserrat', sans-serif;
+            font-family: 'Inter', sans-serif;
         }
-        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(244,159,28,0.4); }
+        .btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(249, 115, 22, 0.3); }
         .btn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .message { padding: 14px; border-radius: 10px; margin-top: 20px; font-size: 14px; text-align: center; display: none; }
-        .message.error { background: rgba(239,68,68,0.15); border: 1px solid var(--err); color: var(--err); display: block; }
-        .message.success { background: rgba(35,197,94,0.15); border: 1px solid var(--ok); color: var(--ok); display: block; }
+        .message { padding: 14px; border-radius: 12px; margin-top: 20px; font-size: 14px; text-align: center; display: none; }
+        .message.error { background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; display: block; }
+        .message.success { background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; display: block; }
         .loading { display: none; text-align: center; margin-top: 20px; color: var(--mt-accent); }
         .loading.show { display: block; }
         .info-box {
-            background: rgba(244,159,28,0.1);
-            border: 1px solid rgba(244,159,28,0.3);
-            border-radius: 10px;
+            background: rgba(249, 115, 22, 0.08);
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            border-radius: 12px;
             padding: 16px;
             margin-top: 24px;
             font-size: 13px;
             color: var(--mt-muted);
-            line-height: 1.5;
+            line-height: 1.6;
         }
-        .info-box strong { color: var(--mt-accent); }
+        .info-box strong { color: var(--mt-accent); display: block; margin-bottom: 8px; }
+        .forgot-code {
+            text-align: center;
+            margin-top: 16px;
+            font-size: 13px;
+        }
+        .forgot-code a {
+            color: var(--mt-muted);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        .forgot-code a:hover {
+            color: var(--mt-accent);
+        }
         .helper-text { font-size: 12px; color: var(--mt-muted); margin-top: 8px; text-align: center; }
         
         /* NOUVEAU: Style pour afficher le token */
@@ -186,25 +216,25 @@
            =========================== */
         select {
             width: 100%;
-            padding: 12px;
-            background: rgba(255,255,255,0.05);
-            border: 1px solid rgba(255,255,255,0.12);
-            border-radius: 8px;
+            padding: 14px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
             color: var(--mt-text);
-            font-family: inherit;
-            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            font-size: 15px;
             cursor: pointer;
-            transition: all 0.3s;
+            transition: all 0.2s;
         }
 
         select:focus {
             outline: none;
             border-color: var(--mt-accent);
-            background: rgba(255,255,255,0.08);
+            background: rgba(0, 0, 0, 0.4);
         }
 
         select option {
-            background: var(--mt-card);
+            background: var(--mt-bg);
             color: var(--mt-text);
         }
 
@@ -292,6 +322,9 @@
                     <input type="email" id="loginEmail" placeholder="votre@email.com" required autocomplete="email">
                 </div>
                 <button type="submit" class="btn" id="loginBtn">Se connecter</button>
+                            <p class="forgot-code">
+                                <a href="#" id="forgotCodeLink">🔑 Code oublié ?</a>
+                            </p>
             </form>
             <div class="loading" id="loginLoading">Connexion en cours...</div>
             <div class="message" id="loginMessage"></div>
@@ -804,6 +837,43 @@
                 </p>
             `;
         }
+
+        // CODE OUBLIÉ HANDLER
+        document.getElementById('forgotCodeLink').addEventListener('click', async (e) => {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            
+            if (!email || !email.includes('@')) {
+                showMessage('loginMessage', '📧 Entrez d\'abord votre email ci-dessus', 'error');
+                document.getElementById('loginEmail').focus();
+                return;
+            }
+            
+            const confirmSend = confirm(`Renvoyer votre code MeeTempo à :\n${email} ?`);
+            if (!confirmSend) return;
+            
+            try {
+                showMessage('loginMessage', '⏳ Envoi en cours...', 'success');
+                
+                const response = await fetch(`${API_BASE}/auth/resend-code`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                
+                const data = await response.json();
+                
+                if (response.ok) {
+                    showMessage('loginMessage', `✅ Code renvoyé à ${email}. Vérifiez votre boîte (et spam).`, 'success');
+                } else {
+                    showMessage('loginMessage', data.error || '❌ Email non trouvé dans nos comptes.', 'error');
+                }
+            } catch (err) {
+                console.error('Resend code error:', err);
+                showMessage('loginMessage', '❌ Erreur réseau. Réessayez.', 'error');
+            }
+        });
     </script>
 </body>
 </html>
