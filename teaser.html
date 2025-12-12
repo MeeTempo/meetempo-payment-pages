@@ -216,8 +216,16 @@
             <i class="fas fa-check-circle"></i> Tu es sur la liste des Membres Fondateurs ! On t'envoie ton accès le 18 décembre.
         </div>
 
-        <!-- Section VIP Fondateur (cachée par défaut) -->
-<div id="vipSection" style="display: none; margin-top: 30px;">
+        <!-- Séparateur -->
+        <div style="display: flex; align-items: center; margin: 40px 0; gap: 20px;">
+            <div style="flex: 1; height: 1px; background: var(--glass-border);"></div>
+            <span style="color: var(--mt-muted); font-size: 14px; font-weight: 600;">OU</span>
+            <div style="flex: 1; height: 1px; background: var(--glass-border);"></div>
+        </div>
+
+        <!-- Section VIP Fondateur -->
+<div id="vipSection" style="margin-top: 0;">
+<div id="vipSection" style="margin-top: 30px;">
     <div style="background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: 16px; padding: 24px;">
         <h3 style="color: #f97316; margin-bottom: 16px; font-family: 'Montserrat', sans-serif;">
             👑 Devenir VIP Fondateur ?
@@ -259,6 +267,10 @@
         <h3 style="color: white; margin-bottom: 20px; font-family: 'Montserrat', sans-serif;">
             👑 Candidature VIP Fondateur
         </h3>
+        
+        <div style="margin-bottom: 16px;">
+            <input type="email" id="vipEmail" placeholder="Email pro ou perso" required style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; color: white; font-size: 14px;">
+        </div>
         
         <div style="margin-bottom: 16px;">
             <input type="text" id="vipName" placeholder="Prénom & Nom" style="width: 100%; padding: 12px 16px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; color: white; font-size: 14px;">
@@ -395,8 +407,12 @@ async function submitVipApplication() {
     const poste = document.getElementById('vipPoste').value.trim();
     const entreprise = document.getElementById('vipEntreprise').value.trim();
     const linkedin = document.getElementById('vipLinkedin').value.trim();
-    const email = localStorage.getItem('waitlist_email');
-    const position = localStorage.getItem('waitlist_position');
+    const email = document.getElementById('vipEmail').value.trim();
+    
+    if (!email || !email.includes('@')) {
+        alert('Merci de renseigner un email valide');
+        return;
+    }
     
     if (!name || !poste || !entreprise) {
         alert('Merci de remplir les champs obligatoires (Nom, Poste, Entreprise)');
@@ -404,6 +420,16 @@ async function submitVipApplication() {
     }
     
     try {
+        // 1. D'abord inscrire à la waitlist Fondateur
+        const waitlistRes = await fetch('https://api.meetempo.com/waitlist', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
+        const waitlistData = await waitlistRes.json();
+        const position = waitlistData.position || null;
+        
+        // 2. Puis soumettre candidature VIP
         const response = await fetch('https://api.meetempo.com/waitlist/vip', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
