@@ -170,6 +170,213 @@
             .time-val { font-size: 24px; }
             .time-label { font-size: 9px; }
         }
+
+        /* Section Comment ça marche */
+        .how-it-works {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 30px;
+            margin: 40px 0;
+            text-align: left;
+        }
+
+        .how-it-works h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--mt-accent);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+
+        .how-it-works .subtitle {
+            text-align: center;
+            color: var(--mt-muted);
+            font-size: 14px;
+            margin-bottom: 30px;
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            margin-bottom: 30px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            min-width: 32px;
+            background: var(--mt-accent);
+            color: #111;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 14px;
+        }
+
+        .step-content h3 {
+            font-size: 15px;
+            font-weight: 600;
+            color: var(--mt-text);
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            font-size: 13px;
+            color: var(--mt-muted);
+            line-height: 1.5;
+        }
+
+        /* Exemples scénarios */
+        .scenarios {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 20px;
+            margin-top: 24px;
+        }
+
+        .scenarios h3 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--mt-accent);
+            margin-bottom: 16px;
+            text-align: center;
+        }
+
+        .scenario-bubbles {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .scenario-bubble {
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid rgba(249, 115, 22, 0.2);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 13px;
+            color: var(--mt-text);
+            line-height: 1.5;
+            position: relative;
+            padding-left: 36px;
+        }
+
+        .scenario-bubble::before {
+            content: '💬';
+            position: absolute;
+            left: 12px;
+            top: 12px;
+        }
+
+        .scenario-bubble.sport::before { content: '⚽'; }
+        .scenario-bubble.train::before { content: '🚄'; }
+        .scenario-bubble.business::before { content: '💼'; }
+        .scenario-bubble.food::before { content: '🍽️'; }
+        .scenario-bubble.tennis::before { content: '🎾'; }
+
+        .gpt-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2));
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            padding: 10px 16px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 24px;
+            width: 100%;
+        }
+
+        /* Section Démo GPT */
+        .demo-section {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .demo-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 24px;
+        }
+
+        .chat-showcase {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: flex-start;
+        }
+
+        .chat-frame {
+            flex: 1;
+            max-width: 380px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 12px;
+            box-shadow: var(--glass-shadow);
+            transition: transform 0.3s ease, border-color 0.3s ease;
+        }
+
+        .chat-frame:hover {
+            transform: translateY(-5px);
+            border-color: var(--mt-accent);
+        }
+
+        .chat-label {
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--mt-muted);
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .chat-frame.maestro-side .chat-label {
+            color: var(--mt-accent);
+        }
+
+        .chat-screenshot {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            border: 1px solid rgba(255,255,255,0.05);
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .chat-showcase {
+                flex-direction: column;
+                align-items: center;
+            }
+            .chat-frame {
+                width: 100%;
+                max-width: 100%;
+            }
+            .demo-title {
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -213,7 +420,89 @@
         </div>
 
         <div id="successMessage" class="success-message">
-            <i class="fas fa-check-circle"></i> Tu es sur la liste des Membres Fondateurs ! On t'envoie ton accès le 18 décembre.
+            <i class="fas fa-check-circle"></i> Tu es sur la liste des Membres Fondateurs ! On t'envoie ton accès le 7 janvier.
+        </div>
+
+        <!-- Section Comment ça marche -->
+        <div class="how-it-works">
+            <h2>🤖 MeeTempo, c'est quoi ?</h2>
+            <p class="subtitle">Ce n'est pas une app classique. C'est un GPT dédié qui s'intègre à ton ChatGPT.</p>
+            
+            <div class="steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <div class="step-content">
+                        <h3>Tu ajoutes MeeTempo à ChatGPT</h3>
+                        <p>Depuis le GPT Store, ajoute MeeTempo à ton environnement personnel. Une seule fois.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <div class="step-content">
+                        <h3>Tu parles à Maestro</h3>
+                        <p>Dis-lui ce que tu veux : contexte, lieu, timing, type de rencontre. Il comprend tout.</p>
+                    </div>
+                </div>
+                
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <div class="step-content">
+                        <h3>Il agit pour toi</h3>
+                        <p>Il trouve les profils compatibles, propose des rencontres réelles. Pas de swipe, pas de bruit.</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="scenarios">
+                <h3>💡 Exemples de ce que tu peux lui dire</h3>
+                <div class="scenario-bubbles">
+                    <div class="scenario-bubble food">
+                        "Je suis en déplacement, qui d'autre dans la même situation a proposé un repas dans les 5km ?"
+                    </div>
+                    <div class="scenario-bubble sport">
+                        "Crée une suggestion : besoin de 4 joueurs pour un five à 16h au Stade de France"
+                    </div>
+                    <div class="scenario-bubble tennis">
+                        "En déplacement à Lyon, recherche partenaire padel après 18h"
+                    </div>
+                    <div class="scenario-bubble train">
+                        "Je suis dans le train 9988 pour Lyon, ok pour un café à la voiture bar ?"
+                    </div>
+                    <div class="scenario-bubble business">
+                        "Roissy, 14h, 2h de dispo — rencontre business profil VIP Tech"
+                    </div>
+                </div>
+            </div>
+
+            <div class="gpt-badge">
+                🔒 Anonymat garanti : aucun nom ni prénom échangé tant que vous n'avez pas donné votre accord après une acceptation mutuelle.
+            </div>
+
+            <div class="gpt-badge" style="background: linear-gradient(135deg, rgba(249, 115, 22, 0.15), rgba(251, 191, 36, 0.15)); border-color: rgba(249, 115, 22, 0.3); color: #fb923c; margin-top: 12px;">
+                ⚡ Un GPT dédié, pas une conversation ChatGPT classique.
+            </div>
+
+            <!-- Démo visuelle -->
+            <div class="demo-section">
+                <h3 class="demo-title">🎬 Voilà ce que ça donne en vrai</h3>
+                
+                <div class="chat-showcase">
+                    <div class="chat-frame user-side">
+                        <div class="chat-label">
+                            <i class="fas fa-user"></i> Ta demande
+                        </div>
+                        <img src="images/demo-user.PNG" alt="Demande utilisateur MeeTempo" class="chat-screenshot">
+                    </div>
+
+                    <div class="chat-frame maestro-side">
+                        <div class="chat-label">
+                            <i class="fas fa-robot"></i> Réponse de Maestro
+                        </div>
+                        <img src="images/demo-maestro.PNG" alt="Réponse Maestro MeeTempo" class="chat-screenshot">
+                    </div>
+                </div>
+            </div>
         </div>
 
         <!-- Séparateur -->
@@ -301,20 +590,20 @@
         <h3 style="color: #34d399; margin-bottom: 12px;">Candidature envoyée !</h3>
         <p style="color: var(--mt-muted); font-size: 14px;">
             Tu recevras une réponse sous 24h.<br>
-            En attendant, profite de tes avantages Premium Fondateur dès le 18 décembre !
+            En attendant, profite de tes avantages Premium Fondateur dès le 7 janvier !
         </p>
     </div>
 </div>
         
         <div style="margin-top: 40px; font-size: 12px; color: var(--mt-muted); opacity: 0.5;">
-            Lancement officiel Jeudi 18 Décembre 2025
+            Lancement officiel Mercredi 7 Janvier 2026
         </div>
     </div>
 
     <script>
         // === 1. COMPTE À REBOURS ===
         // Date cible : Samedi 13 Décembre 2025 à 12:00 (Midi)
-        const launchDate = new Date('December 18, 2025 12:00:00').getTime();
+        const launchDate = new Date('January 7, 2025 12:00:00').getTime();
 
         function updateCountdown() {
             const now = new Date().getTime();
@@ -375,7 +664,7 @@
             document.getElementById('formContainer').style.display = 'none';
             document.getElementById('successMessage').style.display = 'block';
             document.getElementById('successMessage').innerHTML = data.founder
-                ? `<i class="fas fa-crown" style="color: #f97316;"></i> Bienvenue Membre Fondateur #${data.position} !<br><small>Ton accès arrive le 18 décembre.</small>`
+                ? `<i class="fas fa-crown" style="color: #f97316;"></i> Bienvenue Membre Fondateur #${data.position} !<br><small>Ton accès arrive le 7 janvier.</small>`
                 : `<i class="fas fa-check-circle"></i> Inscription confirmée !<br><small>45 jours Premium offerts dès le lancement.</small>`;
             
             // Afficher section VIP si fondateur
