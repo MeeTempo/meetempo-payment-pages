@@ -377,6 +377,59 @@
                 font-size: 18px;
             }
         }
+
+        /* Lightbox */
+        .lightbox {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            justify-content: center;
+            align-items: center;
+            cursor: zoom-out;
+        }
+
+        .lightbox.active {
+            display: flex;
+        }
+
+        .lightbox img {
+            max-width: 95%;
+            max-height: 90%;
+            border-radius: 12px;
+            box-shadow: 0 0 40px rgba(249, 115, 22, 0.3);
+        }
+
+        .lightbox-close {
+            position: absolute;
+            top: 20px;
+            right: 30px;
+            font-size: 40px;
+            color: white;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+
+        .lightbox-close:hover {
+            color: var(--mt-accent);
+        }
+
+        .lightbox-hint {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: var(--mt-muted);
+            font-size: 13px;
+        }
+
+        .chat-screenshot {
+            cursor: zoom-in;
+        }
     </style>
 </head>
 <body>
@@ -492,14 +545,14 @@
                         <div class="chat-label">
                             <i class="fas fa-user"></i> Ta demande
                         </div>
-                        <img src="images/demo-user.PNG" alt="Demande utilisateur MeeTempo" class="chat-screenshot">
+                        <img src="images/demo-user.PNG" alt="Demande utilisateur MeeTempo" class="chat-screenshot" onclick="openLightbox(this.src)">
                     </div>
 
                     <div class="chat-frame maestro-side">
                         <div class="chat-label">
                             <i class="fas fa-robot"></i> Réponse de Maestro
                         </div>
-                        <img src="images/demo-maestro.PNG" alt="Réponse Maestro MeeTempo" class="chat-screenshot">
+                        <img src="images/demo-maestro.PNG" alt="Réponse Maestro MeeTempo" class="chat-screenshot" onclick="openLightbox(this.src)">
                     </div>
                 </div>
             </div>
@@ -691,6 +744,23 @@ function showVipForm() {
     document.getElementById('vipForm').style.display = 'block';
 }
 
+// === LIGHTBOX ===
+function openLightbox(src) {
+    document.getElementById('lightbox-img').src = src;
+    document.getElementById('lightbox').classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeLightbox() {
+    document.getElementById('lightbox').classList.remove('active');
+    document.body.style.overflow = 'auto';
+}
+
+// Fermer avec Echap
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeLightbox();
+});
+
 async function submitVipApplication() {
     const name = document.getElementById('vipName').value.trim();
     const poste = document.getElementById('vipPoste').value.trim();
@@ -745,5 +815,12 @@ async function submitVipApplication() {
     }
 }
     </script>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" onclick="closeLightbox()">
+        <span class="lightbox-close">&times;</span>
+        <img src="" alt="Aperçu" id="lightbox-img">
+        <div class="lightbox-hint">Cliquez n'importe où pour fermer</div>
+    </div>
 </body>
 </html>
