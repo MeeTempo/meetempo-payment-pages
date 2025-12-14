@@ -736,7 +736,7 @@
     }
     
     function copyEventLink(eventCode) {
-      const link = `https://meetempo.github.io/meetempo-payment-pages/event-join.html?code=${eventCode}`;
+      const link = `https://app.meetempo.com/event-join.html?code=${eventCode}`;
       navigator.clipboard.writeText(link).then(() => {
         showToast('✅ Lien copié !');
       }).catch(() => {
