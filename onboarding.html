@@ -228,6 +228,33 @@
                 <div class="form-group" id="otherIndustryGroup" style="display:none;">
                     <label>Précisez votre secteur</label><input type="text" id="other_industry" placeholder="...">
                 </div>
+
+                <div class="form-group">
+                    <label>Équipe managée</label>
+                    <select id="manages_team">
+                        <option value="none">Je ne manage pas d'équipe</option>
+                        <option value="1-5">1-5 personnes</option>
+                        <option value="6-10">6-10 personnes</option>
+                        <option value="10+">Plus de 10 personnes</option>
+                    </select>
+                </div>
+
+                <div id="influencerFields" style="display:none;">
+                    <div class="form-group">
+                        <label>📊 Nombre de followers</label>
+                        <select id="followers_count">
+                            <option value="">Sélectionner...</option>
+                            <option value="under_1k">Moins de 1 000</option>
+                            <option value="1k_10k">1 000 - 10 000</option>
+                            <option value="10k_100k">10 000 - 100 000</option>
+                            <option value="over_100k">Plus de 100 000</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>🔗 URL profil principal (Instagram, TikTok, etc.)</label>
+                        <input type="url" id="social_profile_url" placeholder="https://instagram.com/votre_profil">
+                    </div>
+                </div>
             </div>
             
             <div class="step" data-step="2">
@@ -404,6 +431,22 @@
             document.getElementById('industry').addEventListener('change', function() {
                 document.getElementById('otherIndustryGroup').style.display = this.value === 'other' ? 'block' : 'none';
             });
+
+            // Afficher champs influenceur si rôle = influenceur
+async function checkInfluencerRole() {
+    try {
+        const res = await fetch(`${API_BASE}/profile?session_token=${window.MT_TOKEN}`);
+        const data = await res.json();
+        const role = data.profile?.role || '';
+        
+        if (role === 'influenceur') {
+            document.getElementById('influencerFields').style.display = 'block';
+        }
+    } catch(e) {
+        console.log('Erreur check role:', e);
+    }
+}
+checkInfluencerRole();
         }
 
         async function loadExistingProfile(token) {
@@ -424,6 +467,9 @@
                     if(rich.industry === 'other') document.getElementById('otherIndustryGroup').style.display = 'block';
                 }
                 if(rich.max_distance) document.getElementById('max_distance').value = rich.max_distance;
+                if(rich.manages_team) document.getElementById('manages_team').value = rich.manages_team;
+                if(rich.followers_count) document.getElementById('followers_count').value = rich.followers_count;
+                if(rich.social_profile_url) document.getElementById('social_profile_url').value = rich.social_profile_url;
                 if(rich.bio_rich) document.getElementById('bio_rich').value = rich.bio_rich;
                 
                 // Lists & Arrays
@@ -543,21 +589,24 @@
             btn.disabled = true; btn.textContent = '⏳ Envoi...';
             
             const onboarding = {
-                linkedin: document.getElementById('linkedin').value,
-                job_title: document.getElementById('job_title').value,
-                company: document.getElementById('company').value,
-                industry: document.getElementById('industry').value === 'other' ? document.getElementById('other_industry').value : document.getElementById('industry').value,
-                sports: [ ...getCheckboxValues('sport_'), ...document.getElementById('other_sports').value.split(',').map(s=>s.trim()).filter(s=>s) ],
-                hobbies: [ ...getCheckboxValues('hobby_'), ...document.getElementById('other_hobbies').value.split(',').map(s=>s.trim()).filter(s=>s) ],
-                countries_visited: document.getElementById('countries_visited').value.split(',').map(s=>s.trim()).filter(s=>s),
-                dream_destinations: document.getElementById('dream_destinations').value.split(',').map(s=>s.trim()).filter(s=>s),
-                languages: getCheckboxValues('lang_'),
-                meeting_types: getCheckboxValues('pref_'),
-                max_distance: document.getElementById('max_distance').value,
-                availability_times: getCheckboxValues('time_'),
-                bio_rich: document.getElementById('bio_rich').value,
-                signature_questions: getSignatureQuestions()
-            };
+                    linkedin: document.getElementById('linkedin').value,
+                    job_title: document.getElementById('job_title').value,
+                    company: document.getElementById('company').value,
+                    industry: document.getElementById('industry').value === 'other' ? document.getElementById('other_industry').value : document.getElementById('industry').value,
+                    manages_team: document.getElementById('manages_team').value,
+                    followers_count: document.getElementById('followers_count')?.value || null,
+                    social_profile_url: document.getElementById('social_profile_url')?.value || null,
+                    sports: [ ...getCheckboxValues('sport_'), ...document.getElementById('other_sports').value.split(',').map(s=>s.trim()).filter(s=>s) ],
+                    hobbies: [ ...getCheckboxValues('hobby_'), ...document.getElementById('other_hobbies').value.split(',').map(s=>s.trim()).filter(s=>s) ],
+                    countries_visited: document.getElementById('countries_visited').value.split(',').map(s=>s.trim()).filter(s=>s),
+                    dream_destinations: document.getElementById('dream_destinations').value.split(',').map(s=>s.trim()).filter(s=>s),
+                    languages: getCheckboxValues('lang_'),
+                    meeting_types: getCheckboxValues('pref_'),
+                    max_distance: document.getElementById('max_distance').value,
+                    availability_times: getCheckboxValues('time_'),
+                    bio_rich: document.getElementById('bio_rich').value,
+                    signature_questions: getSignatureQuestions()
+                };
             
             try {
                 const res = await fetch(`${API_BASE}/profile/onboarding`, {
