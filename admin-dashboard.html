@@ -1602,7 +1602,7 @@ async function loadEvents() {
                 <td><strong style="color: var(--mt-accent);">${e.event_code || '-'}</strong></td>
                 <td>${e.event_name || '-'}</td>
                 <td>${e.creator ? `${e.creator.email}<br><small class="badge badge-${e.creator.plan === 'vip' ? 'vip' : 'info'}">${e.creator.plan}</small>` : '-'}</td>
-                <td>${e.location || '-'}</td>
+                <td>${e.venue || e.city || '-'}</td>
                 <td>${e.starts_at ? new Date(e.starts_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                 <td>${e.ends_at ? new Date(e.ends_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
                 <td><span class="badge ${e.visibility === 'public' ? 'badge-success' : 'badge-warning'}">${e.visibility}</span></td>
