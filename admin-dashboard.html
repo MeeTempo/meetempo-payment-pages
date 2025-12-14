@@ -635,8 +635,14 @@
             <button class="nav-tab" data-tab="users">
                 <i class="fas fa-users"></i> Users
             </button>
-            <button class="nav-tab" data-tab="b2b">
-                <i class="fas fa-building"></i> B2B
+            <button class="nav-tab" data-tab="b2b-admin">
+                <i class="fas fa-building"></i> B2B Admin
+            </button>
+            <button class="nav-tab" data-tab="b2b-members">
+                <i class="fas fa-user-tie"></i> B2B Membres
+            </button>
+            <button class="nav-tab" data-tab="events">
+                <i class="fas fa-calendar-alt"></i> Events
             </button>
         </nav>
 
@@ -755,9 +761,12 @@
                 <div class="quota-section">
                     <div class="quota-header">
                         <span class="quota-title">Quota Waitlist</span>
-                        <button class="btn btn-primary btn-sm" onclick="unlockWave()">
-                            <i class="fas fa-plus"></i> Débloquer +500 places
-                        </button>
+                        <div style="display: flex; gap: 10px; align-items: center;">
+                            <input type="number" id="quotaPlacesInput" class="form-input" placeholder="500" value="500" min="1" max="10000" style="width: 100px; padding: 8px 12px;">
+                            <button class="btn btn-primary btn-sm" onclick="unlockWave()">
+                                <i class="fas fa-plus"></i> Débloquer
+                            </button>
+                        </div>
                     </div>
                     <div class="quota-bar-container">
                         <div class="quota-bar" id="quotaBar" style="width: 0%"></div>
@@ -823,21 +832,25 @@
                 </div>
             </div>
 
-            <!-- ===== TAB: B2B ===== -->
-            <div class="tab-panel" id="tab-b2b">
-                <div class="stats-grid" id="b2bStats">
+           <!-- ===== TAB: B2B ADMIN (Entreprises) ===== -->
+            <div class="tab-panel" id="tab-b2b-admin">
+                <div class="stats-grid" id="b2bAdminStats">
                     <div class="loading"><div class="spinner"></div> Chargement...</div>
                 </div>
                 
                 <div class="table-container" style="margin-top: 24px;">
                     <div class="table-header">
-                        <span class="table-title">Entreprises B2B</span>
+                        <span class="table-title">Entreprises B2B (Centralisé)</span>
+                        <button class="btn btn-secondary btn-sm" onclick="loadCompanies()">
+                            <i class="fas fa-sync"></i> Rafraîchir
+                        </button>
                     </div>
                     <div style="overflow-x: auto;">
                         <table>
                             <thead>
                                 <tr>
                                     <th>Entreprise</th>
+                                    <th>Domaines</th>
                                     <th>Plan</th>
                                     <th>Tier</th>
                                     <th>Admin</th>
@@ -846,8 +859,96 @@
                                     <th>Créé le</th>
                                 </tr>
                             </thead>
-                            <tbody id="b2bTable">
+                            <tbody id="b2bAdminTable">
+                                <tr><td colspan="8" class="loading"><div class="spinner"></div> Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TAB: B2B MEMBRES ===== -->
+            <div class="tab-panel" id="tab-b2b-members">
+                <div class="stats-grid" id="b2bMembersStats">
+                    <div class="loading"><div class="spinner"></div> Chargement...</div>
+                </div>
+                
+                <div class="table-container" style="margin-top: 24px;">
+                    <div class="table-header">
+                        <span class="table-title">Membres B2B (par entreprise)</span>
+                        <button class="btn btn-secondary btn-sm" onclick="loadB2BMembers()">
+                            <i class="fas fa-sync"></i> Rafraîchir
+                        </button>
+                    </div>
+                    <div class="table-filters">
+                        <select class="filter-select" id="b2bMemberCompanyFilter" onchange="loadB2BMembers()">
+                            <option value="all">Toutes les entreprises</option>
+                        </select>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Entreprise</th>
+                                    <th>Email</th>
+                                    <th>Nom</th>
+                                    <th>Rôle</th>
+                                    <th>Plan</th>
+                                    <th>Statut</th>
+                                    <th>Créé le</th>
+                                </tr>
+                            </thead>
+                            <tbody id="b2bMembersTable">
                                 <tr><td colspan="7" class="loading"><div class="spinner"></div> Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TAB: EVENTS ===== -->
+            <div class="tab-panel" id="tab-events">
+                <div class="stats-grid" id="eventsStats">
+                    <div class="loading"><div class="spinner"></div> Chargement...</div>
+                </div>
+                
+                <div class="table-container" style="margin-top: 24px;">
+                    <div class="table-header">
+                        <span class="table-title">Tous les Events</span>
+                        <button class="btn btn-secondary btn-sm" onclick="loadEvents()">
+                            <i class="fas fa-sync"></i> Rafraîchir
+                        </button>
+                    </div>
+                    <div class="table-filters">
+                        <select class="filter-select" id="eventStatusFilter" onchange="loadEvents()">
+                            <option value="all">Tous les statuts</option>
+                            <option value="active">Actif</option>
+                            <option value="ended">Terminé</option>
+                            <option value="cancelled">Annulé</option>
+                        </select>
+                        <select class="filter-select" id="eventVisibilityFilter" onchange="loadEvents()">
+                            <option value="all">Toutes visibilités</option>
+                            <option value="public">Public</option>
+                            <option value="private">Privé</option>
+                        </select>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Code</th>
+                                    <th>Nom</th>
+                                    <th>Créateur</th>
+                                    <th>Lieu</th>
+                                    <th>Date début</th>
+                                    <th>Date fin</th>
+                                    <th>Visibilité</th>
+                                    <th>Participants</th>
+                                    <th>Statut</th>
+                                </tr>
+                            </thead>
+                            <tbody id="eventsTable">
+                                <tr><td colspan="9" class="loading"><div class="spinner"></div> Chargement...</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -956,6 +1057,8 @@
             loadQuotas();
             loadUsers();
             loadCompanies();
+            loadB2BMembers();
+            loadEvents();
         }
 
         // ===== STATS =====
@@ -1161,7 +1264,7 @@
                 await fetch(`${API_BASE}/admin/quotas/unlock`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ admin_token: adminToken, places: 500 })
+                    body: JSON.stringify({ admin_token: adminToken, places: currentAction.places || 500 })
                 });
             }
             
@@ -1198,9 +1301,16 @@
         }
 
         function unlockWave() {
-            currentAction = { type: 'unlock_wave' };
+            const places = parseInt(document.getElementById('quotaPlacesInput').value) || 500;
+            
+            if (places < 1 || places > 10000) {
+                alert('Nombre de places invalide (1 - 10000)');
+                return;
+            }
+            
+            currentAction = { type: 'unlock_wave', places: places };
             document.getElementById('modalTitle').textContent = 'Débloquer nouvelle vague';
-            document.getElementById('modalMessage').textContent = 'Ajouter +500 places à la waitlist ?';
+            document.getElementById('modalMessage').textContent = `Ajouter +${places} places à la waitlist ?`;
             document.getElementById('modalConfirmBtn').className = 'btn btn-primary btn-sm';
             document.getElementById('confirmModal').classList.add('active');
         }
@@ -1264,58 +1374,247 @@
             searchTimeout = setTimeout(loadUsers, 300);
         }
 
-        // ===== B2B =====
-        async function loadCompanies() {
-            try {
-                const res = await fetch(`${API_BASE}/admin/companies?admin_token=${adminToken}`);
-                const data = await res.json();
-                
-                if (!res.ok) return;
-                
-                // Stats B2B
-                document.getElementById('b2bStats').innerHTML = `
-                    <div class="stat-card" style="border-color: #a78bfa;">
-                        <div class="stat-label">Entreprises</div>
-                        <div class="stat-value">${data.stats.total_companies}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Sièges facturés</div>
-                        <div class="stat-value">${data.stats.total_seats}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Employés actifs</div>
-                        <div class="stat-value">${data.stats.total_employees}</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-label">Centralisé / Délégué</div>
-                        <div class="stat-value">${data.stats.by_plan.b2b_centralized || 0} / ${data.stats.by_plan.b2b_delegated || 0}</div>
-                    </div>
-                `;
-                
-                // Table
-                const tbody = document.getElementById('b2bTable');
-                
-                if (data.companies.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucune entreprise</td></tr>';
-                    return;
-                }
-                
-                tbody.innerHTML = data.companies.map(c => `
-                    <tr>
-                        <td><strong>${c.company_name}</strong><br><small style="color:var(--mt-muted)">${c.domains.join(', ')}</small></td>
-                        <td><span class="badge badge-b2b">${c.plan}</span></td>
-                        <td>${c.billing_tier || '-'}</td>
-                        <td>${c.admin ? c.admin.email : '-'}</td>
-                        <td>${c.members_count} membre(s)</td>
-                        <td><span class="badge ${c.payment_status === 'active' ? 'badge-success' : 'badge-warning'}">${c.payment_status}</span></td>
-                        <td>${c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '-'}</td>
-                    </tr>
-                `).join('');
-                
-            } catch (err) {
-                console.error('Erreur loadCompanies:', err);
+        // ===== B2B ADMIN (Entreprises) =====
+async function loadCompanies() {
+    try {
+        const res = await fetch(`${API_BASE}/admin/companies?admin_token=${adminToken}`);
+        const data = await res.json();
+        
+        if (!res.ok) return;
+        
+        // Stats B2B Admin
+        document.getElementById('b2bAdminStats').innerHTML = `
+            <div class="stat-card" style="border-color: #a78bfa;">
+                <div class="stat-label">Entreprises</div>
+                <div class="stat-value">${data.stats.total_companies}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Sièges facturés</div>
+                <div class="stat-value">${data.stats.total_seats}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Employés actifs</div>
+                <div class="stat-value">${data.stats.total_employees}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Centralisé / Délégué</div>
+                <div class="stat-value">${data.stats.by_plan.b2b_centralized || 0} / ${data.stats.by_plan.b2b_delegated || 0}</div>
+            </div>
+        `;
+        
+        // Table B2B Admin
+        const tbody = document.getElementById('b2bAdminTable');
+        
+        if (data.companies.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucune entreprise</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = data.companies.map(c => `
+            <tr>
+                <td><strong>${c.company_name}</strong></td>
+                <td><small style="color:var(--mt-muted)">${c.domains.join(', ')}</small></td>
+                <td><span class="badge badge-b2b">${c.plan}</span></td>
+                <td>${c.billing_tier || '-'}</td>
+                <td>${c.admin ? c.admin.email : '-'}</td>
+                <td>${c.members_count} membre(s)</td>
+                <td><span class="badge ${c.payment_status === 'active' ? 'badge-success' : 'badge-warning'}">${c.payment_status}</span></td>
+                <td>${c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '-'}</td>
+            </tr>
+        `).join('');
+        
+        // Mettre à jour le filtre des membres
+        updateCompanyFilter(data.companies);
+        
+        // Stocker pour B2B Members
+        window.companiesData = data.companies;
+        
+    } catch (err) {
+        console.error('Erreur loadCompanies:', err);
+    }
+}
+
+function updateCompanyFilter(companies) {
+    const select = document.getElementById('b2bMemberCompanyFilter');
+    if (!select) return;
+    
+    select.innerHTML = '<option value="all">Toutes les entreprises</option>' +
+        companies.map(c => `<option value="${c.company_id}">${c.company_name}</option>`).join('');
+}
+
+// ===== B2B MEMBRES =====
+async function loadB2BMembers() {
+    const companyFilter = document.getElementById('b2bMemberCompanyFilter')?.value || 'all';
+    
+    try {
+        const res = await fetch(`${API_BASE}/admin/companies?admin_token=${adminToken}`);
+        const data = await res.json();
+        
+        if (!res.ok) return;
+        
+        // Collecter tous les membres de toutes les entreprises
+        let allMembers = [];
+        
+        for (const company of data.companies) {
+            // Filtre par entreprise si sélectionné
+            if (companyFilter !== 'all' && company.company_id !== companyFilter) continue;
+            
+            // Ajouter l'admin
+            if (company.admin) {
+                allMembers.push({
+                    company_name: company.company_name,
+                    company_id: company.company_id,
+                    email: company.admin.email,
+                    name: company.admin.name || '-',
+                    role: 'Admin',
+                    plan: company.plan,
+                    status: company.admin.status || 'active',
+                    created_at: company.created_at
+                });
+            }
+            
+            // Ajouter les membres
+            for (const member of company.members || []) {
+                allMembers.push({
+                    company_name: company.company_name,
+                    company_id: company.company_id,
+                    email: member.email,
+                    name: member.name || '-',
+                    role: member.roles?.includes('admin') ? 'Admin' : 'Membre',
+                    plan: member.plan,
+                    status: member.status || 'active',
+                    created_at: member.created_at
+                });
             }
         }
+        
+        // Trier par entreprise puis par rôle (Admin en premier)
+        allMembers.sort((a, b) => {
+            if (a.company_name !== b.company_name) {
+                return a.company_name.localeCompare(b.company_name);
+            }
+            if (a.role === 'Admin' && b.role !== 'Admin') return -1;
+            if (a.role !== 'Admin' && b.role === 'Admin') return 1;
+            return 0;
+        });
+        
+        // Stats
+        document.getElementById('b2bMembersStats').innerHTML = `
+            <div class="stat-card" style="border-color: #a78bfa;">
+                <div class="stat-label">Total Membres B2B</div>
+                <div class="stat-value">${allMembers.length}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Admins</div>
+                <div class="stat-value">${allMembers.filter(m => m.role === 'Admin').length}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Membres</div>
+                <div class="stat-value">${allMembers.filter(m => m.role === 'Membre').length}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Entreprises</div>
+                <div class="stat-value">${data.companies.length}</div>
+            </div>
+        `;
+        
+        // Table
+        const tbody = document.getElementById('b2bMembersTable');
+        
+        if (allMembers.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucun membre B2B</td></tr>';
+            return;
+        }
+        
+        let currentCompany = '';
+        tbody.innerHTML = allMembers.map(m => {
+            const showCompany = m.company_name !== currentCompany;
+            currentCompany = m.company_name;
+            
+            return `
+                <tr${showCompany ? ' style="border-top: 2px solid var(--mt-accent);"' : ''}>
+                    <td>${showCompany ? `<strong style="color: var(--mt-accent);">${m.company_name}</strong>` : ''}</td>
+                    <td>${m.email}</td>
+                    <td>${m.name}</td>
+                    <td><span class="badge ${m.role === 'Admin' ? 'badge-vip' : 'badge-info'}">${m.role}</span></td>
+                    <td><span class="badge badge-b2b">${m.plan}</span></td>
+                    <td><span class="badge ${m.status === 'active' ? 'badge-success' : 'badge-warning'}">${m.status}</span></td>
+                    <td>${m.created_at ? new Date(m.created_at).toLocaleDateString('fr-FR') : '-'}</td>
+                </tr>
+            `;
+        }).join('');
+        
+    } catch (err) {
+        console.error('Erreur loadB2BMembers:', err);
+    }
+}
+
+// ===== EVENTS =====
+async function loadEvents() {
+    const statusFilter = document.getElementById('eventStatusFilter')?.value || 'all';
+    const visibilityFilter = document.getElementById('eventVisibilityFilter')?.value || 'all';
+    
+    try {
+        const res = await fetch(`${API_BASE}/admin/events?admin_token=${adminToken}`);
+        const data = await res.json();
+        
+        if (!res.ok) return;
+        
+        // Stats Events
+        document.getElementById('eventsStats').innerHTML = `
+            <div class="stat-card" style="border-color: #f59e0b;">
+                <div class="stat-label">Total Events</div>
+                <div class="stat-value">${data.stats.total}</div>
+            </div>
+            <div class="stat-card success">
+                <div class="stat-label">Actifs</div>
+                <div class="stat-value">${data.stats.active}</div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-label">Publics / Privés</div>
+                <div class="stat-value">${data.stats.public} / ${data.stats.private}</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Participants</div>
+                <div class="stat-value">${data.stats.total_participants}</div>
+            </div>
+        `;
+        
+        // Filtrer
+        let events = data.events;
+        if (statusFilter !== 'all') {
+            events = events.filter(e => e.status === statusFilter);
+        }
+        if (visibilityFilter !== 'all') {
+            events = events.filter(e => e.visibility === visibilityFilter);
+        }
+        
+        // Table
+        const tbody = document.getElementById('eventsTable');
+        
+        if (events.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucun event</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = events.map(e => `
+            <tr>
+                <td><strong style="color: var(--mt-accent);">${e.event_code || '-'}</strong></td>
+                <td>${e.event_name || '-'}</td>
+                <td>${e.creator ? `${e.creator.email}<br><small class="badge badge-${e.creator.plan === 'vip' ? 'vip' : 'info'}">${e.creator.plan}</small>` : '-'}</td>
+                <td>${e.location || '-'}</td>
+                <td>${e.starts_at ? new Date(e.starts_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                <td>${e.ends_at ? new Date(e.ends_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) : '-'}</td>
+                <td><span class="badge ${e.visibility === 'public' ? 'badge-success' : 'badge-warning'}">${e.visibility}</span></td>
+                <td>${e.participants_count}${e.max_participants ? ` / ${e.max_participants}` : ''}</td>
+                <td><span class="badge ${e.status === 'active' ? 'badge-success' : e.status === 'ended' ? 'badge-info' : 'badge-danger'}">${e.status}</span></td>
+            </tr>
+        `).join('');
+        
+    } catch (err) {
+        console.error('Erreur loadEvents:', err);
+    }
+}
     </script>
 </body>
 </html>
