@@ -721,6 +721,32 @@
                         <div class="stat-label">Candidatures en attente</div>
                         <div class="stat-value" id="vipPendingCount">-</div>
                     </div>
+                    <div class="stat-card success">
+                        <div class="stat-label">VIP Actifs</div>
+                        <div class="stat-value" id="vipActiveCount">-</div>
+                    </div>
+                    <div class="stat-card info">
+                        <div class="stat-label">Depuis Waitlist</div>
+                        <div class="stat-value" id="vipFromWaitlist">-</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-label">Depuis App</div>
+                        <div class="stat-value" id="vipFromApp">-</div>
+                    </div>
+                </div>
+                
+                <!-- Section Promotion Manuelle -->
+                <div class="section-box" style="margin-bottom: 24px;">
+                    <div class="section-title"><i class="fas fa-user-plus"></i> Promouvoir manuellement en VIP</div>
+                    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                        <input type="email" id="promoteVipEmail" class="form-input" placeholder="email@exemple.com" style="flex: 1; min-width: 250px;">
+                        <button class="btn btn-success btn-sm" onclick="promoteToVip()">
+                            <i class="fas fa-crown"></i> Promouvoir VIP
+                        </button>
+                    </div>
+                    <p style="color: var(--mt-muted); font-size: 12px; margin-top: 8px;">
+                        ⚠️ Cette action donne l'accès VIP immédiatement sans paiement. À utiliser pour les partenaires, influenceurs, etc.
+                    </p>
                 </div>
                 
                 <div class="table-container">
@@ -733,6 +759,11 @@
                                 <option value="rejected">Refusées</option>
                                 <option value="all">Toutes</option>
                             </select>
+                            <select class="filter-select" id="vipSourceFilter" onchange="loadVipCandidates()">
+                                <option value="all">Toutes sources</option>
+                                <option value="waitlist">Waitlist</option>
+                                <option value="app">App (Premium)</option>
+                            </select>
                         </div>
                     </div>
                     <div style="overflow-x: auto;">
@@ -741,8 +772,9 @@
                                 <tr>
                                     <th>Email</th>
                                     <th>Nom</th>
-                                    <th>Poste</th>
-                                    <th>Entreprise</th>
+                                    <th>Source</th>
+                                    <th>Score</th>
+                                    <th>Profil</th>
                                     <th>LinkedIn</th>
                                     <th>Date</th>
                                     <th>Actions</th>
@@ -1184,43 +1216,71 @@
 
         // ===== VIP =====
         async function loadVipCandidates() {
-            const filter = document.getElementById('vipFilter').value;
+            const statusFilter = document.getElementById('vipFilter').value;
+            const sourceFilter = document.getElementById('vipSourceFilter')?.value || 'all';
             
             try {
-                const res = await fetch(`${API_BASE}/admin/vip/candidates?admin_token=${adminToken}&status=${filter}`);
+                const res = await fetch(`${API_BASE}/admin/vip/candidates?admin_token=${adminToken}&status=${statusFilter}&source=${sourceFilter}`);
                 const data = await res.json();
                 
                 if (!res.ok) return;
                 
-                document.getElementById('vipPendingCount').textContent = data.candidates.filter(c => c.status === 'pending').length;
+                // Stats
+                const pending = data.candidates.filter(c => c.status === 'pending');
+                const fromWaitlist = data.candidates.filter(c => c.source === 'waitlist');
+                const fromApp = data.candidates.filter(c => c.source === 'app');
+                
+                document.getElementById('vipPendingCount').textContent = pending.length;
+                document.getElementById('vipActiveCount').textContent = data.vip_active_count || '-';
+                document.getElementById('vipFromWaitlist').textContent = fromWaitlist.length;
+                document.getElementById('vipFromApp').textContent = fromApp.length;
                 
                 const tbody = document.getElementById('vipTable');
                 
                 if (data.candidates.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucune candidature</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucune candidature</td></tr>';
                     return;
                 }
                 
-                tbody.innerHTML = data.candidates.map(c => `
-                    <tr>
-                        <td>${c.email}</td>
-                        <td>${c.name || '-'}</td>
-                        <td>${c.poste || '-'}</td>
-                        <td>${c.entreprise || '-'}</td>
-                        <td>${c.linkedin ? `<a href="${c.linkedin}" target="_blank" style="color:var(--mt-info)"><i class="fab fa-linkedin"></i></a>` : '-'}</td>
-                        <td>${new Date(c.applied_at).toLocaleDateString('fr-FR')}</td>
-                        <td>
-                            ${c.status === 'pending' ? `
-                                <button class="btn btn-success btn-sm" onclick="approveVip('${c.email}')" style="margin-right:4px;">
-                                    <i class="fas fa-check"></i>
-                                </button>
-                                <button class="btn btn-danger btn-sm" onclick="rejectVip('${c.email}')">
-                                    <i class="fas fa-times"></i>
-                                </button>
-                            ` : `<span class="badge ${c.status === 'approved' ? 'badge-success' : 'badge-danger'}">${c.status}</span>`}
-                        </td>
-                    </tr>
-                `).join('');
+                tbody.innerHTML = data.candidates.map(c => {
+                    const sourceBadge = c.source === 'waitlist' 
+                        ? '<span class="badge badge-info">Waitlist</span>' 
+                        : '<span class="badge badge-success">App</span>';
+                    
+                    const scoreBadge = c.vip_score >= 55 
+                        ? `<span class="badge badge-success">${c.vip_score || 0}</span>`
+                        : `<span class="badge badge-warning">${c.vip_score || 0}</span>`;
+                    
+                    const profileBadge = c.profile_completion >= 90
+                        ? `<span class="badge badge-success">${c.profile_completion || 0}%</span>`
+                        : `<span class="badge badge-warning">${c.profile_completion || 0}%</span>`;
+                    
+                    const linkedinLink = c.linkedin 
+                        ? `<a href="${c.linkedin}" target="_blank" style="color:var(--mt-info)"><i class="fab fa-linkedin"></i></a>` 
+                        : '<span style="color:var(--mt-muted)">-</span>';
+                    
+                    const actionBtns = c.status === 'pending' ? `
+                        <button class="btn btn-success btn-sm" onclick="approveVip('${c.email}')" style="margin-right:4px;" title="Approuver">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="rejectVip('${c.email}')" title="Refuser">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    ` : `<span class="badge ${c.status === 'approved' ? 'badge-success' : 'badge-danger'}">${c.status}</span>`;
+                    
+                    return `
+                        <tr>
+                            <td>${c.email}</td>
+                            <td>${c.name || '-'}</td>
+                            <td>${sourceBadge}</td>
+                            <td>${scoreBadge}</td>
+                            <td>${profileBadge}</td>
+                            <td>${linkedinLink}</td>
+                            <td>${c.applied_at ? new Date(c.applied_at).toLocaleDateString('fr-FR') : '-'}</td>
+                            <td>${actionBtns}</td>
+                        </tr>
+                    `;
+                }).join('');
                 
             } catch (err) {
                 console.error('Erreur loadVipCandidates:', err);
@@ -1274,6 +1334,46 @@
 
         function closeModal() {
             document.getElementById('confirmModal').classList.remove('active');
+        }
+
+        // ===== PROMOTE VIP MANUALLY =====
+        async function promoteToVip() {
+            const email = document.getElementById('promoteVipEmail').value.trim();
+            
+            if (!email || !email.includes('@')) {
+                alert('Email invalide');
+                return;
+            }
+            
+            if (!confirm(`Promouvoir ${email} en VIP ?\n\nCette personne aura accès VIP immédiatement sans paiement.`)) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_BASE}/admin/vip/promote`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        admin_token: adminToken, 
+                        email: email 
+                    })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    alert(`✅ ${email} est maintenant VIP !`);
+                    document.getElementById('promoteVipEmail').value = '';
+                    loadVipCandidates();
+                    loadUsers();
+                } else {
+                    alert(`❌ Erreur : ${data.error || 'Erreur inconnue'}`);
+                }
+                
+            } catch (err) {
+                console.error('Erreur promoteToVip:', err);
+                alert('❌ Erreur réseau');
+            }
         }
 
         // ===== QUOTAS =====
