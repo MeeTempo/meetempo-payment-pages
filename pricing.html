@@ -485,8 +485,12 @@
     
     let userData = null;
     let userPlan = 'free';
-    let vipEligible = false; // true, false, ou 'pending'
+    let vipEligible = false;
+    let vipScore = 0;
+    let profileCompletion = 0;
     let profileComplete = false;
+    let vipApplied = false;
+    let vipManuallyApproved = null;
     
     // Configuration des plans
     const PLANS = [
@@ -587,13 +591,23 @@
         userData = await response.json();
         userPlan = userData.plan || 'free';
         
-        // 🔥 ANTICIPÉ : Vérifier éligibilité VIP depuis le profil
-        // Ces champs seront définis dans profile/onboarding plus tard
-        vipEligible = userData.vip_eligible || false; // true, false, 'pending'
-        profileComplete = userData.profile_complete || 
-                         (userData.profile_rich && Object.keys(userData.profile_rich).length >= 3);
-        
-        console.log('✅ Profil chargé:', { plan: userPlan, vipEligible, profileComplete });
+        // 🔥 Récupérer données VIP
+        vipEligible = userData.vip_eligible || false;
+        vipScore = userData.vip_score || 0;
+        profileCompletion = userData.profile_completion || 0;
+        vipApplied = userData.vip_applied || false;
+        vipManuallyApproved = userData.vip_manually_approved;
+
+        // Profil complet = 90%+
+        profileComplete = profileCompletion >= 90;
+
+        console.log('✅ Profil chargé:', { 
+          plan: userPlan, 
+          vipEligible, 
+          vipScore, 
+          profileCompletion,
+          vipApplied 
+        });
         
       } catch (err) {
         console.error('Erreur chargement profil:', err);
@@ -716,57 +730,155 @@
     }
     
     // Vérifier éligibilité VIP
-    function checkVipEligibility() {
-      const modal = document.getElementById('vipModal');
-      const icon = document.getElementById('modalIcon');
-      const title = document.getElementById('modalTitle');
+function checkVipEligibility() {
+  const modal = document.getElementById('vipModal');
+  const icon = document.getElementById('modalIcon');
+  const title = document.getElementById('modalTitle');
+  const message = document.getElementById('modalMessage');
+  const actions = document.getElementById('modalActions');
+  
+  // Cas 1 : Profil incomplet (< 90%)
+  if (profileCompletion < 90) {
+    icon.textContent = '📝';
+    title.textContent = 'Profil incomplet';
+    message.textContent = `Votre profil est à ${profileCompletion}%. Complétez-le à 90% minimum pour candidater ou accéder à l'offre VIP.`;
+    actions.innerHTML = `
+      <button class="modal-btn primary" onclick="goToOnboarding()">Compléter mon profil</button>
+      <button class="modal-btn secondary" onclick="closeModal()">Annuler</button>
+    `;
+  }
+  // Cas 2 : Éligible automatiquement (score >= 55)
+  else if (vipEligible === true) {
+    icon.textContent = '👑';
+    title.textContent = 'Bienvenue dans le club VIP !';
+    message.textContent = `Félicitations ! Votre score de ${vipScore}/100 vous rend éligible à l'offre VIP. Profitez d'un accès complet à tous les membres et fonctionnalités exclusives.`;
+    actions.innerHTML = `
+      <button class="modal-btn vip" onclick="selectPlan('vip')">Activer VIP - 29,99€/mois</button>
+      <button class="modal-btn secondary" onclick="closeModal()">Plus tard</button>
+    `;
+  }
+  // Cas 3 : Approuvé manuellement par admin
+  else if (vipManuallyApproved === true) {
+    icon.textContent = '🎉';
+    title.textContent = 'Candidature approuvée !';
+    message.textContent = 'Votre candidature VIP a été approuvée par notre équipe. Vous pouvez maintenant activer votre abonnement VIP.';
+    actions.innerHTML = `
+      <button class="modal-btn vip" onclick="selectPlan('vip')">Activer VIP - 29,99€/mois</button>
+      <button class="modal-btn secondary" onclick="closeModal()">Plus tard</button>
+    `;
+  }
+  // Cas 4 : Candidature déjà en cours
+  else if (vipApplied === true && vipManuallyApproved === null) {
+    icon.textContent = '⏳';
+    title.textContent = 'Candidature en cours';
+    message.textContent = 'Votre candidature VIP est en cours de validation par notre équipe (24-72h). Nous vous contacterons par email dès que possible.';
+    actions.innerHTML = `
+      <button class="modal-btn secondary" onclick="closeModal()">Compris</button>
+    `;
+  }
+  // Cas 5 : Candidature refusée
+  else if (vipApplied === true && vipManuallyApproved === false) {
+    icon.textContent = '😔';
+    title.textContent = 'Candidature non retenue';
+    message.textContent = 'Votre candidature VIP n\'a pas été retenue cette fois. Continuez à enrichir votre profil et réessayez plus tard, ou contactez notre support.';
+    actions.innerHTML = `
+      <button class="modal-btn primary" onclick="goToOnboarding()">Améliorer mon profil</button>
+      <button class="modal-btn secondary" onclick="contactSupport()">Contacter le support</button>
+      <button class="modal-btn secondary" onclick="closeModal()">Annuler</button>
+    `;
+  }
+  // Cas 6 : Premium peut candidater (score < 55, profil >= 90%, pas encore candidaté)
+  else if (userPlan === 'premium' && profileCompletion >= 90) {
+    icon.textContent = '📋';
+    title.textContent = 'Candidater VIP';
+    const hasLinkedin = userData.profile_rich?.linkedin ? true : false;
+    const delayText = hasLinkedin ? '24h' : '48-72h';
+    message.innerHTML = `
+      Votre score actuel est de <strong>${vipScore}/55</strong>.<br><br>
+      Vous pouvez candidater pour que notre équipe examine votre profil manuellement.<br>
+      Délai de traitement : <strong>${delayText}</strong>${!hasLinkedin ? ' (plus rapide avec LinkedIn renseigné)' : ''}.
+    `;
+    actions.innerHTML = `
+      <textarea id="vipMotivation" placeholder="Pourquoi souhaitez-vous devenir VIP ? (optionnel)" 
+        style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); 
+               background: rgba(255,255,255,0.1); color: white; font-family: inherit; font-size: 14px;
+               margin-bottom: 16px; min-height: 80px; resize: vertical;"></textarea>
+      <button class="modal-btn vip" onclick="applyForVip()">📨 Envoyer ma candidature</button>
+      <button class="modal-btn secondary" onclick="closeModal()">Annuler</button>
+    `;
+  }
+  // Cas 7 : Non Premium, doit d'abord passer Premium
+  else {
+    icon.textContent = '⭐';
+    title.textContent = 'Passez Premium d\'abord';
+    message.textContent = `L'offre VIP est réservée aux membres Premium avec un profil validé. Passez Premium pour débloquer la candidature VIP et profiter de toutes les fonctionnalités.`;
+    actions.innerHTML = `
+      <button class="modal-btn primary" onclick="selectPlan('premium')">Choisir Premium - 15€/mois</button>
+      <button class="modal-btn secondary" onclick="closeModal()">Annuler</button>
+    `;
+  }
+  
+  modal.classList.add('show');
+}
+
+// Envoyer candidature VIP
+async function applyForVip() {
+  const motivation = document.getElementById('vipMotivation')?.value || '';
+  
+  showLoading(true);
+  
+  try {
+    const response = await fetch(`${API_BASE}/vip/apply`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        session_token: session_token,
+        motivation: motivation
+      })
+    });
+    
+    const data = await response.json();
+    
+    showLoading(false);
+    
+    if (!response.ok) {
+      // Afficher erreur dans modal
       const message = document.getElementById('modalMessage');
       const actions = document.getElementById('modalActions');
       
-      // Cas 1 : Profil incomplet
-      if (!profileComplete) {
-        icon.textContent = '📝';
-        title.textContent = 'Profil incomplet';
-        message.textContent = 'Pour accéder à l\'offre VIP, merci de compléter votre profil enrichi. Cela nous permet de valider votre éligibilité.';
-        actions.innerHTML = `
-          <button class="modal-btn primary" onclick="goToOnboarding()">Compléter mon profil</button>
-          <button class="modal-btn secondary" onclick="closeModal()">Annuler</button>
-        `;
-      }
-      // Cas 2 : Éligible
-      else if (vipEligible === true) {
-        icon.textContent = '👑';
-        title.textContent = 'Bienvenue dans le club VIP !';
-        message.textContent = 'Félicitations ! Votre profil est éligible à l\'offre VIP. Profitez d\'un accès complet à tous les membres et fonctionnalités exclusives.';
-        actions.innerHTML = `
-          <button class="modal-btn vip" onclick="selectPlan('vip')">Activer VIP - 29,99€/mois</button>
-          <button class="modal-btn secondary" onclick="closeModal()">Plus tard</button>
-        `;
-      }
-      // Cas 3 : En attente de validation
-      else if (vipEligible === 'pending') {
-        icon.textContent = '⏳';
-        title.textContent = 'Validation en cours';
-        message.textContent = 'Votre demande VIP est en cours de validation par notre équipe (sous 24h). En attendant, profitez de l\'offre Premium avec toutes ses fonctionnalités !';
-        actions.innerHTML = `
-          <button class="modal-btn primary" onclick="selectPlan('premium')">Choisir Premium - 15€/mois</button>
-          <button class="modal-btn secondary" onclick="closeModal()">Attendre</button>
-        `;
-      }
-      // Cas 4 : Non éligible
-      else {
-        icon.textContent = '💫';
-        title.textContent = 'Offre VIP';
-        message.textContent = 'L\'offre VIP est réservée aux profils validés par notre équipe. Nous vous recommandons l\'offre Premium qui offre déjà un accès complet à la plateforme. Si vous pensez être éligible, contactez notre support.';
-        actions.innerHTML = `
-          <button class="modal-btn primary" onclick="selectPlan('premium')">Choisir Premium - 15€/mois</button>
-          <button class="modal-btn secondary" onclick="contactSupport()">Contacter le support</button>
-          <button class="modal-btn secondary" onclick="closeModal()">Annuler</button>
-        `;
-      }
-      
-      modal.classList.add('show');
+      message.innerHTML = `<span style="color: #f87171;">❌ ${data.error || 'Erreur lors de l\'envoi'}</span>`;
+      actions.innerHTML = `
+        <button class="modal-btn secondary" onclick="closeModal()">Fermer</button>
+      `;
+      return;
     }
+    
+    // Succès
+    const icon = document.getElementById('modalIcon');
+    const title = document.getElementById('modalTitle');
+    const message = document.getElementById('modalMessage');
+    const actions = document.getElementById('modalActions');
+    
+    icon.textContent = '✅';
+    title.textContent = 'Candidature envoyée !';
+    message.innerHTML = `
+      Votre candidature VIP a été envoyée avec succès !<br><br>
+      Notre équipe l'examinera sous <strong>${data.estimated_delay}</strong>.<br>
+      Vous recevrez une réponse par email.
+    `;
+    actions.innerHTML = `
+      <button class="modal-btn primary" onclick="location.reload()">Super !</button>
+    `;
+    
+    // Mettre à jour état local
+    vipApplied = true;
+    
+  } catch (err) {
+    console.error('Erreur candidature VIP:', err);
+    showLoading(false);
+    alert('❌ Erreur réseau. Réessayez.');
+  }
+}
     
     function closeModal() {
       document.getElementById('vipModal').classList.remove('show');
