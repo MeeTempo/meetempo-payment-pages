@@ -1029,6 +1029,35 @@ updateUI(data);
         disabled: false,
         onClick: "navigate('pricing')"
       });
+
+      // Card : Candidater VIP (visible si Premium + non éligible)
+      const vipEligible = data.user?.vip_eligible || false;
+      const vipScore = data.user?.vip_score || 0;
+      const profileCompletion = data.user?.profile_completion || 0;
+
+      if (userPlan === 'premium' && !vipEligible) {
+        let vipCardSubtitle = '';
+        let vipCardDisabled = false;
+        
+        if (profileCompletion < 90) {
+          vipCardSubtitle = `Profil ${profileCompletion}% - Complétez d'abord`;
+          vipCardDisabled = true;
+        } else {
+          vipCardSubtitle = `Score ${vipScore}/55 - Candidatez !`;
+        }
+        
+        cardsHTML += createCard({
+          id: 'vip-apply',
+          icon: '<i class="fas fa-crown"></i>',
+          image: 'https://images.unsplash.com/photo-1553729459-efe14ef6055d?q=80&w=400',
+          title: 'Candidater VIP',
+          subtitle: vipCardSubtitle,
+          cssClass: 'card-vip',
+          disabled: vipCardDisabled,
+          planRequired: vipCardDisabled ? 'Profil 90%+' : null,
+          onClick: "navigate('pricing')"
+        });
+      }
       
       // Card 7 : Profil
       cardsHTML += createCard({
