@@ -1,0 +1,1321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MeeTempo Admin Dashboard</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        :root {
+            --mt-bg: #0f172a;
+            --mt-bg-light: #1e293b;
+            --mt-accent: #f97316;
+            --mt-accent-light: #fb923c;
+            --mt-text: #f8fafc;
+            --mt-muted: #94a3b8;
+            --mt-success: #10b981;
+            --mt-danger: #ef4444;
+            --mt-warning: #f59e0b;
+            --mt-info: #3b82f6;
+            --glass-bg: rgba(255, 255, 255, 0.03);
+            --glass-border: rgba(255, 255, 255, 0.1);
+        }
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--mt-bg);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-attachment: fixed;
+            min-height: 100vh;
+            color: var(--mt-text);
+        }
+
+        /* ===== LOGIN SCREEN ===== */
+        .login-screen {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .login-box {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border);
+            border-radius: 24px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, var(--mt-accent), #fbbf24);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            font-weight: 900;
+            color: var(--mt-bg);
+            font-family: 'Montserrat', sans-serif;
+            margin-bottom: 24px;
+        }
+
+        .login-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .login-subtitle {
+            color: var(--mt-muted);
+            font-size: 14px;
+            margin-bottom: 32px;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--mt-muted);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 10px;
+            color: white;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--mt-accent);
+            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.1);
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: none;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--mt-accent), var(--mt-accent-light));
+            color: #111;
+            width: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(249, 115, 22, 0.3);
+        }
+
+        .btn-success { background: var(--mt-success); color: white; }
+        .btn-danger { background: var(--mt-danger); color: white; }
+        .btn-secondary { background: var(--mt-bg-light); color: var(--mt-text); border: 1px solid var(--glass-border); }
+
+        .btn-sm { padding: 8px 16px; font-size: 13px; }
+
+        .login-error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: #fca5a5;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 13px;
+            margin-bottom: 16px;
+            display: none;
+        }
+
+        /* ===== DASHBOARD ===== */
+        .dashboard { display: none; }
+        .dashboard.active { display: block; }
+
+        .header {
+            background: var(--glass-bg);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid var(--glass-border);
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .header-logo {
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, var(--mt-accent), #fbbf24);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--mt-bg);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .header-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 18px;
+            font-weight: 700;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .admin-email {
+            color: var(--mt-muted);
+            font-size: 13px;
+        }
+
+        .btn-logout {
+            background: rgba(239, 68, 68, 0.1);
+            color: #fca5a5;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-logout:hover {
+            background: rgba(239, 68, 68, 0.2);
+        }
+
+        /* ===== NAVIGATION TABS ===== */
+        .nav-tabs {
+            display: flex;
+            gap: 8px;
+            padding: 16px 24px;
+            border-bottom: 1px solid var(--glass-border);
+            overflow-x: auto;
+        }
+
+        .nav-tab {
+            padding: 10px 20px;
+            background: transparent;
+            border: 1px solid var(--glass-border);
+            border-radius: 8px;
+            color: var(--mt-muted);
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            background: var(--glass-bg);
+            color: var(--mt-text);
+        }
+
+        .nav-tab.active {
+            background: var(--mt-accent);
+            color: #111;
+            border-color: var(--mt-accent);
+        }
+
+        /* ===== CONTENT ===== */
+        .content {
+            padding: 24px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* ===== STATS CARDS ===== */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .stat-card {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: var(--mt-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        .stat-value {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .stat-sub {
+            font-size: 12px;
+            color: var(--mt-muted);
+            margin-top: 4px;
+        }
+
+        .stat-card.accent { border-color: var(--mt-accent); }
+        .stat-card.success { border-color: var(--mt-success); }
+        .stat-card.warning { border-color: var(--mt-warning); }
+        .stat-card.info { border-color: var(--mt-info); }
+
+        /* ===== TABLES ===== */
+        .table-container {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        .table-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .table-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .table-filters {
+            display: flex;
+            gap: 12px;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--glass-border);
+            flex-wrap: wrap;
+        }
+
+        .filter-select, .filter-input {
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--glass-border);
+            border-radius: 6px;
+            color: white;
+            font-size: 13px;
+        }
+
+        .filter-select option { background: var(--mt-bg); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--glass-border);
+        }
+
+        th {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--mt-muted);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        td { font-size: 14px; }
+
+        tr:hover { background: rgba(255, 255, 255, 0.02); }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .badge-success { background: rgba(16, 185, 129, 0.1); color: #34d399; }
+        .badge-warning { background: rgba(245, 158, 11, 0.1); color: #fbbf24; }
+        .badge-danger { background: rgba(239, 68, 68, 0.1); color: #fca5a5; }
+        .badge-info { background: rgba(59, 130, 246, 0.1); color: #60a5fa; }
+        .badge-vip { background: rgba(249, 115, 22, 0.1); color: #fb923c; }
+        .badge-b2b { background: rgba(139, 92, 246, 0.1); color: #a78bfa; }
+
+        /* ===== QUOTA BAR ===== */
+        .quota-section {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .quota-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .quota-title {
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .quota-bar-container {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 10px;
+            height: 24px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+
+        .quota-bar {
+            height: 100%;
+            background: linear-gradient(90deg, var(--mt-success), var(--mt-accent));
+            border-radius: 10px;
+            transition: width 0.5s ease;
+        }
+
+        .quota-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: var(--mt-muted);
+        }
+
+        .waves-history {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid var(--glass-border);
+        }
+
+        .wave-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            font-size: 13px;
+        }
+
+        .wave-item span:first-child { color: var(--mt-muted); }
+
+        /* ===== SECTION BOXES ===== */
+        .section-box {
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--mt-accent);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        /* ===== CHARTS / BREAKDOWN ===== */
+        .breakdown-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 12px;
+        }
+
+        .breakdown-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 10px;
+            padding: 14px;
+            text-align: center;
+        }
+
+        .breakdown-value {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .breakdown-label {
+            font-size: 11px;
+            color: var(--mt-muted);
+            text-transform: uppercase;
+        }
+
+        /* ===== LOADING ===== */
+        .loading {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 40px;
+            color: var(--mt-muted);
+        }
+
+        .spinner {
+            width: 24px;
+            height: 24px;
+            border: 3px solid var(--glass-border);
+            border-top-color: var(--mt-accent);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-right: 12px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ===== RESPONSIVE ===== */
+        @media (max-width: 768px) {
+            .header { flex-direction: column; gap: 12px; }
+            .nav-tabs { padding: 12px 16px; }
+            .content { padding: 16px; }
+            .stats-grid { grid-template-columns: repeat(2, 1fr); }
+            .table-filters { flex-direction: column; }
+            .filter-select, .filter-input { width: 100%; }
+            th, td { padding: 10px 12px; font-size: 12px; }
+        }
+
+        /* ===== MODAL ===== */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: var(--mt-bg-light);
+            border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 24px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        .modal-title {
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 16px;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== LOGIN SCREEN ===== -->
+    <div class="login-screen" id="loginScreen">
+        <div class="login-box">
+            <div class="login-logo">MT</div>
+            <h1 class="login-title">Admin Dashboard</h1>
+            <p class="login-subtitle">Connectez-vous pour accéder au panneau d'administration</p>
+            
+            <div class="login-error" id="loginError"></div>
+            
+            <form onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" class="form-input" id="loginEmail" placeholder="admin@meetempo.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Mot de passe</label>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" id="loginBtn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Se connecter
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===== DASHBOARD ===== -->
+    <div class="dashboard" id="dashboard">
+        
+        <!-- Header -->
+        <header class="header">
+            <div class="header-left">
+                <div class="header-logo">MT</div>
+                <span class="header-title">Admin Dashboard</span>
+            </div>
+            <div class="header-right">
+                <span class="admin-email" id="adminEmail"></span>
+                <button class="btn-logout" onclick="handleLogout()">
+                    <i class="fas fa-sign-out-alt"></i> Déconnexion
+                </button>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="nav-tabs">
+            <button class="nav-tab active" data-tab="stats">
+                <i class="fas fa-chart-bar"></i> Stats
+            </button>
+            <button class="nav-tab" data-tab="waitlist">
+                <i class="fas fa-list"></i> Waitlist
+            </button>
+            <button class="nav-tab" data-tab="vip">
+                <i class="fas fa-crown"></i> VIP
+            </button>
+            <button class="nav-tab" data-tab="quotas">
+                <i class="fas fa-layer-group"></i> Quotas
+            </button>
+            <button class="nav-tab" data-tab="users">
+                <i class="fas fa-users"></i> Users
+            </button>
+            <button class="nav-tab" data-tab="b2b">
+                <i class="fas fa-building"></i> B2B
+            </button>
+        </nav>
+
+        <!-- Content -->
+        <main class="content">
+            
+            <!-- ===== TAB: STATS ===== -->
+            <div class="tab-panel active" id="tab-stats">
+                <div class="stats-grid" id="statsGrid">
+                    <div class="loading"><div class="spinner"></div> Chargement...</div>
+                </div>
+                
+                <div class="section-box">
+                    <div class="section-title"><i class="fas fa-chart-pie"></i> Répartition par Plan</div>
+                    <div class="breakdown-grid" id="planBreakdown"></div>
+                </div>
+                
+                <div class="section-box">
+                    <div class="section-title"><i class="fas fa-globe"></i> Top Pays</div>
+                    <div class="breakdown-grid" id="countryBreakdown"></div>
+                </div>
+                
+                <div class="section-box">
+                    <div class="section-title"><i class="fas fa-city"></i> Top Villes</div>
+                    <div class="breakdown-grid" id="cityBreakdown"></div>
+                </div>
+            </div>
+
+            <!-- ===== TAB: WAITLIST ===== -->
+            <div class="tab-panel" id="tab-waitlist">
+                <div class="table-container">
+                    <div class="table-header">
+                        <span class="table-title">Liste d'attente</span>
+                        <div class="table-actions">
+                            <button class="btn btn-secondary btn-sm" onclick="exportWaitlist()">
+                                <i class="fas fa-download"></i> Export CSV
+                            </button>
+                            <button class="btn btn-secondary btn-sm" onclick="loadWaitlist()">
+                                <i class="fas fa-sync"></i> Rafraîchir
+                            </button>
+                        </div>
+                    </div>
+                    <div class="table-filters">
+                        <select class="filter-select" id="waitlistFilter" onchange="loadWaitlist()">
+                            <option value="all">Tous</option>
+                            <option value="founders">Fondateurs</option>
+                            <option value="vip_applied">VIP Applied</option>
+                            <option value="converted">Convertis</option>
+                            <option value="not_converted">Non convertis</option>
+                        </select>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Email</th>
+                                    <th>Date</th>
+                                    <th>Fondateur</th>
+                                    <th>VIP</th>
+                                    <th>Converti</th>
+                                </tr>
+                            </thead>
+                            <tbody id="waitlistTable">
+                                <tr><td colspan="6" class="loading"><div class="spinner"></div> Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TAB: VIP ===== -->
+            <div class="tab-panel" id="tab-vip">
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card accent">
+                        <div class="stat-label">Candidatures en attente</div>
+                        <div class="stat-value" id="vipPendingCount">-</div>
+                    </div>
+                </div>
+                
+                <div class="table-container">
+                    <div class="table-header">
+                        <span class="table-title">Candidatures VIP</span>
+                        <div class="table-actions">
+                            <select class="filter-select" id="vipFilter" onchange="loadVipCandidates()">
+                                <option value="pending">En attente</option>
+                                <option value="approved">Approuvées</option>
+                                <option value="rejected">Refusées</option>
+                                <option value="all">Toutes</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Nom</th>
+                                    <th>Poste</th>
+                                    <th>Entreprise</th>
+                                    <th>LinkedIn</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="vipTable">
+                                <tr><td colspan="7" class="loading"><div class="spinner"></div> Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TAB: QUOTAS ===== -->
+            <div class="tab-panel" id="tab-quotas">
+                <div class="quota-section">
+                    <div class="quota-header">
+                        <span class="quota-title">Quota Waitlist</span>
+                        <button class="btn btn-primary btn-sm" onclick="unlockWave()">
+                            <i class="fas fa-plus"></i> Débloquer +500 places
+                        </button>
+                    </div>
+                    <div class="quota-bar-container">
+                        <div class="quota-bar" id="quotaBar" style="width: 0%"></div>
+                    </div>
+                    <div class="quota-labels">
+                        <span id="quotaUsed">0 utilisés</span>
+                        <span id="quotaLimit">sur 500</span>
+                    </div>
+                    
+                    <div class="waves-history">
+                        <div class="section-title"><i class="fas fa-history"></i> Historique des vagues</div>
+                        <div id="wavesHistory"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TAB: USERS ===== -->
+            <div class="tab-panel" id="tab-users">
+                <div class="table-container">
+                    <div class="table-header">
+                        <span class="table-title">Tous les utilisateurs</span>
+                        <button class="btn btn-secondary btn-sm" onclick="loadUsers()">
+                            <i class="fas fa-sync"></i> Rafraîchir
+                        </button>
+                    </div>
+                    <div class="table-filters">
+                        <select class="filter-select" id="userPlanFilter" onchange="loadUsers()">
+                            <option value="all">Tous les plans</option>
+                            <option value="free">Free</option>
+                            <option value="meeting">Meeting</option>
+                            <option value="premium">Premium</option>
+                            <option value="vip">VIP</option>
+                            <option value="b2b">B2B</option>
+                        </select>
+                        <select class="filter-select" id="userStatusFilter" onchange="loadUsers()">
+                            <option value="all">Tous statuts</option>
+                            <option value="active">Actif</option>
+                            <option value="pending">Pending</option>
+                        </select>
+                        <input type="text" class="filter-input" id="userSearch" placeholder="Recherche email..." onkeyup="debounceSearch()">
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Nom</th>
+                                    <th>Plan</th>
+                                    <th>Statut</th>
+                                    <th>Pays</th>
+                                    <th>Ville</th>
+                                    <th>Créé le</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTable">
+                                <tr><td colspan="7" class="loading"><div class="spinner"></div> Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <div style="padding: 16px; text-align: center;">
+                        <span id="usersCount" style="color: var(--mt-muted); font-size: 13px;"></span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== TAB: B2B ===== -->
+            <div class="tab-panel" id="tab-b2b">
+                <div class="stats-grid" id="b2bStats">
+                    <div class="loading"><div class="spinner"></div> Chargement...</div>
+                </div>
+                
+                <div class="table-container" style="margin-top: 24px;">
+                    <div class="table-header">
+                        <span class="table-title">Entreprises B2B</span>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Entreprise</th>
+                                    <th>Plan</th>
+                                    <th>Tier</th>
+                                    <th>Admin</th>
+                                    <th>Membres</th>
+                                    <th>Paiement</th>
+                                    <th>Créé le</th>
+                                </tr>
+                            </thead>
+                            <tbody id="b2bTable">
+                                <tr><td colspan="7" class="loading"><div class="spinner"></div> Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- ===== MODAL CONFIRMATION ===== -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <h3 class="modal-title" id="modalTitle">Confirmer l'action</h3>
+            <p id="modalMessage" style="color: var(--mt-muted); font-size: 14px;"></p>
+            <div class="modal-actions">
+                <button class="btn btn-secondary btn-sm" onclick="closeModal()">Annuler</button>
+                <button class="btn btn-primary btn-sm" id="modalConfirmBtn" onclick="confirmAction()">Confirmer</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONFIG =====
+        const API_BASE = 'https://api.meetempo.com';
+        let adminToken = localStorage.getItem('admin_token');
+        let currentAction = null;
+        let searchTimeout = null;
+
+        // ===== INIT =====
+        document.addEventListener('DOMContentLoaded', () => {
+            if (adminToken) {
+                showDashboard();
+                loadAllData();
+            }
+            
+            // Tab navigation
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+                    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+                    tab.classList.add('active');
+                    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+                });
+            });
+        });
+
+        // ===== LOGIN =====
+        async function handleLogin(e) {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            const errorDiv = document.getElementById('loginError');
+            
+            btn.innerHTML = '<div class="spinner" style="width:16px;height:16px;margin:0"></div> Connexion...';
+            btn.disabled = true;
+            errorDiv.style.display = 'none';
+            
+            try {
+                const res = await fetch(`${API_BASE}/admin/login`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email, password })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok && data.admin_token) {
+                    adminToken = data.admin_token;
+                    localStorage.setItem('admin_token', adminToken);
+                    localStorage.setItem('admin_email', email);
+                    showDashboard();
+                    loadAllData();
+                } else {
+                    errorDiv.textContent = data.error || 'Erreur de connexion';
+                    errorDiv.style.display = 'block';
+                }
+            } catch (err) {
+                errorDiv.textContent = 'Erreur réseau';
+                errorDiv.style.display = 'block';
+            }
+            
+            btn.innerHTML = '<i class="fas fa-sign-in-alt"></i> Se connecter';
+            btn.disabled = false;
+        }
+
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('dashboard').classList.add('active');
+            document.getElementById('adminEmail').textContent = localStorage.getItem('admin_email') || '';
+        }
+
+        function handleLogout() {
+            localStorage.removeItem('admin_token');
+            localStorage.removeItem('admin_email');
+            adminToken = null;
+            document.getElementById('dashboard').classList.remove('active');
+            document.getElementById('loginScreen').style.display = 'flex';
+        }
+
+        // ===== LOAD ALL DATA =====
+        function loadAllData() {
+            loadStats();
+            loadWaitlist();
+            loadVipCandidates();
+            loadQuotas();
+            loadUsers();
+            loadCompanies();
+        }
+
+        // ===== STATS =====
+        async function loadStats() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/stats?admin_token=${adminToken}`);
+                const data = await res.json();
+                
+                if (!res.ok) {
+                    if (res.status === 401) handleLogout();
+                    return;
+                }
+                
+                // Stats cards
+                document.getElementById('statsGrid').innerHTML = `
+                    <div class="stat-card accent">
+                        <div class="stat-label">Waitlist Total</div>
+                        <div class="stat-value">${data.waitlist.total}</div>
+                        <div class="stat-sub">${data.waitlist.founders} fondateurs</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-label">Convertis</div>
+                        <div class="stat-value">${data.waitlist.converted}</div>
+                        <div class="stat-sub">${Math.round(data.waitlist.converted / Math.max(1, data.waitlist.total) * 100)}% taux conversion</div>
+                    </div>
+                    <div class="stat-card info">
+                        <div class="stat-label">Users Total</div>
+                        <div class="stat-value">${data.users.total}</div>
+                        <div class="stat-sub">${data.users.active} actifs</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-label">VIP en attente</div>
+                        <div class="stat-value">${data.vip_applications_pending}</div>
+                    </div>
+                `;
+                
+                // Plan breakdown
+                const plans = data.users.by_plan;
+                document.getElementById('planBreakdown').innerHTML = `
+                    <div class="breakdown-item">
+                        <div class="breakdown-value" style="color: var(--mt-muted)">${plans.free}</div>
+                        <div class="breakdown-label">Free</div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="breakdown-value" style="color: var(--mt-info)">${plans.meeting}</div>
+                        <div class="breakdown-label">Meeting</div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="breakdown-value" style="color: var(--mt-success)">${plans.premium}</div>
+                        <div class="breakdown-label">Premium</div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="breakdown-value" style="color: var(--mt-accent)">${plans.vip}</div>
+                        <div class="breakdown-label">VIP</div>
+                    </div>
+                    <div class="breakdown-item">
+                        <div class="breakdown-value" style="color: #a78bfa">${plans.b2b}</div>
+                        <div class="breakdown-label">B2B</div>
+                    </div>
+                `;
+                
+                // Country breakdown
+                const countries = Object.entries(data.geography.by_country).slice(0, 6);
+                document.getElementById('countryBreakdown').innerHTML = countries.map(([country, count]) => `
+                    <div class="breakdown-item">
+                        <div class="breakdown-value">${count}</div>
+                        <div class="breakdown-label">${country}</div>
+                    </div>
+                `).join('') || '<div style="color: var(--mt-muted); padding: 20px;">Aucune donnée</div>';
+                
+                // City breakdown
+                const cities = Object.entries(data.geography.top_cities).slice(0, 6);
+                document.getElementById('cityBreakdown').innerHTML = cities.map(([city, count]) => `
+                    <div class="breakdown-item">
+                        <div class="breakdown-value">${count}</div>
+                        <div class="breakdown-label">${city}</div>
+                    </div>
+                `).join('') || '<div style="color: var(--mt-muted); padding: 20px;">Aucune donnée</div>';
+                
+            } catch (err) {
+                console.error('Erreur loadStats:', err);
+            }
+        }
+
+        // ===== WAITLIST =====
+        async function loadWaitlist() {
+            const filter = document.getElementById('waitlistFilter').value;
+            
+            try {
+                const res = await fetch(`${API_BASE}/admin/waitlist?admin_token=${adminToken}&filter=${filter}&limit=200`);
+                const data = await res.json();
+                
+                if (!res.ok) return;
+                
+                const tbody = document.getElementById('waitlistTable');
+                
+                if (data.entries.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucun résultat</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.entries.map(entry => `
+                    <tr>
+                        <td>${entry.position || '-'}</td>
+                        <td>${entry.email}</td>
+                        <td>${new Date(entry.date).toLocaleDateString('fr-FR')}</td>
+                        <td>${entry.founder ? '<span class="badge badge-success">Oui</span>' : '<span class="badge badge-warning">Non</span>'}</td>
+                        <td>${entry.vip_applied ? (entry.vip_approved ? '<span class="badge badge-vip">Approuvé</span>' : '<span class="badge badge-info">Applied</span>') : '-'}</td>
+                        <td>${entry.converted ? '<span class="badge badge-success">Oui</span>' : '<span class="badge badge-danger">Non</span>'}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (err) {
+                console.error('Erreur loadWaitlist:', err);
+            }
+        }
+
+        function exportWaitlist() {
+            window.open(`${API_BASE}/admin/waitlist?admin_token=${adminToken}&limit=10000&format=csv`, '_blank');
+            // Note: Le format CSV n'est pas implémenté côté backend, tu peux l'ajouter plus tard
+            alert('Export CSV : fonctionnalité à implémenter côté backend');
+        }
+
+        // ===== VIP =====
+        async function loadVipCandidates() {
+            const filter = document.getElementById('vipFilter').value;
+            
+            try {
+                const res = await fetch(`${API_BASE}/admin/vip/candidates?admin_token=${adminToken}&status=${filter}`);
+                const data = await res.json();
+                
+                if (!res.ok) return;
+                
+                document.getElementById('vipPendingCount').textContent = data.candidates.filter(c => c.status === 'pending').length;
+                
+                const tbody = document.getElementById('vipTable');
+                
+                if (data.candidates.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucune candidature</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.candidates.map(c => `
+                    <tr>
+                        <td>${c.email}</td>
+                        <td>${c.name || '-'}</td>
+                        <td>${c.poste || '-'}</td>
+                        <td>${c.entreprise || '-'}</td>
+                        <td>${c.linkedin ? `<a href="${c.linkedin}" target="_blank" style="color:var(--mt-info)"><i class="fab fa-linkedin"></i></a>` : '-'}</td>
+                        <td>${new Date(c.applied_at).toLocaleDateString('fr-FR')}</td>
+                        <td>
+                            ${c.status === 'pending' ? `
+                                <button class="btn btn-success btn-sm" onclick="approveVip('${c.email}')" style="margin-right:4px;">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn btn-danger btn-sm" onclick="rejectVip('${c.email}')">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : `<span class="badge ${c.status === 'approved' ? 'badge-success' : 'badge-danger'}">${c.status}</span>`}
+                        </td>
+                    </tr>
+                `).join('');
+                
+            } catch (err) {
+                console.error('Erreur loadVipCandidates:', err);
+            }
+        }
+
+        function approveVip(email) {
+            currentAction = { type: 'approve_vip', email };
+            document.getElementById('modalTitle').textContent = 'Approuver VIP';
+            document.getElementById('modalMessage').textContent = `Approuver ${email} comme VIP Fondateur ?`;
+            document.getElementById('modalConfirmBtn').className = 'btn btn-success btn-sm';
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        function rejectVip(email) {
+            currentAction = { type: 'reject_vip', email };
+            document.getElementById('modalTitle').textContent = 'Refuser VIP';
+            document.getElementById('modalMessage').textContent = `Refuser la candidature VIP de ${email} ?`;
+            document.getElementById('modalConfirmBtn').className = 'btn btn-danger btn-sm';
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        async function confirmAction() {
+            if (!currentAction) return;
+            
+            closeModal();
+            
+            if (currentAction.type === 'approve_vip') {
+                await fetch(`${API_BASE}/admin/vip/approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_token: adminToken, email: currentAction.email })
+                });
+            } else if (currentAction.type === 'reject_vip') {
+                await fetch(`${API_BASE}/admin/vip/reject`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_token: adminToken, email: currentAction.email })
+                });
+            } else if (currentAction.type === 'unlock_wave') {
+                await fetch(`${API_BASE}/admin/quotas/unlock`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_token: adminToken, places: 500 })
+                });
+            }
+            
+            currentAction = null;
+            loadAllData();
+        }
+
+        function closeModal() {
+            document.getElementById('confirmModal').classList.remove('active');
+        }
+
+        // ===== QUOTAS =====
+        async function loadQuotas() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/quotas?admin_token=${adminToken}`);
+                const data = await res.json();
+                
+                if (!res.ok) return;
+                
+                document.getElementById('quotaBar').style.width = `${data.percent_used}%`;
+                document.getElementById('quotaUsed').textContent = `${data.places_used} utilisés`;
+                document.getElementById('quotaLimit').textContent = `sur ${data.current_limit}`;
+                
+                document.getElementById('wavesHistory').innerHTML = data.waves.map(w => `
+                    <div class="wave-item">
+                        <span>Vague ${w.wave_number} (+${w.places} places)</span>
+                        <span>${new Date(w.unlocked_at).toLocaleDateString('fr-FR')} par ${w.unlocked_by}</span>
+                    </div>
+                `).join('');
+                
+            } catch (err) {
+                console.error('Erreur loadQuotas:', err);
+            }
+        }
+
+        function unlockWave() {
+            currentAction = { type: 'unlock_wave' };
+            document.getElementById('modalTitle').textContent = 'Débloquer nouvelle vague';
+            document.getElementById('modalMessage').textContent = 'Ajouter +500 places à la waitlist ?';
+            document.getElementById('modalConfirmBtn').className = 'btn btn-primary btn-sm';
+            document.getElementById('confirmModal').classList.add('active');
+        }
+
+        // ===== USERS =====
+        async function loadUsers() {
+            const plan = document.getElementById('userPlanFilter').value;
+            const status = document.getElementById('userStatusFilter').value;
+            const search = document.getElementById('userSearch').value;
+            
+            try {
+                let url = `${API_BASE}/admin/users?admin_token=${adminToken}&plan=${plan}&status=${status}&limit=100`;
+                if (search) url += `&search=${encodeURIComponent(search)}`;
+                
+                const res = await fetch(url);
+                const data = await res.json();
+                
+                if (!res.ok) return;
+                
+                document.getElementById('usersCount').textContent = `${data.total} utilisateur(s) trouvé(s)`;
+                
+                const tbody = document.getElementById('usersTable');
+                
+                if (data.users.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucun utilisateur</td></tr>';
+                    return;
+                }
+                
+                const planBadge = (plan) => {
+                    const badges = {
+                        'free': 'badge-warning',
+                        'meeting': 'badge-info',
+                        'premium': 'badge-success',
+                        'vip': 'badge-vip',
+                        'b2b': 'badge-b2b',
+                        'b2b_centralized': 'badge-b2b',
+                        'b2b_delegated': 'badge-b2b'
+                    };
+                    return badges[plan] || 'badge-warning';
+                };
+                
+                tbody.innerHTML = data.users.map(u => `
+                    <tr>
+                        <td>${u.email || '-'}</td>
+                        <td>${u.name || '-'}</td>
+                        <td><span class="badge ${planBadge(u.plan)}">${u.plan}</span></td>
+                        <td><span class="badge ${u.status === 'active' ? 'badge-success' : 'badge-warning'}">${u.status}</span></td>
+                        <td>${u.country || '-'}</td>
+                        <td>${u.city || '-'}</td>
+                        <td>${u.created_at ? new Date(u.created_at).toLocaleDateString('fr-FR') : '-'}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (err) {
+                console.error('Erreur loadUsers:', err);
+            }
+        }
+
+        function debounceSearch() {
+            clearTimeout(searchTimeout);
+            searchTimeout = setTimeout(loadUsers, 300);
+        }
+
+        // ===== B2B =====
+        async function loadCompanies() {
+            try {
+                const res = await fetch(`${API_BASE}/admin/companies?admin_token=${adminToken}`);
+                const data = await res.json();
+                
+                if (!res.ok) return;
+                
+                // Stats B2B
+                document.getElementById('b2bStats').innerHTML = `
+                    <div class="stat-card" style="border-color: #a78bfa;">
+                        <div class="stat-label">Entreprises</div>
+                        <div class="stat-value">${data.stats.total_companies}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Sièges facturés</div>
+                        <div class="stat-value">${data.stats.total_seats}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Employés actifs</div>
+                        <div class="stat-value">${data.stats.total_employees}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Centralisé / Délégué</div>
+                        <div class="stat-value">${data.stats.by_plan.b2b_centralized || 0} / ${data.stats.by_plan.b2b_delegated || 0}</div>
+                    </div>
+                `;
+                
+                // Table
+                const tbody = document.getElementById('b2bTable');
+                
+                if (data.companies.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucune entreprise</td></tr>';
+                    return;
+                }
+                
+                tbody.innerHTML = data.companies.map(c => `
+                    <tr>
+                        <td><strong>${c.company_name}</strong><br><small style="color:var(--mt-muted)">${c.domains.join(', ')}</small></td>
+                        <td><span class="badge badge-b2b">${c.plan}</span></td>
+                        <td>${c.billing_tier || '-'}</td>
+                        <td>${c.admin ? c.admin.email : '-'}</td>
+                        <td>${c.members_count} membre(s)</td>
+                        <td><span class="badge ${c.payment_status === 'active' ? 'badge-success' : 'badge-warning'}">${c.payment_status}</span></td>
+                        <td>${c.created_at ? new Date(c.created_at).toLocaleDateString('fr-FR') : '-'}</td>
+                    </tr>
+                `).join('');
+                
+            } catch (err) {
+                console.error('Erreur loadCompanies:', err);
+            }
+        }
+    </script>
+</body>
+</html>
