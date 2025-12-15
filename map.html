@@ -748,43 +748,132 @@
   }
   
   .top-bar h1 {
-    font-size: 16px;
+    font-size: 14px;
   }
   
   .stats {
-    gap: 8px;
-    font-size: 12px;
+    gap: 6px;
+    font-size: 11px;
   }
   
   .stat-item {
-    padding: 4px 8px;
+    padding: 4px 6px;
   }
   
+  /* 🔧 FIX 1 : Barre recherche plus basse pour éviter conflit */
   .search-bar {
-    top: 66px;
-    width: calc(100% - 24px);
+    top: 62px;
+    width: calc(100% - 16px);
   }
   
   .search-wrapper {
-    padding: 10px 12px;
+    padding: 8px 12px;
   }
   
+  /* 🔧 FIX 2 : Autocomplete au-dessus du sélecteur distance */
+  .search-autocomplete-results {
+    max-height: 250px;
+    z-index: 10001;
+  }
+  
+  /* 🔧 FIX 3 : Distance selector repositionné (en bas à droite) */
   .distance-selector {
-    top: 135px;
+    top: auto;
+    bottom: 220px;
     right: 12px;
+    padding: 8px;
+  }
+  
+  .distance-label {
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+  
+  .distance-buttons {
+    flex-direction: column;
+    gap: 4px;
+  }
+  
+  .distance-btn {
+    padding: 6px 10px;
+    font-size: 10px;
   }
   
   #map {
     top: 56px;
+    bottom: 180px;
   }
   
-  /* 🔥 NOUVEAU : Bouton ma position mobile */
+  /* 🔧 FIX 4 : Bouton ma position mobile repositionné */
   .my-location-btn {
-    top: 210px;
+    top: auto;
+    bottom: 340px;
     right: 12px;
-    width: 44px;
-    height: 44px;
-    font-size: 20px;
+    width: 40px;
+    height: 40px;
+    font-size: 18px;
+  }
+  
+  /* 🔧 FIX 5 : Bottom sheet plus compact */
+  .bottom-sheet {
+    height: 180px;
+  }
+  
+  .sheet-content {
+    padding: 0 12px 12px;
+  }
+  
+  /* 🔧 FIX 6 : Cards suggestions plus petites */
+  .user-card {
+    min-width: 240px;
+    padding: 12px;
+  }
+  
+  .user-header {
+    margin-bottom: 8px;
+  }
+  
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+  
+  .user-info h3 {
+    font-size: 14px;
+  }
+  
+  .user-distance {
+    font-size: 11px;
+  }
+  
+  .user-suggestion {
+    font-size: 12px;
+    margin-bottom: 6px;
+  }
+  
+  .user-location {
+    font-size: 11px;
+    margin-bottom: 8px;
+  }
+  
+  .btn {
+    padding: 6px 10px;
+    font-size: 12px;
+  }
+  
+  /* 🔧 FIX 7 : Flèches navigation plus petites */
+  .nav-arrow {
+    width: 28px;
+    height: 28px;
+    font-size: 18px;
+  }
+  
+  /* 🔧 FIX 8 : Bouton Hub plus compact */
+  .btn-hub {
+    padding: 4px 8px;
+    font-size: 10px;
+    margin-left: 6px;
   }
 }
 
