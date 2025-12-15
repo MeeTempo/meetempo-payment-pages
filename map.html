@@ -816,57 +816,94 @@
   
   /* 🔧 FIX 5 : Bottom sheet plus compact */
   .bottom-sheet {
-    height: 180px;
+    height: 160px;
+  }
+  
+  .bottom-sheet.expanded {
+    height: 50vh;
+  }
+  
+  .sheet-handle {
+    margin: 8px auto;
   }
   
   .sheet-content {
-    padding: 0 12px 12px;
+    padding: 0 40px 12px;
+    height: calc(100% - 20px);
+  }
+  
+  .users-grid {
+    gap: 12px;
+    padding-bottom: 8px;
   }
   
   /* 🔧 FIX 6 : Cards suggestions plus petites */
   .user-card {
-    min-width: 240px;
-    padding: 12px;
+    min-width: 200px;
+    max-width: 220px;
+    padding: 10px;
+    flex-shrink: 0;
   }
   
   .user-header {
-    margin-bottom: 8px;
+    margin-bottom: 6px;
+    gap: 8px;
   }
   
   .user-avatar {
-    width: 36px;
-    height: 36px;
-    font-size: 14px;
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
   }
   
   .user-info h3 {
-    font-size: 14px;
+    font-size: 13px;
   }
   
   .user-distance {
-    font-size: 11px;
+    font-size: 10px;
   }
   
   .user-suggestion {
-    font-size: 12px;
-    margin-bottom: 6px;
+    font-size: 11px;
+    margin-bottom: 4px;
+    line-height: 1.3;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
   }
   
   .user-location {
-    font-size: 11px;
-    margin-bottom: 8px;
+    font-size: 10px;
+    margin-bottom: 6px;
+  }
+  
+  .user-actions {
+    gap: 6px;
   }
   
   .btn {
-    padding: 6px 10px;
-    font-size: 12px;
+    padding: 6px 8px;
+    font-size: 11px;
   }
   
-  /* 🔧 FIX 7 : Flèches navigation plus petites */
+  /* 🔧 FIX 7 : Flèches navigation repositionnées */
   .nav-arrow {
-    width: 28px;
-    height: 28px;
-    font-size: 18px;
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+  
+  .nav-arrow-left {
+    left: 8px;
+  }
+  
+  .nav-arrow-right {
+    right: 8px;
   }
   
   /* 🔧 FIX 8 : Bouton Hub plus compact */
