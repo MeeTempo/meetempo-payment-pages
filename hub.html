@@ -1030,12 +1030,13 @@ updateUI(data);
         onClick: "navigate('pricing')"
       });
 
-      // Card : Candidater VIP (visible si Premium + non éligible)
+      // Card : Candidater VIP (visible si Premium + non éligible + pas encore candidaté)
       const vipEligible = data.user?.vip_eligible || false;
       const vipScore = data.user?.vip_score || 0;
       const profileCompletion = data.user?.profile_completion || 0;
+      const vipApplied = data.user?.vip_applied || false;
 
-      if (userPlan === 'premium' && !vipEligible) {
+      if (userPlan === 'premium' && !vipEligible && !vipApplied) {
         let vipCardSubtitle = '';
         let vipCardDisabled = false;
         
