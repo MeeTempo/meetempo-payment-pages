@@ -463,12 +463,39 @@
         </div>
 
         <div id="formContainer">
-            <div class="input-group">
+            <div class="input-group" style="margin-bottom: 12px;">
                 <input type="email" id="email" placeholder="Votre email pro ou perso..." required>
+            </div>
+            <div style="display: flex; gap: 10px; max-width: 400px; margin: 0 auto 16px auto;">
+                <input type="text" id="city" placeholder="Ville (ex: Paris, London...)" style="flex: 1; padding: 14px 16px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-size: 14px; font-family: 'Inter', sans-serif;">
+                <input type="text" id="country" placeholder="Pays" style="width: 120px; padding: 14px 16px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-size: 14px; font-family: 'Inter', sans-serif;">
+            </div>
+            <div class="input-group">
+                <div style="flex: 1;"></div>
                 <button class="submit-btn" onclick="registerLead()"><i class="fas fa-arrow-right"></i></button>
             </div>
+            
+            <!-- Barre de progression quota -->
+            <div id="quotaProgress" style="max-width: 400px; margin: 0 auto 20px auto; display: none;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                    <span id="quotaLabel" style="font-size: 13px; color: var(--mt-muted);">Places Fondateur</span>
+                    <span id="quotaPercent" style="font-size: 13px; font-weight: 600; color: var(--mt-accent);">25%</span>
+                </div>
+                <div style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 8px; overflow: hidden;">
+                    <div id="quotaBar" style="background: linear-gradient(90deg, var(--mt-accent), #fbbf24); height: 100%; width: 25%; border-radius: 10px; transition: width 0.5s ease;"></div>
+                </div>
+            </div>
+            
+            <!-- Message si quota atteint -->
+            <div id="quotaClosed" style="max-width: 400px; margin: 0 auto 20px auto; display: none; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: 12px; padding: 16px; text-align: center;">
+                <div style="font-size: 18px; margin-bottom: 8px;">🔥</div>
+                <div id="quotaClosedMessage" style="font-size: 14px; font-weight: 600; color: var(--mt-accent);">Victime de son succès !</div>
+                <div id="quotaClosedTimer" style="font-size: 13px; color: var(--mt-muted); margin-top: 4px;">Réouverture demain 12h</div>
+                <div id="quotaCountdown" style="font-size: 20px; font-weight: 700; color: white; margin-top: 8px;">--h --m --s</div>
+            </div>
+
             <div class="offer-tag">
-                👑 Les 200 premiers = Statut Membre Fondateur dès le lancement + -20% sur le tarif la première année + 45 jours Premium offerts
+                👑 Les 500 premiers = Statut Membre Fondateur dès le lancement + -20% sur le tarif la première année + 45 jours Premium en essai exclusif
             </div>
         </div>
 
@@ -680,60 +707,219 @@
         setInterval(updateCountdown, 1000);
         updateCountdown();
 
+        // === QUOTA DYNAMIQUE PAR ZONE ===
+        let currentZone = 'other';
+        let isQuotaOpen = true;
+        
+        async function loadQuota() {
+            const city = document.getElementById('city').value.trim();
+            const country = document.getElementById('country').value.trim();
+            
+            if (!city && !country) {
+                document.getElementById('quotaProgress').style.display = 'none';
+                document.getElementById('quotaClosed').style.display = 'none';
+                return;
+            }
+            
+            try {
+                const response = await fetch(`https://api.meetempo.com/waitlist/quota?city=${encodeURIComponent(city)}&country=${encodeURIComponent(country)}`);
+                const data = await response.json();
+                
+                currentZone = data.zone;
+                isQuotaOpen = data.is_open;
+                
+                // Mettre à jour les labels selon la langue
+                const isEnglish = data.zone === 'london' || ['uk', 'united kingdom', 'england'].includes(country.toLowerCase());
+                
+                if (data.is_open) {
+                    // Afficher barre de progression
+                    document.getElementById('quotaProgress').style.display = 'block';
+                    document.getElementById('quotaClosed').style.display = 'none';
+                    
+                    document.getElementById('quotaPercent').textContent = data.display_percent + '%';
+                    document.getElementById('quotaBar').style.width = data.display_percent + '%';
+                    document.getElementById('quotaLabel').textContent = isEnglish ? 'Founding Member spots' : 'Places Fondateur';
+                    
+                } else {
+                    // Afficher message fermé + countdown
+                    document.getElementById('quotaProgress').style.display = 'none';
+                    document.getElementById('quotaClosed').style.display = 'block';
+                    
+                    document.getElementById('quotaClosedMessage').textContent = isEnglish 
+                        ? '🔥 Sold out!' 
+                        : '🔥 Victime de son succès !';
+                    document.getElementById('quotaClosedTimer').textContent = isEnglish 
+                        ? 'Reopening tomorrow 12pm' 
+                        : 'Réouverture demain 12h';
+                    
+                    // Démarrer countdown si next_opening
+                    if (data.next_opening) {
+                        startQuotaCountdown(data.next_opening);
+                    }
+                }
+                
+                // Afficher/masquer section VIP selon éligibilité
+                if (data.vip_eligible) {
+                    document.getElementById('vipSection').style.display = 'block';
+                } else {
+                    document.getElementById('vipSection').style.display = 'none';
+                }
+                
+            } catch (err) {
+                console.error('Erreur chargement quota:', err);
+            }
+        }
+        
+        function startQuotaCountdown(nextOpening) {
+            const countdownEl = document.getElementById('quotaCountdown');
+            
+            const updateCountdown = () => {
+                const now = Date.now();
+                const diff = nextOpening - now;
+                
+                if (diff <= 0) {
+                    countdownEl.textContent = '🎉 Réouverture !';
+                    loadQuota(); // Recharger le quota
+                    return;
+                }
+                
+                const hours = Math.floor(diff / (1000 * 60 * 60));
+                const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((diff % (1000 * 60)) / 1000);
+                
+                countdownEl.textContent = `${hours}h ${minutes}m ${seconds}s`;
+            };
+            
+            updateCountdown();
+            setInterval(updateCountdown, 1000);
+        }
+        
+        // Charger quota quand ville ou pays change
+        document.addEventListener('DOMContentLoaded', () => {
+            const cityInput = document.getElementById('city');
+            const countryInput = document.getElementById('country');
+            
+            let debounceTimer;
+            const debounceLoad = () => {
+                clearTimeout(debounceTimer);
+                debounceTimer = setTimeout(loadQuota, 500);
+            };
+            
+            cityInput.addEventListener('input', debounceLoad);
+            countryInput.addEventListener('input', debounceLoad);
+        });
+
         // === 2. CAPTURE EMAIL (SIMULATION POUR L'INSTANT) ===
         // Note: Ici, tu peux brancher un vrai endpoint Backend si tu veux stocker les mails
         // Pour l'instant, ça simule le succès pour l'expérience utilisateur.
         
         async function registerLead() {
-    const email = document.getElementById('email').value;
+    const email = document.getElementById('email').value.trim();
+    const city = document.getElementById('city').value.trim();
+    const country = document.getElementById('country').value.trim();
+    
     if (!email || !email.includes('@')) {
         alert('Veuillez entrer un email valide.');
         return;
     }
+    
+    if (!city || !country) {
+        alert('Veuillez renseigner votre ville et pays.');
+        return;
+    }
 
     const btn = document.querySelector('.submit-btn');
-    const input = document.getElementById('email');
+    const emailInput = document.getElementById('email');
+    const cityInput = document.getElementById('city');
+    const countryInput = document.getElementById('country');
     
     btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-    input.disabled = true;
+    emailInput.disabled = true;
+    cityInput.disabled = true;
+    countryInput.disabled = true;
 
     try {
         const response = await fetch('https://api.meetempo.com/waitlist', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email })
+            body: JSON.stringify({ email, city, country })
         });
         
         const data = await response.json();
+        
+        // Cas quota atteint (429)
+        if (response.status === 429 && data.quota_reached) {
+            document.getElementById('quotaProgress').style.display = 'none';
+            document.getElementById('quotaClosed').style.display = 'block';
+            
+            const isEnglish = data.zone === 'london';
+            document.getElementById('quotaClosedMessage').textContent = isEnglish ? data.message_en : data.message_fr;
+            document.getElementById('quotaClosedTimer').textContent = data.time_remaining;
+            
+            if (data.next_opening) {
+                startQuotaCountdown(data.next_opening);
+            }
+            
+            btn.innerHTML = '<i class="fas fa-arrow-right"></i>';
+            emailInput.disabled = false;
+            cityInput.disabled = false;
+            countryInput.disabled = false;
+            return;
+        }
         
         if (response.ok) {
             // Stocker pour la section VIP
             localStorage.setItem('waitlist_email', email);
             localStorage.setItem('waitlist_founder', data.founder);
             localStorage.setItem('waitlist_position', data.position);
+            localStorage.setItem('waitlist_zone', data.zone);
+            localStorage.setItem('waitlist_city', city);
+            localStorage.setItem('waitlist_country', country);
+            
+            // Déterminer la langue
+            const isEnglish = data.zone === 'london' || ['uk', 'united kingdom', 'england', 'usa', 'united states', 'canada'].includes(country.toLowerCase());
+            
+            // Cacher formulaire et barre quota
+            document.getElementById('formContainer').style.display = 'none';
+            document.getElementById('quotaProgress').style.display = 'none';
+            document.getElementById('quotaClosed').style.display = 'none';
             
             // Afficher succès
-            document.getElementById('formContainer').style.display = 'none';
             document.getElementById('successMessage').style.display = 'block';
-            document.getElementById('successMessage').innerHTML = data.founder
-                ? `<i class="fas fa-crown" style="color: #f97316;"></i> Bienvenue Membre Fondateur #${data.position} !<br><small>Ton accès arrive le 7 janvier.</small>`
-                : `<i class="fas fa-check-circle"></i> Inscription confirmée !<br><small>45 jours Premium offerts dès le lancement.</small>`;
             
-            // Afficher section VIP si fondateur
             if (data.founder) {
-                document.getElementById('vipSection').style.display = 'block';
+                document.getElementById('successMessage').innerHTML = isEnglish
+                    ? `<i class="fas fa-crown" style="color: #f97316;"></i> Welcome Founding Member #${data.position}!<br><small>Your access arrives January 7th.</small>`
+                    : `<i class="fas fa-crown" style="color: #f97316;"></i> Bienvenue Membre Fondateur #${data.position} !<br><small>Ton accès arrive le 7 janvier.</small>`;
+            } else {
+                document.getElementById('successMessage').innerHTML = isEnglish
+                    ? `<i class="fas fa-check-circle"></i> Registration confirmed!<br><small>45 days exclusive Premium trial at launch.</small>`
+                    : `<i class="fas fa-check-circle"></i> Inscription confirmée !<br><small>45 jours Premium en essai exclusif dès le lancement.</small>`;
             }
+            
+            // Afficher section VIP si fondateur ET zone éligible
+            if (data.founder && data.vip_eligible) {
+                document.getElementById('vipSection').style.display = 'block';
+            } else {
+                document.getElementById('vipSection').style.display = 'none';
+            }
+            
         } else if (data.already_registered) {
-            alert('Cet email est déjà inscrit !');
+            const isEnglish = currentZone === 'london';
+            alert(isEnglish ? 'This email is already registered!' : 'Cet email est déjà inscrit !');
             btn.innerHTML = '<i class="fas fa-arrow-right"></i>';
-            input.disabled = false;
+            emailInput.disabled = false;
+            cityInput.disabled = false;
+            countryInput.disabled = false;
         } else {
             throw new Error(data.error);
         }
     } catch (err) {
         alert('Erreur : ' + err.message);
         btn.innerHTML = '<i class="fas fa-arrow-right"></i>';
-        input.disabled = false;
+        emailInput.disabled = false;
+        cityInput.disabled = false;
+        countryInput.disabled = false;
     }
 }
 
@@ -788,6 +974,9 @@ async function submitVipApplication() {
         const position = waitlistData.position || null;
         
         // 2. Puis soumettre candidature VIP
+        const city = document.getElementById('city')?.value.trim() || localStorage.getItem('waitlist_city') || '';
+        const country = document.getElementById('country')?.value.trim() || localStorage.getItem('waitlist_country') || '';
+        
         const response = await fetch('https://api.meetempo.com/waitlist/vip', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -797,7 +986,9 @@ async function submitVipApplication() {
                 poste, 
                 entreprise, 
                 linkedin,
-                position
+                position,
+                city,
+                country
             })
         });
         
