@@ -463,37 +463,11 @@
         </div>
 
         <div id="formContainer">
-            <div class="input-group" style="margin-bottom: 12px;">
-                <input type="email" id="email" placeholder="Votre email pro ou perso..." required>
-            </div>
-            <div style="display: flex; gap: 10px; max-width: 400px; margin: 0 auto 16px auto;">
-                <input type="text" id="city" placeholder="Ville (ex: Paris, London...)" style="flex: 1; padding: 14px 16px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-size: 14px; font-family: 'Inter', sans-serif;">
-                <input type="text" id="country" placeholder="Pays" style="width: 120px; padding: 14px 16px; background: rgba(0, 0, 0, 0.3); border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-size: 14px; font-family: 'Inter', sans-serif;">
-            </div>
             <div class="input-group">
-                <div style="flex: 1;"></div>
+                <input type="email" id="email" placeholder="Votre email pro ou perso..." required>
                 <button class="submit-btn" onclick="registerLead()"><i class="fas fa-arrow-right"></i></button>
             </div>
             
-            <!-- Barre de progression quota -->
-            <div id="quotaProgress" style="max-width: 400px; margin: 0 auto 20px auto; display: none;">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-                    <span id="quotaLabel" style="font-size: 13px; color: var(--mt-muted);">Places Fondateur</span>
-                    <span id="quotaPercent" style="font-size: 13px; font-weight: 600; color: var(--mt-accent);">25%</span>
-                </div>
-                <div style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 8px; overflow: hidden;">
-                    <div id="quotaBar" style="background: linear-gradient(90deg, var(--mt-accent), #fbbf24); height: 100%; width: 25%; border-radius: 10px; transition: width 0.5s ease;"></div>
-                </div>
-            </div>
-            
-            <!-- Message si quota atteint -->
-            <div id="quotaClosed" style="max-width: 400px; margin: 0 auto 20px auto; display: none; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: 12px; padding: 16px; text-align: center;">
-                <div style="font-size: 18px; margin-bottom: 8px;">🔥</div>
-                <div id="quotaClosedMessage" style="font-size: 14px; font-weight: 600; color: var(--mt-accent);">Victime de son succès !</div>
-                <div id="quotaClosedTimer" style="font-size: 13px; color: var(--mt-muted); margin-top: 4px;">Réouverture demain 12h</div>
-                <div id="quotaCountdown" style="font-size: 20px; font-weight: 700; color: white; margin-top: 8px;">--h --m --s</div>
-            </div>
-
             <div class="offer-tag">
                 👑 Les 500 premiers = Statut Membre Fondateur dès le lancement + -20% sur le tarif la première année + 45 jours Premium en essai exclusif
             </div>
@@ -582,6 +556,53 @@
                         <img src="images/demo-maestro.PNG" alt="Réponse Maestro MeeTempo" class="chat-screenshot" onclick="openLightbox(this.src)">
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Formulaire Inscription avec Ville/Pays -->
+        <div id="registrationForm" style="margin-top: 40px;">
+            <h3 style="font-family: 'Montserrat', sans-serif; font-size: 20px; font-weight: 700; color: white; text-align: center; margin-bottom: 24px;">
+                📍 Rejoins la liste d'attente
+            </h3>
+            
+            <div style="max-width: 400px; margin: 0 auto;">
+                <div style="margin-bottom: 12px;">
+                    <input type="email" id="email2" placeholder="Ton email pro ou perso..." style="width: 100%; padding: 14px 16px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-size: 14px; font-family: 'Inter', sans-serif;">
+                </div>
+                <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+                    <input type="text" id="city" placeholder="Ville (ex: Paris, London...)" style="flex: 1; padding: 14px 16px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-size: 14px; font-family: 'Inter', sans-serif;">
+                    <input type="text" id="country" placeholder="Pays" style="width: 120px; padding: 14px 16px; background: rgba(255, 255, 255, 0.1); border: 1px solid var(--glass-border); border-radius: 12px; color: white; font-size: 14px; font-family: 'Inter', sans-serif;">
+                </div>
+                
+                <!-- Barre de progression quota -->
+                <div id="quotaProgress" style="margin-bottom: 16px; display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <span id="quotaLabel" style="font-size: 13px; color: var(--mt-muted);">Places Fondateur</span>
+                        <span id="quotaPercent" style="font-size: 13px; font-weight: 600; color: var(--mt-accent);">25%</span>
+                    </div>
+                    <div style="background: rgba(255,255,255,0.1); border-radius: 10px; height: 8px; overflow: hidden;">
+                        <div id="quotaBar" style="background: linear-gradient(90deg, var(--mt-accent), #fbbf24); height: 100%; width: 25%; border-radius: 10px; transition: width 0.5s ease;"></div>
+                    </div>
+                </div>
+                
+                <!-- Message si quota atteint -->
+                <div id="quotaClosed" style="margin-bottom: 16px; display: none; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.3); border-radius: 12px; padding: 16px; text-align: center;">
+                    <div style="font-size: 18px; margin-bottom: 8px;">🔥</div>
+                    <div id="quotaClosedMessage" style="font-size: 14px; font-weight: 600; color: var(--mt-accent);">Victime de son succès !</div>
+                    <div id="quotaClosedTimer" style="font-size: 13px; color: var(--mt-muted); margin-top: 4px;">Réouverture demain 12h</div>
+                    <div id="quotaCountdown" style="font-size: 20px; font-weight: 700; color: white; margin-top: 8px;">--h --m --s</div>
+                </div>
+                
+                <button onclick="registerLead()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #f97316, #fbbf24); color: #111; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; font-size: 15px; transition: all 0.2s;">
+                    <i class="fas fa-arrow-right"></i> Rejoindre les Fondateurs
+                </button>
+                
+                <div id="successMessage2" style="display: none; color: #34d399; font-weight: 600; margin-top: 16px; text-align: center;">
+                </div>
+            </div>
+            
+            <div class="offer-tag" style="margin-top: 20px;">
+                👑 Les 500 premiers = Statut Membre Fondateur dès le lancement + -20% sur le tarif la première année + 45 jours Premium en essai exclusif
             </div>
         </div>
 
