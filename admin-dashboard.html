@@ -693,6 +693,12 @@
                             <option value="converted">Convertis</option>
                             <option value="not_converted">Non convertis</option>
                         </select>
+                        <select class="filter-select" id="waitlistZoneFilter" onchange="loadWaitlist()">
+                            <option value="all">Toutes zones</option>
+                            <option value="idf">🇫🇷 Île-de-France</option>
+                            <option value="london">🇬🇧 Londres</option>
+                            <option value="other">🌍 Autres</option>
+                        </select>
                     </div>
                     <div style="overflow-x: auto;">
                         <table>
@@ -700,6 +706,9 @@
                                 <tr>
                                     <th>#</th>
                                     <th>Email</th>
+                                    <th>Zone</th>
+                                    <th>Ville</th>
+                                    <th>Pays</th>
                                     <th>Date</th>
                                     <th>Fondateur</th>
                                     <th>VIP</th>
@@ -790,29 +799,96 @@
 
             <!-- ===== TAB: QUOTAS ===== -->
             <div class="tab-panel" id="tab-quotas">
+                
+                <!-- Stats globales -->
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card accent">
+                        <div class="stat-label">Total Waitlist</div>
+                        <div class="stat-value" id="quotaTotalCount">-</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-label">🇫🇷 Île-de-France</div>
+                        <div class="stat-value" id="quotaIdfCount">-</div>
+                    </div>
+                    <div class="stat-card info">
+                        <div class="stat-label">🇬🇧 Londres</div>
+                        <div class="stat-value" id="quotaLondonCount">-</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-label">🌍 Autres zones</div>
+                        <div class="stat-value" id="quotaOtherCount">-</div>
+                    </div>
+                </div>
+                
+                <!-- Zone IDF -->
                 <div class="quota-section">
                     <div class="quota-header">
-                        <span class="quota-title">Quota Waitlist</span>
-                        <div style="display: flex; gap: 10px; align-items: center;">
-                            <input type="number" id="quotaPlacesInput" class="form-input" placeholder="500" value="500" min="1" max="10000" style="width: 100px; padding: 8px 12px;">
-                            <button class="btn btn-primary btn-sm" onclick="unlockWave()">
-                                <i class="fas fa-plus"></i> Débloquer
+                        <span class="quota-title">🇫🇷 Île-de-France (VIP éligible)</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span id="idfStatus" class="badge badge-success">Ouvert</span>
+                            <button class="btn btn-secondary btn-sm" onclick="unlockZone('idf')">
+                                <i class="fas fa-unlock"></i> Forcer réouverture
                             </button>
                         </div>
                     </div>
                     <div class="quota-bar-container">
-                        <div class="quota-bar" id="quotaBar" style="width: 0%"></div>
+                        <div class="quota-bar" id="idfQuotaBar" style="width: 25%"></div>
                     </div>
                     <div class="quota-labels">
-                        <span id="quotaUsed">0 utilisés</span>
-                        <span id="quotaLimit">sur 500</span>
+                        <span id="idfQuotaUsed">0 / 2000</span>
+                        <span id="idfQuotaTranche">Tranche 1/4 (500 places)</span>
                     </div>
-                    
-                    <div class="waves-history">
-                        <div class="section-title"><i class="fas fa-history"></i> Historique des vagues</div>
-                        <div id="wavesHistory"></div>
+                    <div style="margin-top: 8px; font-size: 12px; color: var(--mt-muted);">
+                        <span id="idfNextOpening"></span>
                     </div>
                 </div>
+                
+                <!-- Zone Londres -->
+                <div class="quota-section">
+                    <div class="quota-header">
+                        <span class="quota-title">🇬🇧 Londres (VIP éligible)</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span id="londonStatus" class="badge badge-success">Ouvert</span>
+                            <button class="btn btn-secondary btn-sm" onclick="unlockZone('london')">
+                                <i class="fas fa-unlock"></i> Forcer réouverture
+                            </button>
+                        </div>
+                    </div>
+                    <div class="quota-bar-container">
+                        <div class="quota-bar" id="londonQuotaBar" style="width: 25%"></div>
+                    </div>
+                    <div class="quota-labels">
+                        <span id="londonQuotaUsed">0 / 2000</span>
+                        <span id="londonQuotaTranche">Tranche 1/4 (500 places)</span>
+                    </div>
+                    <div style="margin-top: 8px; font-size: 12px; color: var(--mt-muted);">
+                        <span id="londonNextOpening"></span>
+                    </div>
+                </div>
+                
+                <!-- Zone Autre -->
+                <div class="quota-section">
+                    <div class="quota-header">
+                        <span class="quota-title">🌍 Autres zones (VIP non éligible)</span>
+                        <div style="display: flex; gap: 8px; align-items: center;">
+                            <span id="otherStatus" class="badge badge-success">Ouvert</span>
+                            <button class="btn btn-secondary btn-sm" onclick="unlockZone('other')">
+                                <i class="fas fa-unlock"></i> Forcer réouverture
+                            </button>
+                        </div>
+                    </div>
+                    <div class="quota-bar-container">
+                        <div class="quota-bar" id="otherQuotaBar" style="width: 25%"></div>
+                    </div>
+                    <div class="quota-labels">
+                        <span id="otherQuotaUsed">0 / 1200</span>
+                        <span id="otherQuotaTranche">Tranche 1/4 (300 places)</span>
+                    </div>
+                    <div style="margin-top: 8px; font-size: 12px; color: var(--mt-muted);">
+                        <span id="otherNextOpening"></span>
+                    </div>
+                </div>
+                
             </div>
 
             <!-- ===== TAB: USERS ===== -->
@@ -1178,9 +1254,14 @@
         // ===== WAITLIST =====
         async function loadWaitlist() {
             const filter = document.getElementById('waitlistFilter').value;
+            const zoneFilter = document.getElementById('waitlistZoneFilter')?.value || 'all';
             
             try {
-                const res = await fetch(`${API_BASE}/admin/waitlist?admin_token=${adminToken}&filter=${filter}&limit=200`);
+                let url = `${API_BASE}/admin/waitlist?admin_token=${adminToken}&filter=${filter}&limit=200`;
+                if (zoneFilter !== 'all') {
+                    url += `&zone=${zoneFilter}`;
+                }
+                const res = await fetch(url);
                 const data = await res.json();
                 
                 if (!res.ok) return;
@@ -1188,14 +1269,26 @@
                 const tbody = document.getElementById('waitlistTable');
                 
                 if (data.entries.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucun résultat</td></tr>';
+                    tbody.innerHTML = '<tr><td colspan="9" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucun résultat</td></tr>';
                     return;
                 }
+                
+                const zoneBadge = (zone) => {
+                    const badges = {
+                        'idf': '<span class="badge badge-success">🇫🇷 IDF</span>',
+                        'london': '<span class="badge badge-info">🇬🇧 London</span>',
+                        'other': '<span class="badge badge-warning">🌍 Autre</span>'
+                    };
+                    return badges[zone] || '<span class="badge badge-warning">-</span>';
+                };
                 
                 tbody.innerHTML = data.entries.map(entry => `
                     <tr>
                         <td>${entry.position || '-'}</td>
                         <td>${entry.email}</td>
+                        <td>${zoneBadge(entry.zone)}</td>
+                        <td>${entry.city || '-'}</td>
+                        <td>${entry.country || '-'}</td>
                         <td>${new Date(entry.date).toLocaleDateString('fr-FR')}</td>
                         <td>${entry.founder ? '<span class="badge badge-success">Oui</span>' : '<span class="badge badge-warning">Non</span>'}</td>
                         <td>${entry.vip_applied ? (entry.vip_approved ? '<span class="badge badge-vip">Approuvé</span>' : '<span class="badge badge-info">Applied</span>') : '-'}</td>
@@ -1320,11 +1413,11 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ admin_token: adminToken, email: currentAction.email })
                 });
-            } else if (currentAction.type === 'unlock_wave') {
+            } else if (currentAction.type === 'unlock_zone') {
                 await fetch(`${API_BASE}/admin/quotas/unlock`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ admin_token: adminToken, places: currentAction.places || 500 })
+                    body: JSON.stringify({ admin_token: adminToken, zone: currentAction.zone })
                 });
             }
             
@@ -1384,33 +1477,87 @@
                 
                 if (!res.ok) return;
                 
-                document.getElementById('quotaBar').style.width = `${data.percent_used}%`;
-                document.getElementById('quotaUsed').textContent = `${data.places_used} utilisés`;
-                document.getElementById('quotaLimit').textContent = `sur ${data.current_limit}`;
+                // Total global
+                document.getElementById('quotaTotalCount').textContent = data.total || 0;
                 
-                document.getElementById('wavesHistory').innerHTML = data.waves.map(w => `
-                    <div class="wave-item">
-                        <span>Vague ${w.wave_number} (+${w.places} places)</span>
-                        <span>${new Date(w.unlocked_at).toLocaleDateString('fr-FR')} par ${w.unlocked_by}</span>
-                    </div>
-                `).join('');
+                // Zone IDF
+                if (data.zones && data.zones.idf) {
+                    const idf = data.zones.idf;
+                    document.getElementById('quotaIdfCount').textContent = idf.count || 0;
+                    document.getElementById('idfQuotaBar').style.width = `${idf.display_percent || 25}%`;
+                    document.getElementById('idfQuotaUsed').textContent = `${idf.count || 0} / ${idf.max || 2000}`;
+                    document.getElementById('idfQuotaTranche').textContent = `Tranche ${idf.current_tranche || 1}/4 (${idf.tranche_size || 500} places)`;
+                    
+                    if (idf.is_open) {
+                        document.getElementById('idfStatus').textContent = 'Ouvert';
+                        document.getElementById('idfStatus').className = 'badge badge-success';
+                        document.getElementById('idfNextOpening').textContent = '';
+                    } else {
+                        document.getElementById('idfStatus').textContent = 'Fermé';
+                        document.getElementById('idfStatus').className = 'badge badge-danger';
+                        document.getElementById('idfNextOpening').textContent = idf.next_opening 
+                            ? `Réouverture prévue : ${new Date(idf.next_opening).toLocaleString('fr-FR')}`
+                            : 'Réouverture : demain 12h';
+                    }
+                }
+                
+                // Zone Londres
+                if (data.zones && data.zones.london) {
+                    const london = data.zones.london;
+                    document.getElementById('quotaLondonCount').textContent = london.count || 0;
+                    document.getElementById('londonQuotaBar').style.width = `${london.display_percent || 25}%`;
+                    document.getElementById('londonQuotaUsed').textContent = `${london.count || 0} / ${london.max || 2000}`;
+                    document.getElementById('londonQuotaTranche').textContent = `Tranche ${london.current_tranche || 1}/4 (${london.tranche_size || 500} places)`;
+                    
+                    if (london.is_open) {
+                        document.getElementById('londonStatus').textContent = 'Open';
+                        document.getElementById('londonStatus').className = 'badge badge-success';
+                        document.getElementById('londonNextOpening').textContent = '';
+                    } else {
+                        document.getElementById('londonStatus').textContent = 'Closed';
+                        document.getElementById('londonStatus').className = 'badge badge-danger';
+                        document.getElementById('londonNextOpening').textContent = london.next_opening 
+                            ? `Reopening: ${new Date(london.next_opening).toLocaleString('en-GB')}`
+                            : 'Reopening: tomorrow 12pm';
+                    }
+                }
+                
+                // Zone Autre
+                if (data.zones && data.zones.other) {
+                    const other = data.zones.other;
+                    document.getElementById('quotaOtherCount').textContent = other.count || 0;
+                    document.getElementById('otherQuotaBar').style.width = `${other.display_percent || 25}%`;
+                    document.getElementById('otherQuotaUsed').textContent = `${other.count || 0} / ${other.max || 1200}`;
+                    document.getElementById('otherQuotaTranche').textContent = `Tranche ${other.current_tranche || 1}/4 (${other.tranche_size || 300} places)`;
+                    
+                    if (other.is_open) {
+                        document.getElementById('otherStatus').textContent = 'Ouvert';
+                        document.getElementById('otherStatus').className = 'badge badge-success';
+                        document.getElementById('otherNextOpening').textContent = '';
+                    } else {
+                        document.getElementById('otherStatus').textContent = 'Fermé';
+                        document.getElementById('otherStatus').className = 'badge badge-danger';
+                        document.getElementById('otherNextOpening').textContent = other.next_opening 
+                            ? `Réouverture prévue : ${new Date(other.next_opening).toLocaleString('fr-FR')}`
+                            : 'Réouverture : demain 12h';
+                    }
+                }
                 
             } catch (err) {
                 console.error('Erreur loadQuotas:', err);
             }
         }
 
-        function unlockWave() {
-            const places = parseInt(document.getElementById('quotaPlacesInput').value) || 500;
+        function unlockZone(zone) {
+            const zoneNames = {
+                'idf': '🇫🇷 Île-de-France',
+                'london': '🇬🇧 Londres',
+                'other': '🌍 Autres zones'
+            };
             
-            if (places < 1 || places > 10000) {
-                alert('Nombre de places invalide (1 - 10000)');
-                return;
-            }
-            
-            currentAction = { type: 'unlock_wave', places: places };
-            document.getElementById('modalTitle').textContent = 'Débloquer nouvelle vague';
-            document.getElementById('modalMessage').textContent = `Ajouter +${places} places à la waitlist ?`;
+            currentAction = { type: 'unlock_zone', zone: zone };
+            document.getElementById('modalTitle').textContent = 'Forcer réouverture';
+            document.getElementById('modalMessage').textContent = `Forcer la réouverture de la zone ${zoneNames[zone] || zone} ?`;
             document.getElementById('modalConfirmBtn').className = 'btn btn-primary btn-sm';
             document.getElementById('confirmModal').classList.add('active');
         }
