@@ -713,6 +713,7 @@
                                     <th>Fondateur</th>
                                     <th>VIP</th>
                                     <th>Converti</th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="waitlistTable">
@@ -1293,6 +1294,11 @@
                         <td>${entry.founder ? '<span class="badge badge-success">Oui</span>' : '<span class="badge badge-warning">Non</span>'}</td>
                         <td>${entry.vip_applied ? (entry.vip_approved ? '<span class="badge badge-vip">Approuvé</span>' : '<span class="badge badge-info">Applied</span>') : '-'}</td>
                         <td>${entry.converted ? '<span class="badge badge-success">Oui</span>' : '<span class="badge badge-danger">Non</span>'}</td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="deleteWaitlistEntry('${entry.email}')" title="Supprimer">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
                     </tr>
                 `).join('');
                 
@@ -1305,6 +1311,36 @@
             window.open(`${API_BASE}/admin/waitlist?admin_token=${adminToken}&limit=10000&format=csv`, '_blank');
             // Note: Le format CSV n'est pas implémenté côté backend, tu peux l'ajouter plus tard
             alert('Export CSV : fonctionnalité à implémenter côté backend');
+        }
+
+        // Supprimer une entrée waitlist
+        async function deleteWaitlistEntry(email) {
+            if (!confirm(`Supprimer ${email} de la waitlist ?`)) {
+                return;
+            }
+            
+            try {
+                const res = await fetch(`${API_BASE}/admin/waitlist/delete`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ admin_token: adminToken, email: email })
+                });
+                
+                const data = await res.json();
+                
+                if (res.ok) {
+                    alert(`✅ ${email} supprimé de la waitlist`);
+                    loadWaitlist();
+                    loadQuotas();
+                    loadStats();
+                } else {
+                    alert(`❌ Erreur : ${data.error || 'Erreur inconnue'}`);
+                }
+                
+            } catch (err) {
+                console.error('Erreur deleteWaitlistEntry:', err);
+                alert('❌ Erreur réseau');
+            }
         }
 
         // ===== VIP =====
