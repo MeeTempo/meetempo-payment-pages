@@ -834,12 +834,13 @@
         return;
     }
 
-    const btn = document.querySelector('.submit-btn');
+    const btn = document.querySelector('#registrationForm button');
     const emailInput = document.getElementById('email');
     const cityInput = document.getElementById('city');
     const countryInput = document.getElementById('country');
     
-    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Inscription...';
+    btn.disabled = true;
     emailInput.disabled = true;
     cityInput.disabled = true;
     countryInput.disabled = true;
@@ -866,7 +867,8 @@
                 startQuotaCountdown(data.next_opening);
             }
             
-            btn.innerHTML = '<i class="fas fa-arrow-right"></i>';
+            btn.innerHTML = '<i class="fas fa-arrow-right"></i> Rejoindre les Fondateurs';
+            btn.disabled = false;
             emailInput.disabled = false;
             cityInput.disabled = false;
             countryInput.disabled = false;
@@ -886,19 +888,19 @@
             const isEnglish = data.zone === 'london' || ['uk', 'united kingdom', 'england', 'usa', 'united states', 'canada'].includes(country.toLowerCase());
             
             // Cacher formulaire et barre quota
-            document.getElementById('formContainer').style.display = 'none';
+            document.getElementById('registrationForm').style.display = 'none';
             document.getElementById('quotaProgress').style.display = 'none';
             document.getElementById('quotaClosed').style.display = 'none';
             
             // Afficher succès
-            document.getElementById('successMessage').style.display = 'block';
+            document.getElementById('successMessage2').style.display = 'block';
             
             if (data.founder) {
-                document.getElementById('successMessage').innerHTML = isEnglish
+                document.getElementById('successMessage2').innerHTML = isEnglish
                     ? `<i class="fas fa-crown" style="color: #f97316;"></i> Welcome Founding Member #${data.position}!<br><small>Your access arrives January 7th.</small>`
                     : `<i class="fas fa-crown" style="color: #f97316;"></i> Bienvenue Membre Fondateur #${data.position} !<br><small>Ton accès arrive le 7 janvier.</small>`;
             } else {
-                document.getElementById('successMessage').innerHTML = isEnglish
+                document.getElementById('successMessage2').innerHTML = isEnglish
                     ? `<i class="fas fa-check-circle"></i> Registration confirmed!<br><small>45 days exclusive Premium trial at launch.</small>`
                     : `<i class="fas fa-check-circle"></i> Inscription confirmée !<br><small>45 jours Premium en essai exclusif dès le lancement.</small>`;
             }
@@ -913,7 +915,8 @@
         } else if (data.already_registered) {
             const isEnglish = currentZone === 'london';
             alert(isEnglish ? 'This email is already registered!' : 'Cet email est déjà inscrit !');
-            btn.innerHTML = '<i class="fas fa-arrow-right"></i>';
+            btn.innerHTML = '<i class="fas fa-arrow-right"></i> Rejoindre les Fondateurs';
+            btn.disabled = false;
             emailInput.disabled = false;
             cityInput.disabled = false;
             countryInput.disabled = false;
@@ -922,7 +925,8 @@
         }
     } catch (err) {
         alert('Erreur : ' + err.message);
-        btn.innerHTML = '<i class="fas fa-arrow-right"></i>';
+        btn.innerHTML = '<i class="fas fa-arrow-right"></i> Rejoindre les Fondateurs';
+        btn.disabled = false;
         emailInput.disabled = false;
         cityInput.disabled = false;
         countryInput.disabled = false;
