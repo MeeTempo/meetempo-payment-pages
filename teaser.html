@@ -582,12 +582,23 @@
                     <i class="fas fa-arrow-right"></i> Rejoindre les Fondateurs
                 </button>
                 
-                <div id="successMessage2" style="display: none; color: #34d399; font-weight: 600; margin-top: 16px; text-align: center;">
-                </div>
             </div>
             
             <div class="offer-tag" style="margin-top: 20px;">
                 👑 Les 500 premiers = Statut Membre Fondateur dès le lancement + -20% sur le tarif la première année + 45 jours Premium en essai exclusif
+            </div>
+        </div>
+
+        <!-- Message de succès inscription -->
+        <div id="successMessage" style="display: none; margin-top: 40px;">
+            <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(5, 150, 105, 0.15)); border: 2px solid rgba(16, 185, 129, 0.4); border-radius: 20px; padding: 32px; text-align: center;">
+                <div style="font-size: 56px; margin-bottom: 16px;">🎉</div>
+                <h3 id="successTitle" style="font-family: 'Montserrat', sans-serif; font-size: 24px; font-weight: 700; color: #34d399; margin-bottom: 12px;">
+                    Bravo ! Futur Membre Fondateur
+                </h3>
+                <p id="successText" style="color: var(--mt-text); font-size: 16px; line-height: 1.6;">
+                    Rendez-vous le <strong style="color: var(--mt-accent);">7 janvier 2026</strong> pour découvrir MeeTempo !
+                </p>
             </div>
         </div>
 
@@ -763,14 +774,7 @@
                         startQuotaCountdown(data.next_opening);
                     }
                 }
-                
-                // Afficher/masquer section VIP selon éligibilité
-                if (data.vip_eligible) {
-                    document.getElementById('vipSection').style.display = 'block';
-                } else {
-                    document.getElementById('vipSection').style.display = 'none';
-                }
-                
+                        
             } catch (err) {
                 console.error('Erreur chargement quota:', err);
             }
@@ -893,23 +897,14 @@
             document.getElementById('quotaClosed').style.display = 'none';
             
             // Afficher succès
-            document.getElementById('successMessage2').style.display = 'block';
+            document.getElementById('successMessage').style.display = 'block';
             
-            if (data.founder) {
-                document.getElementById('successMessage2').innerHTML = isEnglish
-                    ? `<i class="fas fa-crown" style="color: #f97316;"></i> Welcome Founding Member #${data.position}!<br><small>Your access arrives January 7th.</small>`
-                    : `<i class="fas fa-crown" style="color: #f97316;"></i> Bienvenue Membre Fondateur #${data.position} !<br><small>Ton accès arrive le 7 janvier.</small>`;
+            if (isEnglish) {
+                document.getElementById('successTitle').textContent = 'Congrats! Future Founding Member';
+                document.getElementById('successText').innerHTML = 'See you on <strong style="color: var(--mt-accent);">January 7th, 2026</strong> to discover MeeTempo!';
             } else {
-                document.getElementById('successMessage2').innerHTML = isEnglish
-                    ? `<i class="fas fa-check-circle"></i> Registration confirmed!<br><small>45 days exclusive Premium trial at launch.</small>`
-                    : `<i class="fas fa-check-circle"></i> Inscription confirmée !<br><small>45 jours Premium en essai exclusif dès le lancement.</small>`;
-            }
-            
-            // Afficher section VIP si fondateur ET zone éligible
-            if (data.founder && data.vip_eligible) {
-                document.getElementById('vipSection').style.display = 'block';
-            } else {
-                document.getElementById('vipSection').style.display = 'none';
+                document.getElementById('successTitle').textContent = 'Bravo ! Futur Membre Fondateur';
+                document.getElementById('successText').innerHTML = 'Rendez-vous le <strong style="color: var(--mt-accent);">7 janvier 2026</strong> pour découvrir MeeTempo !';
             }
             
         } else if (data.already_registered) {
