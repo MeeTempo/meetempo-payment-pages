@@ -434,7 +434,18 @@
 </head>
 <body>
 
-    <div class="container">
+    <!-- Navigation -->
+    <nav style="position: fixed; top: 0; left: 0; right: 0; z-index: 100; padding: 16px 24px; background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(20px); border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
+        <a href="teaser.html" style="display: flex; align-items: center; gap: 12px; text-decoration: none;">
+            <div style="width: 36px; height: 36px; background: linear-gradient(135deg, var(--mt-accent), #fbbf24); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 900; color: var(--mt-bg); font-family: 'Montserrat', sans-serif;">MT</div>
+            <span style="font-family: 'Montserrat', sans-serif; font-size: 18px; font-weight: 700; color: var(--mt-text);">MeeTempo</span>
+        </a>
+        <a href="about.html" style="color: var(--mt-muted); text-decoration: none; font-size: 14px; font-weight: 500; transition: color 0.2s;">
+            En savoir plus <i class="fas fa-arrow-right" style="margin-left: 4px; font-size: 12px;"></i>
+        </a>
+    </nav>
+
+    <div class="container" style="padding-top: 80px;">
         <div class="logo-badge">MT</div>
         
         <h1>Transforme tes temps morts<br>en rencontres qui comptent.</h1>
@@ -442,6 +453,10 @@
             Café, sport, coworking... L'IA trouve les bonnes personnes au bon moment.<br>
             Rejoins les Membres Fondateurs.
         </p>
+        
+        <a href="about.html" style="display: inline-block; margin-top: 16px; color: var(--mt-accent); text-decoration: none; font-size: 14px; font-weight: 500; transition: all 0.2s;">
+            En savoir plus sur MeeTempo <i class="fas fa-arrow-right" style="margin-left: 6px;"></i>
+        </a>
 
         <div class="countdown-box">
             <div class="time-unit">
