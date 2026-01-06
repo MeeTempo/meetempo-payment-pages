@@ -6,7 +6,7 @@
     <title>MeeTempo - L'IA au service de vos rencontres réelles</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
@@ -17,12 +17,15 @@
             --text-light: #ffffff;
             --text-gray: rgba(255, 255, 255, 0.6);
             
-            /* Couleurs de Plans du Hub */
+            /* Variables pour le bloc promo */
+            --mt-accent: #F49F1C;
+            --mt-muted: rgba(255, 255, 255, 0.7);
+            
+            /* Couleurs de Plans */
             --plan-free: #9ca3af;
             --plan-meeting: #60a5fa;
             --plan-premium: #a78bfa;
             --plan-vip: #fbbf24;
-            --plan-b2b: #34d399;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -40,181 +43,100 @@
             overflow-x: hidden;
         }
 
-        /* === NAVIGATION (Style Hub) === */
+        /* === NAVIGATION === */
         nav {
             position: fixed;
-            top: 0;
-            width: 100%;
-            padding: 1rem 5%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(0, 0, 0, 0.8);
-            backdrop-filter: blur(15px);
-            z-index: 1000;
-            border-bottom: 1px solid var(--mt-glass-border);
+            top: 0; width: 100%; padding: 0.8rem 5%;
+            display: flex; justify-content: space-between; align-items: center;
+            background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px);
+            z-index: 1000; border-bottom: 1px solid var(--mt-glass-border);
         }
 
-        .logo {
-            font-size: 1.5rem;
-            font-weight: 700;
-            letter-spacing: -0.5px;
-        }
+        .nav-brand { display: flex; align-items: center; gap: 10px; }
+        .nav-logo { height: 40px; border-radius: 8px; }
+        .logo-text { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; }
 
         .nav-links { display: flex; gap: 2rem; align-items: center; }
         .nav-item { font-size: 0.9rem; font-weight: 400; color: var(--text-gray); text-decoration: none; transition: 0.3s; }
         .nav-item:hover { color: var(--mt-orange); }
 
         .btn-cta {
-            background: var(--mt-orange);
-            color: #111;
-            padding: 0.6rem 1.2rem;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 0.9rem;
-            text-decoration: none;
-            transition: 0.3s;
+            background: var(--mt-orange); color: #111; padding: 0.6rem 1.2rem;
+            border-radius: 8px; font-weight: 600; font-size: 0.9rem;
+            text-decoration: none; transition: 0.3s;
         }
         .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(244, 159, 28, 0.4); }
 
-        /* === HERO SECTION (Cinématographique) === */
+        /* === HERO SECTION === */
         .hero {
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
-            padding: 0 5%;
-            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.2), var(--mt-blue-deep)),
-                        url('https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=2069&auto=format&fit=crop') center/cover;
+            height: 90vh; display: flex; align-items: center; justify-content: center;
+            text-align: center; padding: 0 5%;
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.3), var(--mt-blue-deep)),
+                        url('1766333607620.jpg') center/cover; /* Ton image cinématographique */
         }
 
         .hero-content { max-width: 900px; animation: fadeInUp 0.8s ease-out; }
 
-        .tagline {
-            color: var(--mt-orange);
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            font-weight: 600;
-            font-size: 0.8rem;
-            margin-bottom: 1rem;
-            display: block;
+        /* === BLOC OFFRE FONDATEUR === */
+        .founder-offer-container {
+            max-width: 800px;
+            margin: -50px auto 60px auto;
+            position: relative;
+            z-index: 10;
+            padding: 0 20px;
         }
 
-        .hero h1 {
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            font-weight: 700;
+        .promo-block {
+            background: linear-gradient(135deg, rgba(244,159,28,0.15) 0%, rgba(168,85,247,0.15) 100%);
+            border: 2px solid var(--mt-accent);
+            border-radius: 24px;
+            padding: 32px;
+            text-align: center;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.4);
         }
 
-        .hero p {
-            font-size: 1.2rem;
-            color: var(--text-gray);
-            margin-bottom: 2.5rem;
-            max-width: 700px;
-            margin-inline: auto;
+        .promo-code-box {
+            display: inline-block;
+            background: rgba(0,0,0,0.4);
+            border: 2px dashed var(--mt-accent);
+            border-radius: 12px;
+            padding: 16px 32px;
+            margin: 20px 0;
         }
 
-        /* === GRID & CARDS (ADN HUB) === */
-        .features { padding: 80px 5%; }
-        .section-header { text-align: center; margin-bottom: 60px; }
-        .section-header h2 { font-size: 2.2rem; margin-bottom: 1rem; }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-        }
+        /* === GRID & CARDS === */
+        .section { padding: 60px 5%; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 25px; }
 
         .card {
-            background: var(--mt-glass);
-            backdrop-filter: blur(12px);
-            border: 1px solid var(--mt-glass-border);
-            padding: 40px 30px;
-            border-radius: 24px;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            background: var(--mt-glass); backdrop-filter: blur(12px);
+            border: 1px solid var(--mt-glass-border); padding: 40px 30px;
+            border-radius: 24px; transition: 0.4s;
         }
-        
-        .card:hover { 
-            transform: translateY(-8px); 
-            background: rgba(255, 255, 255, 0.05);
-            border-color: rgba(244, 159, 28, 0.3);
-        }
-
-        .icon {
-            font-size: 2rem;
-            color: var(--mt-orange);
-            margin-bottom: 1.5rem;
-        }
-
-        /* === PRICING (Synchronisé Hub) === */
-        .pricing-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-            gap: 20px;
-            margin-top: 50px;
-        }
-
-        .price-card {
-            background: var(--mt-glass);
-            border-radius: 24px;
-            padding: 30px;
-            border: 1px solid var(--mt-glass-border);
-            text-align: center;
-            position: relative;
-        }
-
-        .price-card.featured { border-color: var(--mt-orange); background: rgba(244, 159, 28, 0.05); }
-        
-        .plan-name { font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px; }
-        
-        .price { font-size: 2.5rem; font-weight: 700; margin-bottom: 20px; }
-        .price span { font-size: 1rem; color: var(--text-gray); }
-
-        .btn-plan {
-            display: block;
-            padding: 12px;
-            border-radius: 8px;
-            text-decoration: none;
-            font-weight: 600;
-            margin-top: 20px;
-            border: 1px solid var(--mt-glass-border);
-            color: white;
-            transition: 0.3s;
-        }
-
-        .price-card.free .plan-name { color: var(--plan-free); }
-        .price-card.meeting .plan-name { color: var(--plan-meeting); }
-        .price-card.premium .plan-name { color: var(--plan-premium); }
-        .price-card.vip .plan-name { color: var(--plan-vip); }
-
-        .price-card.featured .btn-plan { background: var(--mt-orange); color: #111; border: none; }
+        .card:hover { transform: translateY(-8px); border-color: rgba(244, 159, 28, 0.3); }
 
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        footer {
-            padding: 60px 5%;
-            text-align: center;
-            border-top: 1px solid var(--mt-glass-border);
-            margin-top: 80px;
-            color: var(--text-gray);
-            font-size: 0.9rem;
-        }
+        footer { padding: 40px 5%; text-align: center; border-top: 1px solid var(--mt-glass-border); color: var(--text-gray); }
 
         @media (max-width: 768px) {
             .nav-links { display: none; }
-            .hero h1 { font-size: 2.8rem; }
+            .hero h1 { font-size: 2.2rem; }
+            .promo-block h2 { font-size: 1.2rem; }
         }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="logo">MeeTempo<span style="color:var(--mt-orange)">.</span></div>
+        <div class="nav-brand">
+            <img src="logo_meetempo-removebg-preview.png" alt="MT Logo" class="nav-logo">
+            <div class="logo-text">MeeTempo</div>
+        </div>
         <div class="nav-links">
             <a href="#features" class="nav-item">Concept</a>
             <a href="#tarifs" class="nav-item">Offres</a>
@@ -225,82 +147,71 @@
 
     <section class="hero">
         <div class="hero-content">
-            <span class="tagline">L'IA qui provoque le réel</span>
-            <h1>Entre deux rendez-vous,<br>le temps devient <span style="color:var(--mt-orange)">opportunité.</span></h1>
-            <p>MeeTempo "Maestro" n'est pas un chat. C'est votre assistant personnel qui analyse votre contexte pour organiser votre prochaine rencontre physique. Maintenant.</p>
-            <a href="login.html?tab=signup" class="btn-cta" style="padding: 1.2rem 2.5rem; font-size: 1.1rem;">Rejoindre le club</a>
+            <span style="color:var(--mt-orange); text-transform:uppercase; letter-spacing:3px; font-weight:600; font-size:0.8rem; margin-bottom:1rem; display:block;">
+                L'IA au service du réel
+            </span>
+            <h1 style="font-size:clamp(2rem, 5vw, 4rem); font-weight:800; line-height:1.1; margin-bottom:1.5rem;">
+                Provoquez vos prochaines<br><span style="color:var(--mt-orange)">Rencontres Business.</span>
+            </h1>
+            <p style="font-size:1.1rem; color:var(--text-gray); margin-bottom:2rem; max-width:700px; margin-inline:auto;">
+                MeeTempo "Maestro" analyse votre emploi du temps et votre localisation pour transformer vos attentes en opportunités.
+            </p>
         </div>
     </section>
 
-    <section id="features" class="features">
-        <div class="section-header">
-            <h2>L'ADN MeeTempo</h2>
-            <p>Le réseau social de ceux qui n'ont pas le temps de "scroller".</p>
+    <div class="founder-offer-container">
+        <div class="promo-block">
+            <div style="font-size: 40px; margin-bottom: 12px;">🎁</div>
+            <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; color: var(--mt-accent); text-transform: uppercase;">
+                Offre Lancement — 3 Mois Gratuits
+            </h2>
+            <p style="color: var(--mt-muted); margin-bottom: 5px; font-size: 16px; font-weight: 500;">
+                Premium ou VIP • Sans engagement
+            </p>
+            
+            <div class="promo-code-box">
+                <span style="color: var(--mt-muted); font-size: 13px; text-transform: uppercase; letter-spacing: 1px;">
+                    Code à utiliser au paiement :
+                </span><br>
+                <span style="font-size: 28px; font-weight: 900; color: var(--mt-accent); letter-spacing: 3px;">
+                    FONDATEUR3MOIS
+                </span>
+            </div>
+            
+            <p style="color: var(--mt-muted); font-size: 13px; font-style: italic;">
+                ⏳ Places limitées : 500 Paris / 500 Londres
+            </p>
+            <a href="login.html?tab=signup" class="btn-cta" style="display:inline-block; margin-top: 20px; padding: 1rem 2rem;">
+                Profiter de l'offre maintenant
+            </a>
         </div>
+    </div>
 
+    <section id="features" class="section">
         <div class="grid">
             <div class="card">
-                <div class="icon"><i class="fas fa-microchip"></i></div>
+                <div style="font-size:2rem; color:var(--mt-orange); margin-bottom:1rem;"><i class="fas fa-bolt"></i></div>
                 <h3>Maestro AI</h3>
-                <p>Une intelligence qui ne vous demande pas de remplir des formulaires, mais qui comprend vos besoins par la discussion.</p>
+                <p style="color:var(--text-gray)">Votre assistant personnel qui planifie vos rencontres selon votre contexte.</p>
             </div>
             <div class="card">
-                <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
-                <h3>Contextuel</h3>
-                <p>Détecte les opportunités autour de vous, que vous soyez à la Défense, à la City ou en transit à St Pancras.</p>
+                <div style="font-size:2rem; color:var(--mt-orange); margin-bottom:1rem;"><i class="fas fa-map-marker-alt"></i></div>
+                <h3>Hyper-Local</h3>
+                <p style="color:var(--text-gray)">Que vous soyez à La Défense ou à la City, MeeTempo trouve les profils pertinents à 500m.</p>
             </div>
             <div class="card">
-                <div class="icon"><i class="fas fa-shield-alt"></i></div>
-                <h3>Vérifié</h3>
-                <p>Une communauté sélective. Profils VIP vérifiés et entreprises certifiées pour des échanges de haute qualité.</p>
+                <div style="font-size:2rem; color:var(--mt-orange); margin-bottom:1rem;"><i class="fas fa-shield-alt"></i></div>
+                <h3>Club Sécurisé</h3>
+                <p style="color:var(--text-gray)">Une charte stricte et des profils vérifiés pour garantir des échanges de qualité.</p>
             </div>
-        </div>
-    </section>
-
-    <section id="tarifs" class="features">
-        <div class="section-header">
-            <h2>Choisissez votre accès</h2>
-        </div>
-
-        <div class="pricing-grid">
-            <div class="price-card free">
-                <div class="plan-name">Free</div>
-                <div class="price">0€</div>
-                <p style="color:var(--text-gray); font-size: 0.9rem;">Visibilité limitée,<br>1 suggestion / semaine.</p>
-                <a href="login.html?tab=signup" class="btn-plan">Essayer</a>
-            </div>
-
-            <div class="price-card meeting">
-                <div class="plan-name">Meeting</div>
-                <div class="price">2,99€<span>/24h</span></div>
-                <p style="color:var(--text-gray); font-size: 0.9rem;">Accès total ponctuel.<br>Idéal pour un salon pro.</p>
-                <a href="login.html?tab=signup&plan=meeting" class="btn-plan">Activer</a>
-            </div>
-
-            <div class="price-card premium featured">
-                <div class="plan-name">Premium</div>
-                <div class="price">15€<span>/mois</span></div>
-                <p style="color:var(--text-gray); font-size: 0.9rem;">Usage illimité.<br>Maestro AI complet.</p>
-                <a href="login.html?tab=signup&plan=premium" class="btn-plan">S'abonner</a>
-            </div>
-
-            <div class="price-card vip">
-                <div class="plan-name">VIP</div>
-                <div class="price">29,99€<span>/mois</span></div>
-                <p style="color:var(--text-gray); font-size: 0.9rem;">Accès aux Events exclusifs<br>et Club VIP.</p>
-                <a href="login.html?tab=signup&plan=vip" class="btn-plan">Devenir VIP</a>
-            </div>
-        </div>
-
-        <div style="margin-top: 40px; background: rgba(52, 211, 153, 0.05); border: 1px solid var(--plan-b2b); border-radius: 24px; padding: 40px; text-align: center;">
-            <h3 style="color:var(--plan-b2b)">🏢 MeeTempo for Business</h3>
-            <p style="margin: 15px 0; color:var(--text-gray)">Optimisez le networking de vos collaborateurs et accédez au dashboard admin.</p>
-            <a href="login.html?tab=company" class="btn-cta" style="background: var(--plan-b2b);">Espace Entreprise</a>
         </div>
     </section>
 
     <footer>
-        <div class="logo" style="margin-bottom: 20px;">MeeTempo<span style="color:var(--mt-orange)">.</span></div>
+        <div class="nav-brand" style="justify-content:center; margin-bottom:15px;">
+            <img src="logo_meetempo-removebg-preview.png" alt="MT Logo" class="nav-logo" style="height:30px;">
+            <div class="logo-text" style="font-size:1.1rem;">MeeTempo</div>
+        </div>
         <p>&copy; 2026 MeeTempo. L'IA qui rapproche les humains.</p>
     </footer>
 
