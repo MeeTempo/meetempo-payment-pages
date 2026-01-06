@@ -4,478 +4,305 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MeeTempo - L'IA au service de vos rencontres réelles</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;600;700&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #6366f1; /* Indigo */
-            --secondary: #ec4899; /* Pink/Purple */
-            --accent: #f97316; /* Orange MeeTempo */
-            --dark: #0f172a;
-            --glass: rgba(255, 255, 255, 0.1);
-            --glass-border: rgba(255, 255, 255, 0.2);
-            --text-light: #f8fafc;
-            --text-gray: #94a3b8;
+            --mt-orange: #F49F1C;
+            --mt-blue-deep: #0f172a;
+            --mt-glass: rgba(255, 255, 255, 0.03);
+            --mt-glass-border: rgba(255, 255, 255, 0.1);
+            --text-light: #ffffff;
+            --text-gray: rgba(255, 255, 255, 0.6);
+            
+            /* Couleurs de Plans du Hub */
+            --plan-free: #9ca3af;
+            --plan-meeting: #60a5fa;
+            --plan-premium: #a78bfa;
+            --plan-vip: #fbbf24;
+            --plan-b2b: #34d399;
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Inter', sans-serif;
-            background-color: var(--dark);
+            background-color: var(--mt-blue-deep);
+            background-image: 
+                radial-gradient(at 0% 0%, hsla(253,16%,7%,1) 0, transparent 50%), 
+                radial-gradient(at 50% 0%, hsla(225,39%,30%,1) 0, transparent 50%), 
+                radial-gradient(at 100% 0%, hsla(339,49%,30%,1) 0, transparent 50%);
+            background-attachment: fixed;
             color: var(--text-light);
             line-height: 1.6;
             overflow-x: hidden;
         }
 
-        h1, h2, h3 { font-family: 'Montserrat', sans-serif; }
-        a { text-decoration: none; color: inherit; transition: 0.3s; }
-
-        /* === NAVBAR === */
+        /* === NAVIGATION (Style Hub) === */
         nav {
             position: fixed;
             top: 0;
             width: 100%;
-            padding: 1.5rem 5%;
+            padding: 1rem 5%;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            background: rgba(15, 23, 42, 0.8);
-            backdrop-filter: blur(10px);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(15px);
             z-index: 1000;
-            border-bottom: 1px solid var(--glass-border);
+            border-bottom: 1px solid var(--mt-glass-border);
         }
 
         .logo {
-            font-size: 1.8rem;
+            font-size: 1.5rem;
             font-weight: 700;
-            background: linear-gradient(135deg, #fff, var(--primary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -1px;
+            letter-spacing: -0.5px;
         }
 
         .nav-links { display: flex; gap: 2rem; align-items: center; }
-        
-        .nav-item { font-weight: 500; font-size: 0.95rem; color: var(--text-light); }
-        .nav-item:hover { color: var(--primary); }
-
-        .btn-login {
-            background: rgba(255, 255, 255, 0.1);
-            padding: 0.6rem 1.5rem;
-            border-radius: 50px;
-            border: 1px solid var(--glass-border);
-        }
-        .btn-login:hover { background: rgba(255, 255, 255, 0.2); }
+        .nav-item { font-size: 0.9rem; font-weight: 400; color: var(--text-gray); text-decoration: none; transition: 0.3s; }
+        .nav-item:hover { color: var(--mt-orange); }
 
         .btn-cta {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            padding: 0.6rem 1.5rem;
-            border-radius: 50px;
+            background: var(--mt-orange);
+            color: #111;
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
             font-weight: 600;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);
+            font-size: 0.9rem;
+            text-decoration: none;
+            transition: 0.3s;
         }
-        .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.6); }
+        .btn-cta:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(244, 159, 28, 0.4); }
 
-        /* === HERO SECTION === */
+        /* === HERO SECTION (Cinématographique) === */
         .hero {
             height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             text-align: center;
-            position: relative;
             padding: 0 5%;
-            background: url('https://images.unsplash.com/photo-1528605248644-14dd04022da1?ixlib=rb-4.0.3&auto=format&fit=crop&w=2070&q=80') no-repeat center center/cover;
+            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.2), var(--mt-blue-deep)),
+                        url('https://images.unsplash.com/photo-1517457373958-b7bdd4587205?q=80&w=2069&auto=format&fit=crop') center/cover;
         }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(to bottom, rgba(15, 23, 42, 0.7), var(--dark));
-        }
-
-        .hero-content {
-            position: relative;
-            z-index: 2;
-            max-width: 800px;
-            animation: fadeInUp 1s ease-out;
-        }
+        .hero-content { max-width: 900px; animation: fadeInUp 0.8s ease-out; }
 
         .tagline {
-            color: var(--accent);
+            color: var(--mt-orange);
             text-transform: uppercase;
-            letter-spacing: 2px;
-            font-weight: 700;
-            font-size: 0.9rem;
+            letter-spacing: 3px;
+            font-weight: 600;
+            font-size: 0.8rem;
             margin-bottom: 1rem;
             display: block;
         }
 
         .hero h1 {
-            font-size: 3.5rem;
+            font-size: clamp(2.5rem, 5vw, 4rem);
             line-height: 1.1;
             margin-bottom: 1.5rem;
-            font-weight: 800;
-        }
-
-        .hero h1 span {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-weight: 700;
         }
 
         .hero p {
             font-size: 1.2rem;
             color: var(--text-gray);
             margin-bottom: 2.5rem;
+            max-width: 700px;
+            margin-inline: auto;
         }
 
-        .hero-buttons { display: flex; gap: 1rem; justify-content: center; }
-
-        .btn-hero-primary {
-            background: var(--text-light);
-            color: var(--dark);
-            padding: 1rem 2.5rem;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 1.1rem;
-        }
-        .btn-hero-primary:hover { transform: scale(1.05); }
-
-        .btn-hero-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            color: var(--text-light);
-            padding: 1rem 2.5rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-        }
-        .btn-hero-secondary:hover { background: rgba(255, 255, 255, 0.2); }
-
-        /* === FEATURES GRID === */
-        .features { padding: 5rem 5%; position: relative; }
-        
-        .section-header { text-align: center; margin-bottom: 4rem; }
-        .section-header h2 { font-size: 2.5rem; margin-bottom: 1rem; }
-        .section-header p { color: var(--text-gray); font-size: 1.1rem; }
+        /* === GRID & CARDS (ADN HUB) === */
+        .features { padding: 80px 5%; }
+        .section-header { text-align: center; margin-bottom: 60px; }
+        .section-header h2 { font-size: 2.2rem; margin-bottom: 1rem; }
 
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
         }
 
         .card {
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            padding: 2.5rem;
-            border-radius: 20px;
-            transition: 0.3s;
-            position: relative;
-            overflow: hidden;
+            background: var(--mt-glass);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--mt-glass-border);
+            padding: 40px 30px;
+            border-radius: 24px;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
         
-        .card:hover { transform: translateY(-10px); background: rgba(255, 255, 255, 0.08); }
-        .card:hover .icon { transform: scale(1.1) rotate(5deg); }
+        .card:hover { 
+            transform: translateY(-8px); 
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(244, 159, 28, 0.3);
+        }
 
         .icon {
-            width: 60px; height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 15px;
-            display: flex; align-items: center; justify-content: center;
-            font-size: 1.5rem;
+            font-size: 2rem;
+            color: var(--mt-orange);
             margin-bottom: 1.5rem;
+        }
+
+        /* === PRICING (Synchronisé Hub) === */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        .price-card {
+            background: var(--mt-glass);
+            border-radius: 24px;
+            padding: 30px;
+            border: 1px solid var(--mt-glass-border);
+            text-align: center;
+            position: relative;
+        }
+
+        .price-card.featured { border-color: var(--mt-orange); background: rgba(244, 159, 28, 0.05); }
+        
+        .plan-name { font-weight: 700; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; margin-bottom: 10px; }
+        
+        .price { font-size: 2.5rem; font-weight: 700; margin-bottom: 20px; }
+        .price span { font-size: 1rem; color: var(--text-gray); }
+
+        .btn-plan {
+            display: block;
+            padding: 12px;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            border: 1px solid var(--mt-glass-border);
+            color: white;
             transition: 0.3s;
         }
 
-        .card h3 { font-size: 1.5rem; margin-bottom: 1rem; }
-        .card p { color: var(--text-gray); }
+        .price-card.free .plan-name { color: var(--plan-free); }
+        .price-card.meeting .plan-name { color: var(--plan-meeting); }
+        .price-card.premium .plan-name { color: var(--plan-premium); }
+        .price-card.vip .plan-name { color: var(--plan-vip); }
 
-        /* === EVENT SPOTLIGHT === */
-        .event-spotlight {
-            padding: 5rem 5%;
-            background: linear-gradient(to right, rgba(99, 102, 241, 0.1), transparent);
-            display: flex;
-            align-items: center;
-            gap: 4rem;
-            flex-wrap: wrap;
-        }
-
-        .event-content { flex: 1; min-width: 300px; }
-        .event-visual { 
-            flex: 1; 
-            min-width: 300px; 
-            height: 400px;
-            background: url('https://images.unsplash.com/photo-1543269865-cbf427effbad?ixlib=rb-4.0.3&auto=format&fit=crop&w=1470&q=80') center/cover;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            position: relative;
-        }
-        
-        .event-badge {
-            position: absolute;
-            top: 20px; right: 20px;
-            background: var(--accent);
-            color: white;
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            font-weight: 700;
-            font-size: 0.8rem;
-        }
-
-        /* === FOOTER === */
-        footer {
-            padding: 4rem 5%;
-            border-top: 1px solid var(--glass-border);
-            background: #0b1120;
-            color: var(--text-gray);
-            text-align: center;
-        }
-        
-        .footer-links { margin: 2rem 0; display: flex; justify-content: center; gap: 2rem; }
-        .footer-links a:hover { color: var(--primary); }
+        .price-card.featured .btn-plan { background: var(--mt-orange); color: #111; border: none; }
 
         @keyframes fadeInUp {
             from { opacity: 0; transform: translateY(30px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Mobile Menu Button */
-.mobile-menu-btn {
-    display: none;
-    background: rgba(255, 255, 255, 0.1);
-    border: 1px solid var(--glass-border);
-    color: var(--text-light);
-    padding: 0.6rem 0.8rem;
-    border-radius: 8px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: 0.3s;
-}
+        footer {
+            padding: 60px 5%;
+            text-align: center;
+            border-top: 1px solid var(--mt-glass-border);
+            margin-top: 80px;
+            color: var(--text-gray);
+            font-size: 0.9rem;
+        }
 
-.mobile-menu-btn:hover {
-    background: rgba(255, 255, 255, 0.2);
-}
-
-/* Mobile Nav Links */
-.nav-links.mobile-open {
-    display: flex !important;
-    flex-direction: column;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    right: 0;
-    background: rgba(15, 23, 42, 0.98);
-    backdrop-filter: blur(10px);
-    padding: 1.5rem;
-    gap: 1rem;
-    border-bottom: 1px solid var(--glass-border);
-}
-
-.nav-links.mobile-open .nav-item,
-.nav-links.mobile-open .btn-login,
-.nav-links.mobile-open .btn-cta {
-    text-align: center;
-    padding: 0.8rem;
-}
-
-/* Mobile Responsive */
-@media (max-width: 768px) {
-    .hero h1 { font-size: 2.5rem; }
-    .nav-links { display: none; }
-    .mobile-menu-btn { display: block; }
-    .hero-buttons { flex-direction: column; }
-    .event-spotlight { flex-direction: column-reverse; }
-    .grid { grid-template-columns: 1fr; }
-}
+        @media (max-width: 768px) {
+            .nav-links { display: none; }
+            .hero h1 { font-size: 2.8rem; }
+        }
     </style>
 </head>
 <body>
 
     <nav>
-        <div class="logo">MeeTempo<span style="color:var(--accent)">.</span></div>
+        <div class="logo">MeeTempo<span style="color:var(--mt-orange)">.</span></div>
         <div class="nav-links">
-            <a href="#features" class="nav-item">Comment ça marche</a>
-            <a href="#events" class="nav-item">Événements</a>
+            <a href="#features" class="nav-item">Concept</a>
             <a href="#tarifs" class="nav-item">Offres</a>
-            <a href="login.html" class="btn-login">Connexion</a>
-            <a href="login.html?tab=signup" class="btn-cta">S'inscrire</a>
+            <a href="login.html" class="nav-item">Connexion</a>
+            <a href="login.html?tab=signup" class="btn-cta">Démarrer</a>
         </div>
-        <button id="mobile-menu" class="mobile-menu-btn"><i class="fas fa-bars"></i></button>
     </nav>
 
     <section class="hero">
         <div class="hero-content">
-            <span class="tagline">Bienvenue dans l'ère de l'IA Sociale</span>
-            <h1>L'IA qui provoque des<br><span>Rencontres Réelles</span></h1>
-            <p>MeeTempo "Maestro" ne vous fait pas chatter pendant des heures. Il analyse vos envies, votre contexte et organise votre prochaine rencontre. Maintenant.</p>
-            
-            <div class="hero-buttons">
-                <a href="login.html?tab=signup" class="btn-hero-primary">Commencer l'expérience</a>
-                <a href="#events" class="btn-hero-secondary">Voir les événements</a>
-            </div>
+            <span class="tagline">L'IA qui provoque le réel</span>
+            <h1>Entre deux rendez-vous,<br>le temps devient <span style="color:var(--mt-orange)">opportunité.</span></h1>
+            <p>MeeTempo "Maestro" n'est pas un chat. C'est votre assistant personnel qui analyse votre contexte pour organiser votre prochaine rencontre physique. Maintenant.</p>
+            <a href="login.html?tab=signup" class="btn-cta" style="padding: 1.2rem 2.5rem; font-size: 1.1rem;">Rejoindre le club</a>
         </div>
     </section>
 
     <section id="features" class="features">
         <div class="section-header">
-            <h2>Plus qu'une application</h2>
-            <p>Un assistant personnel dédié à votre vie sociale et professionnelle.</p>
+            <h2>L'ADN MeeTempo</h2>
+            <p>Le réseau social de ceux qui n'ont pas le temps de "scroller".</p>
         </div>
 
         <div class="grid">
             <div class="card">
-                <div class="icon"><i class="fas fa-brain"></i></div>
+                <div class="icon"><i class="fas fa-microchip"></i></div>
                 <h3>Maestro AI</h3>
-                <p>Notre intelligence artificielle comprend qui vous êtes. Dites-lui "Je veux un café avec un entrepreneur tech" et laissez la magie opérer.</p>
+                <p>Une intelligence qui ne vous demande pas de remplir des formulaires, mais qui comprend vos besoins par la discussion.</p>
             </div>
-
             <div class="card">
-                <div class="icon"><i class="fas fa-glass-cheers"></i></div>
-                <h3>Événements Contextuels</h3>
-                <p>Ne soyez plus seul dans un salon pro ou une nouvelle ville. Rejoignez des événements exclusifs et voyez qui est présent en temps réel.</p>
+                <div class="icon"><i class="fas fa-map-marker-alt"></i></div>
+                <h3>Contextuel</h3>
+                <p>Détecte les opportunités autour de vous, que vous soyez à la Défense, à la City ou en transit à St Pancras.</p>
             </div>
-
             <div class="card">
-                <div class="icon"><i class="fas fa-user-shield"></i></div>
-                <h3>Vérifié & Sécurisé</h3>
-                <p>Des profils VIP vérifiés, des entreprises certifiées B2B et une communauté bienveillante grâce à notre charte stricte.</p>
+                <div class="icon"><i class="fas fa-shield-alt"></i></div>
+                <h3>Vérifié</h3>
+                <p>Une communauté sélective. Profils VIP vérifiés et entreprises certifiées pour des échanges de haute qualité.</p>
             </div>
-        </div>
-    </section>
-
-    <section id="events" class="event-spotlight">
-        <div class="event-content">
-            <span style="color:var(--accent); font-weight:700; letter-spacing:1px;">À LA UNE</span>
-            <h2 style="font-size:2.5rem; margin: 1rem 0;">Tech Meetup Paris 2025</h2>
-            <p style="color:var(--text-gray); margin-bottom: 2rem; font-size:1.1rem;">
-                Le rendez-vous incontournable de la fin d'année. <br>
-                <strong>10 Décembre • Station F</strong>
-            </p>
-            <ul style="margin-bottom: 2rem; list-style: none;">
-                <li style="margin-bottom: 0.5rem;"><i class="fas fa-check" style="color:var(--primary); margin-right:10px;"></i> Accès gratuit pour les VIP & B2B</li>
-                <li style="margin-bottom: 0.5rem;"><i class="fas fa-check" style="color:var(--primary); margin-right:10px;"></i> Networking assisté par IA</li>
-                <li style="margin-bottom: 0.5rem;"><i class="fas fa-check" style="color:var(--primary); margin-right:10px;"></i> Espaces privés</li>
-            </ul>
-            <a href="login.html?redirect=event&code=TECHPARIS25" class="btn-cta">Réserver ma place</a>
-        </div>
-        <div class="event-visual">
-            <div class="event-badge">J-3</div>
         </div>
     </section>
 
     <section id="tarifs" class="features">
-    <div class="section-header">
-        <h2>Nos Offres</h2>
-        <p>Choisissez la formule adaptée à vos besoins</p>
-    </div>
-
-    <div class="grid" style="grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));">
-        <div class="card">
-            <div class="icon"><i class="fas fa-user"></i></div>
-            <h3>Free</h3>
-            <p style="font-size: 2rem; font-weight: 700; margin: 1rem 0;">0€</p>
-            <ul style="list-style: none; color: var(--text-gray); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                <li style="margin-bottom: 0.5rem;">✓ 1 suggestion/semaine</li>
-                <li style="margin-bottom: 0.5rem;">✓ Voir la carte</li>
-                <li style="margin-bottom: 0.5rem; opacity: 0.5;">✗ Messagerie</li>
-            </ul>
-            <a href="login.html?tab=signup" style="display: block; text-align: center; padding: 0.8rem; border: 1px solid var(--glass-border); border-radius: 50px; color: var(--text-light);">Commencer</a>
+        <div class="section-header">
+            <h2>Choisissez votre accès</h2>
         </div>
 
-        <div class="card">
-            <div class="icon"><i class="fas fa-handshake"></i></div>
-            <h3>Meeting</h3>
-            <p style="font-size: 2rem; font-weight: 700; margin: 1rem 0;">2,99€<span style="font-size: 0.9rem; color: var(--text-gray);">/24h</span></p>
-            <ul style="list-style: none; color: var(--text-gray); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                <li style="margin-bottom: 0.5rem;">✓ 3 suggestions/24h</li>
-                <li style="margin-bottom: 0.5rem;">✓ 3 demandes/24h</li>
-                <li style="margin-bottom: 0.5rem;">✓ Messagerie activée</li>
-            </ul>
-            <a href="login.html?tab=signup&plan=meeting" style="display: block; text-align: center; padding: 0.8rem; border: 1px solid var(--glass-border); border-radius: 50px; color: var(--text-light);">Choisir</a>
+        <div class="pricing-grid">
+            <div class="price-card free">
+                <div class="plan-name">Free</div>
+                <div class="price">0€</div>
+                <p style="color:var(--text-gray); font-size: 0.9rem;">Visibilité limitée,<br>1 suggestion / semaine.</p>
+                <a href="login.html?tab=signup" class="btn-plan">Essayer</a>
+            </div>
+
+            <div class="price-card meeting">
+                <div class="plan-name">Meeting</div>
+                <div class="price">2,99€<span>/24h</span></div>
+                <p style="color:var(--text-gray); font-size: 0.9rem;">Accès total ponctuel.<br>Idéal pour un salon pro.</p>
+                <a href="login.html?tab=signup&plan=meeting" class="btn-plan">Activer</a>
+            </div>
+
+            <div class="price-card premium featured">
+                <div class="plan-name">Premium</div>
+                <div class="price">15€<span>/mois</span></div>
+                <p style="color:var(--text-gray); font-size: 0.9rem;">Usage illimité.<br>Maestro AI complet.</p>
+                <a href="login.html?tab=signup&plan=premium" class="btn-plan">S'abonner</a>
+            </div>
+
+            <div class="price-card vip">
+                <div class="plan-name">VIP</div>
+                <div class="price">29,99€<span>/mois</span></div>
+                <p style="color:var(--text-gray); font-size: 0.9rem;">Accès aux Events exclusifs<br>et Club VIP.</p>
+                <a href="login.html?tab=signup&plan=vip" class="btn-plan">Devenir VIP</a>
+            </div>
         </div>
 
-        <div class="card" style="border-color: var(--primary); box-shadow: 0 0 30px rgba(99, 102, 241, 0.3); overflow: visible;">
-            <div style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--primary); padding: 0.3rem 1rem; border-radius: 50px; font-size: 0.75rem; font-weight: 700;">POPULAIRE</div>
-            <div class="icon"><i class="fas fa-star"></i></div>
-            <h3>Premium</h3>
-            <p style="font-size: 2rem; font-weight: 700; margin: 1rem 0;">15€<span style="font-size: 0.9rem; color: var(--text-gray);">/mois</span></p>
-            <ul style="list-style: none; color: var(--text-gray); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                <li style="margin-bottom: 0.5rem;">✓ Suggestions illimitées</li>
-                <li style="margin-bottom: 0.5rem;">✓ Demandes illimitées</li>
-                <li style="margin-bottom: 0.5rem;">✓ Messagerie complète</li>
-            </ul>
-            <a href="login.html?tab=signup&plan=premium" class="btn-cta" style="display: block; text-align: center; padding: 0.8rem;">Choisir Premium</a>
+        <div style="margin-top: 40px; background: rgba(52, 211, 153, 0.05); border: 1px solid var(--plan-b2b); border-radius: 24px; padding: 40px; text-align: center;">
+            <h3 style="color:var(--plan-b2b)">🏢 MeeTempo for Business</h3>
+            <p style="margin: 15px 0; color:var(--text-gray)">Optimisez le networking de vos collaborateurs et accédez au dashboard admin.</p>
+            <a href="login.html?tab=company" class="btn-cta" style="background: var(--plan-b2b);">Espace Entreprise</a>
         </div>
-
-        <div class="card" style="border-color: var(--accent);">
-            <div class="icon" style="background: linear-gradient(135deg, var(--accent), #fbbf24);"><i class="fas fa-crown"></i></div>
-            <h3>VIP</h3>
-            <p style="font-size: 2rem; font-weight: 700; margin: 1rem 0;">29,99€<span style="font-size: 0.9rem; color: var(--text-gray);">/mois</span></p>
-            <ul style="list-style: none; color: var(--text-gray); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                <li style="margin-bottom: 0.5rem;">✓ Tout Premium inclus</li>
-                <li style="margin-bottom: 0.5rem;">✓ Créer des Events</li>
-                <li style="margin-bottom: 0.5rem;">✓ Espace VIP exclusif</li>
-            </ul>
-            <a href="login.html?tab=signup&plan=vip" style="display: block; text-align: center; padding: 0.8rem; background: var(--accent); color: #111; border-radius: 50px; font-weight: 600;">Devenir VIP</a>
-        </div>
-    </div>
-
-    <div style="margin-top: 3rem; background: linear-gradient(135deg, rgba(99,102,241,0.15), rgba(168,85,247,0.15)); border: 1px solid rgba(99,102,241,0.3); border-radius: 16px; padding: 2rem; text-align: center;">
-        <h3 style="margin-bottom: 0.5rem;">🏢 Offres Entreprises B2B</h3>
-        <p style="color: var(--text-gray); margin-bottom: 1rem;">Gestion centralisée, tarifs dégressifs, dashboard admin</p>
-        <p style="color: var(--primary); font-weight: 600; margin-bottom: 1.5rem;">À partir de 12,90€ HT/mois par collaborateur</p>
-        <a href="login.html?tab=company" class="btn-cta">Créer votre compte Entreprise gratuitement</a>
-    </div>
-
-    <p style="text-align: center; margin-top: 2rem; color: var(--text-gray);">
-        <a href="pricing.html" style="color: var(--primary);">Voir le détail complet des offres →</a>
-    </p>
     </section>
-<section style="padding: 5rem 5%; text-align: center; background: linear-gradient(to bottom, var(--dark), #1e1b4b);">
-    <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem;">Prêt à changer de rythme ?</h2>
-    <p style="margin-bottom: 2.5rem; color: var(--text-gray);">Rejoignez la communauté MeeTempo dès aujourd'hui.</p>
-    <a href="login.html?tab=signup" class="btn-hero-primary">Créer mon compte gratuit</a>
-</section>
 
     <footer>
-        <div class="logo" style="font-size: 1.5rem; margin-bottom: 1rem;">MeeTempo<span style="color:var(--accent)">.</span></div>
-        <div class="footer-links">
-            <a href="#features">Comment ça marche</a>
-            <a href="privacy.html">Confidentialité</a>
-            <a href="pricing.html">Tarifs</a>
-            <a href="login.html?tab=company">Créer votre compte Entreprise</a>
-        </div>
-        <p>&copy; 2025 MeeTempo. Tous droits réservés.</p>
+        <div class="logo" style="margin-bottom: 20px;">MeeTempo<span style="color:var(--mt-orange)">.</span></div>
+        <p>&copy; 2026 MeeTempo. L'IA qui rapproche les humains.</p>
     </footer>
 
-    <script>
-        // Scroll effect
-window.addEventListener('scroll', () => {
-    const nav = document.querySelector('nav');
-    if (window.scrollY > 50) {
-        nav.style.background = 'rgba(15, 23, 42, 0.95)';
-    } else {
-        nav.style.background = 'rgba(15, 23, 42, 0.8)';
-    }
-});
-
-// Mobile menu toggle
-document.getElementById('mobile-menu').addEventListener('click', () => {
-    const navLinks = document.querySelector('.nav-links');
-    navLinks.classList.toggle('mobile-open');
-});
-
-// Fermer menu si clic sur un lien
-document.querySelectorAll('.nav-links a').forEach(link => {
-    link.addEventListener('click', () => {
-        document.querySelector('.nav-links').classList.remove('mobile-open');
-    });
-});
-    </script>
 </body>
 </html>
