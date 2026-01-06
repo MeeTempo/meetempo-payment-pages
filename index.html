@@ -43,6 +43,17 @@
             overflow-x: hidden;
         }
 
+        /* === STYLE DU LOGO CSS "MT" === */
+        .logo-box-css {
+            width: 40px; height: 40px;
+            background-color: var(--mt-orange);
+            color: #000; /* Lettres en noir pour le contraste */
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 800; font-size: 19px;
+            border-radius: 8px; /* Coins arrondis style Hub */
+            box-shadow: 0 4px 12px rgba(244, 159, 28, 0.3);
+        }
+
         /* === NAVIGATION === */
         nav {
             position: fixed;
@@ -51,10 +62,6 @@
             background: rgba(0, 0, 0, 0.8); backdrop-filter: blur(15px);
             z-index: 1000; border-bottom: 1px solid var(--mt-glass-border);
         }
-
-        .nav-brand { display: flex; align-items: center; gap: 10px; }
-        .nav-logo { height: 40px; border-radius: 8px; }
-        .logo-text { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.5px; }
 
         .nav-links { display: flex; gap: 2rem; align-items: center; }
         .nav-item { font-size: 0.9rem; font-weight: 400; color: var(--text-gray); text-decoration: none; transition: 0.3s; }
@@ -122,6 +129,7 @@
         }
 
         footer { padding: 40px 5%; text-align: center; border-top: 1px solid var(--mt-glass-border); color: var(--text-gray); }
+        .footer-logo-box { display: inline-flex; margin-bottom: 20px; }
 
         @media (max-width: 768px) {
             .nav-links { display: none; }
@@ -133,10 +141,8 @@
 <body>
 
     <nav>
-        <div class="nav-brand">
-            <img src="logo_meetempo-removebg-preview.png" alt="MT Logo" class="nav-logo">
-            <div class="logo-text">MeeTempo</div>
-        </div>
+        <div class="logo-box-css">MT</div>
+        
         <div class="nav-links">
             <a href="#features" class="nav-item">Concept</a>
             <a href="#tarifs" class="nav-item">Offres</a>
@@ -208,9 +214,8 @@
     </section>
 
     <footer>
-        <div class="nav-brand" style="justify-content:center; margin-bottom:15px;">
-            <img src="logo_meetempo-removebg-preview.png" alt="MT Logo" class="nav-logo" style="height:30px;">
-            <div class="logo-text" style="font-size:1.1rem;">MeeTempo</div>
+        <div class="footer-logo-box">
+            <div class="logo-box-css">MT</div>
         </div>
         <p>&copy; 2026 MeeTempo. L'IA qui rapproche les humains.</p>
     </footer>
