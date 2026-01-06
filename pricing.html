@@ -421,6 +421,29 @@
       <h1>💫 Choisissez votre offre</h1>
       <p>Connectez-vous avec les bonnes personnes, au bon moment</p>
     </div>
+    <!-- Offre Fondateur -->
+<div style="background: linear-gradient(135deg, rgba(244,159,28,0.2) 0%, rgba(168,85,247,0.2) 100%); 
+            border: 2px solid var(--mt-accent); 
+            border-radius: 16px; 
+            padding: 24px; 
+            margin-bottom: 30px; 
+            text-align: center;">
+  <div style="font-size: 32px; margin-bottom: 12px;">🎁</div>
+  <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 8px; color: var(--mt-accent);">
+    OFFRE LANCEMENT — 3 MOIS GRATUITS
+  </h2>
+  <p style="color: var(--mt-muted); margin-bottom: 16px; font-size: 15px;">
+    Premium ou VIP • Sans engagement • Résiliable à tout moment
+  </p>
+  <div style="display: inline-block; background: rgba(0,0,0,0.3); border: 2px dashed var(--mt-accent); 
+              border-radius: 10px; padding: 12px 24px; margin-bottom: 12px;">
+    <span style="color: var(--mt-muted); font-size: 13px;">Code promo à utiliser au paiement :</span><br>
+    <span style="font-size: 24px; font-weight: 800; color: var(--mt-accent); letter-spacing: 2px;">FONDATEUR3MOIS</span>
+  </div>
+  <p style="color: var(--mt-muted); font-size: 13px; margin-top: 8px;">
+    ⏳ Places limitées : 500 Paris / 500 Londres
+  </p>
+</div>
         
     
     <!-- Plans Grid -->
@@ -477,7 +500,17 @@
     </div>
     
   </div>
-  
+  <!-- Footer -->
+<footer style="text-align: center; padding: 40px 20px; margin-top: 40px; border-top: 1px solid rgba(255,255,255,0.1);">
+  <p style="color: var(--mt-muted); font-size: 13px; margin-bottom: 8px;">
+    © 2025 MeeTempo — Tous droits réservés
+  </p>
+  <p style="color: rgba(255,255,255,0.4); font-size: 11px;">
+    <a href="privacy.html" style="color: rgba(255,255,255,0.4); text-decoration: none;">Politique de confidentialité</a> 
+    • 
+    <a href="cgu.html" style="color: rgba(255,255,255,0.4); text-decoration: none;">CGU</a>
+  </p>
+</footer>  
   <script>
     const API_BASE = 'https://api.meetempo.com';
     const params = new URLSearchParams(location.search);
@@ -685,6 +718,7 @@
               <span class="price-amount">${plan.price}</span>
               <span class="price-period">${plan.period}</span>
             </div>
+            ${(plan.id === 'premium' || plan.id === 'vip') ? '<div style="font-size: 11px; color: #23c55e; margin-top: 4px;">✓ Sans engagement</div>' : ''}
             <ul class="plan-features">
               ${featuresHTML}
             </ul>
