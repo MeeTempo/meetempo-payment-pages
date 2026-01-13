@@ -645,6 +645,9 @@
             <button class="nav-tab" data-tab="events">
                 <i class="fas fa-calendar-alt"></i> Events
             </button>
+            <button class="nav-tab" data-tab="founders">
+                <i class="fas fa-gift"></i> Fondateurs
+            </button>
         </nav>
 
         <!-- Content -->
@@ -1064,7 +1067,71 @@
                     </div>
                 </div>
             </div>
-
+            <!-- ===== TAB: FONDATEURS ===== -->
+            <div class="tab-panel" id="tab-founders">
+                
+                <!-- Jauge principale -->
+                <div class="quota-section" style="border-color: var(--mt-accent);">
+                    <div class="quota-header">
+                        <span class="quota-title">🎁 Offre Fondateur - 1 an gratuit</span>
+                        <span id="founderOfferStatus" class="badge badge-success">Active</span>
+                    </div>
+                    <div class="quota-bar-container">
+                        <div class="quota-bar" id="founderQuotaBar" style="width: 0%; background: linear-gradient(90deg, #10b981, #f97316);"></div>
+                    </div>
+                    <div class="quota-labels">
+                        <span id="founderQuotaUsed">0 / 2000 places</span>
+                        <span id="founderQuotaRemaining">2000 places restantes</span>
+                    </div>
+                </div>
+                
+                <!-- Stats cards -->
+                <div class="stats-grid" style="margin-bottom: 24px;">
+                    <div class="stat-card accent">
+                        <div class="stat-label">Total Fondateurs</div>
+                        <div class="stat-value" id="founderTotalCount">-</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-label">Premium Fondateurs</div>
+                        <div class="stat-value" id="founderPremiumCount">-</div>
+                    </div>
+                    <div class="stat-card" style="border-color: #fbbf24;">
+                        <div class="stat-label">VIP Fondateurs</div>
+                        <div class="stat-value" id="founderVipCount">-</div>
+                    </div>
+                    <div class="stat-card info">
+                        <div class="stat-label">Places restantes</div>
+                        <div class="stat-value" id="founderRemainingCount">-</div>
+                    </div>
+                </div>
+                
+                <!-- Derniers inscrits -->
+                <div class="table-container">
+                    <div class="table-header">
+                        <span class="table-title">Derniers inscrits Fondateurs</span>
+                        <button class="btn btn-secondary btn-sm" onclick="loadFounderStats()">
+                            <i class="fas fa-sync"></i> Rafraîchir
+                        </button>
+                    </div>
+                    <div style="overflow-x: auto;">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Email</th>
+                                    <th>Pseudo</th>
+                                    <th>Plan</th>
+                                    <th>Expire le</th>
+                                    <th>Inscrit le</th>
+                                </tr>
+                            </thead>
+                            <tbody id="foundersTable">
+                                <tr><td colspan="5" class="loading"><div class="spinner"></div> Chargement...</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                
+            </div>
         </main>
     </div>
 
@@ -1161,15 +1228,16 @@
 
         // ===== LOAD ALL DATA =====
         function loadAllData() {
-            loadStats();
-            loadWaitlist();
-            loadVipCandidates();
-            loadQuotas();
-            loadUsers();
-            loadCompanies();
-            loadB2BMembers();
-            loadEvents();
-        }
+    loadStats();
+    loadWaitlist();
+    loadVipCandidates();
+    loadQuotas();
+    loadUsers();
+    loadCompanies();
+    loadB2BMembers();
+    loadEvents();
+    loadFounderStats();
+}
 
         // ===== STATS =====
         async function loadStats() {
@@ -1897,6 +1965,76 @@ async function loadEvents() {
         
     } catch (err) {
         console.error('Erreur loadEvents:', err);
+    }
+}
+
+// ===== FOUNDER STATS =====
+async function loadFounderStats() {
+    try {
+        const res = await fetch(`${API_BASE}/admin/founder-stats?admin_token=${adminToken}`);
+        const data = await res.json();
+        
+        if (!res.ok) {
+            console.error('Erreur loadFounderStats:', data.error);
+            return;
+        }
+        
+        // Jauge
+        const percent = data.offer.percent_used || 0;
+        document.getElementById('founderQuotaBar').style.width = `${percent}%`;
+        document.getElementById('founderQuotaUsed').textContent = `${data.offer.count} / ${data.offer.limit} places`;
+        document.getElementById('founderQuotaRemaining').textContent = `${data.offer.remaining} places restantes`;
+        
+        // Status badge
+        const statusBadge = document.getElementById('founderOfferStatus');
+        if (data.offer.is_active) {
+            statusBadge.textContent = 'Active';
+            statusBadge.className = 'badge badge-success';
+        } else {
+            statusBadge.textContent = 'Épuisée';
+            statusBadge.className = 'badge badge-danger';
+        }
+        
+        // Stats cards
+        document.getElementById('founderTotalCount').textContent = data.total_founders || 0;
+        document.getElementById('founderPremiumCount').textContent = data.by_plan?.premium || 0;
+        document.getElementById('founderVipCount').textContent = data.by_plan?.vip || 0;
+        document.getElementById('founderRemainingCount').textContent = data.offer.remaining || 0;
+        
+        // Table des derniers inscrits
+        const tbody = document.getElementById('foundersTable');
+        
+        if (!data.recent_founders || data.recent_founders.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--mt-muted);padding:40px;">Aucun inscrit Fondateur</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = data.recent_founders.map(f => {
+            const planBadge = f.plan === 'vip' 
+                ? '<span class="badge badge-vip">VIP</span>' 
+                : '<span class="badge badge-success">Premium</span>';
+            
+            const expiresDate = f.plan_expires 
+                ? new Date(f.plan_expires).toLocaleDateString('fr-FR') 
+                : '-';
+            
+            const createdDate = f.created_at 
+                ? new Date(f.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) 
+                : '-';
+            
+            return `
+                <tr>
+                    <td>${f.email || '-'}</td>
+                    <td>${f.anonymous_display || '-'}</td>
+                    <td>${planBadge}</td>
+                    <td>${expiresDate}</td>
+                    <td>${createdDate}</td>
+                </tr>
+            `;
+        }).join('');
+        
+    } catch (err) {
+        console.error('Erreur loadFounderStats:', err);
     }
 }
     </script>
