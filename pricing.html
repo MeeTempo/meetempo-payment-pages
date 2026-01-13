@@ -440,18 +440,18 @@
             text-align: center;">
   <div style="font-size: 32px; margin-bottom: 12px;">🎁</div>
   <h2 style="font-size: 22px; font-weight: 700; margin-bottom: 8px; color: var(--mt-accent);">
-    OFFRE LANCEMENT — 3 MOIS GRATUITS
+    ACCÈS FONDATEUR — 1 AN GRATUIT
   </h2>
   <p style="color: var(--mt-muted); margin-bottom: 16px; font-size: 15px;">
-    Premium ou VIP • Sans engagement • Résiliable à tout moment
+    Sans carte bancaire • Sans engagement
   </p>
   <div style="display: inline-block; background: rgba(0,0,0,0.3); border: 2px dashed var(--mt-accent); 
-              border-radius: 10px; padding: 12px 24px; margin-bottom: 12px;">
-    <span style="color: var(--mt-muted); font-size: 13px;">Code promo à utiliser au paiement :</span><br>
-    <span style="font-size: 24px; font-weight: 800; color: var(--mt-accent); letter-spacing: 2px;">FONDATEUR3MOIS</span>
-  </div>
+            border-radius: 10px; padding: 12px 24px; margin-bottom: 12px;">
+    <span style="font-size: 24px; font-weight: 800; color: var(--mt-accent);">🏆 2000 PREMIERS</span><br>
+    <span style="color: var(--mt-muted); font-size: 13px;">Membre Fondateur • Accès complet gratuit</span>
+</div>
   <p style="color: var(--mt-muted); font-size: 13px; margin-top: 8px;">
-    ⏳ Places limitées : 500 Paris / 500 Londres
+    ⏳ Offre limitée aux 2000 premiers inscrits
   </p>
 </div>
         
@@ -523,7 +523,15 @@
 </footer>  
   <script>
     const API_BASE = 'https://api.meetempo.com';
-    const params = new URLSearchParams(location.search);
+const params = new URLSearchParams(location.search);
+
+// ============================================
+// 🎛️ OFFRE FONDATEUR - SWITCH ON/OFF
+// Mettre à false pour réactiver Stripe
+// ============================================
+const FOUNDER_OFFER_ACTIVE = true;
+const FOUNDER_OFFER_MESSAGE = "🎁 Offre Fondateur : inscrivez-vous gratuitement pour bénéficier d'1 an Premium offert !";
+// ============================================
     const session_token = params.get('session_token') || params.get('token') || localStorage.getItem('session_token');
     
     let userData = null;
@@ -740,6 +748,21 @@
     
     // Sélectionner un plan (Meeting ou Premium)
     async function selectPlan(planId) {
+      
+      // 🎁 OFFRE FONDATEUR : Redirection vers inscription gratuite
+      if (FOUNDER_OFFER_ACTIVE && (planId === 'premium' || planId === 'meeting')) {
+        // Si pas connecté → inscription
+        if (!session_token) {
+          window.location.href = 'login.html?tab=signup&plan=' + planId;
+          return;
+        }
+        // Si connecté → afficher message
+        alert(FOUNDER_OFFER_MESSAGE);
+        window.location.href = 'login.html?tab=signup';
+        return;
+      }
+      
+      // 💳 MODE NORMAL : Stripe
       showLoading(true);
       
       try {
@@ -795,21 +818,37 @@ function checkVipEligibility() {
   else if (vipEligible === true) {
     icon.textContent = '👑';
     title.textContent = 'Bienvenue dans le club VIP !';
-    message.textContent = `Félicitations ! Votre score de ${vipScore}/100 vous rend éligible à l'offre VIP. Profitez d'un accès complet à tous les membres et fonctionnalités exclusives.`;
-    actions.innerHTML = `
-      <button class="modal-btn vip" onclick="selectPlan('vip')">Activer VIP - 29,99€/mois</button>
-      <button class="modal-btn secondary" onclick="closeModal()">Plus tard</button>
-    `;
+    if (FOUNDER_OFFER_ACTIVE) {
+      message.textContent = `Félicitations ! Votre score de ${vipScore}/100 vous rend éligible à l'offre VIP. Offre Fondateur : accès VIP gratuit pendant 1 an !`;
+      actions.innerHTML = `
+        <button class="modal-btn vip" onclick="activateVipFounder()">👑 Activer VIP gratuitement</button>
+        <button class="modal-btn secondary" onclick="closeModal()">Plus tard</button>
+      `;
+    } else {
+      message.textContent = `Félicitations ! Votre score de ${vipScore}/100 vous rend éligible à l'offre VIP. Profitez d'un accès complet à tous les membres et fonctionnalités exclusives.`;
+      actions.innerHTML = `
+        <button class="modal-btn vip" onclick="selectPlan('vip')">Activer VIP - 29,99€/mois</button>
+        <button class="modal-btn secondary" onclick="closeModal()">Plus tard</button>
+      `;
+    }
   }
   // Cas 3 : Approuvé manuellement par admin
   else if (vipManuallyApproved === true) {
     icon.textContent = '🎉';
     title.textContent = 'Candidature approuvée !';
-    message.textContent = 'Votre candidature VIP a été approuvée par notre équipe. Vous pouvez maintenant activer votre abonnement VIP.';
-    actions.innerHTML = `
-      <button class="modal-btn vip" onclick="selectPlan('vip')">Activer VIP - 29,99€/mois</button>
-      <button class="modal-btn secondary" onclick="closeModal()">Plus tard</button>
-    `;
+    if (FOUNDER_OFFER_ACTIVE) {
+      message.textContent = 'Votre candidature VIP a été approuvée ! Offre Fondateur : activez votre accès VIP gratuitement pendant 1 an.';
+      actions.innerHTML = `
+        <button class="modal-btn vip" onclick="activateVipFounder()">👑 Activer VIP gratuitement</button>
+        <button class="modal-btn secondary" onclick="closeModal()">Plus tard</button>
+      `;
+    } else {
+      message.textContent = 'Votre candidature VIP a été approuvée par notre équipe. Vous pouvez maintenant activer votre abonnement VIP.';
+      actions.innerHTML = `
+        <button class="modal-btn vip" onclick="selectPlan('vip')">Activer VIP - 29,99€/mois</button>
+        <button class="modal-btn secondary" onclick="closeModal()">Plus tard</button>
+      `;
+    }
   }
   // Cas 4 : Candidature déjà en cours
   else if (vipApplied === true && vipManuallyApproved === null) {
@@ -855,11 +894,19 @@ function checkVipEligibility() {
   else {
     icon.textContent = '⭐';
     title.textContent = 'Passez Premium d\'abord';
-    message.textContent = `L'offre VIP est réservée aux membres Premium avec un profil validé. Passez Premium pour débloquer la candidature VIP et profiter de toutes les fonctionnalités.`;
-    actions.innerHTML = `
-      <button class="modal-btn primary" onclick="selectPlan('premium')">Choisir Premium - 15€/mois</button>
-      <button class="modal-btn secondary" onclick="closeModal()">Annuler</button>
-    `;
+    if (FOUNDER_OFFER_ACTIVE) {
+      message.textContent = `L'offre VIP est réservée aux membres Premium. Bonne nouvelle : avec l'offre Fondateur, passez Premium gratuitement pendant 1 an !`;
+      actions.innerHTML = `
+        <button class="modal-btn primary" onclick="window.location.href='login.html?tab=signup'">Inscription gratuite Premium</button>
+        <button class="modal-btn secondary" onclick="closeModal()">Annuler</button>
+      `;
+    } else {
+      message.textContent = `L'offre VIP est réservée aux membres Premium avec un profil validé. Passez Premium pour débloquer la candidature VIP et profiter de toutes les fonctionnalités.`;
+      actions.innerHTML = `
+        <button class="modal-btn primary" onclick="selectPlan('premium')">Choisir Premium - 15€/mois</button>
+        <button class="modal-btn secondary" onclick="closeModal()">Annuler</button>
+      `;
+    }
   }
   
   modal.classList.add('show');
@@ -924,6 +971,47 @@ async function applyForVip() {
   }
 }
     
+    // 🎁 Activer VIP gratuitement (Offre Fondateur)
+    async function activateVipFounder() {
+      showLoading(true);
+      
+      try {
+        const response = await fetch(`${API_BASE}/founder/activate-vip`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            session_token: session_token
+          })
+        });
+        
+        const data = await response.json();
+        
+        showLoading(false);
+        
+        if (!response.ok) {
+          throw new Error(data.error || 'Erreur activation VIP');
+        }
+        
+        // Succès
+        const icon = document.getElementById('modalIcon');
+        const title = document.getElementById('modalTitle');
+        const message = document.getElementById('modalMessage');
+        const actions = document.getElementById('modalActions');
+        
+        icon.textContent = '🎉';
+        title.textContent = 'Bienvenue VIP !';
+        message.innerHTML = `Votre accès VIP est maintenant actif pour 1 an.<br><br>Profitez de toutes les fonctionnalités exclusives !`;
+        actions.innerHTML = `
+          <button class="modal-btn vip" onclick="window.location.href='hub.html?session_token=${session_token}'">Accéder au Hub</button>
+        `;
+        
+      } catch (err) {
+        console.error('Erreur activation VIP:', err);
+        showLoading(false);
+        alert('❌ Erreur : ' + err.message);
+      }
+    }
+
     function closeModal() {
       document.getElementById('vipModal').classList.remove('show');
     }
