@@ -1118,7 +1118,10 @@
                             <thead>
                                 <tr>
                                     <th>Email</th>
+                                    <th>Nom</th>
                                     <th>Pseudo</th>
+                                    <th>Ville</th>
+                                    <th>Pays</th>
                                     <th>Plan</th>
                                     <th>Expire le</th>
                                     <th>Inscrit le</th>
@@ -2010,28 +2013,31 @@ async function loadFounderStats() {
         }
         
         tbody.innerHTML = data.recent_founders.map(f => {
-            const planBadge = f.plan === 'vip' 
-                ? '<span class="badge badge-vip">VIP</span>' 
-                : '<span class="badge badge-success">Premium</span>';
-            
-            const expiresDate = f.plan_expires 
-                ? new Date(f.plan_expires).toLocaleDateString('fr-FR') 
-                : '-';
-            
-            const createdDate = f.created_at 
-                ? new Date(f.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) 
-                : '-';
-            
-            return `
-                <tr>
-                    <td>${f.email || '-'}</td>
-                    <td>${f.anonymous_display || '-'}</td>
-                    <td>${planBadge}</td>
-                    <td>${expiresDate}</td>
-                    <td>${createdDate}</td>
-                </tr>
-            `;
-        }).join('');
+    const planBadge = f.plan === 'vip' 
+        ? '<span class="badge badge-vip">VIP</span>' 
+        : '<span class="badge badge-success">Premium</span>';
+    
+    const expiresDate = f.plan_expires 
+        ? new Date(f.plan_expires).toLocaleDateString('fr-FR') 
+        : '-';
+    
+    const createdDate = f.created_at 
+        ? new Date(f.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', year: '2-digit', hour: '2-digit', minute: '2-digit' }) 
+        : '-';
+    
+    return `
+        <tr>
+            <td>${f.email || '-'}</td>
+            <td>${f.name || '-'}</td>
+            <td>${f.anonymous_display || '-'}</td>
+            <td>${f.city || '-'}</td>
+            <td>${f.country || '-'}</td>
+            <td>${planBadge}</td>
+            <td>${expiresDate}</td>
+            <td>${createdDate}</td>
+        </tr>
+    `;
+}).join('');
         
     } catch (err) {
         console.error('Erreur loadFounderStats:', err);
